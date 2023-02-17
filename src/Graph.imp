@@ -1,0 +1,171 @@
+///////////////////////////////////////
+//Implementation for GraphGen class
+//
+//
+
+template< class UnitType >
+void GraphGen< UnitType >::createGraph() {
+	//ensure image is allocated
+	if( !image.isAllocated() ) {
+		image.allocate();
+	}
+	image.clearImage();
+	
+	//set alpha
+	for( int x = 0; x < image.sizeX * image.sizeY; ++x ) {
+		int p = x * 4;
+		
+		//TODO add alpha value to graph class
+		image.data[p+3] = 100;
+	}
+	
+	calcDataWidthPerPixel();
+	calcDataHeightPerPixel();
+
+		//placeGrid_x();
+	placeGrid_y();
+
+	placeAxis_x();
+		//placeAxis_y();
+
+	placePlotData();
+
+	imageGenerated = true;	
+}
+
+template< class UnitType >
+void GraphGen< UnitType >::placeAxis_x() {
+	lineDrawer.color = axisColor;
+	lineDrawer.dotted = false;
+	
+	//if x axis does not fall in windowed area then return
+	if ( startPos_y > 0 ) {
+		return;	
+	}
+	
+	//calculate x axis position
+	int xAxisPos = findNearestPixel_y( 0 );
+	
+	lineDrawer.pos = Vec2d(  0, this->getPixelHeight() - xAxisPos - 1 );
+	lineDrawer.end = Vec2d( this->getPixelWidth() - 1, this->getPixelHeight() - xAxisPos - 1);
+	lineDrawer.draw();
+}
+
+template< class UnitType >
+void GraphGen< UnitType >::placeAxis_y() {
+	lineDrawer.color = axisColor;
+	lineDrawer.dotted = false;
+	
+	lineDrawer.pos = Vec2d(  0, 0 );
+	lineDrawer.end = Vec2d( 0, this->getPixelHeight() - 1 );
+	lineDrawer.draw();
+}
+
+template< class UnitType >
+void GraphGen< UnitType >::calcDataWidthPerPixel() {
+	float totalSamples = (float)endPos_x - startPos_x;
+	float totalPixels = (float)this->getPixelWidth();
+	dataWidthPerPixel = totalSamples / totalPixels;
+}
+
+template< class UnitType >
+int GraphGen< UnitType >::findNearestPixel_x( int dataPos ) {
+	return (int)(( dataPos - startPos_x )  / dataWidthPerPixel );
+}
+
+template< class UnitType >
+void GraphGen< UnitType >::calcDataHeightPerPixel() {
+	float totalSamples = (float)endPos_y - startPos_y;
+	float totalPixels = (float)this->getPixelHeight();
+	dataHeightPerPixel = totalSamples / totalPixels;
+}
+
+
+template< class UnitType >
+int GraphGen< UnitType >::findNearestPixel_y( UnitType dataPos ) {
+	return (int)(( dataPos - startPos_y )  / dataHeightPerPixel );
+}
+	
+template< class UnitType >
+void GraphGen< UnitType >::placeGrid_x() {
+	if( !drawGrid_x ) {
+		return;
+	}
+	
+	//calculate line pos for first line
+	int startPosData = ( ( startPos_x / gridSize_x ) + 1 ) * gridSize_x;
+
+	//convert to pixel coordinate
+	int startPosPixel = findNearestPixel_x( startPosData );
+
+	Vec2d drawPos( 0, 0 );
+
+	//draw verticle line every "gridSize_x" data positions
+	for( int i = startPosData; i < endPos_x; i += gridSize_x ) {
+		int pixelPos = findNearestPixel_x( i );
+		drawPos.x = pixelPos;
+		lineDrawer.drawVerticle( &drawPos, this->getPixelHeight(), &gridColor );
+	}
+}
+
+template< class UnitType >
+void GraphGen< UnitType >::placeGrid_y() {
+	if( !drawGrid_y ) {
+		return;
+	}
+	//calculate line pos for first line
+	UnitType startPosData = ( ( startPos_y / gridSize_y ) + 1 ) * gridSize_y;
+
+	//convert to pixel coordinate
+	int startPosPixel = findNearestPixel_y( startPosData );
+
+	Vec2d drawPos( 0, this->getPixelHeight() );	
+	
+	//draw horizontal line every "gridSize_y" data positions
+	for( UnitType i = endPos_y - gridSize_y; ;  ) {
+		int pixelPos = findNearestPixel_y( i );
+		
+		drawPos.y = pixelPos;
+		
+		lineDrawer.drawHorizontal( &drawPos, this->getPixelWidth()-1, &gridColor );
+		
+		if( ( i - gridSize_y )  < startPos_y ) {
+			break;
+		}
+		
+		i -= gridSize_y;
+	}
+}
+
+template< class UnitType >
+void GraphGen< UnitType >::placePlotData() {
+	pointDrawer.color = lineColor;
+	
+		
+	//TODO calculate average dataVal
+	
+	//slow method - renders every data val
+	for( int x = startPos_x; x < endPos_x; ++x ) {
+		UnitType dataVal = dataBuffer[ x ];
+		pointDrawer.pos.x = findNearestPixel_x( x );
+		pointDrawer.pos.y = this->getPixelHeight() - findNearestPixel_y( dataVal ) - 1;
+		
+		if( dataVal > endPos_y ) continue;
+			
+		pointDrawer.draw();
+	}
+	
+}
+
+/*
+	
+	
+	for( int x = 0; x < this->getPixelWidth(); ++x ) {
+		UnitType dataVal = dataBuffer[ (int)( x * dataWidthPerPixel ) ];
+		
+		pointDrawer.pos.x = x;
+		pointDrawer.pos.y = this->getPixelHeight() - findNearestPixel_y( dataVal ) - 1;
+		
+		pointDrawer.draw();
+	}
+*/

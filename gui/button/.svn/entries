@@ -1,0 +1,114 @@
+8
+
+dir
+103
+svn://localhost/nes_em/gui/button
+svn://localhost/nes_em
+
+
+
+2007-09-01T14:22:38.386684Z
+9
+corry
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+1e991c12-c25c-9f42-bb4b-f1afa5ef0795
+
+close.bmp
+file
+
+
+
+
+2007-09-01T14:23:23.215846Z
+12eeb189585dceef5fd20b30b39a579c
+2007-09-01T14:22:38.386684Z
+9
+corry
+has-props
+
+up
+dir
+
+button.gt
+file
+
+
+
+
+2007-09-01T14:23:23.217799Z
+4d8aca0506facb549efc02bf3c77ecd0
+2007-09-01T14:22:38.386684Z
+9
+corry
+
+x.bmp
+file
+
+
+
+
+2007-09-01T14:23:23.219752Z
+ae5b4fe68f90186c94a380e4d5242955
+2007-09-01T14:22:38.386684Z
+9
+corry
+has-props
+
+close
+dir
+
+down
+dir
+
+rightborder.bmp
+file
+
+
+
+
+2007-09-01T14:23:23.223658Z
+91511338960b11fbeced517eb89d6c24
+2007-09-01T14:22:38.386684Z
+9
+corry
+has-props
+
+closedown.bmp
+file
+
+
+
+
+2007-09-01T14:23:23.225611Z
+614742b9aca4890e9afae0d8c2005db4
+2007-09-01T14:22:38.386684Z
+9
+corry
+has-props
+
+toprightborder.bmp
+file
+
+
+
+
+2007-09-01T14:23:23.228541Z
+91511338960b11fbeced517eb89d6c24
+2007-09-01T14:22:38.386684Z
+9
+corry
+has-props
+

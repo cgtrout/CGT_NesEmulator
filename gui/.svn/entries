@@ -1,0 +1,49 @@
+8
+
+dir
+103
+svn://localhost/nes_em/gui
+svn://localhost/nes_em
+
+
+
+2008-04-02T03:54:54.025427Z
+100
+corry
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+1e991c12-c25c-9f42-bb4b-f1afa5ef0795
+
+console
+dir
+
+titlebar
+dir
+
+dialogbox
+dir
+
+sliderX
+dir
+
+button
+dir
+
+sliderY
+dir
+
+editbox
+dir
+

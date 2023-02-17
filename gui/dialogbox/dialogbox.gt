@@ -1,0 +1,6 @@
+left border 		"gui/dialogbox/lborder.bmp"
+right border		"gui/dialogbox/rborder.bmp"	
+bottom left corner 	"gui/dialogbox/blcorner.bmp"
+bottom right corner	"gui/dialogbox/brcorner.bmp"
+bottom border		"gui/dialogbox/bborder.bmp"	
+background		"gui/dialogbox/background.bmp"	
