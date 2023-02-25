@@ -497,7 +497,7 @@ void ConsoleSystem::printMessage( const char *message, ... ) {
 		}
 		else {
 			strncpy( tbuf, ptr, size );
-			tbuf[ size ] = '\0';
+			tbuf[ size-1 ] = '\0';
 			size = 0;
 		}	
 		history.writeLine( tbuf );
