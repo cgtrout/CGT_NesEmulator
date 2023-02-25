@@ -55,6 +55,8 @@ namespace FrontEnd {
 		  
 		friend Singleton< SystemMain >;
 		
+		void initialize( );
+
 		//sets up and starts the class
 		void start();
 		

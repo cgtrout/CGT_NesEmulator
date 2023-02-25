@@ -53,6 +53,17 @@ SystemMain::SystemMain() {
 	input->setUseDelay( true );
 }
 
+void SystemMain::initialize( ) {
+	gui.initialize( );
+	nesMain.nesCpu.initialize( );
+	nesMain.nesMemory.initialize( );
+	nesMain.nesPpu.initialize( );
+	nesMain.nesPpu.scanlineDrawer.initialize( );
+	nesMain.nesPpu.initialize( );
+	guiTimeProfiler.initialize( );
+
+}
+
 /*
 ==============================================
 SystemMain::~SystemMain()

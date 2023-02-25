@@ -165,17 +165,9 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 
 	//initialize anything that needs to be initialized
 	//this is to control initialization on objects to avoid problems with singleton initialization
-	consoleSystem = &systemMain->consoleSystem;
-	systemMain->gui.initialize( );
-	systemMain->nesMain.nesCpu.initialize( );
-	systemMain->nesMain.nesMemory.initialize( );
-	systemMain->nesMain.nesPpu.initialize( );
-	systemMain->nesMain.nesPpu.scanlineDrawer.initialize( );
-	systemMain->nesMain.nesPpu.initialize( );
-	systemMain->guiTimeProfiler.initialize( );
-
 	
-
+	consoleSystem = &systemMain->consoleSystem;
+	systemMain->initialize( );
 	systemMain->renderer.setRes( XRES, YRES );
 	
 	//assign soundsystem
