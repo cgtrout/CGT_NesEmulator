@@ -7,6 +7,8 @@ namespace GUISystem {
 		GuiTimeProfiler();
 		GuiTimeProfiler( std::string guitextures );
 
+		void initialize( );
+
 		virtual ~GuiTimeProfiler();
 		
 		void onLeftMouseDown();
@@ -23,7 +25,7 @@ namespace GUISystem {
 		void setX ( GuiDim val );
 		void setY ( GuiDim val );
 
-		void setReportString( string val );
+		void setReportString( std::string val );
 
 	  private:
 		
@@ -31,7 +33,7 @@ namespace GUISystem {
 		GUISystem::GEDrawElement background;
 		
 		//string with formatted profile data
-		string reportString;
+		std::string reportString;
 
 		GUISystem::Font font;
 

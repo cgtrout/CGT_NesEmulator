@@ -12,7 +12,7 @@ namespace CgtString {
 	//converts a std::string to lower case
 	std::string toLower( std::string *s );
 
-	using namespace std;
+	
 
 	/*
 	================================================================
@@ -27,11 +27,11 @@ namespace CgtString {
 	class StringTokenizer {
 	public:
 		// Set delimiters
-		void setDelims( string d ) { delims = d; }
+		void setDelims( std::string d ) { delims = d; }
 
 		// tokenizes a string and returns a vector of strings
 		// "string*"  string to tokenize
-		vector< string* > *tokenize( string* );
+		std::vector< std::string* > *tokenize(std::string* );
 
 		// setMinTokens - set min number of tokens to return
 		//
@@ -58,8 +58,8 @@ namespace CgtString {
 		void setMaxTokens( int v ) { maxTokens = v; }
 
 	private:
-		vector< string* > strings;
-		string delims;
+		std::vector< std::string* > strings;
+		std::string delims;
 
 		int minTokens;
 		int maxTokens;

@@ -12,17 +12,14 @@ typedef short word;
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
 
-#include "NesCpuCore.h"
-#include "NesFileLoader.h"
-#include "NesEmulatorFlagSystem.h"
-#include "GLRenderer.h"
-#include "NesController.h"
-
 #ifndef LIGHT_BUILD
 	#include "NesDebugger.h"
 #endif
 
+//#include "NesFileLoader.h"
+#include "NesController.h"
 #include "NesSound.h"
+#include "NesCpuCore.h"
 
 namespace NesEmulator {
 	/*
@@ -62,8 +59,10 @@ namespace NesEmulator {
 
 		NesApu::NesSound					nesApu;
 
+	#ifndef LIGHT_BUILD
 		NesEmulator::NesDebugger			nesDebugger;
-
+	#endif
+		
 		void setState ( States s ) { state = s; }
 		States getState() { return state; }
 	  private:

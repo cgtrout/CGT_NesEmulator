@@ -6,6 +6,10 @@
 #if !defined( AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_ )
 #define AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_
 
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
 #include < list >
 #include "Image.h"
 
@@ -109,7 +113,7 @@ namespace GUISystem {
 		//initialize exception class
 		class GUITexturesLoadException {
 		  public:
-			GUITexturesLoadException( string header, string m, bool s = true ) {
+			GUITexturesLoadException( std::string header, std::string m, bool s = true ) {
 				::CgtException( header, m, s );
 			}
 		};
@@ -226,7 +230,7 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIElementInitializeException : public CgtException {
 		public:
-			GUIElementInitializeException( string header, string m, bool s = true ) {
+			GUIElementInitializeException(std::string header, std::string m, bool s = true ) {
 				::CgtException( header, m, s );
 			}
 		};
@@ -300,7 +304,7 @@ namespace GUISystem {
 		//current coordinates
 		TextureCoord currCoord;
 
-		vector< TextureCoord > coordTable;
+		std::vector< TextureCoord > coordTable;
 
 		Image *image;
 		unsigned int imageid;
@@ -376,9 +380,9 @@ namespace GUISystem {
 		void setY( GuiDim val );
 
 		//fills text labels with multi-lined string "in"
-		bool fillLines( string in );
+		bool fillLines( std::string in );
 	private:
-		vector< TextLabel* > lines;
+		std::vector< TextLabel* > lines;
 		Font font;
 
 		GuiDim yaddPos;	//current y position (of next 
@@ -680,12 +684,14 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIRunException : public CgtException {
 		public:
-			GUIRunException( string header, string m, bool s = true ) {
+			GUIRunException( std::string header, std::string m, bool s = true ) {
 				::CgtException( header, m, s );
 			}
 		};
 		GUI();
 		virtual ~GUI();
+
+		void initialize( );
 
 	private:
 		std::list< GUIElement* > elements;

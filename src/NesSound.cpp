@@ -91,7 +91,7 @@ void NesSoundBuffer::fillExternalBuffer( word *ptr, int size ) {
 			_log->Write( "playPos at end = %d ", playPos );			
 		}
 	}
-	catch( exception ) {
+	catch( std::exception ) {
 		//TODO handle this better
 		_log->Write( "Exception generated in NesSoundBuffer::fillExternalBuffer" );
 	}

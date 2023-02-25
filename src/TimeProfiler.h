@@ -5,7 +5,7 @@
 #include <string>
 
 namespace FrontEnd {
-	using namespace std;
+	
 	
 	const int TIMED_SECTION_SAMPLES = 60;
 	
@@ -24,7 +24,7 @@ namespace FrontEnd {
 	*/
 	class TimedSection {
 	  public:
-		TimedSection( string name );
+		TimedSection( std::string name );
 		void start( float time );
 		void stop( float time );
 		
@@ -38,7 +38,7 @@ namespace FrontEnd {
 		//is this section still being timed?
 		bool isActive() { return activeFrame; }
 
-		string &getName() { return name; }
+		std::string &getName() { return name; }
 
 		void addPercentSample( float sample, int index );
 		void addTimeSample( float sample, int index );
@@ -56,7 +56,7 @@ namespace FrontEnd {
 		float elapsedTime;
 		float usagePercentAvg[ TIMED_SECTION_SAMPLES ];
 		float timeAvg[ TIMED_SECTION_SAMPLES ];
-		string name;
+		std::string name;
 	};
 
 	/*
@@ -76,17 +76,17 @@ namespace FrontEnd {
 		void stopFrame();
 		
 		//add section to main timedSections list
-		void addSection( string name );
+		void addSection( std::string name );
 		
 		//clear all sections in list
 		void clearSections();
 
-		void startSection( string name );
-		void stopSection( string name );
+		void startSection( std::string name );
+		void stopSection( std::string name );
 
-		float getSectionRunPercent( string name );
+		float getSectionRunPercent( std::string name );
 
-		string getSectionReport();
+		std::string getSectionReport();
 
 	  private:
 
@@ -102,11 +102,11 @@ namespace FrontEnd {
 		float frameStopTime;
 		float elapsedTime;
 
-		list< TimedSection* > timedSections;
+		std::list< TimedSection* > timedSections;
 
-		TimedSection *getSection( string name );
+		TimedSection *getSection( std::string name );
 
-		string currentReport;
+		std::string currentReport;
 	};
 }
 #endif

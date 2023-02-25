@@ -49,10 +49,9 @@ ConsoleVariable< bool > drawPaletteTable(
 //////////////////////////////////////////////////////////////////////
 
 Renderer::Renderer() {
-	Console::ConsoleSystem *consoleSystem = &FrontEnd::SystemMain::getInstance()->consoleSystem;
-	consoleSystem->variables.addBoolVariable( &drawPatternTable );
-	consoleSystem->variables.addBoolVariable( &drawPaletteTable );    
+	 
 }
+
 
 Renderer::~Renderer() {
 }
@@ -60,6 +59,10 @@ Renderer::~Renderer() {
 float zdrawPos	= 0.0f;
 
 void Renderer::initialize() {
+	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+	consoleSystem->variables.addBoolVariable( &drawPatternTable );
+	consoleSystem->variables.addBoolVariable( &drawPaletteTable );
+
 	//prepare model and projection view for 2d drawing
 	glMatrixMode( GL_PROJECTION );
 	//glPushMatrix();
@@ -273,16 +276,20 @@ ConsoleVariable< float > paletteTableScale(
 /*save?*/		SAVE_TO_FILE );
 
 PPUDraw::PPUDraw() {
-	Console::ConsoleSystem *consoleSystem = &FrontEnd::SystemMain::getInstance()->consoleSystem;
 	
+}
+
+void PPUDraw::initialize( ) {
+	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+
 	consoleSystem->variables.addIntVariable( &patternTableX );
 	consoleSystem->variables.addIntVariable( &patternTableY );
 	consoleSystem->variables.addFloatVariable( &patternTableScale );
-	
+
 	consoleSystem->variables.addIntVariable( &outputX );
 	consoleSystem->variables.addIntVariable( &outputY );
 	consoleSystem->variables.addFloatVariable( &outputScale );
-	
+
 	consoleSystem->variables.addIntVariable( &paletteTableX );
 	consoleSystem->variables.addIntVariable( &paletteTableY );
 	consoleSystem->variables.addFloatVariable( &paletteTableScale );

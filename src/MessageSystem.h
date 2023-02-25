@@ -14,8 +14,6 @@
 #include "NesDebugger.h"
 
 ///////////////////////////////////
-extern NesCpu *nesCpu;
-extern NesDebugger *nesDebugger;
 
 /*
 =================================================================
@@ -135,8 +133,6 @@ MessageSystem Class
 class MessageSystem {
 public:
 	MessageSystem( ) {
-		nesDebugger = NesDebugger::getInstance( );
-		
 		history = "\n";
 		categories.push_back( &mCatRoot );
 		categories.push_back( &mCatNes );

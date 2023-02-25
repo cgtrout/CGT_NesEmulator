@@ -21,7 +21,7 @@ void ConsoleVariable< T >::setValue( std::string *val )
 */
 template < class T >
 void ConsoleVariable< T >::setValue( std::string *val ) {
-	stringstream ss( val->c_str() );
+	std::stringstream ss( val->c_str() );
 	ss >> value;
 }
 
@@ -37,12 +37,12 @@ void ConsoleVariable< T >::setValue( T val ) {
 
 /* 
 ==============================================
-string ConsoleVariable< T >::getValueString()
+std::string ConsoleVariable< T >::getValueString()
 ==============================================
 */
 template < class T >
-string ConsoleVariable< T >::getValueString() {
-	stringstream ss;
+std::string ConsoleVariable< T >::getValueString() {
+	std::stringstream ss;
 	ss << this->value;
 	return ss.str();
 }
@@ -89,11 +89,11 @@ void Variables::addBoolVariable( ConsoleVariable< bool > *variable ) {
 }
 /* 
 ==============================================
-void Variables::addStringVariable( ConsoleVariable< string > *variable )
+void Variables::addStringVariable( ConsoleVariable< std::string > *variable )
 ==============================================
 */
-void Variables::addStringVariable( ConsoleVariable< string > *variable ) {
-	addVariable< string >( variable, &stringVars );
+void Variables::addStringVariable( ConsoleVariable< std::string > *variable ) {
+	addVariable< std::string >( variable, &stringVars );
 }
 
 /* 
@@ -102,10 +102,10 @@ void Variables::addVariable( ConsoleVariable< T > *variable, list< ConsoleVariab
 ==============================================
 */
 template< class T >
-void Variables::addVariable( ConsoleVariable< T > *variable, list< ConsoleVariable< T >* > *varList ) {
+void Variables::addVariable( ConsoleVariable< T > *variable, std::list< ConsoleVariable< T >* > *varList ) {
 	//gothrough all lists and make sure that variable does not exist
 	if( getValueString( variable->getName() ) != "NOT_FOUND" ) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << "Variable: " << *variable->getName() << " already exists";
 		throw new ConsoleSystemException( "Variables::addVariable", ss.str().c_str(), true );
 	}
@@ -126,53 +126,53 @@ void Variables::addVariable( ConsoleVariable< T > *variable, list< ConsoleVariab
 
 /* 
 ==============================================
-ConsoleVariable< int > *Variables::getIntVariable( string *variable )
+ConsoleVariable< int > *Variables::getIntVariable( std::string *variable )
   
   finds a variable in consoles variable list
 ==============================================
 */
-ConsoleVariable< int > *Variables::getIntVariable( string *variable ) {
+ConsoleVariable< int > *Variables::getIntVariable( std::string *variable ) {
 	return getVariable< int >( variable, &intVars );
 }
 
 /* 
 ==============================================
-ConsoleVariable< float > *Variables::getFloatVariable( string *variable )
+ConsoleVariable< float > *Variables::getFloatVariable( std::string *variable )
 ==============================================
 */
-ConsoleVariable< float > *Variables::getFloatVariable( string *variable ) {
+ConsoleVariable< float > *Variables::getFloatVariable( std::string *variable ) {
 	return getVariable< float >( variable, &floatVars );
 }
 
 /* 
 ==============================================
-ConsoleVariable< bool > *Variables::getBoolVariable( string *variable )
+ConsoleVariable< bool > *Variables::getBoolVariable(  std::string *variable )
 ==============================================
 */
-ConsoleVariable< bool > *Variables::getBoolVariable( string *variable ) {
+ConsoleVariable< bool > *Variables::getBoolVariable(  std::string *variable ) {
 	return getVariable< bool >( variable, &boolVars );
 }
 
 /* 
 ==============================================
-ConsoleVariable< string > *Variables::getStringVariable( string *variable )
+ConsoleVariable< std::string > *Variables::getStringVariable( std::string *variable )
 ==============================================
 */
-ConsoleVariable< string > *Variables::getStringVariable( string *variable ) {
-	return getVariable< string >( variable, &stringVars );
+ConsoleVariable< std::string > *Variables::getStringVariable( std::string *variable ) {
+	return getVariable< std::string >( variable, &stringVars );
 }
 
 /* 
 ==============================================
-ConsoleVariable< T > *Variables::getVariable( string *name, list< ConsoleVariable< T >* > *varList )
+ConsoleVariable< T > *Variables::getVariable( std::string *name, list< ConsoleVariable< T >* > *varList )
 ==============================================
 */
 template< class T >
-ConsoleVariable< T > *Variables::getVariable( string *name, list< ConsoleVariable< T >* > *varList ) {
+ConsoleVariable< T > *Variables::getVariable( std::string *name, std::list< ConsoleVariable< T >* > *varList ) {
 	using namespace CgtString;
 
 	//go through entire varList
-	list < ConsoleVariable< T >* >::iterator i;
+	typename std::list < ConsoleVariable< T >* >::iterator i;
 	for( i = varList->begin(); i != varList->end(); i++ ) {
 		ConsoleVariable< T > *t = *i;
 		if( toLower( name ) == toLower( t->getName() ) ) {
@@ -184,15 +184,15 @@ ConsoleVariable< T > *Variables::getVariable( string *name, list< ConsoleVariabl
 
 /* 
 ==============================================
-string Variables::getValueString( string *varName )
+std::string Variables::getValueString( std::string *varName )
 ==============================================
 */
-string Variables::getValueString( string *varName ) {
+std::string Variables::getValueString( std::string *varName ) {
 	//go through varlists
 	ConsoleVariable< int > *i	 = getIntVariable( varName );
 	ConsoleVariable< float > *f  = getFloatVariable( varName );
 	ConsoleVariable< bool > *b   = getBoolVariable( varName );
-	ConsoleVariable< string > *s = getStringVariable( varName );
+	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
 	//if they are not null that means that we found a variable
@@ -208,23 +208,23 @@ string Variables::getValueString( string *varName ) {
 
 /* 
 ==============================================
-string Variables::getVariableDescription( string *varName )
+std::string Variables::getVariableDescription( std::string *varName )
 ==============================================
 */
-string Variables::getVariableDescription( string *varName ) {
+std::string Variables::getVariableDescription( std::string *varName ) {
 	//go through varlists
 	ConsoleVariable< int > *i	 = getIntVariable( varName );
 	ConsoleVariable< float > *f  = getFloatVariable( varName );
 	ConsoleVariable< bool > *b   = getBoolVariable( varName );
-	ConsoleVariable< string > *s = getStringVariable( varName );
+	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
 	//if they are not null that means that we found a variable
 	//if they are found get the string value
-	if( i != NULL ) return string( *i->getDescription() );
-	if( f != NULL ) return string( *f->getDescription() );
-	if( b != NULL ) return string( *b->getDescription() );
-	if( s != NULL ) return string( *s->getDescription() );
+	if( i != NULL ) return std::string( *i->getDescription() );
+	if( f != NULL ) return std::string( *f->getDescription() );
+	if( b != NULL ) return std::string( *b->getDescription() );
+	if( s != NULL ) return std::string( *s->getDescription() );
 	
 	//if all are null then varName does not exist
 	return "NOT_FOUND";
@@ -232,17 +232,17 @@ string Variables::getVariableDescription( string *varName ) {
 
 /* 
 ==============================================
-bool Variables::getSaveVarToFile( string *varName )
+bool Variables::getSaveVarToFile( std::string *varName )
 ==============================================
 */
-bool Variables::getSaveVarToFile( string *varName ) {
-	string retVal;
-	stringstream ss;
+bool Variables::getSaveVarToFile( std::string *varName ) {
+	std::string retVal;
+	std::stringstream ss;
 	//go through varlists
 	ConsoleVariable< int > *i	 = getIntVariable( varName );
 	ConsoleVariable< float > *f  = getFloatVariable( varName );
 	ConsoleVariable< bool > *b   = getBoolVariable( varName );
-	ConsoleVariable< string > *s = getStringVariable( varName );
+	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
 	//if they are not null that means that we found a variable
@@ -258,12 +258,12 @@ bool Variables::getSaveVarToFile( string *varName ) {
 
 /* 
 ==============================================
-void Variables::getNameList( list< ConsoleVariable< T >* > *genericVarList, list< string* > *stringVector )
+void Variables::getNameList( list< ConsoleVariable< T >* > *genericVarList, std::list< string* > *stringVector )
 ==============================================
 */
 template< class T >
-void Variables::getNameList( list< ConsoleVariable< T >* > *genericVarList, list< string* > *stringVector ) {
-	list < ConsoleVariable< T >* >::iterator i;
+void Variables::getNameList( std::list< ConsoleVariable< T >* > *genericVarList, std::list< std::string* > *stringVector ) {
+	typename std::list < ConsoleVariable< T >* >::iterator i;
 	for( i = genericVarList->begin(); i != genericVarList->end(); i++ ) {
 		stringVector->push_back( (*i)->getName() );
 	}
@@ -271,10 +271,10 @@ void Variables::getNameList( list< ConsoleVariable< T >* > *genericVarList, list
 
 /* 
 ==============================================
-void Variables::getNameList( list< string* > *results )
+void Variables::getNameList( std::list< string* > *results )
 ==============================================
 */
-void Variables::getNameList( list< string* > *results ) {
+void Variables::getNameList( std::list< std::string* > *results ) {
 	//all this does is go though all of the var lists and puts the names
 	//of the vars into a list of strings
 	
@@ -328,32 +328,32 @@ void ConsoleSystem::addCommand( ConsoleCommand *command ) {
 
 /* 
 ==============================================
-void ConsoleSystem::executeRequest( string *str, bool echo = true )
+void ConsoleSystem::executeRequest( std::string *str, bool echo = true )
 ==============================================
 */
-void ConsoleSystem::executeRequest( string *str, bool echo = true ) {
+void ConsoleSystem::executeRequest( std::string *str, bool echo = true ) {
 	//tokenize strings
 	CgtString::StringTokenizer st;
 	st.setMaxTokens( 2 );
 	st.setMinTokens( 2 );
-	vector< string* > *strings = st.tokenize( str );
+	std::vector< std::string* > *strings = st.tokenize( str );
 	
 	executeRequest( strings->at( 0 ) , strings->at( 1 ), echo );
 }
 
 /* 
 ==============================================
-void ConsoleSystem::executeRequest( string *command, string value, bool echo )
+void ConsoleSystem::executeRequest( std::string *command, std::string value, bool echo )
 ==============================================
 */
-void ConsoleSystem::executeRequest( string *command, string *value, bool echo ) {
+void ConsoleSystem::executeRequest( std::string *command, std::string *value, bool echo ) {
 	if( command->empty() == true ) {
 		return;
 	}
 	if( echo ) {
 		//echo command
 		printMessage( " > %s %s", command->c_str(), value->c_str() );
-		stringstream ss;
+		std::stringstream ss;
 		ss << *command;
 		
 		//add to previous request history list
@@ -382,15 +382,15 @@ void ConsoleSystem::executeRequest( string *command, string *value, bool echo ) 
 
 /* 
 ==============================================
-bool ConsoleSystem::findAndRunVariable( string *varName, string *value, bool run )
+bool ConsoleSystem::findAndRunVariable( std::string *varName, std::string *value, bool run )
 ==============================================
 */
-bool ConsoleSystem::findAndRunVariable( string *varName, string *value, bool run ) {
+bool ConsoleSystem::findAndRunVariable( std::string *varName, std::string *value, bool run ) {
     //go through variables until varName is found
 	ConsoleVariable< int >    *i = variables.getIntVariable( varName );
 	ConsoleVariable< float >  *f = variables.getFloatVariable( varName );
 	ConsoleVariable< bool >   *b = variables.getBoolVariable( varName );
-	ConsoleVariable< string > *s = variables.getStringVariable( varName );
+	ConsoleVariable< std::string > *s = variables.getStringVariable( varName );
 	
 	if( i == NULL && f == NULL && b == NULL && s == NULL ) {
 		//not found so return false
@@ -404,7 +404,7 @@ bool ConsoleSystem::findAndRunVariable( string *varName, string *value, bool run
 		if( s != NULL ) b->setValue( value );
 	}
 	
-	stringstream ss;
+	std::stringstream ss;
 	ss << "Variable \"";
 
 	if( i != NULL ) ss << *i->getName() << "\" is set to: " << i->getValue();
@@ -420,14 +420,14 @@ bool ConsoleSystem::findAndRunVariable( string *varName, string *value, bool run
 
 /* 
 ==============================================
-bool ConsoleSystem::findAndRunCommand( string *commandName, string *param, bool run
+bool ConsoleSystem::findAndRunCommand( std::string *commandName, std::string *param, bool run
 ==============================================
 */
-bool ConsoleSystem::findAndRunCommand( string *commandName, string *param, bool run ) {
+bool ConsoleSystem::findAndRunCommand( std::string *commandName, std::string *param, bool run ) {
 	ConsoleCommand *curr;
 	
 	//go through list of console commands to try and find a match
-	list< ConsoleCommand * >::iterator iter;
+	std::list< ConsoleCommand * >::iterator iter;
 	for( iter = commands.begin(); iter != commands.end(); iter++ ) {
 		curr = ( ConsoleCommand* )( *iter );
 
@@ -444,21 +444,21 @@ bool ConsoleSystem::findAndRunCommand( string *commandName, string *param, bool 
 
 /* 
 ==============================================
-void ConsoleSystem::runCommand( ConsoleCommand *command, string *param
+void ConsoleSystem::runCommand( ConsoleCommand *command, std::string *param
 ==============================================
 */
-void ConsoleSystem::runCommand( ConsoleCommand *command, string *param ) {
+void ConsoleSystem::runCommand( ConsoleCommand *command, std::string *param ) {
 	//runs handler function using a member function pointer
 	( commandHandlerSystem->*command->handler )( param->c_str() );
 }
 
 /* 
 ==============================================
-string ConsoleSystem::getCommandDescription( string *commandName )
+std::string ConsoleSystem::getCommandDescription( std::string *commandName )
 ==============================================
 */
-string ConsoleSystem::getCommandDescription( string *commandName ) {
-	list< ConsoleCommand* >::iterator i;
+std::string ConsoleSystem::getCommandDescription( std::string *commandName ) {
+	std::list< ConsoleCommand* >::iterator i;
 	for( i = commands.begin(); i != commands.end(); i++ ) {
 		ConsoleCommand *c = ( ConsoleCommand* )( *i );
 		if( toLower( commandName ) == toLower( &c->name ) ) {
@@ -622,23 +622,23 @@ char *ConsoleSystem::printMatches( const char *partial )
 TODO return string that matches given partial until the point where the matches no longer match up
 ==============================================
 */
-std::string ConsoleSystem::printMatches( string *partial ) {
+std::string ConsoleSystem::printMatches( std::string *partial ) {
 	std::list< std::string* > matchList;
 	char plcase[ 80 ];	//partial - lower case
 	char compstr[ 80 ];   //string to compare to
 	int partialLength = partial->length();
 	int matchesFound = 0;
-	string lastMatch;	//last match found string
+	std::string lastMatch;	//last match found string
 	
 	if( partialLength == 0 ) {
-		return string();
+		return std::string();
 	}
 
 	//convert to lowercase
 	CgtString::strtolower( partial->c_str(), plcase );
 	
 	//go through all commands
-	list< ConsoleCommand * >::iterator citer;
+	std::list< ConsoleCommand * >::iterator citer;
 	ConsoleCommand *ccurr;
 	for( citer = commands.begin(); citer != commands.end(); citer++ ) {
 		ccurr = ( ConsoleCommand* )( *citer );
@@ -654,15 +654,15 @@ std::string ConsoleSystem::printMatches( string *partial ) {
 	}
 
 	//todo use safe ptr so that nameList gets deleted
-	list< string* > nameList;
+	std::list< std::string* > nameList;
 	variables.getNameList( &nameList );
 	nameList.sort();
 
 	//now go through all of the variables
-	list< string* >::iterator viter;
-	string* cvar;
+	std::list< std::string* >::iterator viter;
+	std::string* cvar;
 	for( viter = nameList.begin(); viter != nameList.end(); viter++ ) {
-		cvar = ( string* )( *viter );
+		cvar = ( std::string* )( *viter );
 		CgtString::strtolower( cvar->c_str(), compstr );
 		
 		//if current variables name == partial
@@ -683,14 +683,14 @@ std::string ConsoleSystem::printMatches( string *partial ) {
 	matchList.sort();
 
 	//traverse through sorted list and print results
-	list< string* >::iterator siter;
+	std::list< std::string* >::iterator siter;
 	std::string *cstr;
 	for( siter = matchList.begin(); siter != matchList.end(); siter++ ) {
-		cstr = ( string* )( *siter );
+		cstr = ( std::string* )( *siter );
 		printMessage( cstr->c_str() );
 	}
 	//more than one match found so return null
-	return string( "" );
+	return std::string( "" );
 }
 
 /* 
@@ -735,17 +735,21 @@ std::string ConsoleSystem::getNextRequest() {
 
 /* 
 ==============================================
-void ConsoleSystem::loadCommandFile( string *filename )
+void ConsoleSystem::loadCommandFile( std::string *filename )
 
   TODO return exception?
   TODO test
 ==============================================
 */
-void ConsoleSystem::loadCommandFile( string filename ) {
-	ifstream file( filename.c_str() );
+void ConsoleSystem::loadCommandFile( std::string filename ) {
+	std::ifstream file( filename.c_str() );
 
 	char line[ 256 ];
 	char *ptr;
+
+	if ( !file ) {
+		return;
+	}
 	
 	while( !file.eof() ) {
 		ptr = &line[0];
@@ -757,7 +761,7 @@ void ConsoleSystem::loadCommandFile( string filename ) {
 			continue;
 		}
 		//pass command to system
-		executeRequest( &string( ptr ), false );
+		executeRequest( &std::string( ptr ), false );
 	}
 }
 
@@ -769,10 +773,15 @@ void VariableFile::loadFile( const char *filename )
 ==============================================
 */
 void VariableFile::loadFile( const char *filename ) {
-	ifstream file( filename );
+	std::ifstream file( filename );
 	char line[ CMAXNAMESIZE ];
 	char valBuf[ 12 ];
 	char *ptr;
+
+	//check for error.  If file not here, most likely first run of program
+	if ( !file ) {
+		return;
+	}
 
 	while( !file.eof() ) {
 		file.getline( line, CMAXNAMESIZE );
@@ -835,10 +844,10 @@ void VariableFile::loadFile( const char *filename ) {
 
 /* 
 ==============================================
-VariableFile::DefinitionLine *VariableFile::getDefinition( string *varname )
+VariableFile::DefinitionLine *VariableFile::getDefinition( std::string *varname )
 ==============================================
 */
-VariableFile::DefinitionLine *VariableFile::getDefinition( string *varname ) {
+VariableFile::DefinitionLine *VariableFile::getDefinition( std::string *varname ) {
 	  //loop through vector
 	  for( unsigned int x = 0 ; x < vars.size(); x++ ) {
 		  //check to see if def line is a comment or a blank
@@ -862,16 +871,16 @@ void VariableFile::saveFile( const char *filename, list< ConsoleVariable* > *var
 ==============================================
 */
 void VariableFile::saveFile( const char *filename, Variables *vars ) {
-	ofstream file( filename );
+	std::ofstream file( filename );
 		
 	//get master name list
-	list< string* > masterNameList; 
+	std::list< std::string* > masterNameList;
 	vars->getNameList( &masterNameList );
 
 	//go through master list of iterator
-	list< string* >::iterator i;
+	std::list< std::string* >::iterator i;
 	for( i = masterNameList.begin(); i != masterNameList.end(); i++ ) {
-		string *currVarName = ( string* )*i;
+		std::string *currVarName = ( std::string* )*i;
 		
 		if( vars->getSaveVarToFile( currVarName ) ) {
 			//try to find def

@@ -25,19 +25,23 @@ NesPPU::NesPPU()
 ==============================================
 */
 NesPPU::NesPPU() {
-	nesMemory  = &SystemMain::getInstance()->nesMain.nesMemory;
-	ppuMemory  = &SystemMain::getInstance()->nesMain.nesMemory.ppuMemory;
-	palette	   = &SystemMain::getInstance()->nesMain.nesPpu.nesPalette;
-	flagSystem = &SystemMain::getInstance()->nesMain.emulatorFlags;
-	timeProfiler = &SystemMain::getInstance()->timeProfiler;
 	
-	_log	  = CLog::getInstance();
-	consoleSystem = &SystemMain::getInstance()->consoleSystem;
-	
+}
+
+void NesPPU::initialize( ) {
+	nesMemory = &SystemMain::getInstance( )->nesMain.nesMemory;
+	ppuMemory = &SystemMain::getInstance( )->nesMain.nesMemory.ppuMemory;
+	palette = &SystemMain::getInstance( )->nesMain.nesPpu.nesPalette;
+	flagSystem = &SystemMain::getInstance( )->nesMain.emulatorFlags;
+	timeProfiler = &SystemMain::getInstance( )->timeProfiler;
+
+	_log = CLog::getInstance( );
+	consoleSystem = &SystemMain::getInstance( )->consoleSystem;
+
 	//CyclesPerFrame = 89342;
 	CyclesPerFrame = CYCLES_PER_FRAME;
 
-	scanlineDrawer.setNesSprite( &nesSprite);
+	scanlineDrawer.setNesSprite( &nesSprite );
 	scanlineDrawer.setRegistersPtr( &registers );
 	scanlineDrawer.setVidoutBufferPtr( vidoutBuffer );
 	frameType = FT_EVEN;

@@ -36,7 +36,7 @@ void GUI::render() {
 	renderSystem = &FrontEnd::SystemMain::getInstance()->renderer;
 	
 	if( opacity == NULL ) {
-		opacity = console->variables.getFloatVariable( &string("guiOpacity") );
+		opacity = console->variables.getFloatVariable( &std::string("guiOpacity") );
 	}
 
 	//render gui elements
@@ -75,10 +75,10 @@ GUI::renderDrawList( list< GEDrawElement* > drawList )
   renders drawList
 ==============================================
 */
-void GUI::renderDrawList( list< GEDrawElement* > drawList ) {
+void GUI::renderDrawList( std::list< GEDrawElement* > drawList ) {
 	if( !drawGUI ) return;
 
-	list< GEDrawElement* >::iterator iter;
+	std::list< GEDrawElement* >::iterator iter;
 	GEDrawElement *curr;
 	
 	GuiDim posx;
@@ -150,7 +150,7 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 	}
 	
 	//get console opacity value
-	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( &string("fontOpacity"))));			
+	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( &std::string("fontOpacity"))));
 	
 	unsigned int length = fs->getString().length();
 	

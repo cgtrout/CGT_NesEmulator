@@ -90,7 +90,7 @@ public:
 
 class ImageToolsException : public CgtException {
   public:
-	ImageToolsException( string header, string m, bool s = true ) {
+	ImageToolsException( std::string header, std::string m, bool s = true ) {
 		::CgtException( header, m, s );
 	}			
 };

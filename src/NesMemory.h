@@ -202,6 +202,8 @@ namespace NesEmulator {
 	  public:
 		NesMemory();
 
+		void initialize( );
+
 		int getNumPrgPages() { return physicalMemBanks->prgRomPages; }
 		void loadPrgRomPages( int prgRomPages, const ubyte *data );
 
@@ -290,9 +292,9 @@ namespace NesEmulator {
 
 	class NesMemoryException : public CgtException {
 	  public:
-		NesMemoryException( string header, string m, unsigned short loc, bool s = true ) {
-			stringstream ss( m.c_str() );
-			ss << m.c_str() << " at " << setbase(16) << loc;
+		NesMemoryException( std::string header, std::string m, unsigned short loc, bool s = true ) {
+			std::stringstream ss( m.c_str() );
+			ss << m.c_str() << " at " << std::setbase(16) << loc;
 			::CgtException( header, ss.str(), s );
 		}
 	};

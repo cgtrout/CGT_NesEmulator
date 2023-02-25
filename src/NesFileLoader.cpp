@@ -29,7 +29,7 @@ TODO allocated memory not being deleted after exception??
 */
 void NesFile::loadFile( std::string filename ) {
 	char nesStr[ 4 ];		//checks for initial string header
-	string file = filename;	//local copy of filename
+	std::string file = filename;	//local copy of filename
 	ubyte numcheck, controlbyte1, controlbyte2;		//temp vars
 	NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
 		
@@ -40,7 +40,7 @@ void NesFile::loadFile( std::string filename ) {
 	if( !*is ) throw new NesFileException( "NesFile::loadFile error", "Could not find file" );
 	
 	//make sure ifstream is deleted in all cases
-	auto_ptr< std::ifstream > f( is );
+	std::auto_ptr< std::ifstream > f( is );
 	
 	//if memory has already been allocated delete it first
 	if( prgRomPages != 0 ) {

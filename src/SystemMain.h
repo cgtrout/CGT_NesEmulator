@@ -5,6 +5,7 @@
 #if !defined( AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_ )
 #define AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_
 
+//TODO investigate these supressed warnings
 #if _MSC_VER > 1000
 #pragma once
 #pragma warning( disable : 4786 ) 

@@ -52,22 +52,22 @@ namespace Console {
 	template < class T >	
 	class ConsoleVariable {
 	public:
-		ConsoleVariable( T val, string name, string desc, bool save ) {
+		ConsoleVariable( T val, std::string name, std::string desc, bool save ) {
 			value = val;
 			this->name = name;
 			this->description = desc;
 			saveToFile = save;
 		}
 		
-		string *getName() { return &name; }
-		string *getDescription() { return &description; }
+		std::string *getName() { return &name; }
+		std::string *getDescription() { return &description; }
 		bool getSaveToFile() { return saveToFile; }
 
-		string toString();
-		string getValueString();
+		std::string toString();
+		std::string getValueString();
 
 		T getValue() { return value; }
-		void setValue( string *val );
+		void setValue( std::string *val );
 		void setValue( T val );
 
 		operator T() const { return value; }
@@ -94,8 +94,8 @@ namespace Console {
 	  public:
 		  struct DefinitionLine {
 				DefinitionLine(): comment( false ), blank( false ) {};
-				string name;
-				string valstr;
+				std::string name;
+				std::string valstr;
 				bool comment;
 				bool blank;
 		  };
@@ -108,7 +108,7 @@ namespace Console {
 		  
 		  //returns a definition, if it was in the file 
 		  //other wise returns null if varname was not found
-		  DefinitionLine *getDefinition( string *varname );
+		  DefinitionLine *getDefinition( std::string *varname );
 	  private:
 		  std::vector< DefinitionLine* > vars;
 	};
@@ -133,48 +133,49 @@ namespace Console {
 	  public:
 		//finds a variable in consoles variable list
 		//returns a pointer to varible if found
-		ConsoleVariable< int >    *getIntVariable	( string *variable );
-		ConsoleVariable< float >  *getFloatVariable ( string *variable );
-		ConsoleVariable< bool >   *getBoolVariable  ( string *variable );
-		ConsoleVariable< string > *getStringVariable( string *variable );
+		ConsoleVariable< int >    *getIntVariable	( std::string *variable );
+		ConsoleVariable< float >  *getFloatVariable ( std::string *variable );
+		ConsoleVariable< bool >   *getBoolVariable  ( std::string *variable );
+		ConsoleVariable< std::string > *getStringVariable( std::string *variable );
 				
 		//add variable/command to consolesytem
 		void addIntVariable   ( ConsoleVariable < int    > *var );
 		void addFloatVariable ( ConsoleVariable < float  > *var );
 		void addBoolVariable  ( ConsoleVariable < bool   > *var );
-		void addStringVariable( ConsoleVariable < string > *var );
+		void addStringVariable( ConsoleVariable < std::string > *var );
 
 		//gets a string representation of a value
-		string getValueString( string *varName );
-		string getVariableDescription( string *varname );
+		std::string getValueString( std::string *varName );
+		std::string getVariableDescription( std::string *varname );
 		
 		//Finds out if variable "varName" should be saved to
 		//file or not.
 		//Will not return any kind of error if variable does
 		//not exist( it will return a false )
-		bool getSaveVarToFile( string *varName );
+		bool getSaveVarToFile( std::string *varName );
 
 		Variables();
 		~Variables();
 
 		// returns a name list of all variables
-		void getNameList( list< string* > *results );
+		void getNameList( std::list< std::string* > *results );
 		
 	  private:
+		//TODO memory management
 		std::list< ConsoleVariable< int >*    > intVars;
 		std::list< ConsoleVariable< float >*  > floatVars;
 		std::list< ConsoleVariable< bool >*   > boolVars;
-		std::list< ConsoleVariable< string >* > stringVars;		
+		std::list< ConsoleVariable< std::string >* > stringVars;
 
 		template< class T >
-		void addVariable( ConsoleVariable< T > *variable, list< ConsoleVariable< T >* > *varList );
+		void addVariable( ConsoleVariable< T > *variable, std::list< ConsoleVariable< T >* > *varList );
 		
 		template< class T >
-		ConsoleVariable< T > *getVariable( string *name, list < ConsoleVariable< T >* > *varList );
+		ConsoleVariable< T > *getVariable( std::string  *name, std::list < ConsoleVariable< T >* > *varList );
 
 		//gets name list from a generic list of ConsoleVariables
 		template< class T >
-		void getNameList( list< ConsoleVariable< T >* > *genericVarList, list< string * > *stringList );
+		void getNameList( typename std::list< ConsoleVariable< T >* > *genericVarList, std::list< std::string  * > *stringList );
 		
 		//main variable file - used for saving / loading 
 		//variables to a file
@@ -203,13 +204,13 @@ namespace Console {
 		
 		//executes a command
 		//"echo"	if true, prints out command request to console
-		void executeRequest( string *command, bool echo );
+		void executeRequest( std::string  *command, bool echo );
 		
 		//executes a command
 		//"command" represents the command to execute
 		//"value"	represents the value / or param
 		//"echo"	if true, prints out command request to console
-		void executeRequest( string *command, string *value, bool echo = true );		
+		void executeRequest( std::string  *command, std::string  *value, bool echo = true );		
 	    
 		//get the last 'numLines' number of lines printed to console history starting at 'pos'
 		char *getHistoryLines( int numLines, int pos );
@@ -221,24 +222,24 @@ namespace Console {
 		void printMessage( const char *message, ... );
 		
 		//runs command given with params
-		void runCommand  ( ConsoleCommand  *command, string *param );
+		void runCommand  ( ConsoleCommand  *command, std::string  *param );
 
 		//finds a command and returns its description
-		string getCommandDescription( string *commandName );
+		std::string  getCommandDescription( std::string  *commandName );
 		
 		//used to show possible commands for user when they hit tab with a partial command
 		//returns match if only one found
 		//otherwise it returns NULL
-		string printMatches( string *partial );
+		std::string  printMatches( std::string  *partial );
 
 		//get previous line from history buffer
-		std::string getPreviousRequest();
+		std::string  getPreviousRequest();
 		
 		//get next line from history buffer
 		std::string getNextRequest();
 
 		//loads and executes a file containing commands
-		void loadCommandFile( string filename );
+		void loadCommandFile( std::string  filename );
 
 		//this class contains all of the variables of the console
 		//system
@@ -255,11 +256,11 @@ namespace Console {
 	    
 		//finds a variable - returns true if it exists
 		//set run to true to execute/change variable
-		bool findAndRunVariable ( string *varName, string *value, bool run = true );
+		bool findAndRunVariable ( std::string  *varName, std::string  *value, bool run = true );
 	    
 		//finds and possibly runs a command 
 		//set run to true to execute the variable
-		bool findAndRunCommand ( string *commandName, string *param, bool run = true );
+		bool findAndRunCommand ( std::string  *commandName, std::string  *param, bool run = true );
 
 		//History class - container with lines of history for console
 		//TODO this is fairly poorly designed and should be 

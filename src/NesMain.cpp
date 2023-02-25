@@ -5,6 +5,7 @@
 //#include "CgtException.h"
 #include "Console.h"
 
+
 using namespace FrontEnd;
 using namespace NesEmulator;
 
@@ -12,7 +13,6 @@ using namespace NesEmulator;
 		
 #endif
 		
-
 void NesMain::update() {
 	if( state != Emulating ) {
 		return;

@@ -25,14 +25,18 @@ extern NesEmulator::PPUMemory *ppuMemory;
 NesPalette				*pal;
 
 ScanlineDrawer::ScanlineDrawer() {
-	Console::ConsoleSystem *consoleSystem;
-	consoleSystem = &FrontEnd::SystemMain::getInstance()->consoleSystem;
 	
+}
+
+void ScanlineDrawer::initialize( ) {
+	Console::ConsoleSystem* consoleSystem;
+	consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+
 	consoleSystem->variables.addBoolVariable( &cvDrawBackground );
 	consoleSystem->variables.addBoolVariable( &cvDrawSprites );
 	consoleSystem->variables.addIntVariable( &cvSpriteZeroOffset );
-	ppuMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory.ppuMemory;
-	pal	 = &FrontEnd::SystemMain::getInstance()->nesMain.nesPpu.nesPalette;
+	ppuMemory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory.ppuMemory;
+	pal = &FrontEnd::SystemMain::getInstance( )->nesMain.nesPpu.nesPalette;
 }
 
 /* 
@@ -238,8 +242,8 @@ PpuClockCycles ScanlineDrawer::detectSprite0Hit() {
 		SpriteData *s0 = nesSprite->getSprite( 0 );
 
 		//find pointer to start of sprite 0 in buffer
-		ubyte *spritePointer;
-		ubyte *backgroundPointer;
+		ubyte *spritePointer = nullptr;
+		ubyte *backgroundPointer = nullptr;
 
 		if( s0->x > endPos ) 
 			return 0;

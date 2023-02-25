@@ -48,10 +48,12 @@ namespace PpuSystem {
 	class ScanlineDrawer {
 	  public:
 		ScanlineDrawer();
+
+		void initialize( );
 		  
 		//draws one scanline to the buffer
 		//returns true if updateType condition has been met
-		bool ScanlineDrawer::drawScanline( int sl, PpuClockCycles currcc, int endPos, PpuUpdateType updateType );
+		bool drawScanline( int sl, PpuClockCycles currcc, int endPos, PpuUpdateType updateType );
 
 		//does end of scanline logic
 		void finishScanline();

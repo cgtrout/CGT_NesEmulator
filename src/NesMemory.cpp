@@ -6,6 +6,7 @@ NesEmulator::NesControllerSystem *controllerSystem;
 PpuSystem::NesPPU				 *nesPpu;
 NesApu::NesSound				 *nesApu;
 NesEmulator::NesMemory			 *memorySys;
+NesEmulator::NesCpu				 *nesCpu;
 
 //disable crt string warnings
 #pragma warning ( disable : 4996 )
@@ -369,16 +370,21 @@ NesMemory::NesMemory()
 ==============================================
 */
 NesMemory::NesMemory() {
-	nesPpu = &FrontEnd::SystemMain::getInstance()->nesMain.nesPpu;
-	nesApu = &FrontEnd::SystemMain::getInstance()->nesMain.nesApu;
+	
+}
+
+void NesMemory::initialize( )
+{
+	nesPpu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesPpu;
+	nesApu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesApu;
 	memorySys = this;
-	controllerSystem = &FrontEnd::SystemMain::getInstance()->nesMain.controllerSystem;
-	nesCpu		= &FrontEnd::SystemMain::getInstance()->nesMain.nesCpu;
+	controllerSystem = &FrontEnd::SystemMain::getInstance( )->nesMain.controllerSystem;
+	nesCpu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesCpu;
 
 	//set all sprite data 
 	int i = 0;
 	int y = 255;
-	for( ; i < 256; i += 4 ) {
+	for ( ; i < 256; i += 4 ) {
 		spriteRam[ i ] = y;
 	}
 

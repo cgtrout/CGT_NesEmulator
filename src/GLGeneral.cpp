@@ -1,4 +1,4 @@
-#include "precompiled.h"
+//#include "precompiled.h"
 #include "GLGeneral.h"
 
 int getNextPowerOf2( int value );

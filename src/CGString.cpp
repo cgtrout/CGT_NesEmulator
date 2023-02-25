@@ -5,7 +5,7 @@
 #include < ctype.h > 
 #include < string.h >
 
-using namespace std;
+
 using namespace CgtString;
 
 /* 
@@ -36,17 +36,17 @@ int CgtString::strcasecmp( const char *str1, const char *str2 ) {
 
 /* 
 ==============================================
-string CgtString::toLower( string *s )
+std::string CgtString::toLower( std::string *s )
 ==============================================
 */
-string CgtString::toLower( string *s ) {
+std::string CgtString::toLower( std::string *s ) {
 	if( s == 0 ) 
 		return "";
 	char *buffer = new char[ s->length()+1 ];
 	for( unsigned int i = 0 ; i < s->length(); i++ ) 
 		buffer[ i ] = tolower( s->at( i ) );
 	buffer[ s->length() ] = '\0';
-	string retString = buffer;
+	std::string retString = buffer;
 	delete[ ] buffer;
 	return retString;
 }
@@ -67,7 +67,7 @@ void StringTokenizer::clearStrings()
 */
 void StringTokenizer::clearStrings() {
 	//delete all strings in strings
-	vector< string* >::iterator i;
+	std::vector< std::string* >::iterator i;
 	for( i = strings.begin(); i != strings.end(); i++ ) 
 		if( ( *i ) != NULL ) 
 			delete ( *i );
@@ -76,16 +76,16 @@ void StringTokenizer::clearStrings() {
 
 /* 
 ==============================================
-vector< string* > *StringTokenizer::tokenize( std::string *str )
+std::vector< string* > *StringTokenizer::tokenize( std::string *str )
 ==============================================
 */
-vector< string* > *StringTokenizer::tokenize( std::string *str ) {
+std::vector< std::string* > *StringTokenizer::tokenize( std::string *str ) {
 	unsigned int pos = 0;
 	unsigned int lastPos = 0;
 	int tokensFound = 0;
 	
 	//used for determining if end of input string was passed
-	static const basic_string < char >::size_type npos = -1;
+	static const std::basic_string < char >::size_type npos = -1;
 
 	clearStrings();
 
@@ -100,7 +100,7 @@ vector< string* > *StringTokenizer::tokenize( std::string *str ) {
 		if( pos == npos ) pos = str->length();
 
 		//create a new string and throw it in the tokens vector
-		string *newStr = new string( str->substr( lastPos, pos - lastPos ) );
+		std::string *newStr = new std::string( str->substr( lastPos, pos - lastPos ) );
 		strings.push_back( newStr );
 		
 		pos++;
@@ -109,6 +109,6 @@ vector< string* > *StringTokenizer::tokenize( std::string *str ) {
 	//ensure minSize number of strings are in vector
 	if( minTokens != 0 ) 
 		for( int x = strings.size(); x < minTokens; x++ ) 
-			strings.push_back( new string( "" ) );
+			strings.push_back( new std::string( "" ) );
 	return &strings;
 }

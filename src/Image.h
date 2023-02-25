@@ -1,7 +1,8 @@
 //original author - Ben Humphrey ( DigiBen )
 
-#ifndef _IMAGE_H
-#define _IMAGE_H
+#pragma once
+
+typedef unsigned char ubyte;
 
 #include "CgtException.h"
 //2 dimensional vector 
@@ -83,5 +84,3 @@ Image *LoadJPG( const char *strFileName );
 // This decompresses the JPEG and fills in the image data
 //void DecodeJPG( jpeg_decompress_struct* cinfo, Image *pImageData );
 
-
-#endif

@@ -2,7 +2,7 @@
 
 #include "GUI.h"
 #include "GLGeneral.h"
-using namespace std;
+
 using namespace GUISystem;
 //using namespace Render;
 
@@ -10,6 +10,7 @@ using namespace FrontEnd;
 using namespace InputSystem;
 //#include "CgString.h"
 #include <algorithm>
+#include <functional>
 
 //TODO use "safe" string functions
 #if _MSC_VER > 1000
@@ -46,17 +47,20 @@ GUI::GUI() {
 	
 	//drawDebugLines = false;
 	drawGUI = true;
-	
-	consoleSystem->variables.addBoolVariable( &drawDebugLines );
-	consoleSystem->variables.addFloatVariable( &guiOpacity );
-	consoleSystem->variables.addFloatVariable( &fontOpacity );
 
-	input = Input::getInstance();
 
 	//ConsoleVariable< float > &opacity = guiOpacity;
 }
 
 GUI::~GUI() {
+}
+
+void GUI::initialize( ) {
+	consoleSystem->variables.addBoolVariable( &drawDebugLines );
+	consoleSystem->variables.addFloatVariable( &guiOpacity );
+	consoleSystem->variables.addFloatVariable( &fontOpacity );
+
+	input = Input::getInstance( );
 }
 
 /*
@@ -104,9 +108,9 @@ GUI::updateElementsList()
   elems given as parameter
 ==============================================
 */
-void GUI::updateElementsList( list< GUIElement* > elems ) {
+void GUI::updateElementsList( std::list< GUIElement* > elems ) {
 	GUIElement *curr;
-	list< GUIElement* >::iterator iter;
+	std::list< GUIElement* >::iterator iter;
 	for( iter = elems.begin(); iter != elems.end(); iter++ ) {
 		curr = ( GUIElement* )( *iter );
 		if( !curr->isOpen() ) {
@@ -145,9 +149,9 @@ GUI::sendActiveToFront()
 */
 void GUI::sendActiveToFront() {
 	GUIElement *elem;
-	list< GUIElement* > newList;
+	std::list< GUIElement* > newList;
 
-	list< GUIElement* >::iterator iter;
+	std::list< GUIElement* >::iterator iter;
 	for( iter = elements.begin(); iter != elements.end(); iter++ ) {
 		elem = ( GUIElement* )( *iter );
 		
@@ -171,7 +175,7 @@ GUI::findElementCursorOver()
 ==============================================
 */
 GUIElement *GUI::findElementCursorOver() {
-	list< GUIElement* > currlist;
+	std::list< GUIElement* > currlist;
 	GUIElement *currelem = NULL;
 	GUIElement *retelem = NULL;
 
@@ -181,7 +185,7 @@ GUIElement *GUI::findElementCursorOver() {
 	currlist = elements;
 			
 	while( !currlist.empty() ) {
-		list< GUIElement* >::iterator iter;
+		std::list< GUIElement* >::iterator iter;
 		for( iter = currlist.begin(); iter != currlist.end(); iter++ ) {
 			currelem = ( GUIElement* )( *iter );
 
@@ -210,18 +214,18 @@ GUI::unactivateAllElements()
 ==============================================
 */
 void GUI::unactivateAllElements() {
-	for_each( elements.begin(), elements.end(), mem_fun( &GUIElement::unactivateElement ) );
+	for_each( elements.begin(), elements.end(), std::mem_fun( &GUIElement::unactivateElement ) );
 }
 
 /*
 ==============================================
-GUI::renderElements( list< GUIElement* > elems )
+GUI::renderElements( std::list< GUIElement* > elems )
 
   renders elements in elems list
 ==============================================
 */
-void GUI::renderElements( list< GUIElement* > elems ) {
-	list< GUIElement* >::reverse_iterator iter;
+void GUI::renderElements( std::list< GUIElement* > elems ) {
+	std::list< GUIElement* >::reverse_iterator iter;
 	GUIElement *curr;
 
 	for( iter = elems.rbegin(); iter != elems.rend(); iter++ ) {
@@ -311,7 +315,7 @@ void GUIElement::move( int xm, int ym ) {
 	x += xm;
 	y += ym;
 
-	list< GUIElement* >::iterator iter;
+	std::list< GUIElement* >::iterator iter;
 	for( iter = children.begin(); iter != children.end(); iter++ ) 
 		(*iter)->move( xm, ym );
 }
@@ -322,7 +326,7 @@ void GUIElement::unactivateChildren( std::list< GUIElement* > childList )
 ==============================================
 */
 void GUIElement::unactivateChildren( std::list< GUIElement* > childList ) {
-	list< GUIElement* >::iterator iter;
+	std::list< GUIElement* >::iterator iter;
 	GUIElement *curr;
 
 	for( iter = childList.begin(); iter != childList.end(); iter++ ) {
@@ -340,7 +344,7 @@ GUIElement *GUIElement::getActiveChild( std::list< GUIElement* > childList )
 ==============================================
 */
 GUIElement *GUIElement::getActiveChild( std::list< GUIElement* > childList ) {
-	list< GUIElement* >::iterator iter;
+	std::list< GUIElement* >::iterator iter;
 	GUIElement *curr = NULL;
 
 	for( iter = childList.begin(); iter != childList.end(); iter++ ) {
@@ -375,8 +379,8 @@ void GUITextures::loadFromFile( std::string fileName ) {
 	currLine = 1;
 
 	if( is.fail() != 0 ) {
-		stringstream ss;
-		ss << "Error loading file \"" << fileName << "\"";
+		std::stringstream ss;
+		ss << "Error loading file \"" << fileName << "\"" << strerror(is.fail());
 		throw GUITexturesLoadException( "GUITextures::loadFromFile", ss.str() );
 	}
 	
@@ -420,7 +424,7 @@ void GUITextures::parseLine( std::string line ) {
 		}
 	}
 	if( secq == -1 ) {
-		stringstream error;
+		std::stringstream error;
 		error	<< "File: \"" << fileName << "\" Line #"
 				<< x << " is an invalid line - must have a "
 				<< "file name contained within quotes/n";
@@ -794,7 +798,7 @@ void EditBox::update() {
 				text.erase( viewPos + cursorPos, 1 );
 			}
 		}
-		string strIns;
+		std::string strIns;
 		int x = 0;
 		while( input->isMoreKeyMessages() ) {
 			strIns += input->getNextKeyMessage();
@@ -1583,14 +1587,14 @@ void MultiLineTextLabel::addLines( int numLines ) {
 
 void MultiLineTextLabel::setX( GuiDim val ) {
 	x = val;
-	vector< TextLabel* >::iterator i = lines.begin();
+	std::vector< TextLabel* >::iterator i = lines.begin();
 	for( ; i != lines.end(); i++ ) {
 		(*i)->setX( val );
 	}
 }
 
 void MultiLineTextLabel::setY( GuiDim val ) {
-	vector< TextLabel* >::iterator i = lines.begin();
+	std::vector< TextLabel* >::iterator i = lines.begin();
 	y = val;
 	GuiDim curry = y;
 	for( ; i != lines.end(); i++ ) {
@@ -1599,12 +1603,12 @@ void MultiLineTextLabel::setY( GuiDim val ) {
 	}	
 }
 
-bool MultiLineTextLabel::fillLines( string in ) {
+bool MultiLineTextLabel::fillLines( std::string in ) {
 	//tokenize input string
 	CgtString::StringTokenizer st;
 	st.setMinTokens( getNumLines() );
 	st.setDelims( "\n" );
-	vector< string* > *tokens = st.tokenize( &in );
+	std::vector< std::string* > *tokens = st.tokenize( &in );
 
 	//ensure we have enough lines to follow this request
 	if( tokens->size() > getNumLines() ) {
@@ -1612,7 +1616,7 @@ bool MultiLineTextLabel::fillLines( string in ) {
 	}
 
 	//fill lines
-	vector< TextLabel* >::iterator i = lines.begin();
+	std::vector< TextLabel* >::iterator i = lines.begin();
 	for( int ct = 0; i != lines.end(); i++, ct++ ) {
 		(*i)->setString( *(*tokens)[ ct ] ); 
 	}	

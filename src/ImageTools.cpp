@@ -13,7 +13,7 @@ void DrawComponentBase::checkInitialized() {
 void LineDraw::draw() {
 	try {
 		checkInitialized();
-	} catch( exception e ) {
+	} catch( std::exception e ) {
 		throw e;
 	}
 

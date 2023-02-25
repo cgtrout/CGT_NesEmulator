@@ -29,16 +29,20 @@ Console::ConsoleVariable< bool > showTimeProfile (
 
 
 GuiTimeProfiler::GuiTimeProfiler() {
-	initialize( "gui/Console/Console.gt" );
 	
-	using namespace FrontEnd;
-	SystemMain::getInstance()->consoleSystem.variables.addBoolVariable( &showTimeProfile );
-	SystemMain::getInstance()->consoleSystem.variables.addIntVariable( &timeProfileX );
-	SystemMain::getInstance()->consoleSystem.variables.addIntVariable( &timeProfileY );
 }
 
-GuiTimeProfiler::GuiTimeProfiler( std::string guitextures ) {
-	initialize( guitextures );
+//GuiTimeProfiler::GuiTimeProfiler( std::string guitextures ) {
+//	initialize( guitextures );
+//}
+
+void GuiTimeProfiler::initialize( ) {
+	initialize( "gui/Console/Console.gt" );
+
+	using namespace FrontEnd;
+	SystemMain::getInstance( )->consoleSystem.variables.addBoolVariable( &showTimeProfile );
+	SystemMain::getInstance( )->consoleSystem.variables.addIntVariable( &timeProfileX );
+	SystemMain::getInstance( )->consoleSystem.variables.addIntVariable( &timeProfileY );
 }
 
 void GuiTimeProfiler::initialize( std::string guitextures ) {
@@ -122,6 +126,6 @@ void GuiTimeProfiler::onKeyDown( unsigned char key ) {
 	
 }
 
-void GuiTimeProfiler::setReportString( string val ) {
+void GuiTimeProfiler::setReportString( std::string val ) {
 	reportString = val;
 }

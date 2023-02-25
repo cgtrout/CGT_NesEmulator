@@ -14,10 +14,10 @@ TimedSection class
 */
 /* 
 ==============================================
-TimedSection::TimedSection( string name )
+TimedSection::TimedSection( std::string name )
 ==============================================
 */
-TimedSection::TimedSection( string name ) {
+TimedSection::TimedSection( std::string name ) {
 	this->name = name;
 	startTime = 0;
 	stopTime = 0;
@@ -135,7 +135,7 @@ void TimeProfiler::startFrame( )
 void TimeProfiler::startFrame( ) {
 	frameStartTime = timer->getCurrTime();
 	
-	list< TimedSection* >::iterator i = timedSections.begin(); 
+	std::list< TimedSection* >::iterator i = timedSections.begin();
 	for( ; i != timedSections.end(); ++i ) {
 		(*i)->endFrame();
 	}
@@ -151,7 +151,7 @@ void TimeProfiler::stopFrame( ) {
 	elapsedTime = frameStopTime - frameStartTime;
 
 	//iterate through all time sections to add run percentages
-	list< TimedSection* >::iterator i = timedSections.begin(); 
+	std::list< TimedSection* >::iterator i = timedSections.begin();
 	for( ; i != timedSections.end(); ++i ) {
 		
 		//add run percent to percent average array in current timed section
@@ -172,10 +172,10 @@ void TimeProfiler::stopFrame( ) {
 
 /* 
 ==============================================
-void TimeProfiler::addSection( string name )
+void TimeProfiler::addSection( std::string name )
 ==============================================
 */
-void TimeProfiler::addSection( string name ) {
+void TimeProfiler::addSection( std::string name ) {
 	timedSections.push_back( new TimedSection( name ) );
 }
 
@@ -185,7 +185,7 @@ void TimeProfiler::clearSections()
 ==============================================
 */
 void TimeProfiler::clearSections() {
-	list<TimedSection*>::iterator i = timedSections.begin();
+	std::list<TimedSection*>::iterator i = timedSections.begin();
 	for( ; i != timedSections.end(); i++ ) {
 		if( *i != 0 ) {
 			delete ( *i );
@@ -196,11 +196,11 @@ void TimeProfiler::clearSections() {
 
 /* 
 ==============================================
-TimedSection *TimeProfiler::getSection( string name )
+TimedSection *TimeProfiler::getSection( std::string name )
 ==============================================
 */
-TimedSection *TimeProfiler::getSection( string name ) {
-	list<TimedSection*>::iterator i = timedSections.begin();
+TimedSection *TimeProfiler::getSection( std::string name ) {
+	std::list<TimedSection*>::iterator i = timedSections.begin();
 	for( ; i != timedSections.end(); i++ ) {
 		if( (*i)->getName() == name ) {
 			return (*i);
@@ -212,10 +212,10 @@ TimedSection *TimeProfiler::getSection( string name ) {
 
 /* 
 ==============================================
-void TimeProfiler::startSection( string name )
+void TimeProfiler::startSection( std::string name )
 ==============================================
 */
-void TimeProfiler::startSection( string name ) {
+void TimeProfiler::startSection( std::string name ) {
 	TimedSection *section = getSection( name );	
 	
 	//see if any other sections are running (very slow)
@@ -261,22 +261,22 @@ string TimeProfiler::getSectionReport( )
   assumes it will be called every frame
 ==============================================
 */
-string TimeProfiler::getSectionReport( ) {
-	stringstream out;
+std::string TimeProfiler::getSectionReport( ) {
+	std::stringstream out;
 
 	rateCounter++;
 
 	//only update every TIMED_SECTION_RATE frames
 	if( rateCounter == TIMED_SECTION_RATE ) {
 		//iterate through all sections and create output line
-		list< TimedSection* >::iterator i = timedSections.begin();
+		std::list< TimedSection* >::iterator i = timedSections.begin();
 		for( ; i != timedSections.end(); i++ ) {
-			out << setiosflags( ios::left ) 
-				<< setw(6) << (*i)->getName() 
-				<< resetiosflags( ios::left ) 
-				<< setw(6) << setiosflags( ios::fixed ) << setprecision(2) << (*i)->calcAvgTime() \
+			out << std::setiosflags( std::ios::left )
+				<< std::setw(6) << (*i)->getName()
+				<< std::resetiosflags( std::ios::left )
+				<< std::setw(6) << std::setiosflags( std::ios::fixed ) << std::setprecision(2) << (*i)->calcAvgTime() \
 				<< "ms" 
-				<< setw(6) << (*i)->calcAvgPercent() << "%" 
+				<< std::setw(6) << (*i)->calcAvgPercent() << "%"
 				<< " \n";
 		}
 		currentReport = out.str();

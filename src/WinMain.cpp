@@ -6,7 +6,6 @@
   #include "winDebugger.h"
 #endif
 
-//#include "MessageSystem.h"
 #include "Console.h"
 #include "resource1.h"
 
@@ -163,6 +162,19 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	winDebugger->setDebugWnd( dhwnd );
 	winDebugger->initialize();
    #endif
+
+	//initialize anything that needs to be initialized
+	//this is to control initialization on objects to avoid problems with singleton initialization
+	consoleSystem = &systemMain->consoleSystem;
+	systemMain->gui.initialize( );
+	systemMain->nesMain.nesCpu.initialize( );
+	systemMain->nesMain.nesMemory.initialize( );
+	systemMain->nesMain.nesPpu.initialize( );
+	systemMain->nesMain.nesPpu.scanlineDrawer.initialize( );
+	systemMain->nesMain.nesPpu.initialize( );
+	systemMain->guiTimeProfiler.initialize( );
+
+	
 
 	systemMain->renderer.setRes( XRES, YRES );
 	

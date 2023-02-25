@@ -1,3 +1,7 @@
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
 #include "precompiled.h"
 
 //#include "GUIConsole.h"
@@ -14,7 +18,8 @@ using namespace GUISystem;
 #endif
 
 GUIConsole::GUIConsole():offset( 0 ) {
-	initialize( "gui/Console/Console.gt" );
+	initialize( "gui/console/console.gt" );
+	//initialize( "C:\\Users\\cgtro\\Documents\\2023 Repos\\Nes_Emulator\\gui\\console\\console.gt" );
 }
 
 GUIConsole::GUIConsole( std::string guitextures ) {
@@ -135,14 +140,14 @@ void GUIConsole::update() {
 }
 
 void GUIConsole::ConsoleEditBox::onEnterKey() {
-	string exStr = text;
+	std::string exStr = text;
 	consoleSystem->executeRequest( &exStr, true );
 	( ( GUIConsole* )parent )->changed = true;
 	clearText();	
 }
 
 void GUIConsole::onKeyDown( uword key ) {
-	string res;
+	std::string res;
 	
 	int origOffset = offset;
 	

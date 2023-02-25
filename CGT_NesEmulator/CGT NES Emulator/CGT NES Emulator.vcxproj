@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a18cabdb-2711-4fd2-8d02-46cc88c41b10}</ProjectGuid>
+    <RootNamespace>CGTNESEmulator</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>$(WindowsSDK_LibraryPath);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(WindowsSDK_LibraryPath);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;LIGHT_BUILD;LIGHT_BUILD_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)precompiled.pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Winmm.lib; OpenGL32.lib; GLu32.lib; kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;LIGHT_BUILD;LIGHT_BUILDNDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)precompiled.pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Winmm.lib; OpenGL32.lib; GLu32.lib; kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\CGString.cpp" />
+    <ClCompile Include="..\..\src\CGTSingleton.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Console.cpp" />
+    <ClCompile Include="..\..\src\ConsoleCommands.cpp" />
+    <ClCompile Include="..\..\src\FpsTimer.cpp" />
+    <ClCompile Include="..\..\src\GLGeneral.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GLGUIDraw.cpp" />
+    <ClCompile Include="..\..\src\GLRenderer.cpp" />
+    <ClCompile Include="..\..\src\GUI.cpp" />
+    <ClCompile Include="..\..\src\GUIConsole.cpp" />
+    <ClCompile Include="..\..\src\GUIFPSCounter.cpp" />
+    <ClCompile Include="..\..\src\GuiTimeProfiler.cpp" />
+    <ClCompile Include="..\..\src\Image.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ImageTools.cpp" />
+    <ClCompile Include="..\..\src\Input.cpp" />
+    <ClCompile Include="..\..\src\Log.cpp" />
+    <ClCompile Include="..\..\src\NesController.cpp" />
+    <ClCompile Include="..\..\src\NesCpuCore.cpp" />
+    <ClCompile Include="..\..\src\NesDebugger.cpp" />
+    <ClCompile Include="..\..\src\NesEmulatorFlagsSystem.cpp" />
+    <ClCompile Include="..\..\src\NesFileLoader.cpp" />
+    <ClCompile Include="..\..\src\NesMain.cpp" />
+    <ClCompile Include="..\..\src\NesMappers.cpp" />
+    <ClCompile Include="..\..\src\NesMemory.cpp" />
+    <ClCompile Include="..\..\src\NesPalette.cpp" />
+    <ClCompile Include="..\..\src\NesPPU.cpp" />
+    <ClCompile Include="..\..\src\NesPpuRegisters.cpp" />
+    <ClCompile Include="..\..\src\NesPpuScanline.cpp" />
+    <ClCompile Include="..\..\src\NesPpuTools.cpp" />
+    <ClCompile Include="..\..\src\NesSound.cpp" />
+    <ClCompile Include="..\..\src\NesSoundChannel.cpp" />
+    <ClCompile Include="..\..\src\NesSoundTools.cpp" />
+    <ClCompile Include="..\..\src\NesSprite.cpp" />
+    <ClCompile Include="..\..\src\precompiled.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Renderer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SoundSystem.cpp" />
+    <ClCompile Include="..\..\src\StringToNumber.cpp" />
+    <ClCompile Include="..\..\src\SystemMain.cpp" />
+    <ClCompile Include="..\..\src\TimeProfiler.cpp" />
+    <ClCompile Include="..\..\src\Timer.cpp" />
+    <ClCompile Include="..\..\src\winDebugger.cpp" />
+    <ClCompile Include="..\..\src\WinException.cpp" />
+    <ClCompile Include="..\..\src\WinMain.cpp" />
+    <ClCompile Include="..\..\src\WinSoundSystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\CGString.h" />
+    <ClInclude Include="..\..\src\CgtException.h" />
+    <ClInclude Include="..\..\src\CGTSingleton.h" />
+    <ClInclude Include="..\..\src\Console.h" />
+    <ClInclude Include="..\..\src\ConsoleCommands.h" />
+    <ClInclude Include="..\..\src\FpsTimer.h" />
+    <ClInclude Include="..\..\src\FractionAdder.h" />
+    <ClInclude Include="..\..\src\GLGeneral.h" />
+    <ClInclude Include="..\..\src\GLRenderer.h" />
+    <ClInclude Include="..\..\src\Graph.h" />
+    <ClInclude Include="..\..\src\GUI.h" />
+    <ClInclude Include="..\..\src\GUIConsole.h" />
+    <ClInclude Include="..\..\src\GUIFPSCounter.h" />
+    <ClInclude Include="..\..\src\GuiTimeProfiler.h" />
+    <ClInclude Include="..\..\src\Image.h" />
+    <ClInclude Include="..\..\src\ImageTools.h" />
+    <ClInclude Include="..\..\src\Input.h" />
+    <ClInclude Include="..\..\src\jpeglib.h" />
+    <ClInclude Include="..\..\src\Log.h" />
+    <ClInclude Include="..\..\src\NesController.h" />
+    <ClInclude Include="..\..\src\NesCpuCore.h" />
+    <ClInclude Include="..\..\src\NesDebugger.h" />
+    <ClInclude Include="..\..\src\NesEmulatorFlagSystem.h" />
+    <ClInclude Include="..\..\src\NesFileLoader.h" />
+    <ClInclude Include="..\..\src\NesMain.h" />
+    <ClInclude Include="..\..\src\NesMappers.h" />
+    <ClInclude Include="..\..\src\NesMemory.h" />
+    <ClInclude Include="..\..\src\NesOpcodeTable.h" />
+    <ClInclude Include="..\..\src\NesPalette.h" />
+    <ClInclude Include="..\..\src\NesPallette.h" />
+    <ClInclude Include="..\..\src\NesPPU.h" />
+    <ClInclude Include="..\..\src\NesPpuRegisters.h" />
+    <ClInclude Include="..\..\src\NesPpuScanline.h" />
+    <ClInclude Include="..\..\src\NesPpuTools.h" />
+    <ClInclude Include="..\..\src\NesSound.h" />
+    <ClInclude Include="..\..\src\NesSoundChannel.h" />
+    <ClInclude Include="..\..\src\NesSoundTools.h" />
+    <ClInclude Include="..\..\src\NesSprite.h" />
+    <ClInclude Include="..\..\src\precompiled.h" />
+    <ClInclude Include="..\..\src\Renderer.h" />
+    <ClInclude Include="..\..\src\resource1.h" />
+    <ClInclude Include="..\..\src\SoundSystem.h" />
+    <ClInclude Include="..\..\src\StringToNumber.h" />
+    <ClInclude Include="..\..\src\SystemMain.h" />
+    <ClInclude Include="..\..\src\TFreeList.h" />
+    <ClInclude Include="..\..\src\TimeProfiler.h" />
+    <ClInclude Include="..\..\src\Timer.h" />
+    <ClInclude Include="..\..\src\typedefs.h" />
+    <ClInclude Include="..\..\src\winDebugger.h" />
+    <ClInclude Include="..\..\src\WinMain.h" />
+    <ClInclude Include="..\..\src\WinSoundSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\Graph.imp" />
+    <None Include="..\..\src\GUI.h~" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

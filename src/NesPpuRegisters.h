@@ -8,7 +8,7 @@ namespace PpuSystem {
 		
 	};
 	enum colormodes {
-		COLORMODE_COLOR,
+		COLORMODEcolor,
 		COLORMODE_MONOCHROME
 	};
 

@@ -3,9 +3,10 @@
 //////////////////////////////////////////////////////////////////////
 #pragma warning( disable : 4786 )
 
+#include "precompiled.h"
 #include "Renderer.h"
-#include "GameMain.h"
-extern GameMain *gm;
+//#include "Log.h"
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -57,7 +58,8 @@ void Renderer::renderFrame( ) {
 	numErrors = 0;
 	if( glError != GL_NO_ERROR ) {
 		while( glError != GL_NO_ERROR ) {
-			_log->Write( "gl error: %s @ %f", getGLErrorString( glError ), gm->getCurrTime( ) );
+			//TODO get time from somewhere else
+			//_log->Write( "gl error: %s @ %f", getGLErrorString( glError ), gm->getCurrTime( ) );
 			glError = glGetError( );
 			numErrors++;
 		}		

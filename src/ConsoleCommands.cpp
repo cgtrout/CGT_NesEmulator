@@ -30,7 +30,7 @@ ConsoleCommand commands[] =
 //###endformatignore
 
 CommandHandlerSystem::CommandHandlerSystem() {
-	consoleSystem = &SystemMain::getInstance()->consoleSystem;
+	consoleSystem = nullptr;
 }
 
 ConsoleCommand *CommandHandlerSystem::getCommands() {
@@ -42,6 +42,11 @@ void CommandHandlerSystem::quit( const char *param ) {
 }
 
 void CommandHandlerSystem::loadNesFile( const char *param ) {
+	//late binding to avoid singleton initialization hell
+	if ( consoleSystem == nullptr ) {
+		consoleSystem = &SystemMain::getInstance( )->consoleSystem;
+	}
+
 	if( !param ) {
 		consoleSystem->printMessage( "No filename entered." );
 		return;
@@ -110,12 +115,12 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 		return;
 	}
 
-	string p = param;
+	std::string p = param;
 		
 	//get tokens
 	StringTokenizer st;
 	st.setDelims( " " );
-	vector< string* > *tokens = st.tokenize( &p );
+	std::vector< std::string* > *tokens = st.tokenize( &p );
 	
 	if( tokens->size() < 3 ) {
 		printBindKeyUsage( "Not enough params entered." );
@@ -132,11 +137,11 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	}
 
 	//parse command
-	string control;
-	string button;
-	string key = *tokens->at( 2 );
+	std::string control;
+	std::string button;
+	std::string key = *tokens->at( 2 );
 
-	string command = *tokens->at( 0 );
+	std::string command = *tokens->at( 0 );
 	
 	//tokenize command using '.' as delimiter
 	st.setDelims( "." );
@@ -164,16 +169,16 @@ void CommandHandlerSystem::printBindKeyUsage( const char *errorMsg ) {
 
 void CommandHandlerSystem::reset( const char *param ) {
 	consoleSystem->printMessage( "Resetting cpu..." );
-	nesCpu->reset();
+	systemMain->nesMain.nesCpu.reset();
 	systemMain->nesMain.reset();
 }
 
 //help syntax: help [ command / param ]
 void CommandHandlerSystem::help( const char *param ) {
-	string params( param );
+	std::string params( param );
 	StringTokenizer st;
 	st.setDelims( " " );
-	vector< string* > *tokens = st.tokenize( &params );
+	std::vector< std::string* > *tokens = st.tokenize( &params );
 
 	if( tokens->size() == 0 ) {
 		printHelpUsage( NULL );
@@ -186,7 +191,7 @@ void CommandHandlerSystem::help( const char *param ) {
 	}
 
 	//first see if it is a variable
-	string desc = consoleSystem->variables.getVariableDescription( ( ( *tokens )[ 0 ] ) ) ;
+	std::string desc = consoleSystem->variables.getVariableDescription( ( ( *tokens )[ 0 ] ) ) ;
 	if( desc != "NOT_FOUND" ) {
 		consoleSystem->printMessage( "%s: %s", ( *tokens )[ 0 ]->c_str(), desc.c_str() );
 		return;

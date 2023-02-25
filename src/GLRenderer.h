@@ -51,6 +51,8 @@ namespace Render {
 	class PPUDraw {
 	public:
 		PPUDraw();
+
+		void initialize( );
 		
 		//renders ppu patterntable for debugging purposes
 		void drawPatternTable();

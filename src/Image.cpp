@@ -1,5 +1,3 @@
-#include "precompiled.h"
-
 #include "image.h"
 #include < windows.h >
 #include < fstream >
