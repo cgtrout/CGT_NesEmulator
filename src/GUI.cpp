@@ -1667,7 +1667,7 @@ void Font::loadFont( const char *file ) {
 
 //coordinates for fonts are precalculated ( for speed - avoids multiple divides 
 //every frame when console is showing )
-TextureCoord *Font::getCoord( char c )  {
+TextureCoord *Font::getCoord( unsigned char c )  {
 	return &coordTable[c];
 }
 

@@ -288,7 +288,7 @@ namespace GUISystem {
 
 		//pixel coordinates to draw given character at
 		//must call setChar first to get these
-		TextureCoord *getCoord( char c );
+		TextureCoord *getCoord( unsigned char c );
 
 		unsigned int geImageid() {return imageid;}
 
