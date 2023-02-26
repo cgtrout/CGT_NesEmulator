@@ -222,19 +222,19 @@ PPUDraw::drawPatternTable()
 */
 //positions of patterntable debug output
 ConsoleVariable< int > patternTableX( 
-/*start val*/	550, 
+/*start val*/	535, 
 /*name*/		"patternTableX", 
 /*description*/	"x position of debug pattern table",
 /*save?*/		SAVE_TO_FILE );
 
 ConsoleVariable< int > patternTableY( 
-/*start val*/	0, 
+/*start val*/	400, 
 /*name*/		"patternTableY", 
 /*description*/	"y position of debug pattern table",
 /*save?*/		SAVE_TO_FILE );
 
 ConsoleVariable< float > patternTableScale( 
-/*start val*/	550.0f, 
+/*start val*/	1.0f, 
 /*name*/		"patternTableScale", 
 /*description*/	"scaling debug pattern table",
 /*save?*/		SAVE_TO_FILE );
@@ -270,7 +270,7 @@ ConsoleVariable< int > paletteTableY(
 /*save?*/		SAVE_TO_FILE );
 
 ConsoleVariable< float > paletteTableScale( 
-/*start val*/	1.5f, 
+/*start val*/	1.0f, 
 /*name*/		"paletteTableScale", 
 /*description*/	"scaling of debug palette output",
 /*save?*/		SAVE_TO_FILE );
@@ -329,12 +329,12 @@ void PPUDraw::drawPatternTable() {
     //create texture
     
     Image img;
-    
+
     if( imgid != 0 ) {
         glDeleteTextures( 1, &imgid );
     }
 
-    img.channels = 4; 
+    img.channels = 3; 
     img.sizeX = ( 0x0f * 8 ) * 2;
     img.sizeY = 0x0f * 8;
     img.data = ppuPixelGen.getPatternTablePixelData24Bit();
