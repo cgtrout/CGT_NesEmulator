@@ -252,7 +252,7 @@ namespace GUISystem {
 		int type;
 		
 		bool activeElement;
-		bool open;
+		bool open = true;
 
 		//if this element is a child to another gui element than this will point to
 		//the parent gui element
