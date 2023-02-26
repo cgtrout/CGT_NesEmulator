@@ -75,7 +75,7 @@ Input::~Input()
 ==============================================
 */
 Input::~Input() {
-	writeBindsToFile( "keybinds.cfg" );
+	writeBindsToFile( "binds.cfg" );
 }
 
 /*
