@@ -75,7 +75,7 @@ Input::~Input()
 ==============================================
 */
 Input::~Input() {
-	writeBindsToFile( "binds.cfg" );
+	//writeBindsToFile( "binds.cfg" );
 }
 
 /*
