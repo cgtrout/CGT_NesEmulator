@@ -201,10 +201,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\src\Renderer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\..\src\SoundSystem.cpp" />
     <ClCompile Include="..\..\src\StringToNumber.cpp" />
     <ClCompile Include="..\..\src\SystemMain.cpp" />
@@ -245,7 +241,6 @@
     <ClInclude Include="..\..\src\NesMemory.h" />
     <ClInclude Include="..\..\src\NesOpcodeTable.h" />
     <ClInclude Include="..\..\src\NesPalette.h" />
-    <ClInclude Include="..\..\src\NesPallette.h" />
     <ClInclude Include="..\..\src\NesPPU.h" />
     <ClInclude Include="..\..\src\NesPpuRegisters.h" />
     <ClInclude Include="..\..\src\NesPpuScanline.h" />
@@ -255,7 +250,6 @@
     <ClInclude Include="..\..\src\NesSoundTools.h" />
     <ClInclude Include="..\..\src\NesSprite.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
-    <ClInclude Include="..\..\src\Renderer.h" />
     <ClInclude Include="..\..\src\resource1.h" />
     <ClInclude Include="..\..\src\SoundSystem.h" />
     <ClInclude Include="..\..\src\StringToNumber.h" />

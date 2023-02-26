@@ -39,7 +39,7 @@ namespace PpuSystem {
 		};
 		Pixel3Byte palette[ NUM_PALETTE_ENTRYS ];
 		
-		NesPalette() { loadFromFile( "nes.pal" ); }
+		NesPalette() { loadFromFile( "pal/nes.pal" ); }
 
 	private:		
 	};

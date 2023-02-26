@@ -13,13 +13,13 @@ void NesPalette::loadFromFile( std::string fileName ) {
 	//initialize file
 	std::ifstream is( fileName.c_str(), std::ios::binary );
 	std::string error;	
-	/*
-	if( is == true ) {
+	
+	if( is.fail() ) {
 		error = "Error opening file: ";
 		error += fileName;
-		delete is;
 		throw NesFileException( error );
-	}*/
+		//TODO present error message to user
+	}
 	//loop through all elements
 	for( int x = 0; x < NUM_PALETTE_ENTRYS; x++ ) {
 		////load 3 bytes into palette

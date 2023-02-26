@@ -117,9 +117,6 @@
     <ClCompile Include="..\..\src\precompiled.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\SoundSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -236,9 +233,6 @@
     <ClInclude Include="..\..\src\NesPalette.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\NesPallette.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\NesPPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -264,9 +258,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\precompiled.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\resource1.h">
