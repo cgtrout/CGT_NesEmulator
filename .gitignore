@@ -46,3 +46,8 @@ CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/92a4a9d740e071d3.ipch
 applog.txt
 roms/ice_hock.nes
 *.enc
+*.recipe
+*.iobj
+*.ipdb
+*.lastbuildstate
+*.tlog

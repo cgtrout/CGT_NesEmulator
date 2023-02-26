@@ -32,6 +32,10 @@ GuiTimeProfiler::GuiTimeProfiler() {
 	
 }
 
+GuiTimeProfiler::~GuiTimeProfiler( ) {
+	_log->Write( "~GuiTimeProfiler" );
+}
+
 //GuiTimeProfiler::GuiTimeProfiler( std::string guitextures ) {
 //	initialize( guitextures );
 //}
@@ -63,9 +67,6 @@ void GuiTimeProfiler::initialize( std::string guitextures ) {
 	addChild( &lines );
 }
 
-GuiTimeProfiler::~GuiTimeProfiler() {
-	
-}
 
 void GuiTimeProfiler::setX( GuiDim val ) {
 	x = val;
@@ -126,6 +127,6 @@ void GuiTimeProfiler::onKeyDown( unsigned char key ) {
 	
 }
 
-void GuiTimeProfiler::setReportString( std::string val ) {
+void GuiTimeProfiler::setReportString( const std::string &val ) {
 	reportString = val;
 }

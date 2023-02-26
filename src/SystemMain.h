@@ -87,8 +87,8 @@ namespace FrontEnd {
 		GUISystem::GUIFPSCounter frameCounter;
 		FPSTimer fpsTimer;
 		
-		GUISystem::GuiTimeProfiler guiTimeProfiler;
 		TimeProfiler timeProfiler;
+		GUISystem::GuiTimeProfiler guiTimeProfiler;
 
 		Sound::SoundSystem *soundSystem;
 		

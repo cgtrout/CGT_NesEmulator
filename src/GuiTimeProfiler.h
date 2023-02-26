@@ -9,7 +9,7 @@ namespace GUISystem {
 
 		void initialize( );
 
-		virtual ~GuiTimeProfiler();
+		~GuiTimeProfiler();
 		
 		void onLeftMouseDown();
 		void onLeftMouseRelease();
@@ -25,7 +25,7 @@ namespace GUISystem {
 		void setX ( GuiDim val );
 		void setY ( GuiDim val );
 
-		void setReportString( std::string val );
+		void setReportString( const std::string &val );
 
 	  private:
 		

@@ -1,8 +1,8 @@
 #if !defined( TimeProfiler__H )
 #define TimeProfiler__H
 
-#include <list>
 #include <string>
+#include <vector>
 
 namespace FrontEnd {
 	
@@ -24,7 +24,9 @@ namespace FrontEnd {
 	*/
 	class TimedSection {
 	  public:
-		TimedSection( std::string name );
+		TimedSection( const std::string &name );
+		~TimedSection( );
+		
 		void start( float time );
 		void stop( float time );
 		
@@ -36,7 +38,7 @@ namespace FrontEnd {
 		float getElapsedTime( ) { return elapsedTime; }
 
 		//is this section still being timed?
-		bool isActive() { return activeFrame; }
+		//bool isActive() { return activeFrame; }
 
 		std::string &getName() { return name; }
 
@@ -71,20 +73,18 @@ namespace FrontEnd {
 	class TimeProfiler {
 	  public:
 		TimeProfiler();
+		~TimeProfiler( );
 		
 		void startFrame();
 		void stopFrame();
 		
 		//add section to main timedSections list
-		void addSection( std::string name );
-		
-		//clear all sections in list
-		void clearSections();
+		void addSection( const std::string &name );
 
-		void startSection( std::string name );
-		void stopSection( std::string name );
+		void startSection( const std::string &name );
+		void stopSection( const std::string &name );
 
-		float getSectionRunPercent( std::string name );
+		float getSectionRunPercent( const std::string &name );
 
 		std::string getSectionReport();
 
@@ -102,9 +102,9 @@ namespace FrontEnd {
 		float frameStopTime;
 		float elapsedTime;
 
-		std::list< TimedSection* > timedSections;
+		std::vector< TimedSection > timedSections;
 
-		TimedSection *getSection( std::string name );
+		TimedSection *getSection( const std::string &name );
 
 		std::string currentReport;
 	};

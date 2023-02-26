@@ -145,6 +145,9 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		return 0;									// Quit If Window Was Not Created
 	}
 
+	//enable heap debug
+	_CrtSetDbgFlag( _CRTDBG_CHECK_ALWAYS_DF );
+	
 	systemMain = SystemMain::getInstance();
 	
   #ifndef LIGHT_BUILD

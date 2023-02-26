@@ -30,7 +30,7 @@ GUI::render()
 ==============================================
 */
 void GUI::render() {
-	zdrawpos = 0.0001;
+	zdrawpos = 0.0001f;
 	
 	console = &FrontEnd::SystemMain::getInstance()->consoleSystem;
 	renderSystem = &FrontEnd::SystemMain::getInstance()->renderer;

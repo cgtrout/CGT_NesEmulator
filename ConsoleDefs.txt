@@ -8,5 +8,5 @@ traceAlreadyRun 1
 showTimeProfile 1
 drawPatternTable 1
 drawPaletteTable 1
-capFrameRate 0
+capFrameRate 1
 EOF
