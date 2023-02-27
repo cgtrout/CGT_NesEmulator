@@ -50,7 +50,7 @@ void Image::allocate()
 */
 void Image::allocate() {
 	assert( channels != 0 && sizeX != 0 && sizeY != 0 );
-	data.resize( getSize( ) );
+	data.resize( getSize( ), 0 );
 }
 
 void Image::setData( ubyte* data ) {
