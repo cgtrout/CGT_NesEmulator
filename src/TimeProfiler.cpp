@@ -198,11 +198,11 @@ TimedSection *TimeProfiler::getSection( const std::string const name )
 ==============================================
 */
 TimedSection *TimeProfiler::getSection( const std::string &name ) {
-	_log->Write( "input name=%s, %p", name.c_str( ), this );
+	//_log->Write( "input name=%s, %p", name.c_str( ), this );
 
 	auto i = timedSections.begin();
 	for( ; i != timedSections.end(); i++ ) {
-		_log->Write("iter=%s %p", ( *i ).getName( ).c_str( ), i );
+		//_log->Write("iter=%s %p", ( *i ).getName( ).c_str( ), i );
 		if( (*i).getName() == name ) {
 			return &(*i);
 		}
@@ -220,13 +220,13 @@ void TimeProfiler::startSection( const std::string &name )
 void TimeProfiler::startSection( const std::string &name ) {
 	TimedSection *section = getSection( name );	
 	
-	_log->Write( "Start section %s: ptr=%p", name.c_str(), this );
+	//_log->Write( "Start section %s: ptr=%p", name.c_str(), this );
 	
 	if ( section == nullptr ) {
-		_log->Write( "TimeProfiler::startsection - not found! %s", name.c_str() );
+		//_log->Write( "TimeProfiler::startsection - not found! %s", name.c_str() );
 		return;
 	}
-	_log->Write( "section start" );
+	//_log->Write( "section start" );
 	section->start( timer->getCurrTime() );
 }
 
@@ -239,7 +239,7 @@ void TimeProfiler::stopSection( const std::string &name ) {
 	TimedSection *section = getSection( name );	
 	
 	if ( section == nullptr ) {
-		_log->Write( "stopSection: section not found: %s", name.c_str( ) );
+		//_log->Write( "stopSection: section not found: %s", name.c_str( ) );
 		return;
 	}
 

@@ -26,7 +26,7 @@ void NesMain::update() {
 	//update emulator systems for this frame
 	while( runFrame ) {
 
-		_log->Write( "Starting Frame" );
+		//_log->Write( "Starting Frame" );
 
 		systemMain->timeProfiler.startSection( "Cpu" );
 
@@ -71,7 +71,7 @@ void NesMain::update() {
 				systemMain->timeProfiler.stopSection( "Cpu" );
 				systemMain->timeProfiler.startSection( "Apu" );
 				
-				_log->Write( "Updating APU" );
+				//_log->Write( "Updating APU" );
 				nesApu.runTo( vintTime );
 				
 				systemMain->timeProfiler.stopSection( "Apu" );

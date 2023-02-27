@@ -58,37 +58,39 @@ void NesSoundBuffer::fillExternalBuffer( word *ptr, int size ) {
 	//may need to do in two steps
 	bool twoStep = ( playPos + size ) >= bufferLength;
 
+	/*
 	_log->Write( "\n\nfilling external buffer" );
 	_log->Write( "playPos at start = %d ", playPos );
 	_log->Write( "bufferPos = %d", bufferPos  );
 	_log->Write( "size request = %d", size );
+	*/
 
 	try {
 		if( !twoStep ) {
 			//copy in one step
 			memcpy( ptr, &buffer[ playPos ], size );
 			playPos += size;
-			_log->Write( "one step copy" );
-			_log->Write( "playPos at end = %d ", playPos );
+			//_log->Write( "one step copy" );
+			//_log->Write( "playPos at end = %d ", playPos );
 			
 			return;
 		} else {
-			_log->Write( "two step copy" );
+			//_log->Write( "two step copy" );
 
 			//first chunck
 			int chunk1Size = bufferLength - playPos;
 			memcpy( ptr, &buffer[ playPos ], chunk1Size * 2 );
 
-			_log->Write( "copying chunk 1 - chunk1Size = %d", chunk1Size );
+			//_log->Write( "copying chunk 1 - chunk1Size = %d", chunk1Size );
 			//playPos = 0;
 			
 			//second chunk
 			int chunk2Size = size - chunk1Size;
 			memcpy( &ptr[ chunk1Size ] , buffer, chunk2Size * 2 );
-			_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
+			//_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
 			playPos = chunk2Size;
 			
-			_log->Write( "playPos at end = %d ", playPos );			
+			//_log->Write( "playPos at end = %d ", playPos );			
 		}
 	}
 	catch( std::exception ) {
@@ -142,7 +144,7 @@ void NesSound::runTo( PpuClockCycles desPpucc ) {
 		makeSample();
 	}
 
-	_log->Write( "nesSound::runTo() bufferPos @ end = %d", buffer.getBufferPos() );
+	//_log->Write( "nesSound::runTo() bufferPos @ end = %d", buffer.getBufferPos() );
 }
 
 void NesSound::resetCC() {

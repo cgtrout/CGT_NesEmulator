@@ -146,7 +146,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	}
 
 	//enable heap debug
-	_CrtSetDbgFlag( _CRTDBG_CHECK_ALWAYS_DF );
+	//_CrtSetDbgFlag( _CRTDBG_CHECK_ALWAYS_DF );
 	
 	systemMain = SystemMain::getInstance();
 	
@@ -294,7 +294,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 
 		elapsedTime = timer->getCurrTime() - currTime;
 
-		_log->Write( "end frame time = %f", elapsedTime );
+		//_log->Write( "end frame time = %f", elapsedTime );
 		//_log->Write( "debug elapsed time = %f", (float)(debElapsedTime)/1000);
 
 	}
