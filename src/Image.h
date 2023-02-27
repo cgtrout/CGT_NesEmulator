@@ -45,7 +45,7 @@ class Image {
 	//allocate image based on settings
 	void allocate();
 	
-	bool isAllocated() { return data.empty(); }
+	bool isAllocated() { return !data.empty(); }
 
 	ubyte *getData() { return data.data(); }
 	void setData( ubyte* data );

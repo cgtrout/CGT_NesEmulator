@@ -12,9 +12,6 @@ Image::~Image()
 ==============================================
 */
 Image::~Image() {
-	//if( data != 0 ) {
-		//delete[] data;
-	//}
 }
 
 /* 
@@ -113,31 +110,27 @@ flipImage( Image *image )
   flips an image around vertically
 ==============================================
 */
-Image *flipImage( Image *image ) {
-	Image *newImage = NULL;
+Image flipImage( Image image ) {
+	Image newImage;
 	
-	newImage = new Image;
+	newImage.sizeX = image.sizeX;
+	newImage.sizeY = image.sizeY;
+	newImage.channels = image.channels;
 
-	newImage->sizeX = image->sizeX;
-	newImage->sizeY = image->sizeY;
-	newImage->channels = image->channels;
+	newImage.setData( image.data.data() );
 
-	newImage->setData( image->data.data() );
-
-	int width = image->sizeX * image->channels;
+	int width = image.sizeX * image.channels;
 
 	int oldimagecount = 0;
 	int newimagecount = 0;	
 	int y;
 
-	for( int x = image->sizeY-1; x >= 0; x--, oldimagecount = x * width ) {
+	for( int x = image.sizeY-1; x >= 0; x--, oldimagecount = x * width ) {
 		for( y = 0; y < width; y++ ) {
-			newImage->data[ newimagecount++ ] = image->data[ oldimagecount++ ];
+			newImage.data[ newimagecount++ ] = image.data[ oldimagecount++ ];
 		}
 	}
 	
-	delete image;
-
 	image = newImage;
 	return image;
 }
@@ -164,7 +157,7 @@ Image convertToAlpha( int aR, int aG, int aB, Image image ) {
 	newimage.channels = 4;
 	newimage.sizeX = image.sizeX;
 	newimage.sizeY = image.sizeY;
-	newimage.setData( image.data.data() );
+	newimage.allocate( );
 	
 	int oldimagecount = 0;	
 	int newimagecount = 0;	
