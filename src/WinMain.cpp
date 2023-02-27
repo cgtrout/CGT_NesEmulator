@@ -195,7 +195,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		_log->Write( "Error setting timer resolution to 1ms" );
 	}
 
-	const float FRAME_TIME = 0.01663926f;
+	const float FRAME_TIME = 1.0f/60.0f;
 	
 	systemMain->consoleSystem.variables.addBoolVariable( &capFrameRate );
 	float elapsedTime = 0.0f;
@@ -221,7 +221,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		elapsedTime = 0;
 		freshFrame = true;
 
-		//cap to 60.098814 frames per second
+		//cap to 60 frames per second
 		while( elapsedTime < FRAME_TIME ) {
 
 			if ( PeekMessage( &msg,NULL,0,0,PM_REMOVE ) )	// Is There A Message Waiting?
