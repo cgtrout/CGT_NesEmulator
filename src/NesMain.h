@@ -57,7 +57,7 @@ namespace NesEmulator {
 		PpuSystem::NesPPU					nesPpu;
 		NesEmulator::NesEmulatorFlagSystem  emulatorFlags;
 
-		//NesApu::NesSound					nesApu;
+		NesApu::NesSound					nesApu;
 
 	#ifndef LIGHT_BUILD
 		NesEmulator::NesDebugger			nesDebugger;

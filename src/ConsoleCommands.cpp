@@ -57,9 +57,9 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		//systemMain->nesMain.nesMemory.zeroMemory();
 		//systemMain->nesMain.nesMemory.ppuMemory.zeroMemory();
 		//restart sound system if it is already running
-		//if( systemMain->soundSystem->isInitialized() ) {
-		//	systemMain->soundSystem->shutDown();
-		//}
+		if( systemMain->soundSystem->isInitialized() ) {
+			systemMain->soundSystem->shutDown();
+		}
 		consoleSystem->printMessage( "Initializing soundsystem" );
 
 		//start sound system

@@ -174,8 +174,8 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	systemMain->renderer.setRes( XRES, YRES );
 	
 	//assign soundsystem
-	//systemMain->soundSystem = &winSoundSystem;
-	//systemMain->soundSystem->assignNesSoundBuffer( systemMain->nesMain.nesApu.getNesSoundBuffer() );
+	systemMain->soundSystem = &winSoundSystem;
+	systemMain->soundSystem->assignNesSoundBuffer( systemMain->nesMain.nesApu.getNesSoundBuffer() );
 
 	systemMain->start();
 	
