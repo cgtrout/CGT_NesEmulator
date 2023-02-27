@@ -167,7 +167,7 @@ void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte 
 }
 
 
-void Renderer::drawImage( Image *image, Vec2d *pos, bool flip_y, float scale, float opacity ) {
+void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, float opacity ) {
 	static GLuint imgid = 0;
 				
 	if( imgid != 0 ) {
@@ -176,15 +176,13 @@ void Renderer::drawImage( Image *image, Vec2d *pos, bool flip_y, float scale, fl
 
 	glEnable( GL_BLEND );
 	
-    if( image->channels == 3 ) {
+    if( image.channels == 3 ) {
 		createTexture( image, &imgid, GL_RGB );
 	} else {
 		createTexture( image, &imgid, GL_RGBA );
 	}
     
 	//glBindTexture( GL_TEXTURE_2D, imgid );
-    
-    
 
 	float ystart;
 	float yend;
@@ -201,10 +199,10 @@ void Renderer::drawImage( Image *image, Vec2d *pos, bool flip_y, float scale, fl
 	glColor4f( 1.0f, 1.0f, 1.0f, opacity );			
 
     glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, ystart ); glVertex3f( pos->x, pos->y, zdrawPos );
-		glTexCoord2f( 0.0, yend ); glVertex3f( pos->x, pos->y + ( image->sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, yend ); glVertex3f( pos->x + ( image->sizeX*scale ), pos->y + ( image->sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, ystart ); glVertex3f( pos->x + ( image->sizeX*scale ), pos->y, zdrawPos );
+		glTexCoord2f( 0.0, ystart ); glVertex3f( pos.x, pos.y, zdrawPos );
+		glTexCoord2f( 0.0, yend ); glVertex3f( pos.x, pos.y + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, yend ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, ystart ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y, zdrawPos );
 	glEnd();
 
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f);			
@@ -342,7 +340,7 @@ void PPUDraw::drawPatternTable() {
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( &img, &imgid, GL_RGB );
+    createTexture( img, &imgid, GL_RGB );
     glBindTexture( GL_TEXTURE_2D, imgid );
     
     float zdrawpos = 0.0001f;
@@ -384,7 +382,7 @@ void PPUDraw::drawOutput( ubyte *data ) {
     img.setData(data);
     
 	Vec2d pos( x, y );
-	systemMain->renderer.drawImage( &img, &pos, true, scale );
+	systemMain->renderer.drawImage( img, pos, true, scale );
 }
 
 void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
@@ -411,7 +409,7 @@ void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( &img, &imgid, GL_RGB );
+    createTexture( img, &imgid, GL_RGB );
     glBindTexture( GL_TEXTURE_2D, imgid );
     
     float zdrawpos	= 0.0f;

@@ -98,16 +98,16 @@ void GUI::renderDrawList( std::list< GEDrawElement* > drawList ) {
 		glBegin( GL_POLYGON );
 		switch( curr->stretchType ) {
 		case ST_X:
-				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - posy - curr->image->sizeY, zdrawpos );
+				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - posy - curr->image.sizeY, zdrawpos );
 				glTexCoord2f( 0.0, 1.0 ); glVertex3f( posx, yres- posy, zdrawpos );
 				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->stretchFactorx, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->stretchFactorx, yres - posy - curr->image->sizeY, zdrawpos );
+				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->stretchFactorx, yres - posy - curr->image.sizeY, zdrawpos );
 			break;
 		case ST_Y:
 				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr->stretchFactory ), zdrawpos );
 				glTexCoord2f( 0.0, 1.0 ); glVertex3f( posx,  yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->image->sizeX, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->image->sizeX, yres - posy - curr->image->sizeY - curr->stretchFactory, zdrawpos );
+				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->image.sizeX, yres - posy, zdrawpos );
+				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->image.sizeX, yres - posy - curr->image.sizeY - curr->stretchFactory, zdrawpos );
 			break;
 		case ST_XY:
 				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr->stretchFactory ), zdrawpos );
@@ -116,10 +116,10 @@ void GUI::renderDrawList( std::list< GEDrawElement* > drawList ) {
 				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->stretchFactorx, yres - ( posy + curr->stretchFactory ), zdrawpos );
 			break;
 		case ST_NONE:
-				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr->image->sizeY ), zdrawpos );
+				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr->image.sizeY ), zdrawpos );
 				glTexCoord2f( 0.0, 1.0 ); glVertex3f( posx, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->image->sizeX, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->image->sizeX, yres - ( posy + curr->image->sizeY ), zdrawpos );
+				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->image.sizeX, yres - posy, zdrawpos );
+				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->image.sizeX, yres - ( posy + curr->image.sizeY ), zdrawpos );
 		}	
 		glEnd();
 		
@@ -144,11 +144,6 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 
 	glBindTexture( GL_TEXTURE_2D, font->geImageid() );
 
-	//prevent outright crash if the font is not inialized
-	if( font->geImage() == NULL ) {
-		throw GUIRunException( "GUI::renderTextLabel", "Font not intialized!" );
-	}
-	
 	//get console opacity value
 	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( &std::string("fontOpacity"))));
 	

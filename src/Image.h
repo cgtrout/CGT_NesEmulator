@@ -51,6 +51,9 @@ class Image {
 	void setData( ubyte* data );
 
 	int getSize() { return channels * sizeX * sizeY; }
+	
+	//size up to next power of two to satisfy opengl requirements
+	void resizePowerOfTwo( );
 
 	Image(): data(), imgid(0) {}
 	~Image();
@@ -68,12 +71,12 @@ public:
 }; 
 
 void copyImage( Image *source, int sx, int sy, int width, int height, Image *destination, int dx, int dy );
-Image *loadImage( const char *strFileName );
+Image loadImage( const char *strFileName );
 Image *flipImage( Image *image );
-Image *convertToAlpha( int aR, int aG, int aB, Image *image );
+Image convertToAlpha( int aR, int aG, int aB, Image image );
 
 // This loads and returns the BMP data
-Image *LoadBMP( const char *strFileName );
+Image LoadBMP( const char *strFileName );
 
 void ExportImageToBMP( Image *image, char *fileName );
 

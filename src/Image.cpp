@@ -42,6 +42,7 @@ void Image::clearImage()
 ==============================================
 */
 void Image::clearImage() {
+	assert( channels != 0 && sizeX != 0 && sizeY != 0 );
 	memset( data.data(), 0, getSize() );
 }
 
@@ -51,12 +52,36 @@ void Image::allocate()
 ==============================================
 */
 void Image::allocate() {
+	assert( channels != 0 && sizeX != 0 && sizeY != 0 );
 	data.resize( getSize( ) );
 }
 
 void Image::setData( ubyte* data ) {
 	assert( channels != 0 && sizeX != 0 && sizeY != 0 );
 	this->data = std::vector<ubyte>( data, data + getSize());
+}
+
+int pow2Table[] = { 2,4,6,8,16,32,64,128,256,512,1024,2048 };
+
+int getNextPowerOf2( int value ) {
+	static int sizeOfTable = sizeof( pow2Table ) / sizeof( int );
+
+	for ( int x = 0; x < sizeOfTable; x++ ) {
+		if ( value < pow2Table[ x ] ) {
+			return pow2Table[ x ];
+		}
+		if ( value == pow2Table[ x ] ) {
+			return pow2Table[ x ];
+		}
+	}
+
+	return 0;
+}
+
+void Image::resizePowerOfTwo( ) {
+	sizeX = getNextPowerOf2( sizeX );
+	sizeY = getNextPowerOf2( sizeY );
+	allocate( );
 }
 
 /* 
@@ -66,8 +91,8 @@ Image *loadImage( const char *strFileName )
   TODO add loaders for different file types
 ==============================================
 */
-Image *loadImage( const char *strFileName ) {
-	Image *pImage;
+Image loadImage( const char *strFileName ) {
+	Image pImage;
 
 	// If the file is a bitmap, load the bitmap and store the data in pImage
 	if( strstr( strFileName, ".bmp" ) ) {
@@ -128,39 +153,35 @@ convertToAlpha()
   alpha channel
 ==============================================
 */
-Image *convertToAlpha( int aR, int aG, int aB, Image *image ) {
-	Image *newImage = NULL;
-	int sizeOfImage = image->sizeX * image->sizeY;
+Image convertToAlpha( int aR, int aG, int aB, Image image ) {
+	Image newimage;
+	int sizeOfImage = image.sizeX * image.sizeY;
 
-	if( image->channels != 3 ) {
+	if( image.channels != 3 ) {
 		throw ImageException( "convertToAlpha()", "Image must have 3 channels ( RGB )" );
 	}
 
-	newImage = new Image;
-	
-	newImage->channels = 4;
-	newImage->sizeX = image->sizeX;
-	newImage->sizeY = image->sizeY;
-	newImage->setData( image->data.data() );
+	newimage.channels = 4;
+	newimage.sizeX = image.sizeX;
+	newimage.sizeY = image.sizeY;
+	newimage.setData( image.data.data() );
 	
 	int oldimagecount = 0;	
 	int newimagecount = 0;	
 	ubyte red, green, blue, alpha;
 	for ( int x = 0; x < sizeOfImage; x++, oldimagecount += 3, newimagecount +=4 ) {
-		red = image->data[ oldimagecount ];
-		green = image->data[ oldimagecount+1 ];
-		blue = image->data[ oldimagecount+2 ];
+		red = image.data[ oldimagecount ];
+		green = image.data[ oldimagecount+1 ];
+		blue = image.data[ oldimagecount+2 ];
 		alpha = ( red == aR && green == aG && blue == aB ) ? 0 : 255;
 
-		newImage->data[ newimagecount ] = red;
-		newImage->data[ newimagecount+1 ] = green;
-		newImage->data[ newimagecount+2 ] = blue;
-		newImage->data[ newimagecount+3 ] = alpha;		
+		newimage.data[ newimagecount ] = red;
+		newimage.data[ newimagecount+1 ] = green;
+		newimage.data[ newimagecount+2 ] = blue;
+		newimage.data[ newimagecount+3 ] = alpha;		
 	}
 	
-	delete image;
-
-	image = newImage;
+	image = newimage;
 	return image;
 }
 
@@ -182,12 +203,12 @@ unsigned int readLSBFirstInt( std::ifstream *is ) {
 
 //only supports 24-bit bmps
 //does not take into account padding bytes if bmp dimensions x and y are not a multiple of 4
-Image *LoadBMP( const char *strFileName ) {
+Image LoadBMP( const char *strFileName ) {
     std::string error;
     std::ifstream is( strFileName, std::ios::binary );
     
     //Image to return
-    Image *t;
+    Image img;
     
     int dataSize;
     
@@ -209,7 +230,6 @@ Image *LoadBMP( const char *strFileName ) {
         error = "Not a 24bit BMP File: ";
         goto imageError;
     }
-    t = new Image();
     
     fileSize = readLSBFirstInt( &is );
     
@@ -217,14 +237,13 @@ Image *LoadBMP( const char *strFileName ) {
     dataOffset = readLSBFirstInt( &is );
     
     is.seekg( 0x12, std::ios::beg );
-    t->sizeX = readLSBFirstInt( &is );
+    img.sizeX = readLSBFirstInt( &is );
     
     is.seekg( 0x16, std::ios::beg );
-    t->sizeY = readLSBFirstInt( &is );
+    img.sizeY = readLSBFirstInt( &is );
     
     is.seekg( 0x1C, std::ios::beg );   
     is.read( reinterpret_cast< char* >( &bitCount ), 1 );       
-     
 
     //bitcount must be 24
     if( bitCount != 24 ) {
@@ -232,30 +251,29 @@ Image *LoadBMP( const char *strFileName ) {
         goto imageError;
     }
 	
-	t->channels = 3;
+	img.channels = 3;
 
     //get data
     is.seekg( dataOffset, std::ios::beg );
     
     dataSize = fileSize - dataOffset;
-	t->allocate( );
+	img.allocate( );
     
     //read in data
-    is.read( reinterpret_cast< char* >( t->data.data() ), dataSize );       
-    
-    
+    is.read( reinterpret_cast< char* >( img.data.data() ), dataSize );       
+        
 	//swap around 1st and 3rd byte for every 3 bytes in data
 	for( int x = 0; x < dataSize ; x += 3 ) {
-		ubyte temp1 = t->data[x];
-		ubyte temp2 = t->data[x + 2];
+		ubyte temp1 = img.data[x];
+		ubyte temp2 = img.data[x + 2];
 
-		t->data[x] = temp2;
-		t->data[x + 2] = temp1;
+		img.data[x] = temp2;
+		img.data[x + 2] = temp1;
 	}
 
     is.close();
     
-    return t;
+    return img;
     
 imageError:
 	error += strFileName;

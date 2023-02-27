@@ -81,7 +81,7 @@ namespace Render {
 		void render2D();
 
 		void drawBox( float x, float y, float width, float height, Pixel3Byte color );
-		void drawImage( Image *image, Vec2d *pos, bool flip_y = false, float scale = 1.0f, float opacity = 1.0f );
+		void drawImage( Image image, Vec2d pos, bool flip_y = false, float scale = 1.0f, float opacity = 1.0f );
 		
 		void findTextureExtension( char *strFileName );
 

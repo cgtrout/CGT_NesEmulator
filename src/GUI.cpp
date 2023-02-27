@@ -520,33 +520,33 @@ void DialogBox::onRender() {
 	drawList.clear();
 
 	lborder.x = x;
-	lborder.y = y + titleBar->left.image->sizeY;
-	lborder.stretchFactory = height - ( blcorner.image->sizeY+1 ) - titleBar->left.image->sizeY;
+	lborder.y = y + titleBar->left.image.sizeY;
+	lborder.stretchFactory = height - ( blcorner.image.sizeY+1 ) - titleBar->left.image.sizeY;
 	lborder.stretchType = ST_Y;
 
-	rborder.x = x + ( width - rborder.image->sizeX );
-	rborder.y = y + titleBar->right.image->sizeY;
-	rborder.stretchFactory = height - ( brcorner.image->sizeY+1 ) - titleBar->right.image->sizeY;
+	rborder.x = x + ( width - rborder.image.sizeX );
+	rborder.y = y + titleBar->right.image.sizeY;
+	rborder.stretchFactory = height - ( brcorner.image.sizeY+1 ) - titleBar->right.image.sizeY;
 	rborder.stretchType = ST_Y;
 
 	blcorner.x = x;
-	blcorner.y = y + ( height - blcorner.image->sizeY );
+	blcorner.y = y + ( height - blcorner.image.sizeY );
 	blcorner.stretchType = ST_NONE;
 
-	brcorner.x = x + ( width - brcorner.image->sizeX );
-	brcorner.y = y + ( height - blcorner.image->sizeY );
+	brcorner.x = x + ( width - brcorner.image.sizeX );
+	brcorner.y = y + ( height - blcorner.image.sizeY );
 	brcorner.stretchType = ST_NONE;
 
-	bborder.x = x + ( blcorner.image->sizeX );
-	bborder.y = y + ( height - blcorner.image->sizeY );
-	bborder.stretchFactorx = width - ( 2 * brcorner.image->sizeX );
+	bborder.x = x + ( blcorner.image.sizeX );
+	bborder.y = y + ( height - blcorner.image.sizeY );
+	bborder.stretchFactorx = width - ( 2 * brcorner.image.sizeX );
 	bborder.stretchType = ST_X;
 
-	background.x = x + lborder.image->sizeX;
-	background.y = y + titleBar->left.image->sizeY;
+	background.x = x + lborder.image.sizeX;
+	background.y = y + titleBar->left.image.sizeY;
 	background.stretchType = ST_XY;
-	background.stretchFactorx = width - rborder.image->sizeX;
-	background.stretchFactory = height - ( titleBar->middle.image->sizeY + bborder.image->sizeY );
+	background.stretchFactorx = width - rborder.image.sizeX;
+	background.stretchFactory = height - ( titleBar->middle.image.sizeY + bborder.image.sizeY );
 
 	drawList.push_back( &lborder );
 	drawList.push_back( &rborder );
@@ -671,38 +671,38 @@ void EditBox::onRender() {
 
 	if( draw ) {
 		l.x = x;
-		l.y = y + t.image->sizeY;
-		l.stretchFactory = height - ( 2 * b.image->sizeY );
+		l.y = y + t.image.sizeY;
+		l.stretchFactory = height - ( 2 * b.image.sizeY );
 		l.stretchType = ST_Y;
 
-		r.x = x + ( width - ( r.image->sizeX ) );
-		r.y = y + t.image->sizeY;
-		r.stretchFactory = height - ( 2 * b.image->sizeY );
+		r.x = x + ( width - ( r.image.sizeX ) );
+		r.y = y + t.image.sizeY;
+		r.stretchFactory = height - ( 2 * b.image.sizeY );
 		r.stretchType = ST_Y;
 
 		bl.x = x;
-		bl.y = y + ( height - bl.image->sizeY );
+		bl.y = y + ( height - bl.image.sizeY );
 		bl.stretchType = ST_NONE;
 
-		br.x = x + ( width - br.image->sizeX );
-		br.y = y + ( height - bl.image->sizeY );
+		br.x = x + ( width - br.image.sizeX );
+		br.y = y + ( height - bl.image.sizeY );
 		br.stretchType = ST_NONE;
 
-		b.x = x + ( bl.image->sizeX );
-		b.y = y + ( height - bl.image->sizeY );
-		b.stretchFactorx = width - ( 2 * br.image->sizeX );
+		b.x = x + ( bl.image.sizeX );
+		b.y = y + ( height - bl.image.sizeY );
+		b.stretchFactorx = width - ( 2 * br.image.sizeX );
 		b.stretchType = ST_X;
 		
 		tl.x = x;
 		tl.y = y;
 		tl.stretchType = ST_NONE;
 		
-		t.x = x + tl.image->sizeX;
+		t.x = x + tl.image.sizeX;
 		t.y = y;
-		t.stretchFactorx = width - ( 2 * tr.image->sizeX );
+		t.stretchFactorx = width - ( 2 * tr.image.sizeX );
 		t.stretchType = ST_X;
 
-		tr.x = x + ( width - tr.image->sizeX );
+		tr.x = x + ( width - tr.image.sizeX );
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 
@@ -953,38 +953,38 @@ void Button::onRender() {
 
 	if( !buttonDown ) {
 		l.x = x;
-		l.y = y + t.image->sizeY;
-		l.stretchFactory = height - ( 2 * b.image->sizeY );
+		l.y = y + t.image.sizeY;
+		l.stretchFactory = height - ( 2 * b.image.sizeY );
 		l.stretchType = ST_Y;
 
-		r.x = x + ( width - ( r.image->sizeX ) );
-		r.y = y + t.image->sizeY;
-		r.stretchFactory = height - ( 2 * b.image->sizeY );
+		r.x = x + ( width - ( r.image.sizeX ) );
+		r.y = y + t.image.sizeY;
+		r.stretchFactory = height - ( 2 * b.image.sizeY );
 		r.stretchType = ST_Y;
 
 		bl.x = x;
-		bl.y = y + ( height - bl.image->sizeY );
+		bl.y = y + ( height - bl.image.sizeY );
 		bl.stretchType = ST_NONE;
 
-		br.x = x + ( width - br.image->sizeX );
-		br.y = y + ( height - bl.image->sizeY );
+		br.x = x + ( width - br.image.sizeX );
+		br.y = y + ( height - bl.image.sizeY );
 		br.stretchType = ST_NONE;
 
-		b.x = x + ( bl.image->sizeX );
-		b.y = y + ( height - bl.image->sizeY );
-		b.stretchFactorx = width - ( 2 * br.image->sizeX );
+		b.x = x + ( bl.image.sizeX );
+		b.y = y + ( height - bl.image.sizeY );
+		b.stretchFactorx = width - ( 2 * br.image.sizeX );
 		b.stretchType = ST_X;
 		
 		tl.x = x;
 		tl.y = y;
 		tl.stretchType = ST_NONE;
 		
-		t.x = x + tl.image->sizeX;
+		t.x = x + tl.image.sizeX;
 		t.y = y;
-		t.stretchFactorx = width - ( 2 * tr.image->sizeX );
+		t.stretchFactorx = width - ( 2 * tr.image.sizeX );
 		t.stretchType = ST_X;
 
-		tr.x = x + ( width - tr.image->sizeX );
+		tr.x = x + ( width - tr.image.sizeX );
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 	
@@ -999,38 +999,38 @@ void Button::onRender() {
 	}
 	else {
 		dl.x = x;
-		dl.y = y + t.image->sizeY;
-		dl.stretchFactory = height - ( 2 * b.image->sizeY );
+		dl.y = y + t.image.sizeY;
+		dl.stretchFactory = height - ( 2 * b.image.sizeY );
 		dl.stretchType = ST_Y;
 
-		dr.x = x + ( width - ( r.image->sizeX ) );
-		dr.y = y + t.image->sizeY;
-		dr.stretchFactory = height - ( 2 * b.image->sizeY );
+		dr.x = x + ( width - ( r.image.sizeX ) );
+		dr.y = y + t.image.sizeY;
+		dr.stretchFactory = height - ( 2 * b.image.sizeY );
 		dr.stretchType = ST_Y;
 
 		dbl.x = x;
-		dbl.y = y + ( height - bl.image->sizeY );
+		dbl.y = y + ( height - bl.image.sizeY );
 		dbl.stretchType = ST_NONE;
 
-		dbr.x = x + ( width - br.image->sizeX );
-		dbr.y = y + ( height - bl.image->sizeY );
+		dbr.x = x + ( width - br.image.sizeX );
+		dbr.y = y + ( height - bl.image.sizeY );
 		dbr.stretchType = ST_NONE;
 
-		db.x = x + ( bl.image->sizeX );
-		db.y = y + ( height - bl.image->sizeY );
-		db.stretchFactorx = width - ( 2 * br.image->sizeX );
+		db.x = x + ( bl.image.sizeX );
+		db.y = y + ( height - bl.image.sizeY );
+		db.stretchFactorx = width - ( 2 * br.image.sizeX );
 		db.stretchType = ST_X;
 		
 		dtl.x = x;
 		dtl.y = y;
 		dtl.stretchType = ST_NONE;
 		
-		dt.x = x + tl.image->sizeX;
+		dt.x = x + tl.image.sizeX;
 		dt.y = y;
-		dt.stretchFactorx = width - ( 2 * tr.image->sizeX );
+		dt.stretchFactorx = width - ( 2 * tr.image.sizeX );
 		dt.stretchType = ST_X;
 
-		dtr.x = x + ( width - tr.image->sizeX );
+		dtr.x = x + ( width - tr.image.sizeX );
 		dtr.y = y;
 		dtr.stretchType = ST_NONE;
 
@@ -1077,10 +1077,6 @@ TitleBar::TitleBar( std::string guitextures ) {
 }
 
 TitleBar::~TitleBar() {
-	delete left.image;
-	delete right.image;
-	delete middle.image;
-
 	delete closeButton;
 }
 
@@ -1112,7 +1108,7 @@ void TitleBar::initialize( std::string guitextures ) {
 		throw GUIElementInitializeException( "TitleBar: error", "loading image" );
 	}
 
-	height = (GuiDim)middle.image->sizeY;
+	height = (GuiDim)middle.image.sizeY;
 
 	addChild( closeButton );
 }
@@ -1140,18 +1136,18 @@ void TitleBar::onRender() {
 	x = parent->getX();
 	y = parent->getY();
 	width = parent->getWidth();
-	height = (GuiDim)middle.image->sizeY;
+	height = (GuiDim)middle.image.sizeY;
 
 	left.x = parent->getX();
 	left.y = parent->getY();
 	left.stretchType = ST_NONE;
 	
-	middle.x = parent->getX() + left.image->sizeX;
+	middle.x = parent->getX() + left.image.sizeX;
 	middle.y = parent->getY();
-	middle.stretchFactorx = parent->getWidth() - ( 2 * right.image->sizeX );
+	middle.stretchFactorx = parent->getWidth() - ( 2 * right.image.sizeX );
 	middle.stretchType = ST_X;
 
-	right.x = parent->getX() + ( parent->getWidth() - right.image->sizeX );
+	right.x = parent->getX() + ( parent->getWidth() - right.image.sizeX );
 	right.y = parent->getY();
 	right.stretchType = ST_NONE;
 
@@ -1376,22 +1372,22 @@ void Slider::onRender() {
 
 		middle.stretchType = ST_Y;
 		middle.x = x + ( width/2 );
-		middle.y = y + top.image->sizeY;
-		middle.stretchFactory = height - top.image->sizeY - bottom.image->sizeY;
+		middle.y = y + top.image.sizeY;
+		middle.stretchFactory = height - top.image.sizeY - bottom.image.sizeY;
 		
 		bottom.stretchType = ST_NONE;
 		bottom.x = x + ( width/2 );
-		bottom.y = y + height - bottom.image->sizeY;
+		bottom.y = y + height - bottom.image.sizeY;
 	}
 	else if( type == SLIDER_X ) {
 		top.stretchType = ST_NONE;
-		top.x = x + width - top.image->sizeX;
+		top.x = x + width - top.image.sizeX;
 		top.y = y + ( height/2 );
 
 		middle.stretchType = ST_X;
-		middle.x = x + bottom.image->sizeX;
+		middle.x = x + bottom.image.sizeX;
 		middle.y = y + ( height/2 );
-		middle.stretchFactorx = width - top.image->sizeY - bottom.image->sizeY;
+		middle.stretchFactorx = width - top.image.sizeY - bottom.image.sizeY;
 		
 		bottom.stretchType = ST_NONE;
 		bottom.x = x;
@@ -1629,25 +1625,21 @@ bool MultiLineTextLabel::fillLines( std::string in ) {
 //////////////////////////////////////////////////////////////////////
 
 Font::Font() {
-	image = NULL;
 	fontWidth = 0;
 	fontHeight = 0;
 }
 
 Font::~Font() {
 	_log->Write( "Font box destructor called" );
-	if( image != NULL ) {
-		delete image;
-	}
 }
 
 void Font::loadFont( const char *file ) {
 	try {
 		//_log->Write( "Load font %s", file );
 	        image = loadImage( file );
-		fontWidth = (GuiDim)image->sizeX / 32;
-		fontHeight = (GuiDim)image->sizeY / 4;	
-		if( image->channels == 3 )
+		fontWidth = (GuiDim)image.sizeX / 32;
+		fontHeight = (GuiDim)image.sizeY / 4;	
+		if( image.channels == 3 )
 			image = convertToAlpha( 0, 0, 0, image );	
 		createTexture( image, &imageid );
 	}
@@ -1689,10 +1681,10 @@ void Font::buildCoordTable() {
 		y = ( 3 * fontHeight ) - ( gridy * fontHeight );	
 		
 		TextureCoord tc;
-		tc.x0 = x / image->sizeX;
-		tc.y0 = y / image->sizeY;
-		tc.x1 = ( x + fontWidth ) / image->sizeX;
-		tc.y1 = ( y + fontHeight ) / image->sizeY;
+		tc.x0 = x / image.sizeX;
+		tc.y0 = y / image.sizeY;
+		tc.x1 = ( x + fontWidth ) / image.sizeX;
+		tc.y1 = ( y + fontHeight ) / image.sizeY;
 
 		coordTable.push_back( tc );
 	}

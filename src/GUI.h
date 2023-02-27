@@ -49,16 +49,14 @@ namespace GUISystem {
 	class GEDrawElement {
 	public:	
 		GEDrawElement() {
-			image = NULL;
 			opacity = 1.0;
 		}
 
 		virtual ~GEDrawElement() {
-			if( image != NULL )
-				delete image;
+		
 		}
 
-		Image *image;
+		Image image;
 		unsigned int imageid;
 		GuiDim x, y, 
 			stretchFactorx, //how much to stretch if not ST_NONE
@@ -284,7 +282,7 @@ namespace GUISystem {
 		GuiDim &getFontWidth() {return fontWidth;}
 		GuiDim &getFontHeight() {return fontHeight;}
 
-		Image *geImage() {return image;}
+		Image getImage() {return image;}
 
 		//pixel coordinates to draw given character at
 		//must call setChar first to get these
@@ -306,7 +304,7 @@ namespace GUISystem {
 
 		std::vector< TextureCoord > coordTable;
 
-		Image *image;
+		Image image;
 		unsigned int imageid;
 	};
 
