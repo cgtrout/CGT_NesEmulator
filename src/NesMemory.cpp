@@ -308,15 +308,16 @@ private:
 
 
 inline void ApuCpuSync() {
-	if( nesApu->getCC() < nesCpu->getCC() ) {	
-		nesApu->runTo( nesCpu->getCC() );
-	}  
+	//if( nesApu->getCC() < nesCpu->getCC() ) {	
+		//nesApu->runTo( nesCpu->getCC() );
+	//}  
 }
 
 //handles 4000 set of registers
 class FuncObjRegisters4000 : public FunctionObjectBase {
 public:
 	void write( uword address, ubyte param ) {
+		/*
 		ubyte reg = resolve( address );
 
 		//square channel 0
@@ -338,15 +339,18 @@ public:
 		//else if( reg == 0x4015 ) memorySys->ph4015Write( param );
 		else if( reg == 0x16 ) memorySys->ph4016Write( param );
 		else if( reg == 0x17 ) memorySys->ph4017Write( param );
+		*/
 	}
 	
 	ubyte read( uword address ) {
+		/*
 		ubyte reg = resolve( address );
 		
 		//if( reg == 0x14 ) return memorySys->ph4014Read();
 		//else if( reg == 0x15 ) return memorySys->ph4015Read();
 		if( reg == 0x16 ) return memorySys->ph4016Read();
 		else if( reg == 0x17 ) return memorySys->ph4017Read();
+		*/
 		return 0;
 	}
 private:
@@ -376,7 +380,7 @@ NesMemory::NesMemory() {
 void NesMemory::initialize( )
 {
 	nesPpu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesPpu;
-	nesApu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesApu;
+	//nesApu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesApu;
 	memorySys = this;
 	controllerSystem = &FrontEnd::SystemMain::getInstance( )->nesMain.controllerSystem;
 	nesCpu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesCpu;

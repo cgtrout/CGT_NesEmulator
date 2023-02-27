@@ -70,7 +70,9 @@ SystemMain::~SystemMain()
 ==============================================
 */
 SystemMain::~SystemMain() {
-	soundSystem->shutDown();
+	if ( soundSystem ) {
+		soundSystem->shutDown( );
+	}
 	input->writeBindsToFile( "binds.cfg" );
 }
 

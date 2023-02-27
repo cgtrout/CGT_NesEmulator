@@ -67,20 +67,22 @@ void NesMain::update() {
 				nesPpu.renderBuffer( vintTime );
 			}
 
+			/*
 			if( nesApu.getCC() < vintTime ) {
 				systemMain->timeProfiler.stopSection( "Cpu" );
 				systemMain->timeProfiler.startSection( "Apu" );
 				
 				_log->Write( "Updating APU" );
-				nesApu.runTo( vintTime );
+				//nesApu.runTo( vintTime );
 				
 				systemMain->timeProfiler.stopSection( "Apu" );
 				systemMain->timeProfiler.startSection( "Cpu" );
 			}
+			*/
 			//reset internal clock counters
 			nesPpu.resetCC();
 			nesCpu.resetCC();
-			nesApu.resetCC();
+			//nesApu.resetCC();
 			
 			nesPpu.initializeFrame();
 			
