@@ -19,8 +19,6 @@ namespace CgtString {
 	================================================================
 	Class StringTokenizer
 	  this class is used to break up a string into multiple tokens
-
-	  TODO good candidate for smart ptr's
 	================================================================
 	================================================================
 	*/
