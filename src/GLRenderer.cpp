@@ -337,8 +337,8 @@ void PPUDraw::drawPatternTable() {
     img.channels = 3; 
     img.sizeX = ( 0x0f * 8 ) * 2;
     img.sizeY = 0x0f * 8;
-    img.data = std::vector<ubyte>( ppuPixelGen.getPatternTablePixelData24Bit( ), ppuPixelGen.getPatternTablePixelData24Bit( ) + img.getSize() );
-    
+	img.setData( ppuPixelGen.getPatternTablePixelData24Bit( ) );
+
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
@@ -376,7 +376,8 @@ void PPUDraw::drawOutput( ubyte *data ) {
     if( imgid != 0 ) {
         glDeleteTextures( 1, &imgid );
     }
-
+	
+	//TODO fix sketchy argument pass of image
     img.channels = 3; 
     img.sizeX	 = 256; 
     img.sizeY	 = 256;
