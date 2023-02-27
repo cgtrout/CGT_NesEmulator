@@ -369,32 +369,28 @@ GUITextures Class
 =================================================================
 =================================================================
 */
-void GUITextures::loadFromFile( std::string fileName ) {
-	char buf[ 1000 ];
-	std::string line;
-	std::ifstream is( fileName.c_str() );
+void GUITextures::loadFromFile( const std::string &fileName ) {
+	//char buf[ 1000 ];
+	//std::string line;
+	std::ifstream is( fileName );
 	std::string error;
 	this->fileName = fileName;
-
-	currLine = 1;
 
 	if( is.fail() != 0 ) {
 		std::stringstream ss;
 		ss << "Error loading file \"" << fileName << "\"" << strerror(is.fail());
 		throw GUITexturesLoadException( "GUITextures::loadFromFile", ss.str() );
 	}
-	
-	while( !is.eof() ) {
-		is.getline( buf, 80 );
-		line = buf;
+
+	for ( std::string line; std::getline( is, line ); )
+	{
 		parseLine( line );
-		currLine++;
 	}
 	
 	is.close();
 }
 
-void GUITextures::parseLine( std::string line ) {
+void GUITextures::parseLine( const std::string &line ) {
 	unsigned int x = 0;	//position in line
 	int firstq = -1;	//first quote
 	int secq = -1;		//second quote

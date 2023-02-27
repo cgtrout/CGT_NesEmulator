@@ -123,8 +123,8 @@ namespace GUISystem {
 		std::list< std::string > fileList;
 		std::list< std::string >::iterator iter;
 		std::string fileName;
-		void loadFromFile( std::string fileName );
-		void parseLine( std::string line );
+		void loadFromFile( const std::string &fileName );
+		void parseLine( const std::string &line );
 
 		char buffer[ 255 ];
 
