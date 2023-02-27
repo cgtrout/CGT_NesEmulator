@@ -31,7 +31,7 @@ namespace CgtString {
 
 		// tokenizes a string and returns a vector of strings
 		// "string*"  string to tokenize
-		std::vector< std::string > tokenize(const std::string& );
+		std::vector< std::string > tokenize(std::string_view );
 
 		// setMinTokens - set min number of tokens to return
 		//

@@ -140,8 +140,7 @@ void GUIConsole::update() {
 }
 
 void GUIConsole::ConsoleEditBox::onEnterKey() {
-	std::string exStr = text;
-	consoleSystem->executeRequest( exStr, true );
+	consoleSystem->executeRequest( this->text, true );
 	( ( GUIConsole* )parent )->changed = true;
 	clearText();	
 }

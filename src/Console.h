@@ -67,7 +67,7 @@ namespace Console {
 		std::string getValueString();
 
 		T getValue() { return value; }
-		void setValueString( const std::string &val );
+		void setValueString( std::string_view val );
 		void setValue( T val );
 
 		operator T() const { return value; }
@@ -108,7 +108,7 @@ namespace Console {
 		  
 		  //returns a definition, if it was in the file 
 		  //other wise returns null if varname was not found
-		  DefinitionLine *getDefinition( const std::string &varName );
+		  DefinitionLine *getDefinition( std::string_view varName );
 	  private:
 		  std::vector< DefinitionLine* > vars;
 	};
@@ -133,10 +133,10 @@ namespace Console {
 	  public:
 		//finds a variable in consoles variable list
 		//returns a pointer to varible if found
-		ConsoleVariable< int >    *getIntVariable	( const std::string &variable );
-		ConsoleVariable< float >  *getFloatVariable ( const std::string &variable );
-		ConsoleVariable< bool >   *getBoolVariable  ( const std::string &variable );
-		ConsoleVariable< std::string > *getStringVariable( const std::string &variable );
+		ConsoleVariable< int >    *getIntVariable	( std::string_view variable );
+		ConsoleVariable< float >  *getFloatVariable ( std::string_view variable );
+		ConsoleVariable< bool >   *getBoolVariable  ( std::string_view variable );
+		ConsoleVariable< std::string > *getStringVariable( std::string_view variable );
 				
 		//add variable/command to consolesytem
 		void addIntVariable   ( ConsoleVariable < int    > *var );
@@ -145,14 +145,14 @@ namespace Console {
 		void addStringVariable( ConsoleVariable < std::string > *var );
 
 		//gets a string representation of a value
-		std::string getValueString( const std::string &varName );
-		std::string getVariableDescription( const std::string &varName );
+		std::string getValueString( std::string_view varName );
+		std::string getVariableDescription( std::string_view varName );
 		
 		//Finds out if variable "varName" should be saved to
 		//file or not.
 		//Will not return any kind of error if variable does
 		//not exist( it will return a false )
-		bool getSaveVarToFile( const std::string &varName );
+		bool getSaveVarToFile( std::string_view varName );
 
 		Variables();
 		~Variables();
@@ -171,7 +171,7 @@ namespace Console {
 		void addVariable( ConsoleVariable< T > *variable, std::list< ConsoleVariable< T >* > *varList );
 		
 		template< class T >
-		ConsoleVariable< T > *getVariable( const std::string  &name, std::list < ConsoleVariable< T >* > *varList );
+		ConsoleVariable< T > *getVariable( std::string_view name, std::list < ConsoleVariable< T >* > *varList );
 
 		//gets name list from a generic list of ConsoleVariables
 		template< class T >
@@ -204,13 +204,13 @@ namespace Console {
 		
 		//executes a command
 		//"echo"	if true, prints out command request to console
-		void executeRequest( const std::string  &command, bool echo );
+		void executeRequest( std::string_view  command, bool echo );
 		
 		//executes a command
 		//"command" represents the command to execute
 		//"value"	represents the value / or param
 		//"echo"	if true, prints out command request to console
-		void executeRequest( const std::string  &command, const std::string  &value, bool echo = true );		
+		void executeRequest( std::string_view command, std::string_view  value, bool echo = true );		
 	    
 		//get the last 'numLines' number of lines printed to console history starting at 'pos'
 		char *getHistoryLines( int numLines, int pos );
@@ -222,15 +222,15 @@ namespace Console {
 		void printMessage( const char *message, ... );
 		
 		//runs command given with params
-		void runCommand  ( ConsoleCommand  *command, const std::string  &param );
+		void runCommand  ( ConsoleCommand  *command, std::string_view param );
 
 		//finds a command and returns its description
-		std::string  getCommandDescription( const std::string &commandName );
+		std::string  getCommandDescription( std::string_view commandName );
 		
 		//used to show possible commands for user when they hit tab with a partial command
 		//returns match if only one found
 		//otherwise it returns NULL
-		std::string  printMatches( const std::string  &partial );
+		std::string  printMatches( std::string_view partial );
 
 		//get previous line from history buffer
 		std::string  getPreviousRequest();
@@ -239,7 +239,7 @@ namespace Console {
 		std::string getNextRequest();
 
 		//loads and executes a file containing commands
-		void loadCommandFile( const std::string  &filename );
+		void loadCommandFile( std::string_view filename );
 
 		//this class contains all of the variables of the console
 		//system
@@ -256,11 +256,11 @@ namespace Console {
 	    
 		//finds a variable - returns true if it exists
 		//set run to true to execute/change variable
-		bool findAndRunVariable ( const std::string  &varName, const std::string  &value, bool run = true );
+		bool findAndRunVariable ( std::string_view varName, std::string_view value, bool run = true );
 	    
 		//finds and possibly runs a command 
 		//set run to true to execute the variable
-		bool findAndRunCommand ( const std::string  &commandName, const std::string  &param, bool run = true );
+		bool findAndRunCommand ( std::string_view commandName, std::string_view param, bool run = true );
 
 		//History class - container with lines of history for console
 		//TODO this is fairly poorly designed and should be 

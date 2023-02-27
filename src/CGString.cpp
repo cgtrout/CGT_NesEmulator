@@ -28,7 +28,7 @@ std::string CgtString::strtolower( std::string_view str) {
 
 /* 
 ==============================================
-bool CgtString::strcasecmp( const char *str1, const char *str2 )
+bool CgtString::strcasecmp
 ==============================================
 */
 bool CgtString::strcasecmp( std::string_view str1, std::string_view str2 ) {
@@ -73,7 +73,7 @@ void StringTokenizer::clearStrings() {
 StringTokenizer::tokenize
 ==============================================
 */
-std::vector< std::string > StringTokenizer::tokenize( const std::string &str ) {
+std::vector< std::string > StringTokenizer::tokenize( std::string_view str ) {
 	unsigned int pos = 0;
 	unsigned int lastPos = 0;
 	int tokensFound = 0;
