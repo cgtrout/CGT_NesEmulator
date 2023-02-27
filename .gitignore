@@ -52,3 +52,7 @@ roms/ice_hock.nes
 *.lastbuildstate
 *.tlog
 CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/abfa9ad6b9af39c7/IMAGE.ipch
+binds.cfg
+ConsoleDefs.txt
+roms/icehock.nes
+roms/mario.nes
