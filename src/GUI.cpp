@@ -214,7 +214,9 @@ GUI::unactivateAllElements()
 ==============================================
 */
 void GUI::unactivateAllElements() {
-	for_each( elements.begin(), elements.end(), std::mem_fun( &GUIElement::unactivateElement ) );
+	for ( auto e : elements ) {
+		e->unactivateElement( );
+	}
 }
 
 /*

@@ -35,12 +35,10 @@ void NesFile::loadFile( std::string filename ) {
 		
 	//TODO make this more generalized (maybe add a console variable)
 	file = "./roms/" + file + ".nes";
-	std::ifstream *is = new std::ifstream( file.c_str(), std::ios::binary );
+	std::ifstream is( file.c_str(), std::ios::binary );
 		
-	if( !*is ) throw new NesFileException( "NesFile::loadFile error", "Could not find file" );
+	if( !is ) throw NesFileException( "NesFile::loadFile error", "Could not find file" );
 	
-	//make sure ifstream is deleted in all cases
-	std::auto_ptr< std::ifstream > f( is );
 	
 	//if memory has already been allocated delete it first
 	if( prgRomPages != 0 ) {
@@ -53,23 +51,23 @@ void NesFile::loadFile( std::string filename ) {
 	}
 	
 	//if first 3 bytes of header are not equal to "NES" throw exception
-	f->read( reinterpret_cast< char* >( nesStr ), 3 );
+	is.read( reinterpret_cast< char* >( nesStr ), 3 );
 	nesStr[ 3 ] = '\0';
 	if( strcmp( "NES", nesStr ) != 0 ) throw new NesFileException( "NesFile::loadFile error", "File not an .nes file" );
 	
 	//if next value is not 0x1a throw an exception
-	*f >> numcheck;
+	is >> numcheck;
 	if( numcheck != 0x1a ) throw new NesFileException( "NesFile::loadFile error", "File not an .nes file" );
 	
 	//read prgRom and charRom counts
-	*f >> prgRomPageCount;
-	*f >> chrRomPageCount;
+	is >> prgRomPageCount;
+	is >> chrRomPageCount;
 
 	//force chrRomPage count to 1 if it is 0
 	//if( chrRomPageCount == 0 ) chrRomPageCount = 1;
 	
 	//read the two control bytes
-	*f >> controlbyte1 >> controlbyte2;
+	is >> controlbyte1 >> controlbyte2;
 
 	//extract information from control bytes
 	horizontalMirroring = !( controlbyte1 & 1);		   //0001
@@ -92,14 +90,14 @@ void NesFile::loadFile( std::string filename ) {
 	}
 	
 	//load prg and chr rom from file
-	f->seekg( 16, std::ios::beg );
-	f->read( reinterpret_cast< char* >( prgRomPages ), prgRomPageCount * 0x4000 );
+	is.seekg( 16, std::ios::beg );
+	is.read( reinterpret_cast< char* >( prgRomPages ), prgRomPageCount * 0x4000 );
 	
 	if( chrRomPageCount != 0 ) {
-		f->read( reinterpret_cast< char* >( chrRomPages ), chrRomPageCount * 0x2000 );
+		is.read( reinterpret_cast< char* >( chrRomPages ), chrRomPageCount * 0x2000 );
 	}
 
-	f->close();
+	is.close();
 
 	//put in cpu and ppu membanks
 	nesMemory->loadPrgRomPages( prgRomPageCount, prgRomPages );
