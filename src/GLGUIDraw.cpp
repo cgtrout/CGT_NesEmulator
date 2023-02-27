@@ -36,7 +36,7 @@ void GUI::render() {
 	renderSystem = &FrontEnd::SystemMain::getInstance()->renderer;
 	
 	if( opacity == NULL ) {
-		opacity = console->variables.getFloatVariable( &std::string("guiOpacity") );
+		opacity = console->variables.getFloatVariable( "guiOpacity" );
 	}
 
 	//render gui elements
@@ -145,7 +145,7 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 	glBindTexture( GL_TEXTURE_2D, font->geImageid() );
 
 	//get console opacity value
-	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( &std::string("fontOpacity"))));
+	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( "fontOpacity")));
 	
 	unsigned int length = fs->getString().length();
 	

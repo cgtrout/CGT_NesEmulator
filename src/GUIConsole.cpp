@@ -141,7 +141,7 @@ void GUIConsole::update() {
 
 void GUIConsole::ConsoleEditBox::onEnterKey() {
 	std::string exStr = text;
-	consoleSystem->executeRequest( &exStr, true );
+	consoleSystem->executeRequest( exStr, true );
 	( ( GUIConsole* )parent )->changed = true;
 	clearText();	
 }
@@ -168,7 +168,7 @@ void GUIConsole::onKeyDown( uword key ) {
 		}
 		break;
 	case KB_TAB:
-		res = consoleSystem->printMatches( &editLine->getText() );
+		res = consoleSystem->printMatches( editLine->getText() );
 		if( !res.empty() ) {
 			editLine->setText( res );
 		}

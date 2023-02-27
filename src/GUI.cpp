@@ -1597,22 +1597,22 @@ void MultiLineTextLabel::setY( GuiDim val ) {
 	}	
 }
 
-bool MultiLineTextLabel::fillLines( std::string in ) {
+bool MultiLineTextLabel::fillLines( const std::string &in ) {
 	//tokenize input string
 	CgtString::StringTokenizer st;
 	st.setMinTokens( getNumLines() );
 	st.setDelims( "\n" );
-	std::vector< std::string* > *tokens = st.tokenize( &in );
+	auto tokens = st.tokenize( in );
 
 	//ensure we have enough lines to follow this request
-	if( tokens->size() > getNumLines() ) {
-		addLines( tokens->size() - getNumLines() );
+	if( tokens.size() > getNumLines() ) {
+		addLines( tokens.size() - getNumLines() );
 	}
 
 	//fill lines
 	std::vector< TextLabel* >::iterator i = lines.begin();
 	for( int ct = 0; i != lines.end(); i++, ct++ ) {
-		(*i)->setString( *(*tokens)[ ct ] ); 
+		(*i)->setString( (tokens)[ ct ] ); 
 	}	
 	
 	return true;

@@ -120,18 +120,18 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	//get tokens
 	StringTokenizer st;
 	st.setDelims( " " );
-	std::vector< std::string* > *tokens = st.tokenize( &p );
+	auto tokens = st.tokenize( p );
 	
-	if( tokens->size() < 3 ) {
+	if( tokens.size() < 3 ) {
 		printBindKeyUsage( "Not enough params entered." );
 		return;
 	}
 	
-	if( tokens->size() > 3 ) {
+	if( tokens.size() > 3 ) {
 		printBindKeyUsage( "Too many params entered." );
 		return;
 	}
-	if( *tokens->at( 1 ) != "to" ) {
+	if( tokens.at( 1 ) != "to" ) {
 		printBindKeyUsage( "Param 2 must be \"to\"" );
 		return;
 	}
@@ -139,20 +139,20 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	//parse command
 	std::string control;
 	std::string button;
-	std::string key = *tokens->at( 2 );
+	std::string key = tokens.at( 2 );
 
-	std::string command = *tokens->at( 0 );
+	std::string command = tokens.at( 0 );
 	
 	//tokenize command using '.' as delimiter
 	st.setDelims( "." );
-	tokens = st.tokenize( &command );
+	tokens = st.tokenize( command );
 
-	if( tokens->size() < 2 ) {
+	if( tokens.size() < 2 ) {
 		printBindKeyUsage( "Invalid command entered" );
 		return;
 	}
-	control = *tokens->at( 0 );
-	button = *tokens->at( 1 );
+	control = tokens.at( 0 );
+	button = tokens.at( 1 );
 
 	
 	//tokens are parsed, now interpret key and command
@@ -178,29 +178,29 @@ void CommandHandlerSystem::help( const char *param ) {
 	std::string params( param );
 	StringTokenizer st;
 	st.setDelims( " " );
-	std::vector< std::string* > *tokens = st.tokenize( &params );
+	auto tokens = st.tokenize( params );
 
-	if( tokens->size() == 0 ) {
+	if( tokens.size() == 0 ) {
 		printHelpUsage( NULL );
 		return;
 	}
 
-	if( tokens->size() > 1 ) {
+	if( tokens.size() > 1 ) {
 		printHelpUsage( "Too many params entered" );
 		return;
 	}
 
 	//first see if it is a variable
-	std::string desc = consoleSystem->variables.getVariableDescription( ( ( *tokens )[ 0 ] ) ) ;
+	std::string desc = consoleSystem->variables.getVariableDescription( ( ( tokens )[ 0 ] ) ) ;
 	if( desc != "NOT_FOUND" ) {
-		consoleSystem->printMessage( "%s: %s", ( *tokens )[ 0 ]->c_str(), desc.c_str() );
+		consoleSystem->printMessage( "%s: %s", ( tokens )[ 0 ].c_str(), desc.c_str() );
 		return;
 	}
 	
 	//now see if consoleCommand can be found ( since variable was not found"
-	desc = consoleSystem->getCommandDescription( ( *tokens )[ 0 ] );
+	desc = consoleSystem->getCommandDescription( ( tokens )[ 0 ] );
 	if( desc != "NOT_FOUND" ) {
-		consoleSystem->printMessage( "%s: %s", ( *tokens )[ 0 ]->c_str(), desc.c_str() );
+		consoleSystem->printMessage( "%s: %s", ( tokens )[ 0 ].c_str(), desc.c_str() );
 		return;
 	}
 	//if here, then console or variable was not found

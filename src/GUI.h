@@ -378,7 +378,7 @@ namespace GUISystem {
 		void setY( GuiDim val );
 
 		//fills text labels with multi-lined string "in"
-		bool fillLines( std::string in );
+		bool fillLines( const std::string &in );
 	private:
 		std::vector< TextLabel* > lines;
 		Font font;

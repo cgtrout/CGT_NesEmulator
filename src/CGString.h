@@ -1,17 +1,17 @@
 #include < string >
+#include <string_view>
 #include < vector >
 //basic string routines
 
 namespace CgtString {
 	//convert string str to lowercase; converted string will be returned through returnString
-	void strtolower( const char *str, char *retStr );
+	std::string strtolower( std::string_view str );
 
 	//compare strings ignoring case
-	int strcasecmp( const char *str1, const char *str2 );
+	bool strcasecmp( std::string_view str1, std::string_view str2 );
 
 	//converts a std::string to lower case
-	std::string toLower( std::string *s );
-
+	std::string toLower( std::string_view s );
 	
 
 	/*
@@ -31,7 +31,7 @@ namespace CgtString {
 
 		// tokenizes a string and returns a vector of strings
 		// "string*"  string to tokenize
-		std::vector< std::string* > *tokenize(std::string* );
+		std::vector< std::string > tokenize(const std::string& );
 
 		// setMinTokens - set min number of tokens to return
 		//
@@ -58,7 +58,7 @@ namespace CgtString {
 		void setMaxTokens( int v ) { maxTokens = v; }
 
 	private:
-		std::vector< std::string* > strings;
+		std::vector< std::string > strings;
 		std::string delims;
 
 		int minTokens;

@@ -10,44 +10,43 @@ using namespace CgtString;
 
 /* 
 ==============================================
-void CgtString::strtolower( const char *str, char *retStr )
+CgtString::strtolower
 ==============================================
 */
-void CgtString::strtolower( const char *str, char *retStr ) {
-	int length = strlen( str );
+std::string CgtString::strtolower( std::string_view str) {
+	int length = str.length();
 	int x = 0;
+	std::string retStr;
+	retStr.resize( length );
+	
 	for( ; x < length; x++ ) 
 		retStr[ x ] = tolower( str[ x ] );
 	retStr[ x++ ] = '\0';
+
+	return retStr;
 }
 
 /* 
 ==============================================
-int CgtString::strcasecmp( const char *str1, const char *str2 )
+bool CgtString::strcasecmp( const char *str1, const char *str2 )
 ==============================================
 */
-int CgtString::strcasecmp( const char *str1, const char *str2 ) {
-	char cstr1[ 80 ];
-	char cstr2[ 80 ];
-	CgtString::strtolower( str1, cstr1 );
-	CgtString::strtolower( str2, cstr2 );
-	return strcmp( cstr1, cstr2 );
+bool CgtString::strcasecmp( std::string_view str1, std::string_view str2 ) {
+	std::string cstr1 = CgtString::strtolower( str1 );
+	std::string cstr2 = CgtString::strtolower( str2 );
+	return cstr1 == cstr2;
 }
 
 /* 
 ==============================================
-std::string CgtString::toLower( std::string *s )
+std::string CgtString::toLower( const std::string &s )
 ==============================================
 */
-std::string CgtString::toLower( std::string *s ) {
-	if( s == 0 ) 
-		return "";
-	char *buffer = new char[ s->length()+1 ];
-	for( unsigned int i = 0 ; i < s->length(); i++ ) 
-		buffer[ i ] = tolower( s->at( i ) );
-	buffer[ s->length() ] = '\0';
-	std::string retString = buffer;
-	delete[ ] buffer;
+std::string CgtString::toLower( std::string_view s ) {
+	std::string retString;
+	retString.resize( s.length( ) );
+	for( unsigned int i = 0 ; i < s.length(); i++ ) 
+		retString[ i ] = tolower( s.at( i ) );
 	return retString;
 }
 
@@ -66,20 +65,15 @@ void StringTokenizer::clearStrings()
 ==============================================
 */
 void StringTokenizer::clearStrings() {
-	//delete all strings in strings
-	std::vector< std::string* >::iterator i;
-	for( i = strings.begin(); i != strings.end(); i++ ) 
-		if( ( *i ) != NULL ) 
-			delete ( *i );
 	strings.clear();
 }
 
 /* 
 ==============================================
-std::vector< string* > *StringTokenizer::tokenize( std::string *str )
+StringTokenizer::tokenize
 ==============================================
 */
-std::vector< std::string* > *StringTokenizer::tokenize( std::string *str ) {
+std::vector< std::string > StringTokenizer::tokenize( const std::string &str ) {
 	unsigned int pos = 0;
 	unsigned int lastPos = 0;
 	int tokensFound = 0;
@@ -89,18 +83,18 @@ std::vector< std::string* > *StringTokenizer::tokenize( std::string *str ) {
 
 	clearStrings();
 
-	while( pos < str->length() ) {
+	while( pos < str.length() ) {
 		lastPos = pos;
 		
 		//if we have passed the amount of maxTokens that are allowed
 		//then put the rest of the string into the last token
 		if( maxTokens != 0 && tokensFound == maxTokens - 1 ) 
-			pos = str->length();		
-		pos = str->find_first_of( delims, pos );
-		if( pos == npos ) pos = str->length();
+			pos = str.length();		
+		pos = str.find_first_of( delims, pos );
+		if( pos == npos ) pos = str.length();
 
 		//create a new string and throw it in the tokens vector
-		std::string *newStr = new std::string( str->substr( lastPos, pos - lastPos ) );
+		std::string newStr ( str.substr( lastPos, pos - lastPos ) );
 		strings.push_back( newStr );
 		
 		pos++;
@@ -109,6 +103,6 @@ std::vector< std::string* > *StringTokenizer::tokenize( std::string *str ) {
 	//ensure minSize number of strings are in vector
 	if( minTokens != 0 ) 
 		for( int x = strings.size(); x < minTokens; x++ ) 
-			strings.push_back( new std::string( "" ) );
-	return &strings;
+			strings.push_back( std::string( "" ) );
+	return strings;
 }
