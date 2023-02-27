@@ -305,6 +305,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	timeEndPeriod( 1 );
 
 	// Shutdown
+	_log->Write( "Before KillGLWindow" );
 	KillGLWindow();									// Kill The Window
 	return ( msg.wParam );							// Exit The Program
 }

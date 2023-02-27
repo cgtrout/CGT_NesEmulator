@@ -266,7 +266,7 @@ GUIElement::GUIElement( std::string guitextures ) {
 }
 
 GUIElement::~GUIElement() {
-	_log->Write( "GUIElement destructor called" );
+	_log->Write( "GUIElement destructor called type=%d", this->getType() );
 }
 
 void GUIElement::initialize( std::string guitextures )
