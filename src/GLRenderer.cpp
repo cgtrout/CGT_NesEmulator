@@ -337,7 +337,7 @@ void PPUDraw::drawPatternTable() {
     img.channels = 3; 
     img.sizeX = ( 0x0f * 8 ) * 2;
     img.sizeY = 0x0f * 8;
-    img.data = ppuPixelGen.getPatternTablePixelData24Bit();
+    img.data = std::vector<ubyte>( ppuPixelGen.getPatternTablePixelData24Bit( ), ppuPixelGen.getPatternTablePixelData24Bit( ) + img.getSize() );
     
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
@@ -355,7 +355,7 @@ void PPUDraw::drawPatternTable() {
 	glEnd();
 
 	glEnable( GL_BLEND );
-	img.data = 0;
+	//img.data = 0;
 }
 
 /* 
@@ -380,7 +380,7 @@ void PPUDraw::drawOutput( ubyte *data ) {
     img.channels = 3; 
     img.sizeX	 = 256; 
     img.sizeY	 = 256;
-    img.data	 = data;
+    img.setData(data);
     
 	Vec2d pos( x, y );
 	systemMain->renderer.drawImage( &img, &pos, true, scale );
@@ -405,7 +405,7 @@ void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
     img.channels = 3; 
     img.sizeX	 = 128;
     img.sizeY	 = 16;
-    img.data	 = paletteGen.getPixelData();
+    img.setData(paletteGen.getPixelData());
     
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
@@ -425,7 +425,7 @@ void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
 	glEnable( GL_BLEND );
 	
 	//reset data pointer so data isn't deleted
-	img.data = 0;
+	//img.data = 0;
 }
 
 /*

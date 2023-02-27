@@ -28,7 +28,7 @@ public:
 		image.sizeX = 50;
 		image.sizeY = 50;
 		image.channels = 4;
-		image.data = 0;
+		//image.data = 0;
 		lineDrawer.setImage( &image );
 		pointDrawer.setImage( &image );
 		pointDrawer.radius = 1;

@@ -27,7 +27,7 @@ void createTexture( Image *image, unsigned int *texid, GLenum format ) {
 	image->sizeX = getNextPowerOf2( image->sizeX );
 	image->sizeY = getNextPowerOf2( image->sizeY );
 	
-	glTexImage2D( GL_TEXTURE_2D, 0, image->channels, image->sizeX, image->sizeY, 0, format, GL_UNSIGNED_BYTE, image->data );
+	glTexImage2D( GL_TEXTURE_2D, 0, image->channels, image->sizeX, image->sizeY, 0, format, GL_UNSIGNED_BYTE, image->data.data() );
 }
 
 int pow2Table[ ] = {2,4,6,8,16,32,64,128,256,512,1024,2048};

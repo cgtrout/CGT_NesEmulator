@@ -1,6 +1,7 @@
 //original author - Ben Humphrey ( DigiBen )
 
 #pragma once
+#include <vector>
 
 typedef unsigned char ubyte;
 
@@ -34,9 +35,9 @@ Class Image
 */
 class Image {
   public:
-	int channels;			
-	int sizeX;				
-	int sizeY;				
+	int channels = 0;			
+	int sizeX = 0;				
+	int sizeY = 0;				
 	
 	void plotPixel( const Vec2d *pos, const Pixel3Byte *color, ubyte alpha = 255 );
 	void clearImage();
@@ -44,23 +45,24 @@ class Image {
 	//allocate image based on settings
 	void allocate();
 	
-	bool isAllocated() { return data != 0; }
+	bool isAllocated() { return data.empty(); }
 
-	ubyte *getData() { return data; }
+	ubyte *getData() { return data.data(); }
+	void setData( ubyte* data );
 
 	int getSize() { return channels * sizeX * sizeY; }
 
-	Image(): data(0), imgid(0) {}
+	Image(): data(), imgid(0) {}
 	~Image();
 
 	//TODO eventually this should probably be private
-	ubyte *data;	
+	std::vector<ubyte> data;	
 	unsigned int imgid;
 };
 
 class ImageException : public CgtException {
 public:	
-	ImageException( char *h, char *m, bool show = true) {
+	ImageException( const char *h, const char *m, bool show = true) {
 		::CgtException(h, m, show);
 	}
 }; 
