@@ -78,7 +78,7 @@ Image convertToAlpha( int aR, int aG, int aB, Image image );
 // This loads and returns the BMP data
 Image LoadBMP( const char *strFileName );
 
-void ExportImageToBMP( Image *image, char *fileName );
+void ExportImageToBMP( const Image &image, std::string_view fileName );
 
 // This loads and returns the TGA data
 //Image *LoadTGA( const char *strFileName );

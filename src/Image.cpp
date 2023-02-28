@@ -273,29 +273,25 @@ imageError:
 	throw ImageException( "LoadBMP()", "error.c_str()" );
 }
 
-void saveLSB_int( std::ofstream *os, unsigned int val ) {
-	_ASSERT( os != NULL );
-
-	*os << (ubyte)( ( val & 0x000000FF ) >> 0 )
+void saveLSB_int( std::ofstream &os, unsigned int val ) {
+	 os << (ubyte)( ( val & 0x000000FF ) >> 0 )
 		<< (ubyte)( ( val & 0x0000FF00 ) >> 8 )
 		<< (ubyte)( ( val & 0x00FF0000 ) >> 16 )
 		<< (ubyte)( ( val & 0xFF000000 ) >> 24 );
 }
 
-void saveLSB_uword( std::ofstream *os, unsigned int val ) {
-	_ASSERT( os != NULL );
-
-	*os << (ubyte)( ( val & 0x00FF ) >> 0 )
+void saveLSB_uword( std::ofstream &os, unsigned int val ) {
+	 os << (ubyte)( ( val & 0x00FF ) >> 0 )
 		<< (ubyte)( ( val & 0xFF00 ) >> 8 );
 }
 
 //NOTE: alpha information is not saved to file
-void ExportImageToBMP( Image *image, char *fileName ) {
-	std::ofstream *os = new std::ofstream( fileName, std::ios::binary );
+void ExportImageToBMP( const Image &image, std::string_view fileName ) {
+	std::ofstream os( fileName.data(), std::ios::binary );
 
-	unsigned int fileSize = 0x35 + ( image->sizeX * image->sizeY * 3 );
+	unsigned int fileSize = 0x35 + ( image.sizeX * image.sizeY * 3 );
 
-	*os << "BM";
+	os << "BM";
 	
 	//size
 	saveLSB_int( os, fileSize );
@@ -310,10 +306,10 @@ void ExportImageToBMP( Image *image, char *fileName ) {
 	saveLSB_int( os, 40 );
 
 	//width
-	saveLSB_int( os, image->sizeX );
+	saveLSB_int( os, image.sizeX );
 	
 	//height
-	saveLSB_int( os, image->sizeY );
+	saveLSB_int( os, image.sizeY );
 
 	//biplanes
 	saveLSB_uword( os, 0 );
@@ -335,15 +331,13 @@ void ExportImageToBMP( Image *image, char *fileName ) {
 	saveLSB_int( os, 0 );
 
 	//now save data
-	int numPixels = image->sizeX * image->sizeY;
+	int numPixels = image.sizeX * image.sizeY;
 	for( int p = 0; p < numPixels; ++p ) {
-		int offset = p * image->channels;
-		*os << image->data[ offset + 2 ]
-			<< image->data[ offset + 1 ]
-			<< image->data[ offset + 0 ];
+		int offset = p * image.channels;
+		os << image.data[ offset + 2 ]
+			<< image.data[ offset + 1 ]
+			<< image.data[ offset + 0 ];
 	}
 
-	os->close();
-    delete os;
-    
+	os.close();
 }
