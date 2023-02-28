@@ -210,7 +210,7 @@ namespace Console {
 		//"command" represents the command to execute
 		//"value"	represents the value / or param
 		//"echo"	if true, prints out command request to console
-		void executeRequest( std::string_view command, std::string_view  value, bool echo = true );		
+		void executeRequest( const std::string &command, const std::string &value, bool echo = true );		
 	    
 		//get the last 'numLines' number of lines printed to console history starting at 'pos'
 		char *getHistoryLines( int numLines, int pos );

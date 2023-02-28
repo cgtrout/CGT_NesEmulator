@@ -327,7 +327,7 @@ void ConsoleSystem::executeRequest( std::string_view str, bool echo = true ) {
 void ConsoleSystem::executeRequest
 ==============================================
 */
-void ConsoleSystem::executeRequest( std::string_view command, std::string_view value, bool echo ) {
+void ConsoleSystem::executeRequest( const std::string &command, const std::string &value, bool echo ) {
 	if( command.empty() == true ) {
 		return;
 	}
@@ -357,7 +357,7 @@ void ConsoleSystem::executeRequest( std::string_view command, std::string_view v
 	}
 
 	//print error message
-	printMessage( """%s %s"" was not recognized", command, value );
+	printMessage( """%s %s"" was not recognized", command.c_str(), value.c_str() );
 }
 
 

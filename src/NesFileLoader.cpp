@@ -53,7 +53,7 @@ void NesFile::loadFile( std::string filename ) {
 	//if first 3 bytes of header are not equal to "NES" throw exception
 	is.read( reinterpret_cast< char* >( nesStr ), 3 );
 	nesStr[ 3 ] = '\0';
-	if( strcmp( "NES", nesStr ) != 0 ) throw new NesFileException( "NesFile::loadFile error", "File not an .nes file" );
+	if( strcmp( "NES", nesStr ) != 0 ) throw NesFileException( "NesFile::loadFile error", "File not an .nes file" );
 	
 	//if next value is not 0x1a throw an exception
 	is >> numcheck;
