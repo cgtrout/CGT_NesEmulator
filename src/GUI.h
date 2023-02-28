@@ -249,15 +249,18 @@ namespace GUISystem {
 		//gui textures object
 		GUITextures gt;
 
-		GuiDim x, y, width, height;
-		int type;
+		GuiDim x		= 0;
+		GuiDim y		= 0;	
+		GuiDim width	= 0;
+		GuiDim height	= 0;
+		int type		= 0;
 		
-		bool activeElement;
+		bool activeElement = false;;
 		bool open = true;
 
 		//if this element is a child to another gui element than this will point to
 		//the parent gui element
-		GUIElement *parent;
+		GUIElement *parent = nullptr;
 
 		virtual void initialize( std::string guitextures );	
 		
@@ -273,6 +276,8 @@ namespace GUISystem {
 	*/
 	struct TextureCoord {
 			GuiDim x0, y0, x1, y1;	
+
+			TextureCoord( ): x0(0), y0(0), x1(0), y1(0) {}
 	};
 
 	class Font {
