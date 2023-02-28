@@ -19,7 +19,7 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  fracComp( 0, 77 ),
  buffer( 0 ),
  playPos( 0 ) {
-	buffer = new uword[ bufferLength ];
+	buffer.resize( bufferLength, 0 );
 
 	graph.setWindow_x( 0, 256 );
 	graph.setWindow_y( 0, 20000 );
@@ -29,7 +29,7 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
 	graph.setGridSize_y( 1000 );
 	graph.setPixelHeight( 256 );
 	graph.setPixelWidth( 512 );
-	graph.setDataBuffer( buffer, bufferLength );
+	graph.setDataBuffer( &buffer, bufferLength );
 	graph.setShadeGraph( true );
 	graph.setAxisColor( &Pixel3Byte( 255, 255, 255 ) );
 	graph.setGridColor( &Pixel3Byte( 100, 100, 100 ) );
@@ -38,10 +38,6 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
 }
 
 NesSoundBuffer::~NesSoundBuffer() {
-	//TODO delete any allocated buffers
-	if( buffer != 0 ) {
-		delete[] buffer;
-	}
 }
 
 //boost::mutex mutex;
@@ -86,7 +82,7 @@ void NesSoundBuffer::fillExternalBuffer( word *ptr, int size ) {
 			
 			//second chunk
 			int chunk2Size = size - chunk1Size;
-			memcpy( &ptr[ chunk1Size ] , buffer, chunk2Size * 2 );
+			memcpy( &ptr[ chunk1Size ] , &buffer[0], chunk2Size * 2 );
 			//_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
 			playPos = chunk2Size;
 			

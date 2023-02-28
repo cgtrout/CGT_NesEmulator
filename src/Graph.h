@@ -55,7 +55,7 @@ public:
 
 	//gives this class access to a data buffer (which is 
 	//what is graphed)
-	void setDataBuffer( UnitType *data, int size );
+	void setDataBuffer( std::vector<UnitType> *data, int size );
 
 	void setAxisColor( Pixel3Byte *color );
 	void setGridColor( Pixel3Byte *color );
@@ -73,7 +73,7 @@ public:
 
 private:
 	//pointer to buffer containing data
-	UnitType *dataBuffer;
+	std::vector<UnitType> *dataBuffer;
 	
 	//size of dataBuffer
 	int dataSize;
@@ -196,7 +196,7 @@ inline int GraphGen< UnitType >::getPixelHeight() {
 }
 
 template< class UnitType >
-inline void GraphGen< UnitType >::setDataBuffer( UnitType *data, int size ) {
+inline void GraphGen< UnitType >::setDataBuffer( std::vector<UnitType> *data, int size ) {
 	dataBuffer	= data;
 	dataSize	= size;
 }
