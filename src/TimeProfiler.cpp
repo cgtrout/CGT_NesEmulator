@@ -163,17 +163,16 @@ void TimeProfiler::stopFrame( ) {
 	elapsedTime = frameStopTime - frameStartTime;
 
 	//iterate through all time sections to add run percentages
-	auto i = timedSections.begin();
-	for( ; i != timedSections.end(); ++i ) {
+	for( auto &i : timedSections ) {
 		
 		//add run percent to percent average array in current timed section
-		(*i).addPercentSample( ( (*i).getElapsedTime() / elapsedTime ) * 100.0f, sampleNum );
-		(*i).addTimeSample( (*i).getElapsedTime(), sampleNum );
-		(*i).startFrame();
+		i.addPercentSample( ( i.getElapsedTime() / elapsedTime ) * 100.0f, sampleNum );
+		i.addTimeSample( i.getElapsedTime(), sampleNum );
+		i.startFrame();
 	}
 
 	//handle sampleNum wraparound logic
-	if( sampleNum++ == TIMED_SECTION_SAMPLES ) {
+	if( ++sampleNum == TIMED_SECTION_SAMPLES ) {
 		sampleNum = 0;
 		
 		if( !fullSet ) {
@@ -201,10 +200,10 @@ TimedSection *TimeProfiler::getSection( const std::string &name ) {
 	//_log->Write( "input name=%s, %p", name.c_str( ), this );
 
 	auto i = timedSections.begin();
-	for( ; i != timedSections.end(); i++ ) {
+	for( auto &i : timedSections ) {
 		//_log->Write("iter=%s %p", ( *i ).getName( ).c_str( ), i );
-		if( (*i).getName() == name ) {
-			return &(*i);
+		if( i.getName() == name ) {
+			return &(i);
 		}
 	}
 	

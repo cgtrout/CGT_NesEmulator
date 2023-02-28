@@ -40,7 +40,7 @@ namespace FrontEnd {
 		//is this section still being timed?
 		//bool isActive() { return activeFrame; }
 
-		std::string &getName() { return name; }
+		const std::string& getName( ) { return name; } 
 
 		void addPercentSample( float sample, int index );
 		void addTimeSample( float sample, int index );
@@ -56,8 +56,8 @@ namespace FrontEnd {
 		float startTime;
 		float stopTime;
 		float elapsedTime;
-		float usagePercentAvg[ TIMED_SECTION_SAMPLES ];
-		float timeAvg[ TIMED_SECTION_SAMPLES ];
+		std::array<float, TIMED_SECTION_SAMPLES> usagePercentAvg;
+		std::array<float, TIMED_SECTION_SAMPLES> timeAvg;
 		std::string name;
 	};
 
