@@ -14,14 +14,22 @@ TimedSection class
 */
 /* 
 ==============================================
-TimedSection::TimedSection( string name )
+TimedSection::TimedSection( const std::string &name )
 ==============================================
 */
-TimedSection::TimedSection( string name ) {
-	this->name = name;
+TimedSection::TimedSection( const std::string &name ) : name(name) {
 	startTime = 0;
 	stopTime = 0;
 	elapsedTime = 0;
+
+	for ( int i = 0; i < TIMED_SECTION_SAMPLES; i++ ) {
+		usagePercentAvg[ i ] = 0;
+		timeAvg[ i ] = 0;
+	}
+}
+
+TimedSection::~TimedSection( ) {
+	_log->Write( "~TimedSection" );
 }
 
 /* 
@@ -117,7 +125,7 @@ TimeProfiler class
 TimeProfiler::TimeProfiler()
 ==============================================
 */
-TimeProfiler::TimeProfiler() {
+TimeProfiler::TimeProfiler() : timedSections() {
 	timer = Timer::getInstance();
 	fullSet = false;	//set to true when a full set of samples is obtained
 	sampleNum = 0;
@@ -125,6 +133,10 @@ TimeProfiler::TimeProfiler() {
 	frameStartTime = 0;
 	frameStopTime = 0;
 	elapsedTime = 0;
+}
+
+TimeProfiler::~TimeProfiler( ) {
+	_log->Write( "~TimeProfiler" );
 }
 
 /* 
@@ -135,9 +147,9 @@ void TimeProfiler::startFrame( )
 void TimeProfiler::startFrame( ) {
 	frameStartTime = timer->getCurrTime();
 	
-	list< TimedSection* >::iterator i = timedSections.begin(); 
+	auto i = timedSections.begin();
 	for( ; i != timedSections.end(); ++i ) {
-		(*i)->endFrame();
+		(*i).endFrame();
 	}
 }
 
@@ -151,17 +163,16 @@ void TimeProfiler::stopFrame( ) {
 	elapsedTime = frameStopTime - frameStartTime;
 
 	//iterate through all time sections to add run percentages
-	list< TimedSection* >::iterator i = timedSections.begin(); 
-	for( ; i != timedSections.end(); ++i ) {
+	for( auto &i : timedSections ) {
 		
 		//add run percent to percent average array in current timed section
-		(*i)->addPercentSample( ( (*i)->getElapsedTime() / elapsedTime ) * 100.0f, sampleNum );
-		(*i)->addTimeSample( (*i)->getElapsedTime(), sampleNum );
-		(*i)->startFrame();
+		i.addPercentSample( ( i.getElapsedTime() / elapsedTime ) * 100.0f, sampleNum );
+		i.addTimeSample( i.getElapsedTime(), sampleNum );
+		i.startFrame();
 	}
 
 	//handle sampleNum wraparound logic
-	if( sampleNum++ == TIMED_SECTION_SAMPLES ) {
+	if( ++sampleNum == TIMED_SECTION_SAMPLES ) {
 		sampleNum = 0;
 		
 		if( !fullSet ) {
@@ -172,86 +183,75 @@ void TimeProfiler::stopFrame( ) {
 
 /* 
 ==============================================
-void TimeProfiler::addSection( string name )
+void TimeProfiler::addSection( const std::string &name )
 ==============================================
 */
-void TimeProfiler::addSection( string name ) {
-	timedSections.push_back( new TimedSection( name ) );
+void TimeProfiler::addSection( const std::string &name ) {
+	timedSections.push_back( TimedSection( name ) );
 }
+
 
 /* 
 ==============================================
-void TimeProfiler::clearSections()
+TimedSection *TimeProfiler::getSection( const std::string const name )
 ==============================================
 */
-void TimeProfiler::clearSections() {
-	list<TimedSection*>::iterator i = timedSections.begin();
-	for( ; i != timedSections.end(); i++ ) {
-		if( *i != 0 ) {
-			delete ( *i );
-		}
-	}
-	timedSections.clear();
-}
+TimedSection *TimeProfiler::getSection( const std::string &name ) {
+	//_log->Write( "input name=%s, %p", name.c_str( ), this );
 
-/* 
-==============================================
-TimedSection *TimeProfiler::getSection( string name )
-==============================================
-*/
-TimedSection *TimeProfiler::getSection( string name ) {
-	list<TimedSection*>::iterator i = timedSections.begin();
-	for( ; i != timedSections.end(); i++ ) {
-		if( (*i)->getName() == name ) {
-			return (*i);
+	auto i = timedSections.begin();
+	for( auto &i : timedSections ) {
+		//_log->Write("iter=%s %p", ( *i ).getName( ).c_str( ), i );
+		if( i.getName() == name ) {
+			return &(i);
 		}
 	}
+	
 	//TODO throw exception
 	return NULL;
 }
 
 /* 
 ==============================================
-void TimeProfiler::startSection( string name )
+void TimeProfiler::startSection( const std::string &name )
 ==============================================
 */
-void TimeProfiler::startSection( string name ) {
+void TimeProfiler::startSection( const std::string &name ) {
 	TimedSection *section = getSection( name );	
 	
-	//see if any other sections are running (very slow)
-	/*
-	list<TimedSection*>::iterator i = timedSections.begin();
-	for( ; i != timedSections.end(); ++i ) {
-		if( (*i)->getName() == name ) {
-			continue;
-		}
-		if( (*i)->isActive() ) {
-			FrontEnd::SystemMain::getInstance()->consoleSystem.printMessage( 
-				"More than one section active - '%s' is already running while starting '%s' ",
-				section->getName().c_str(), (*i)->getName().c_str() );
-		}
-	}*/
-
+	//_log->Write( "Start section %s: ptr=%p", name.c_str(), this );
+	
+	if ( section == nullptr ) {
+		//_log->Write( "TimeProfiler::startsection - not found! %s", name.c_str() );
+		return;
+	}
+	//_log->Write( "section start" );
 	section->start( timer->getCurrTime() );
 }
 
 /* 
 ==============================================
-void TimeProfiler::stopSection( std::string name )
+void TimeProfiler::stopSection( const std::string &name )
 ==============================================
 */
-void TimeProfiler::stopSection( std::string name ) {
+void TimeProfiler::stopSection( const std::string &name ) {
 	TimedSection *section = getSection( name );	
+	
+	if ( section == nullptr ) {
+		//_log->Write( "stopSection: section not found: %s", name.c_str( ) );
+		return;
+	}
+
 	section->stop( timer->getCurrTime() );
 	section->endFrame();
 }
 
 /* 
 ==============================================
-float TimeProfiler::getSectionRunPercent( std::string name )
+float TimeProfiler::getSectionRunPercent( const std::string &name )
 ==============================================
 */
-float TimeProfiler::getSectionRunPercent( std::string name ) {
+float TimeProfiler::getSectionRunPercent( const std::string &name ) {
 	return getSection( name )->calcAvgPercent();
 }
 
@@ -261,22 +261,22 @@ string TimeProfiler::getSectionReport( )
   assumes it will be called every frame
 ==============================================
 */
-string TimeProfiler::getSectionReport( ) {
-	stringstream out;
+std::string TimeProfiler::getSectionReport( ) {
+	std::stringstream out;
 
 	rateCounter++;
 
 	//only update every TIMED_SECTION_RATE frames
 	if( rateCounter == TIMED_SECTION_RATE ) {
 		//iterate through all sections and create output line
-		list< TimedSection* >::iterator i = timedSections.begin();
+		auto i = timedSections.begin();
 		for( ; i != timedSections.end(); i++ ) {
-			out << setiosflags( ios::left ) 
-				<< setw(6) << (*i)->getName() 
-				<< resetiosflags( ios::left ) 
-				<< setw(6) << setiosflags( ios::fixed ) << setprecision(2) << (*i)->calcAvgTime() \
+			out << std::setiosflags( std::ios::left )
+				<< std::setw(6) << (*i).getName()
+				<< std::resetiosflags( std::ios::left )
+				<< std::setw(6) << std::setiosflags( std::ios::fixed ) << std::setprecision(2) << (*i).calcAvgTime() \
 				<< "ms" 
-				<< setw(6) << (*i)->calcAvgPercent() << "%" 
+				<< std::setw(6) << (*i).calcAvgPercent() << "%"
 				<< " \n";
 		}
 		currentReport = out.str();

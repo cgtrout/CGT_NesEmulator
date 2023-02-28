@@ -1,6 +1,14 @@
+//turn off string warnings
+#if _MSC_VER > 1000
+#pragma warning ( disable : 4996 )
+#endif
+
+
 #include "precompiled.h"
 #include "resource1.h"
 #include "StringToNumber.h"
+
+#ifndef LIGHT_BUILD
 
 HWND NesEmulator::WinDebugger::debugWnd = NULL;
 
@@ -15,16 +23,12 @@ int ( __stdcall* WinDebugger::fnOldList3Proc )( void );
 static const int MAX_MEMDUMP_SIZE = 0xffff;
 static ubyte memdumpBuffer[ MAX_MEMDUMP_SIZE ];
 
-//turn off string warnings
-#if _MSC_VER > 1000
-	#pragma warning ( disable : 4996 )
-#endif
 
 //set static variables
 int WinDebugger::listPos = 0;
 bool WinDebugger::open = false;
 
-#ifndef LIGHT_BUILD
+
 
 extern NesDebugger	*nesDebugger;
 
@@ -376,7 +380,7 @@ void WinDebugger::fillWatch( int watchToGet, int watchToFill ) {
 			watchVal = convertStrToInt( hexValString );
 			uword address = (uword)convertStrToInt( hexValString );
 			ubyte val = nesMemory->getMemory( address );
-			string vals = ubyteToString( val, true );
+			std::string vals = ubyteToString( val, true );
 			SendMessage( GetDlgItem( debugWnd,watchToFill ), WM_SETTEXT, 0, ( LPARAM )vals.c_str() );  	 
 		}
 		catch( StringToNumberException ) {

@@ -51,6 +51,8 @@ namespace PpuSystem {
 
 		NesPPU();
 
+		void initialize( );
+
 		void reset();
 
 		//contains rendered output

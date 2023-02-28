@@ -428,7 +428,7 @@ char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *
 	//sprintf( breakpstr, "-", bullet );
 
 	//pad to zero
-	string &convertedAddress = uwordToString( address, false );
+	std::string &convertedAddress = uwordToString( address, false );
 
 	sprintf( addressStr, "$%s: ", convertedAddress.c_str() );
 

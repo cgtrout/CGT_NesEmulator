@@ -49,10 +49,9 @@ ConsoleVariable< bool > drawPaletteTable(
 //////////////////////////////////////////////////////////////////////
 
 Renderer::Renderer() {
-	Console::ConsoleSystem *consoleSystem = &FrontEnd::SystemMain::getInstance()->consoleSystem;
-	consoleSystem->variables.addBoolVariable( &drawPatternTable );
-	consoleSystem->variables.addBoolVariable( &drawPaletteTable );    
+	 
 }
+
 
 Renderer::~Renderer() {
 }
@@ -60,6 +59,10 @@ Renderer::~Renderer() {
 float zdrawPos	= 0.0f;
 
 void Renderer::initialize() {
+	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+	consoleSystem->variables.addBoolVariable( &drawPatternTable );
+	consoleSystem->variables.addBoolVariable( &drawPaletteTable );
+
 	//prepare model and projection view for 2d drawing
 	glMatrixMode( GL_PROJECTION );
 	//glPushMatrix();
@@ -164,7 +167,7 @@ void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte 
 }
 
 
-void Renderer::drawImage( Image *image, Vec2d *pos, bool flip_y, float scale, float opacity ) {
+void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, float opacity ) {
 	static GLuint imgid = 0;
 				
 	if( imgid != 0 ) {
@@ -173,15 +176,13 @@ void Renderer::drawImage( Image *image, Vec2d *pos, bool flip_y, float scale, fl
 
 	glEnable( GL_BLEND );
 	
-    if( image->channels == 3 ) {
+    if( image.channels == 3 ) {
 		createTexture( image, &imgid, GL_RGB );
 	} else {
 		createTexture( image, &imgid, GL_RGBA );
 	}
     
 	//glBindTexture( GL_TEXTURE_2D, imgid );
-    
-    
 
 	float ystart;
 	float yend;
@@ -198,10 +199,10 @@ void Renderer::drawImage( Image *image, Vec2d *pos, bool flip_y, float scale, fl
 	glColor4f( 1.0f, 1.0f, 1.0f, opacity );			
 
     glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, ystart ); glVertex3f( pos->x, pos->y, zdrawPos );
-		glTexCoord2f( 0.0, yend ); glVertex3f( pos->x, pos->y + ( image->sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, yend ); glVertex3f( pos->x + ( image->sizeX*scale ), pos->y + ( image->sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, ystart ); glVertex3f( pos->x + ( image->sizeX*scale ), pos->y, zdrawPos );
+		glTexCoord2f( 0.0, ystart ); glVertex3f( pos.x, pos.y, zdrawPos );
+		glTexCoord2f( 0.0, yend ); glVertex3f( pos.x, pos.y + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, yend ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, ystart ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y, zdrawPos );
 	glEnd();
 
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f);			
@@ -219,19 +220,19 @@ PPUDraw::drawPatternTable()
 */
 //positions of patterntable debug output
 ConsoleVariable< int > patternTableX( 
-/*start val*/	550, 
+/*start val*/	535, 
 /*name*/		"patternTableX", 
 /*description*/	"x position of debug pattern table",
 /*save?*/		SAVE_TO_FILE );
 
 ConsoleVariable< int > patternTableY( 
-/*start val*/	0, 
+/*start val*/	400, 
 /*name*/		"patternTableY", 
 /*description*/	"y position of debug pattern table",
 /*save?*/		SAVE_TO_FILE );
 
 ConsoleVariable< float > patternTableScale( 
-/*start val*/	550.0f, 
+/*start val*/	1.0f, 
 /*name*/		"patternTableScale", 
 /*description*/	"scaling debug pattern table",
 /*save?*/		SAVE_TO_FILE );
@@ -267,22 +268,26 @@ ConsoleVariable< int > paletteTableY(
 /*save?*/		SAVE_TO_FILE );
 
 ConsoleVariable< float > paletteTableScale( 
-/*start val*/	1.5f, 
+/*start val*/	1.0f, 
 /*name*/		"paletteTableScale", 
 /*description*/	"scaling of debug palette output",
 /*save?*/		SAVE_TO_FILE );
 
 PPUDraw::PPUDraw() {
-	Console::ConsoleSystem *consoleSystem = &FrontEnd::SystemMain::getInstance()->consoleSystem;
 	
+}
+
+void PPUDraw::initialize( ) {
+	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+
 	consoleSystem->variables.addIntVariable( &patternTableX );
 	consoleSystem->variables.addIntVariable( &patternTableY );
 	consoleSystem->variables.addFloatVariable( &patternTableScale );
-	
+
 	consoleSystem->variables.addIntVariable( &outputX );
 	consoleSystem->variables.addIntVariable( &outputY );
 	consoleSystem->variables.addFloatVariable( &outputScale );
-	
+
 	consoleSystem->variables.addIntVariable( &paletteTableX );
 	consoleSystem->variables.addIntVariable( &paletteTableY );
 	consoleSystem->variables.addFloatVariable( &paletteTableScale );
@@ -322,20 +327,20 @@ void PPUDraw::drawPatternTable() {
     //create texture
     
     Image img;
-    
+
     if( imgid != 0 ) {
         glDeleteTextures( 1, &imgid );
     }
 
-    img.channels = 4; 
+    img.channels = 3; 
     img.sizeX = ( 0x0f * 8 ) * 2;
     img.sizeY = 0x0f * 8;
-    img.data = ppuPixelGen.getPatternTablePixelData24Bit();
-    
+	img.setData( ppuPixelGen.getPatternTablePixelData24Bit( ) );
+
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( &img, &imgid, GL_RGB );
+    createTexture( img, &imgid, GL_RGB );
     glBindTexture( GL_TEXTURE_2D, imgid );
     
     float zdrawpos = 0.0001f;
@@ -348,7 +353,7 @@ void PPUDraw::drawPatternTable() {
 	glEnd();
 
 	glEnable( GL_BLEND );
-	img.data = 0;
+	//img.data = 0;
 }
 
 /* 
@@ -369,14 +374,15 @@ void PPUDraw::drawOutput( ubyte *data ) {
     if( imgid != 0 ) {
         glDeleteTextures( 1, &imgid );
     }
-
+	
+	//TODO fix sketchy argument pass of image
     img.channels = 3; 
     img.sizeX	 = 256; 
     img.sizeY	 = 256;
-    img.data	 = data;
+    img.setData(data);
     
 	Vec2d pos( x, y );
-	systemMain->renderer.drawImage( &img, &pos, true, scale );
+	systemMain->renderer.drawImage( img, pos, true, scale );
 }
 
 void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
@@ -398,16 +404,16 @@ void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
     img.channels = 3; 
     img.sizeX	 = 128;
     img.sizeY	 = 16;
-    img.data	 = paletteGen.getPixelData();
+    img.setData(paletteGen.getPixelData());
     
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( &img, &imgid, GL_RGB );
+    createTexture( img, &imgid, GL_RGB );
     glBindTexture( GL_TEXTURE_2D, imgid );
     
     float zdrawpos	= 0.0f;
-
+	
     glBegin( GL_POLYGON );  
 		glTexCoord2f( 0.0, 0.0 ); glVertex3f( x, y, zdrawpos );
 		glTexCoord2f( 0.0, 1.0 ); glVertex3f( x, y + ( img.sizeY*scale ), zdrawpos );
@@ -415,10 +421,22 @@ void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
 		glTexCoord2f( 1.0, 0.0 ); glVertex3f( x + ( img.sizeX*scale ), y, zdrawpos );
 	glEnd();
 
+	zdrawPos += 0.001f;
+
 	glEnable( GL_BLEND );
-	
+	glDisable( GL_TEXTURE_2D );
+
+	glBegin( GL_LINE_LOOP );
+		glColor3f( 1.0f, 1.0f, 1.0f );
+		glVertex3f( x, y-1, zdrawpos );
+		glVertex3f( x, y + ( img.sizeY * scale ), zdrawpos );
+		glVertex3f( x + ( img.sizeX * scale )+1, y + ( img.sizeY * scale ), zdrawpos );
+		glVertex3f( x + ( img.sizeX * scale )+1, y-1, zdrawpos );
+	glEnd( );
+	glEnable( GL_TEXTURE_2D );
+
 	//reset data pointer so data isn't deleted
-	img.data = 0;
+	//img.data = 0;
 }
 
 /*

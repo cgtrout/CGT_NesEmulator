@@ -1,3 +1,7 @@
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
 #include "precompiled.h"
 
 //#include "GUIConsole.h"
@@ -14,7 +18,8 @@ using namespace GUISystem;
 #endif
 
 GUIConsole::GUIConsole():offset( 0 ) {
-	initialize( "gui/Console/Console.gt" );
+	initialize( "gui/console/console.gt" );
+	//initialize( "C:\\Users\\cgtro\\Documents\\2023 Repos\\Nes_Emulator\\gui\\console\\console.gt" );
 }
 
 GUIConsole::GUIConsole( std::string guitextures ) {
@@ -25,11 +30,8 @@ void GUIConsole::initialize( std::string guitextures ) {
 	GUIElement::initialize( guitextures );
 	//type = GE_Console;
 	
-	font = new GUISystem::Font();
-	font->loadFont( "fonts/8x16.bmp" );
+	font.loadFont( "fonts/8x16.bmp" );
 
-	editLine = new GUIConsole::ConsoleEditBox();
-	
 	width = 500;
 	height = 198;
 	
@@ -45,15 +47,15 @@ void GUIConsole::initialize( std::string guitextures ) {
 		throw GUIElementInitializeException( "GUIConsole:", "error loading image" );
 	}
 	
-	editLine->setWidth( width );
+	editLine.setWidth( width );
 	
-	addChild( editLine );	
+	addChild( &editLine );	
 	
 	//set up all the lines of the console
 	int ly;
 	for( ly = 0; ly < CONSOLE_LINES; ly++ )
 	 {
-		lines[ ly ].loadFont( font );
+		lines[ ly ].loadFont( &font );
 		lines[ ly ].setString( "" );
 		lines[ ly ].setWidth( width );
 		lines[ ly ].setX( 3 + x );
@@ -63,9 +65,9 @@ void GUIConsole::initialize( std::string guitextures ) {
 		addChild( &lines[ ly ] );
 	}
 	++ly;
-	editLine->setX( x );
-	editLine->setY( y + ( ly * font->getFontHeight() + 2 ) );
-	editLine->clearText();
+	editLine.setX( x );
+	editLine.setY( y + ( ly * font.getFontHeight() + 2 ) );
+	editLine.clearText();
 	changed = true;
 }
 
@@ -118,7 +120,7 @@ void GUIConsole::onRender() {
 			background.stretchType = GUISystem::ST_XY;
 		}
 			
-		drawList.push_back( &background );
+		drawList.push_back( background );
 		changed = false;
 	}
 }
@@ -135,14 +137,13 @@ void GUIConsole::update() {
 }
 
 void GUIConsole::ConsoleEditBox::onEnterKey() {
-	string exStr = text;
-	consoleSystem->executeRequest( &exStr, true );
+	consoleSystem->executeRequest( this->text, true );
 	( ( GUIConsole* )parent )->changed = true;
 	clearText();	
 }
 
 void GUIConsole::onKeyDown( uword key ) {
-	string res;
+	std::string res;
 	
 	int origOffset = offset;
 	
@@ -163,19 +164,19 @@ void GUIConsole::onKeyDown( uword key ) {
 		}
 		break;
 	case KB_TAB:
-		res = consoleSystem->printMatches( &editLine->getText() );
+		res = consoleSystem->printMatches( editLine.getText() );
 		if( !res.empty() ) {
-			editLine->setText( res );
+			editLine.setText( res );
 		}
 		changed = true;
 		break;
 	case KB_UP:
 		//get previous request
-		editLine->setText( consoleSystem->getPreviousRequest() );
+		editLine.setText( consoleSystem->getPreviousRequest() );
 		break;
 	case KB_DOWN:
 		//get next request
-		editLine->setText( consoleSystem->getNextRequest() );
+		editLine.setText( consoleSystem->getNextRequest() );
 		break;
 	}
 
@@ -195,5 +196,5 @@ void GUIConsole::setOpen( bool val ) {
 void GUIConsole::setAsActiveElement() {
 	GUIElement::setAsActiveElement();
 
-	editLine->setAsActiveElement();
+	editLine.setAsActiveElement();
 }*/

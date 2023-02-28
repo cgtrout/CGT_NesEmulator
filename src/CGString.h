@@ -1,37 +1,35 @@
 #include < string >
+#include <string_view>
 #include < vector >
 //basic string routines
 
 namespace CgtString {
 	//convert string str to lowercase; converted string will be returned through returnString
-	void strtolower( const char *str, char *retStr );
+	std::string strtolower( std::string_view str );
 
 	//compare strings ignoring case
-	int strcasecmp( const char *str1, const char *str2 );
+	bool strcasecmp( std::string_view str1, std::string_view str2 );
 
 	//converts a std::string to lower case
-	std::string toLower( std::string *s );
-
-	using namespace std;
+	std::string toLower( std::string_view s );
+	
 
 	/*
 	================================================================
 	================================================================
 	Class StringTokenizer
 	  this class is used to break up a string into multiple tokens
-
-	  TODO good candidate for smart ptr's
 	================================================================
 	================================================================
 	*/
 	class StringTokenizer {
 	public:
 		// Set delimiters
-		void setDelims( string d ) { delims = d; }
+		void setDelims( std::string d ) { delims = d; }
 
 		// tokenizes a string and returns a vector of strings
 		// "string*"  string to tokenize
-		vector< string* > *tokenize( string* );
+		std::vector< std::string > tokenize(std::string_view );
 
 		// setMinTokens - set min number of tokens to return
 		//
@@ -58,8 +56,8 @@ namespace CgtString {
 		void setMaxTokens( int v ) { maxTokens = v; }
 
 	private:
-		vector< string* > strings;
-		string delims;
+		std::vector< std::string > strings;
+		std::string delims;
 
 		int minTokens;
 		int maxTokens;

@@ -92,6 +92,8 @@ namespace NesEmulator {
 		NesCpu();
 		~NesCpu();
 
+		void initialize( );
+
 		//returns PPU cycles run this frame
 		PpuClockCycles getCC() { return cpuTimer; }
 

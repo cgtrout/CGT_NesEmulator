@@ -2,7 +2,7 @@
 
 #include "GUI.h"
 #include "GLGeneral.h"
-using namespace std;
+
 using namespace GUISystem;
 //using namespace Render;
 
@@ -10,6 +10,7 @@ using namespace FrontEnd;
 using namespace InputSystem;
 //#include "CgString.h"
 #include <algorithm>
+#include <functional>
 
 //TODO use "safe" string functions
 #if _MSC_VER > 1000
@@ -46,17 +47,20 @@ GUI::GUI() {
 	
 	//drawDebugLines = false;
 	drawGUI = true;
-	
-	consoleSystem->variables.addBoolVariable( &drawDebugLines );
-	consoleSystem->variables.addFloatVariable( &guiOpacity );
-	consoleSystem->variables.addFloatVariable( &fontOpacity );
 
-	input = Input::getInstance();
 
 	//ConsoleVariable< float > &opacity = guiOpacity;
 }
 
 GUI::~GUI() {
+}
+
+void GUI::initialize( ) {
+	consoleSystem->variables.addBoolVariable( &drawDebugLines );
+	consoleSystem->variables.addFloatVariable( &guiOpacity );
+	consoleSystem->variables.addFloatVariable( &fontOpacity );
+
+	input = Input::getInstance( );
 }
 
 /*
@@ -104,9 +108,9 @@ GUI::updateElementsList()
   elems given as parameter
 ==============================================
 */
-void GUI::updateElementsList( list< GUIElement* > elems ) {
+void GUI::updateElementsList(std::vector< GUIElement* > elems ) {
 	GUIElement *curr;
-	list< GUIElement* >::iterator iter;
+	std::vector< GUIElement* >::iterator iter;
 	for( iter = elems.begin(); iter != elems.end(); iter++ ) {
 		curr = ( GUIElement* )( *iter );
 		if( !curr->isOpen() ) {
@@ -145,14 +149,14 @@ GUI::sendActiveToFront()
 */
 void GUI::sendActiveToFront() {
 	GUIElement *elem;
-	list< GUIElement* > newList;
+	std::vector< GUIElement* > newList;
 
-	list< GUIElement* >::iterator iter;
+	std::vector< GUIElement* >::iterator iter;
 	for( iter = elements.begin(); iter != elements.end(); iter++ ) {
 		elem = ( GUIElement* )( *iter );
 		
 		if( elem->isActiveElement() ) {
-			newList.push_front( elem );
+			newList.push_back( elem );
 			continue;
 		}
 		newList.push_back( elem );
@@ -171,7 +175,7 @@ GUI::findElementCursorOver()
 ==============================================
 */
 GUIElement *GUI::findElementCursorOver() {
-	list< GUIElement* > currlist;
+	std::vector< GUIElement* > currlist;
 	GUIElement *currelem = NULL;
 	GUIElement *retelem = NULL;
 
@@ -181,7 +185,7 @@ GUIElement *GUI::findElementCursorOver() {
 	currlist = elements;
 			
 	while( !currlist.empty() ) {
-		list< GUIElement* >::iterator iter;
+		std::vector< GUIElement* >::iterator iter;
 		for( iter = currlist.begin(); iter != currlist.end(); iter++ ) {
 			currelem = ( GUIElement* )( *iter );
 
@@ -210,22 +214,21 @@ GUI::unactivateAllElements()
 ==============================================
 */
 void GUI::unactivateAllElements() {
-	for_each( elements.begin(), elements.end(), mem_fun( &GUIElement::unactivateElement ) );
+	for ( auto e : elements ) {
+		e->unactivateElement( );
+	}
 }
 
 /*
 ==============================================
-GUI::renderElements( list< GUIElement* > elems )
+GUI::renderElements(std::vector< GUIElement* > elems )
 
   renders elements in elems list
 ==============================================
 */
-void GUI::renderElements( list< GUIElement* > elems ) {
-	list< GUIElement* >::reverse_iterator iter;
-	GUIElement *curr;
-
-	for( iter = elems.rbegin(); iter != elems.rend(); iter++ ) {
-		curr = ( GUIElement* )( *iter );
+void GUI::renderElements(std::vector< GUIElement* > elems ) {
+	for( auto iter = elems.rbegin(); iter != elems.rend(); iter++ ) {
+		GUIElement* curr = ( GUIElement* )( *iter );
 
 		if( curr->isOpen() ) {			
 			if( ( int )drawDebugLines.getValue() == TRUE ) {
@@ -262,7 +265,7 @@ GUIElement::GUIElement( std::string guitextures ) {
 }
 
 GUIElement::~GUIElement() {
-	_log->Write( "GUIElement destructor called" );
+	_log->Write( "GUIElement destructor called type=%d", this->getType() );
 }
 
 void GUIElement::initialize( std::string guitextures )
@@ -311,18 +314,18 @@ void GUIElement::move( int xm, int ym ) {
 	x += xm;
 	y += ym;
 
-	list< GUIElement* >::iterator iter;
+	std::vector< GUIElement* >::iterator iter;
 	for( iter = children.begin(); iter != children.end(); iter++ ) 
 		(*iter)->move( xm, ym );
 }
 
 /*
 ==============================================
-void GUIElement::unactivateChildren( std::list< GUIElement* > childList )
+void GUIElement::unactivateChildren(std::vector< GUIElement* > childList )
 ==============================================
 */
-void GUIElement::unactivateChildren( std::list< GUIElement* > childList ) {
-	list< GUIElement* >::iterator iter;
+void GUIElement::unactivateChildren(std::vector< GUIElement* > childList ) {
+	std::vector< GUIElement* >::iterator iter;
 	GUIElement *curr;
 
 	for( iter = childList.begin(); iter != childList.end(); iter++ ) {
@@ -336,11 +339,11 @@ void GUIElement::unactivateChildren( std::list< GUIElement* > childList ) {
 
 /*
 ==============================================
-GUIElement *GUIElement::getActiveChild( std::list< GUIElement* > childList )
+GUIElement *GUIElement::getActiveChild(std::vector< GUIElement* > childList )
 ==============================================
 */
-GUIElement *GUIElement::getActiveChild( std::list< GUIElement* > childList ) {
-	list< GUIElement* >::iterator iter;
+GUIElement *GUIElement::getActiveChild(std::vector< GUIElement* > childList ) {
+	std::vector< GUIElement* >::iterator iter;
 	GUIElement *curr = NULL;
 
 	for( iter = childList.begin(); iter != childList.end(); iter++ ) {
@@ -365,32 +368,28 @@ GUITextures Class
 =================================================================
 =================================================================
 */
-void GUITextures::loadFromFile( std::string fileName ) {
-	char buf[ 1000 ];
-	std::string line;
-	std::ifstream is( fileName.c_str() );
+void GUITextures::loadFromFile( const std::string &fileName ) {
+	//char buf[ 1000 ];
+	//std::string line;
+	std::ifstream is( fileName );
 	std::string error;
 	this->fileName = fileName;
 
-	currLine = 1;
-
 	if( is.fail() != 0 ) {
-		stringstream ss;
-		ss << "Error loading file \"" << fileName << "\"";
+		std::stringstream ss;
+		ss << "Error loading file \"" << fileName << "\"" << strerror(is.fail());
 		throw GUITexturesLoadException( "GUITextures::loadFromFile", ss.str() );
 	}
-	
-	while( !is.eof() ) {
-		is.getline( buf, 80 );
-		line = buf;
+
+	for ( std::string line; std::getline( is, line ); )
+	{
 		parseLine( line );
-		currLine++;
 	}
 	
 	is.close();
 }
 
-void GUITextures::parseLine( std::string line ) {
+void GUITextures::parseLine( const std::string &line ) {
 	unsigned int x = 0;	//position in line
 	int firstq = -1;	//first quote
 	int secq = -1;		//second quote
@@ -420,7 +419,7 @@ void GUITextures::parseLine( std::string line ) {
 		}
 	}
 	if( secq == -1 ) {
-		stringstream error;
+		std::stringstream error;
 		error	<< "File: \"" << fileName << "\" Line #"
 				<< x << " is an invalid line - must have a "
 				<< "file name contained within quotes/n";
@@ -447,22 +446,19 @@ DialogBox::DialogBox( std::string guitextures ) {
 }
 
 void DialogBox::initialize( std::string guitextures ) {
+	name = "DialogBox";
 	GUIElement::initialize( guitextures );
 	type = GE_DIALOGBOX;
 	
-	titleBar = new TitleBar();
-	font = new Font();
-
-	font->loadFont( "fonts/8x16.bmp" );
+	font.loadFont( "fonts/8x16.bmp" );
 	
-	title = new DialogTitle();
-	title->setString( "Dialog" );
-	title->loadFont( font );
+	title.setString( "Dialog" );
+	title.loadFont( &font );
 		
-	titleBar->setX( x ); 
-	titleBar->setY( y ); 
-	titleBar->setWidth( width );
-	titleBar->setDialogTitle( title );
+	titleBar.setX( x ); 
+	titleBar.setY( y ); 
+	titleBar.setWidth( width );
+	titleBar.setDialogTitle( &title );
 
 	try {
 		lborder.image = loadImage( gt.getNextTexture() );
@@ -490,7 +486,7 @@ void DialogBox::initialize( std::string guitextures ) {
 		throw GUIElementInitializeException( "DialogBox: ", "error loading image" );
 	}
 	
-	addChild( titleBar );	
+	addChild( &titleBar );	
 }
 
 DialogBox::~DialogBox() {
@@ -499,9 +495,6 @@ DialogBox::~DialogBox() {
 	//delete blcorner.image;
 	//delete brcorner.image;
 	//delete bborder.image;
-	delete titleBar;
-	delete font;
-	delete title;
 }
 
 void DialogBox::onLeftMouseDown() {
@@ -520,40 +513,40 @@ void DialogBox::onRender() {
 	drawList.clear();
 
 	lborder.x = x;
-	lborder.y = y + titleBar->left.image->sizeY;
-	lborder.stretchFactory = height - ( blcorner.image->sizeY+1 ) - titleBar->left.image->sizeY;
+	lborder.y = y + titleBar.left.image.sizeY;
+	lborder.stretchFactory = height - ( blcorner.image.sizeY+1 ) - titleBar.left.image.sizeY;
 	lborder.stretchType = ST_Y;
 
-	rborder.x = x + ( width - rborder.image->sizeX );
-	rborder.y = y + titleBar->right.image->sizeY;
-	rborder.stretchFactory = height - ( brcorner.image->sizeY+1 ) - titleBar->right.image->sizeY;
+	rborder.x = x + ( width - rborder.image.sizeX );
+	rborder.y = y + titleBar.right.image.sizeY;
+	rborder.stretchFactory = height - ( brcorner.image.sizeY+1 ) - titleBar.right.image.sizeY;
 	rborder.stretchType = ST_Y;
 
 	blcorner.x = x;
-	blcorner.y = y + ( height - blcorner.image->sizeY );
+	blcorner.y = y + ( height - blcorner.image.sizeY );
 	blcorner.stretchType = ST_NONE;
 
-	brcorner.x = x + ( width - brcorner.image->sizeX );
-	brcorner.y = y + ( height - blcorner.image->sizeY );
+	brcorner.x = x + ( width - brcorner.image.sizeX );
+	brcorner.y = y + ( height - blcorner.image.sizeY );
 	brcorner.stretchType = ST_NONE;
 
-	bborder.x = x + ( blcorner.image->sizeX );
-	bborder.y = y + ( height - blcorner.image->sizeY );
-	bborder.stretchFactorx = width - ( 2 * brcorner.image->sizeX );
+	bborder.x = x + ( blcorner.image.sizeX );
+	bborder.y = y + ( height - blcorner.image.sizeY );
+	bborder.stretchFactorx = width - ( 2 * brcorner.image.sizeX );
 	bborder.stretchType = ST_X;
 
-	background.x = x + lborder.image->sizeX;
-	background.y = y + titleBar->left.image->sizeY;
+	background.x = x + lborder.image.sizeX;
+	background.y = y + titleBar.left.image.sizeY;
 	background.stretchType = ST_XY;
-	background.stretchFactorx = width - rborder.image->sizeX;
-	background.stretchFactory = height - ( titleBar->middle.image->sizeY + bborder.image->sizeY );
+	background.stretchFactorx = width - rborder.image.sizeX;
+	background.stretchFactory = height - ( titleBar.middle.image.sizeY + bborder.image.sizeY );
 
-	drawList.push_back( &lborder );
-	drawList.push_back( &rborder );
-	drawList.push_back( &brcorner );
-	drawList.push_back( &blcorner );
-	drawList.push_back( &bborder );
-	drawList.push_back( &background );
+	drawList.push_back( lborder );
+	drawList.push_back( rborder );
+	drawList.push_back( brcorner );
+	drawList.push_back( blcorner );
+	drawList.push_back( bborder );
+	drawList.push_back( background );
 }
 
 void DialogBox::onRightMouseDown() {
@@ -580,6 +573,7 @@ EditBox::EditBox( std::string guitextures ) {
 }
 
 void EditBox::initialize( std::string guitextures ) {
+	name = "EditBox";
 	GUIElement::initialize( guitextures );
 	type = GE_EDITBOX;
 	height = 22;
@@ -671,49 +665,49 @@ void EditBox::onRender() {
 
 	if( draw ) {
 		l.x = x;
-		l.y = y + t.image->sizeY;
-		l.stretchFactory = height - ( 2 * b.image->sizeY );
+		l.y = y + t.image.sizeY;
+		l.stretchFactory = height - ( 2 * b.image.sizeY );
 		l.stretchType = ST_Y;
 
-		r.x = x + ( width - ( r.image->sizeX ) );
-		r.y = y + t.image->sizeY;
-		r.stretchFactory = height - ( 2 * b.image->sizeY );
+		r.x = x + ( width - ( r.image.sizeX ) );
+		r.y = y + t.image.sizeY;
+		r.stretchFactory = height - ( 2 * b.image.sizeY );
 		r.stretchType = ST_Y;
 
 		bl.x = x;
-		bl.y = y + ( height - bl.image->sizeY );
+		bl.y = y + ( height - bl.image.sizeY );
 		bl.stretchType = ST_NONE;
 
-		br.x = x + ( width - br.image->sizeX );
-		br.y = y + ( height - bl.image->sizeY );
+		br.x = x + ( width - br.image.sizeX );
+		br.y = y + ( height - bl.image.sizeY );
 		br.stretchType = ST_NONE;
 
-		b.x = x + ( bl.image->sizeX );
-		b.y = y + ( height - bl.image->sizeY );
-		b.stretchFactorx = width - ( 2 * br.image->sizeX );
+		b.x = x + ( bl.image.sizeX );
+		b.y = y + ( height - bl.image.sizeY );
+		b.stretchFactorx = width - ( 2 * br.image.sizeX );
 		b.stretchType = ST_X;
 		
 		tl.x = x;
 		tl.y = y;
 		tl.stretchType = ST_NONE;
 		
-		t.x = x + tl.image->sizeX;
+		t.x = x + tl.image.sizeX;
 		t.y = y;
-		t.stretchFactorx = width - ( 2 * tr.image->sizeX );
+		t.stretchFactorx = width - ( 2 * tr.image.sizeX );
 		t.stretchType = ST_X;
 
-		tr.x = x + ( width - tr.image->sizeX );
+		tr.x = x + ( width - tr.image.sizeX );
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 
-		drawList.push_back( &l );
-		drawList.push_back( &r );
-		drawList.push_back( &bl );
-		drawList.push_back( &br );
-		drawList.push_back( &b );
-		drawList.push_back( &tl );
-		drawList.push_back( &t );
-		drawList.push_back( &tr );
+		drawList.push_back(l );
+		drawList.push_back(r );
+		drawList.push_back(bl );
+		drawList.push_back(br );
+		drawList.push_back(b );
+		drawList.push_back(tl );
+		drawList.push_back(t );
+		drawList.push_back(tr );
 	}
 
 	//control blinking of position cursor
@@ -735,7 +729,7 @@ void EditBox::onRender() {
 		cursor.x = ( x + 4 + cursorPos * font.getFontWidth() );
 		cursor.y = y + 4;
 
-		drawList.push_back( &cursor );
+		drawList.push_back( cursor );
 	}
 
 	boxtext.setX( x + 5 );
@@ -794,7 +788,7 @@ void EditBox::update() {
 				text.erase( viewPos + cursorPos, 1 );
 			}
 		}
-		string strIns;
+		std::string strIns;
 		int x = 0;
 		while( input->isMoreKeyMessages() ) {
 			strIns += input->getNextKeyMessage();
@@ -863,6 +857,7 @@ Button::~Button() {
 }
 
 void Button::initialize( std::string guitextures ) {
+	name = "Button";
 	GUIElement::initialize( guitextures );
 	buttonDown = false;
 	
@@ -953,95 +948,95 @@ void Button::onRender() {
 
 	if( !buttonDown ) {
 		l.x = x;
-		l.y = y + t.image->sizeY;
-		l.stretchFactory = height - ( 2 * b.image->sizeY );
+		l.y = y + t.image.sizeY;
+		l.stretchFactory = height - ( 2 * b.image.sizeY );
 		l.stretchType = ST_Y;
 
-		r.x = x + ( width - ( r.image->sizeX ) );
-		r.y = y + t.image->sizeY;
-		r.stretchFactory = height - ( 2 * b.image->sizeY );
+		r.x = x + ( width - ( r.image.sizeX ) );
+		r.y = y + t.image.sizeY;
+		r.stretchFactory = height - ( 2 * b.image.sizeY );
 		r.stretchType = ST_Y;
 
 		bl.x = x;
-		bl.y = y + ( height - bl.image->sizeY );
+		bl.y = y + ( height - bl.image.sizeY );
 		bl.stretchType = ST_NONE;
 
-		br.x = x + ( width - br.image->sizeX );
-		br.y = y + ( height - bl.image->sizeY );
+		br.x = x + ( width - br.image.sizeX );
+		br.y = y + ( height - bl.image.sizeY );
 		br.stretchType = ST_NONE;
 
-		b.x = x + ( bl.image->sizeX );
-		b.y = y + ( height - bl.image->sizeY );
-		b.stretchFactorx = width - ( 2 * br.image->sizeX );
+		b.x = x + ( bl.image.sizeX );
+		b.y = y + ( height - bl.image.sizeY );
+		b.stretchFactorx = width - ( 2 * br.image.sizeX );
 		b.stretchType = ST_X;
 		
 		tl.x = x;
 		tl.y = y;
 		tl.stretchType = ST_NONE;
 		
-		t.x = x + tl.image->sizeX;
+		t.x = x + tl.image.sizeX;
 		t.y = y;
-		t.stretchFactorx = width - ( 2 * tr.image->sizeX );
+		t.stretchFactorx = width - ( 2 * tr.image.sizeX );
 		t.stretchType = ST_X;
 
-		tr.x = x + ( width - tr.image->sizeX );
+		tr.x = x + ( width - tr.image.sizeX );
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 	
-		drawList.push_back( &l );
-		drawList.push_back( &r );
-		drawList.push_back( &bl );
-		drawList.push_back( &br );
-		drawList.push_back( &b );
-		drawList.push_back( &tl );
-		drawList.push_back( &t );
-		drawList.push_back( &tr );
+		drawList.push_back( l );
+		drawList.push_back( r );
+		drawList.push_back( bl );
+		drawList.push_back( br );
+		drawList.push_back( b );
+		drawList.push_back( tl );
+		drawList.push_back( t );
+		drawList.push_back( tr );
 	}
 	else {
 		dl.x = x;
-		dl.y = y + t.image->sizeY;
-		dl.stretchFactory = height - ( 2 * b.image->sizeY );
+		dl.y = y + t.image.sizeY;
+		dl.stretchFactory = height - ( 2 * b.image.sizeY );
 		dl.stretchType = ST_Y;
 
-		dr.x = x + ( width - ( r.image->sizeX ) );
-		dr.y = y + t.image->sizeY;
-		dr.stretchFactory = height - ( 2 * b.image->sizeY );
+		dr.x = x + ( width - ( r.image.sizeX ) );
+		dr.y = y + t.image.sizeY;
+		dr.stretchFactory = height - ( 2 * b.image.sizeY );
 		dr.stretchType = ST_Y;
 
 		dbl.x = x;
-		dbl.y = y + ( height - bl.image->sizeY );
+		dbl.y = y + ( height - bl.image.sizeY );
 		dbl.stretchType = ST_NONE;
 
-		dbr.x = x + ( width - br.image->sizeX );
-		dbr.y = y + ( height - bl.image->sizeY );
+		dbr.x = x + ( width - br.image.sizeX );
+		dbr.y = y + ( height - bl.image.sizeY );
 		dbr.stretchType = ST_NONE;
 
-		db.x = x + ( bl.image->sizeX );
-		db.y = y + ( height - bl.image->sizeY );
-		db.stretchFactorx = width - ( 2 * br.image->sizeX );
+		db.x = x + ( bl.image.sizeX );
+		db.y = y + ( height - bl.image.sizeY );
+		db.stretchFactorx = width - ( 2 * br.image.sizeX );
 		db.stretchType = ST_X;
 		
 		dtl.x = x;
 		dtl.y = y;
 		dtl.stretchType = ST_NONE;
 		
-		dt.x = x + tl.image->sizeX;
+		dt.x = x + tl.image.sizeX;
 		dt.y = y;
-		dt.stretchFactorx = width - ( 2 * tr.image->sizeX );
+		dt.stretchFactorx = width - ( 2 * tr.image.sizeX );
 		dt.stretchType = ST_X;
 
-		dtr.x = x + ( width - tr.image->sizeX );
+		dtr.x = x + ( width - tr.image.sizeX );
 		dtr.y = y;
 		dtr.stretchType = ST_NONE;
 
-		drawList.push_back( &dl );
-		drawList.push_back( &dr );
-		drawList.push_back( &dbl );
-		drawList.push_back( &dbr );
-		drawList.push_back( &db );
-		drawList.push_back( &dtl );
-		drawList.push_back( &dt );
-		drawList.push_back( &dtr );
+		drawList.push_back( dl );
+		drawList.push_back( dr );
+		drawList.push_back( dbl );
+		drawList.push_back( dbr );
+		drawList.push_back( db );
+		drawList.push_back( dtl );
+		drawList.push_back( dt );
+		drawList.push_back( dtr );
 	}
 }
 
@@ -1077,22 +1072,17 @@ TitleBar::TitleBar( std::string guitextures ) {
 }
 
 TitleBar::~TitleBar() {
-	delete left.image;
-	delete right.image;
-	delete middle.image;
-
-	delete closeButton;
 }
 
 void TitleBar::initialize( std::string guitextures ) {
+	name = "TitleBar";
 	GUIElement::initialize( guitextures );
 	movement = false;
 
-	closeButton = new CloseButton();
-	closeButton->setX( x + width - 5 );
-	closeButton->setY( y + ( height / 2 ) );
-	closeButton->setWidth( 16 );
-	closeButton->setHeight( 16 );
+	closeButton.setX( x + width - 5 );
+	closeButton.setY( y + ( height / 2 ) );
+	closeButton.setWidth( 16 );
+	closeButton.setHeight( 16 );
 	
 	try {
 		left.image = loadImage( gt.getNextTexture() );
@@ -1108,13 +1098,12 @@ void TitleBar::initialize( std::string guitextures ) {
 		createTexture( middle.image, &middle.imageid );
 	}
 	catch( ImageException ) {
-		delete closeButton;
 		throw GUIElementInitializeException( "TitleBar: error", "loading image" );
 	}
 
-	height = (GuiDim)middle.image->sizeY;
+	height = (GuiDim)middle.image.sizeY;
 
-	addChild( closeButton );
+	addChild( &closeButton );
 }
 
 void TitleBar::onLeftMouseDown() {
@@ -1140,29 +1129,29 @@ void TitleBar::onRender() {
 	x = parent->getX();
 	y = parent->getY();
 	width = parent->getWidth();
-	height = (GuiDim)middle.image->sizeY;
+	height = (GuiDim)middle.image.sizeY;
 
 	left.x = parent->getX();
 	left.y = parent->getY();
 	left.stretchType = ST_NONE;
 	
-	middle.x = parent->getX() + left.image->sizeX;
+	middle.x = parent->getX() + left.image.sizeX;
 	middle.y = parent->getY();
-	middle.stretchFactorx = parent->getWidth() - ( 2 * right.image->sizeX );
+	middle.stretchFactorx = parent->getWidth() - ( 2 * right.image.sizeX );
 	middle.stretchType = ST_X;
 
-	right.x = parent->getX() + ( parent->getWidth() - right.image->sizeX );
+	right.x = parent->getX() + ( parent->getWidth() - right.image.sizeX );
 	right.y = parent->getY();
 	right.stretchType = ST_NONE;
 
-	drawList.push_back( &left );
-	drawList.push_back( &right );
-	drawList.push_back( &middle );
+	drawList.push_back( left );
+	drawList.push_back( right );
+	drawList.push_back( middle );
 
 	textLabel->setX( parent->getX()+4 );
 	textLabel->setY( parent->getY()+4 );
-	closeButton->setX( getRootParent()->getX() + getRootParent()->getWidth()-20 );
-	closeButton->setY( getRootParent()->getY() + 5 );
+	closeButton.setX( getRootParent()->getX() + getRootParent()->getWidth()-20 );
+	closeButton.setY( getRootParent()->getY() + 5 );
 }
 
 void TitleBar::onRightMouseDown() {
@@ -1207,6 +1196,7 @@ Slider::SliderBar::~SliderBar() {
 }
 
 void Slider::SliderBar::initialize( std::string guitextures ) {
+	name="SliderBar";
 	GUIElement::initialize( guitextures );
 	try {
 		if( type == SLIDER_Y ) {
@@ -1259,7 +1249,7 @@ void Slider::SliderBar::onRender() {
 		sliderBar.y = parent->getY() - ( parent->getHeight()/2 ) + 10;
 	}
 	
-	drawList.push_back( &sliderBar );
+	drawList.push_back( sliderBar );
 }
 
 void Slider::SliderBar::onRightMouseDown() {
@@ -1293,10 +1283,11 @@ Slider::Slider( std::string guitextures, int type ) {
 }
 
 Slider::~Slider() {
-	delete sliderBar;
 }
 
 void Slider::initialize( std::string guitextures ) {
+	name = "Slider";
+	
 	GUIElement::initialize( guitextures );
 	drawValueLabel = false;
 	this->type = type;
@@ -1312,7 +1303,7 @@ void Slider::initialize( std::string guitextures ) {
 	velocity = 16000;
 	slideControl = false;
 
-	sliderBar = new SliderBar( type );
+	sliderBar = SliderBar( type );
 	font.loadFont( "fonts/8x16.bmp" );
 	valueLabel.loadFont( &font );
 	valueLabel.setOpen( false );
@@ -1341,7 +1332,7 @@ void Slider::initialize( std::string guitextures ) {
 		throw GUIElementInitializeException( "Slider:", "Error loading texture" );
 	}
 	
-	addChild( sliderBar );
+	addChild( &sliderBar );
 	addChild( &valueLabel );
 }
 
@@ -1376,22 +1367,22 @@ void Slider::onRender() {
 
 		middle.stretchType = ST_Y;
 		middle.x = x + ( width/2 );
-		middle.y = y + top.image->sizeY;
-		middle.stretchFactory = height - top.image->sizeY - bottom.image->sizeY;
+		middle.y = y + top.image.sizeY;
+		middle.stretchFactory = height - top.image.sizeY - bottom.image.sizeY;
 		
 		bottom.stretchType = ST_NONE;
 		bottom.x = x + ( width/2 );
-		bottom.y = y + height - bottom.image->sizeY;
+		bottom.y = y + height - bottom.image.sizeY;
 	}
 	else if( type == SLIDER_X ) {
 		top.stretchType = ST_NONE;
-		top.x = x + width - top.image->sizeX;
+		top.x = x + width - top.image.sizeX;
 		top.y = y + ( height/2 );
 
 		middle.stretchType = ST_X;
-		middle.x = x + bottom.image->sizeX;
+		middle.x = x + bottom.image.sizeX;
 		middle.y = y + ( height/2 );
-		middle.stretchFactorx = width - top.image->sizeY - bottom.image->sizeY;
+		middle.stretchFactorx = width - top.image.sizeY - bottom.image.sizeY;
 		
 		bottom.stretchType = ST_NONE;
 		bottom.x = x;
@@ -1408,9 +1399,9 @@ void Slider::onRender() {
 		valueLabel.setString( strvalue );
 	}
 
-	drawList.push_back( &top );
-	drawList.push_back( &middle );
-	drawList.push_back( &bottom );
+	drawList.push_back( top );
+	drawList.push_back( middle );
+	drawList.push_back( bottom );
 }
 
 void Slider::onRightMouseDown() {
@@ -1485,7 +1476,6 @@ void DialogTitle::onLeftMouseDown() {
 
 TextLabel::TextLabel() {
 	type = GE_FONT;
-	//font = new Font();
 }
 
 TextLabel::~TextLabel() {
@@ -1493,6 +1483,7 @@ TextLabel::~TextLabel() {
 }
 
 void TextLabel::initialize( std::string &guitextures ) {
+	name = "TextLabel";
 	GUIElement::initialize( guitextures );
 }
 
@@ -1534,6 +1525,8 @@ MultiLineTextLabel::MultiLineTextLabel() {
 
 	yaddPos = 0;
 	yPad = 3;
+
+	name = "MultilineTextLabel";
 }
 
 MultiLineTextLabel::~MultiLineTextLabel() {
@@ -1566,16 +1559,16 @@ void MultiLineTextLabel::onRightMouseRelease() {
 
 void MultiLineTextLabel::addLines( int numLines ) {
 	for( int i = 0; i < numLines; i++ ) {
-		TextLabel *l = new TextLabel();
+		auto label = std::make_unique<TextLabel>( );
 		
-		l->setX( x );
-		l->setY( y + yaddPos );
+		label->setX( x );
+		label->setY( y + yaddPos );
 		
 		yaddPos += font.getFontHeight() + yPad;
 
-		l->loadFont( &font );
-		lines.push_back( l );
-		addChild( l );
+		label->loadFont( &font );
+		addChild( label.get( ) );
+		lines.push_back( std::move(label) );
 
 		height = getNumLines() * ( font.getFontHeight() + yPad );	
 	}
@@ -1583,40 +1576,39 @@ void MultiLineTextLabel::addLines( int numLines ) {
 
 void MultiLineTextLabel::setX( GuiDim val ) {
 	x = val;
-	vector< TextLabel* >::iterator i = lines.begin();
+	auto i = lines.begin();
 	for( ; i != lines.end(); i++ ) {
 		(*i)->setX( val );
 	}
 }
 
 void MultiLineTextLabel::setY( GuiDim val ) {
-	vector< TextLabel* >::iterator i = lines.begin();
+	auto i = lines.begin();
 	y = val;
 	GuiDim curry = y;
 	for( ; i != lines.end(); i++ ) {
 		(*i)->setY( curry );
 		curry += font.getFontHeight() + yPad;
-	}	
+	}
 }
 
-bool MultiLineTextLabel::fillLines( string in ) {
+bool MultiLineTextLabel::fillLines( const std::string &in ) {
 	//tokenize input string
 	CgtString::StringTokenizer st;
 	st.setMinTokens( getNumLines() );
 	st.setDelims( "\n" );
-	vector< string* > *tokens = st.tokenize( &in );
+	auto tokens = st.tokenize( in );
 
 	//ensure we have enough lines to follow this request
-	if( tokens->size() > getNumLines() ) {
-		addLines( tokens->size() - getNumLines() );
+	if( tokens.size() > getNumLines() ) {
+		addLines( tokens.size() - getNumLines() );
 	}
 
 	//fill lines
-	vector< TextLabel* >::iterator i = lines.begin();
+	auto i = lines.begin();
 	for( int ct = 0; i != lines.end(); i++, ct++ ) {
-		(*i)->setString( *(*tokens)[ ct ] ); 
+		(*i)->setString( (tokens)[ ct ] ); 
 	}	
-	
 	return true;
 }
 
@@ -1628,26 +1620,24 @@ bool MultiLineTextLabel::fillLines( string in ) {
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Font::Font() {
-	image = NULL;
+Font::Font( ) {
 	fontWidth = 0;
 	fontHeight = 0;
+	currChar = 0;
+	
 }
 
 Font::~Font() {
 	_log->Write( "Font box destructor called" );
-	if( image != NULL ) {
-		delete image;
-	}
 }
 
 void Font::loadFont( const char *file ) {
 	try {
 		//_log->Write( "Load font %s", file );
 	        image = loadImage( file );
-		fontWidth = (GuiDim)image->sizeX / 32;
-		fontHeight = (GuiDim)image->sizeY / 4;	
-		if( image->channels == 3 )
+		fontWidth = (GuiDim)image.sizeX / 32;
+		fontHeight = (GuiDim)image.sizeY / 4;	
+		if( image.channels == 3 )
 			image = convertToAlpha( 0, 0, 0, image );	
 		createTexture( image, &imageid );
 	}
@@ -1663,7 +1653,7 @@ void Font::loadFont( const char *file ) {
 
 //coordinates for fonts are precalculated ( for speed - avoids multiple divides 
 //every frame when console is showing )
-TextureCoord *Font::getCoord( char c )  {
+TextureCoord *Font::getCoord( unsigned char c )  {
 	return &coordTable[c];
 }
 
@@ -1689,10 +1679,10 @@ void Font::buildCoordTable() {
 		y = ( 3 * fontHeight ) - ( gridy * fontHeight );	
 		
 		TextureCoord tc;
-		tc.x0 = x / image->sizeX;
-		tc.y0 = y / image->sizeY;
-		tc.x1 = ( x + fontWidth ) / image->sizeX;
-		tc.y1 = ( y + fontHeight ) / image->sizeY;
+		tc.x0 = x / image.sizeX;
+		tc.y0 = y / image.sizeY;
+		tc.x1 = ( x + fontWidth ) / image.sizeX;
+		tc.y1 = ( y + fontHeight ) / image.sizeY;
 
 		coordTable.push_back( tc );
 	}

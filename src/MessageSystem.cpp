@@ -1,9 +1,7 @@
 #pragma warning( disable : 4786 )
 
 #include "MessageSystem.h"
-#include "GameMain.h"
 
-extern GameMain *gm;
 extern MessageSystem *ms;
 
 void MessageSystem::runCommand( std::string line, bool echo ) {

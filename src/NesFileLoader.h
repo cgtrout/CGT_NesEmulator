@@ -3,14 +3,11 @@
 
 //nes file loader
 #include < string >
-//#include "NesMemory.H"
 
-#include "SystemMain.h"
-#include "CGTSingleton.h"
 #include "CGTException.h"
-using namespace CGTSingleton;
 
 typedef unsigned char ubyte;
+
 namespace NesEmulator {
 	class NesFile {
 	public:

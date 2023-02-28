@@ -1,7 +1,9 @@
 //original author - Ben Humphrey ( DigiBen )
 
-#ifndef _IMAGE_H
-#define _IMAGE_H
+#pragma once
+#include <vector>
+
+typedef unsigned char ubyte;
 
 #include "CgtException.h"
 //2 dimensional vector 
@@ -33,9 +35,9 @@ Class Image
 */
 class Image {
   public:
-	int channels;			
-	int sizeX;				
-	int sizeY;				
+	int channels = 0;			
+	int sizeX = 0;				
+	int sizeY = 0;				
 	
 	void plotPixel( const Vec2d *pos, const Pixel3Byte *color, ubyte alpha = 255 );
 	void clearImage();
@@ -43,36 +45,40 @@ class Image {
 	//allocate image based on settings
 	void allocate();
 	
-	bool isAllocated() { return data != 0; }
+	bool isAllocated() { return !data.empty(); }
 
-	ubyte *getData() { return data; }
+	ubyte *getData() { return data.data(); }
+	void setData( ubyte* data );
 
 	int getSize() { return channels * sizeX * sizeY; }
+	
+	//size up to next power of two to satisfy opengl requirements
+	void resizePowerOfTwo( );
 
-	Image(): data(0), imgid(0) {}
+	Image(): data(), imgid(0) {}
 	~Image();
 
 	//TODO eventually this should probably be private
-	ubyte *data;	
+	std::vector<ubyte> data;	
 	unsigned int imgid;
 };
 
 class ImageException : public CgtException {
 public:	
-	ImageException( char *h, char *m, bool show = true) {
+	ImageException( const char *h, const char *m, bool show = true) {
 		::CgtException(h, m, show);
 	}
 }; 
 
 void copyImage( Image *source, int sx, int sy, int width, int height, Image *destination, int dx, int dy );
-Image *loadImage( const char *strFileName );
+Image loadImage( std::string_view strFileName );
 Image *flipImage( Image *image );
-Image *convertToAlpha( int aR, int aG, int aB, Image *image );
+Image convertToAlpha( int aR, int aG, int aB, Image image );
 
 // This loads and returns the BMP data
-Image *LoadBMP( const char *strFileName );
+Image LoadBMP( std::string_view strFileName );
 
-void ExportImageToBMP( Image *image, char *fileName );
+void ExportImageToBMP( const Image &image, std::string_view fileName );
 
 // This loads and returns the TGA data
 //Image *LoadTGA( const char *strFileName );
@@ -83,5 +89,3 @@ Image *LoadJPG( const char *strFileName );
 // This decompresses the JPEG and fills in the image data
 //void DecodeJPG( jpeg_decompress_struct* cinfo, Image *pImageData );
 
-
-#endif

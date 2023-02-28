@@ -39,9 +39,9 @@ namespace Console {
 	typedef void ( CommandHandlerSystem::*CCommandFnptr )( const char * );
 
 	struct ConsoleCommand {
-		string name;
+		std::string name;
 		CCommandFnptr handler;	//function pointer to command handler
-		string description;
+		std::string description;
 	} ;
 
 }//namespace

@@ -6,7 +6,6 @@
   #include "winDebugger.h"
 #endif
 
-//#include "MessageSystem.h"
 #include "Console.h"
 #include "resource1.h"
 
@@ -146,6 +145,9 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		return 0;									// Quit If Window Was Not Created
 	}
 
+	//enable heap debug
+	//_CrtSetDbgFlag( _CRTDBG_CHECK_ALWAYS_DF );
+	
 	systemMain = SystemMain::getInstance();
 	
   #ifndef LIGHT_BUILD
@@ -164,6 +166,11 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	winDebugger->initialize();
    #endif
 
+	//initialize anything that needs to be initialized
+	//this is to control initialization on objects to avoid problems with singleton initialization
+	
+	consoleSystem = &systemMain->consoleSystem;
+	systemMain->initialize( );
 	systemMain->renderer.setRes( XRES, YRES );
 	
 	//assign soundsystem
@@ -188,7 +195,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		_log->Write( "Error setting timer resolution to 1ms" );
 	}
 
-	const float FRAME_TIME = 0.01663926f;
+	const float FRAME_TIME = 1.0f/60.0f;
 	
 	systemMain->consoleSystem.variables.addBoolVariable( &capFrameRate );
 	float elapsedTime = 0.0f;
@@ -214,7 +221,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		elapsedTime = 0;
 		freshFrame = true;
 
-		//cap to 60.098814 frames per second
+		//cap to 60 frames per second
 		while( elapsedTime < FRAME_TIME ) {
 
 			if ( PeekMessage( &msg,NULL,0,0,PM_REMOVE ) )	// Is There A Message Waiting?
@@ -287,7 +294,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 
 		elapsedTime = timer->getCurrTime() - currTime;
 
-		_log->Write( "end frame time = %f", elapsedTime );
+		//_log->Write( "end frame time = %f", elapsedTime );
 		//_log->Write( "debug elapsed time = %f", (float)(debElapsedTime)/1000);
 
 	}
@@ -298,6 +305,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	timeEndPeriod( 1 );
 
 	// Shutdown
+	_log->Write( "Before KillGLWindow" );
 	KillGLWindow();									// Kill The Window
 	return ( msg.wParam );							// Exit The Program
 }

@@ -9,7 +9,6 @@
 #include "Image.h"
 
 //creates opengl texture
-//void createTexture( Image *image, unsigned int *texid );
-void createTexture( Image *image, unsigned int *texid, GLenum format = GL_RGBA );
+void createTexture( Image image, unsigned int *texid, GLenum format = GL_RGBA );
 
 #endif

@@ -23,18 +23,18 @@ namespace GUISystem {
 
 	private:
 		GUISystem::GEDrawElement background;
-		GUISystem::TextLabel lines[ CONSOLE_LINES ];
+		std::array<GUISystem::TextLabel, CONSOLE_LINES> lines;
 		
 		class ConsoleEditBox : public GUISystem::EditBox {
 			void onEnterKey();
 		};
 
 	public:
-		ConsoleEditBox *editLine;
+		ConsoleEditBox editLine;
 
 	private:
 		
-		GUISystem::Font *font;
+		GUISystem::Font font;
 
 		std::string consoleLog;	
 

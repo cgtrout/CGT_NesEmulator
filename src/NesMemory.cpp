@@ -6,6 +6,7 @@ NesEmulator::NesControllerSystem *controllerSystem;
 PpuSystem::NesPPU				 *nesPpu;
 NesApu::NesSound				 *nesApu;
 NesEmulator::NesMemory			 *memorySys;
+NesEmulator::NesCpu				 *nesCpu;
 
 //disable crt string warnings
 #pragma warning ( disable : 4996 )
@@ -369,16 +370,21 @@ NesMemory::NesMemory()
 ==============================================
 */
 NesMemory::NesMemory() {
-	nesPpu = &FrontEnd::SystemMain::getInstance()->nesMain.nesPpu;
-	nesApu = &FrontEnd::SystemMain::getInstance()->nesMain.nesApu;
+	
+}
+
+void NesMemory::initialize( )
+{
+	nesPpu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesPpu;
+	nesApu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesApu;
 	memorySys = this;
-	controllerSystem = &FrontEnd::SystemMain::getInstance()->nesMain.controllerSystem;
-	nesCpu		= &FrontEnd::SystemMain::getInstance()->nesMain.nesCpu;
+	controllerSystem = &FrontEnd::SystemMain::getInstance( )->nesMain.controllerSystem;
+	nesCpu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesCpu;
 
 	//set all sprite data 
 	int i = 0;
 	int y = 255;
-	for( ; i < 256; i += 4 ) {
+	for ( ; i < 256; i += 4 ) {
 		spriteRam[ i ] = y;
 	}
 
@@ -1033,12 +1039,12 @@ ubyte PPUMemory::getPaletteByte( uword address )
 ==============================================
 */
 ubyte PPUMemory::getPaletteByte( uword address ) {
-	address = resolvePaletteAddress( address );
+	uword newAddress = resolvePaletteAddress( address );
 
-	if( address >= 0x3f10 ) {
-		return sprPalette[ address & 0x000f ];
+	if( address > 0x3f10 ) {
+		return sprPalette[ newAddress & 0x000f ];
 	} else {
-		return bgPalette[ address & 0x000f ];
+		return bgPalette[ newAddress & 0x000f ];
 	}
 }
 
@@ -1047,13 +1053,13 @@ ubyte PPUMemory::getPaletteByte( uword address ) {
 void PPUMemory::setPaletteByte( uword address, ubyte val )
 ==============================================
 */
-void PPUMemory::setPaletteByte( uword address, ubyte val ) {
-	address = resolvePaletteAddress( address );
-
-	if( address >= 0x3f10 ) {
-		sprPalette[ address & 0x000f ] = val;
+void PPUMemory::setPaletteByte( uword address, ubyte val ) {	
+	uword newAddress = resolvePaletteAddress( address );
+	
+	if( newAddress >= 0x3f11 ) {
+		sprPalette[ newAddress & 0x000f ] = val;
 	} else {
-		bgPalette[ address & 0x000f ] = val;
+		bgPalette[ newAddress & 0x000f ] = val;
 	}
 }
 
@@ -1064,11 +1070,12 @@ inline uword PPUMemory::resolvePaletteAddress( uword address )
 */
 inline uword PPUMemory::resolvePaletteAddress( uword address ) {
 	//if address is divisible by 4 then it will mirror to 0x3f00 / 0x3f10
-	if( address % 4 == 0 ) {
-		address &= 0xFFF0;	
+	uword newAddress = address;
+	if( address >= 0x3f10 && address % 4 == 0 ) {
+		newAddress = address - 0x10;
 	}
 
-	return address;
+	return newAddress;
 }
 
 /*

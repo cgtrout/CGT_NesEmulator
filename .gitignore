@@ -1,0 +1,59 @@
+
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.tlog/CGT NES Emulator.lastbuildstate
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.tlog/CL.command.1.tlog
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.tlog/CL.read.1.tlog
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.tlog/CL.write.1.tlog
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.tlog/link.command.1.tlog
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.tlog/link.read.1.tlog
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.tlog/link.write.1.tlog
+CGT_NesEmulator/CGT NES Emulator/x64/Debug/CGT NES Emulator.tlog/unsuccessfulbuild
+CGT_NesEmulator/CGT NES Emulator/x64/Debug/CGT NES Emulator.tlog/CL.write.1.tlog
+CGT_NesEmulator/CGT NES Emulator/x64/Debug/CGT NES Emulator.tlog/CL.read.1.tlog
+CGT_NesEmulator/CGT NES Emulator/x64/Debug/CGT NES Emulator.tlog/CL.command.1.tlog
+CGT_NesEmulator/CGT NES Emulator/x64/Debug/CGT NES Emulator.tlog/CGT NES Emulator.lastbuildstate
+CGT_NesEmulator/CGT NES Emulator/Debug/vc142.idb
+CGT_NesEmulator/CGT NES Emulator/Debug/RCa20324
+CGT_NesEmulator/CGT NES Emulator/Debug/RCa17912
+CGT_NesEmulator/CGT NES Emulator/Debug/RCa00936
+CGT_NesEmulator/CGT NES Emulator/Debug/console.obj.enc
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.vcxproj.FileListAbsolute.txt
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.exe.recipe
+CGT_NesEmulator/CGT NES Emulator/x64/Debug/vc142.idb
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/e53c8b7c78f01c3b.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/e5324af4f0966aab.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/b802316ddf8c5d68.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/fda045bd7154fc5c/GLGUIDRAW.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/e45800dc6fe6f2a4/GLGENERAL.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/def77dc8346e68d/GAMEMAIN.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/bfb13d171c221061/CGSTRING.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/a679d1177cab3b25/CGTSINGLETON.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/5a3f850ad3eefcc6/NESREGISTERS.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/5373c18eb72503da/GLRENDERER.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/47d6f1cbe15e1211/IMAGE.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/430c2bd7fc5c6335/RENDERER.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/1fd483fced0f63b6/PRECOMPILED.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/196ea97940c22025/GLGENERAL.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/15ce58977ddb1021/CONSOLE.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/a9c7b320c2e427c4.ipch
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.opendb
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db-wal
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db-shm
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db
+CGT_NesEmulator/.editorconfig
+CGT_NesEmulator/CGT NES Emulator/Debug/winmain.obj.enc
+CGT_NesEmulator/CGT NES Emulator/Debug/gui.obj.enc
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/92a4a9d740e071d3.ipch
+applog.txt
+roms/ice_hock.nes
+*.enc
+*.recipe
+*.iobj
+*.ipdb
+*.lastbuildstate
+*.tlog
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/ipch/AutoPCH/abfa9ad6b9af39c7/IMAGE.ipch
+binds.cfg
+ConsoleDefs.txt
+roms/icehock.nes
+roms/mario.nes
+*.nes

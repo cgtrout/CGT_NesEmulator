@@ -30,7 +30,7 @@ ConsoleCommand commands[] =
 //###endformatignore
 
 CommandHandlerSystem::CommandHandlerSystem() {
-	consoleSystem = &SystemMain::getInstance()->consoleSystem;
+	consoleSystem = nullptr;
 }
 
 ConsoleCommand *CommandHandlerSystem::getCommands() {
@@ -42,6 +42,11 @@ void CommandHandlerSystem::quit( const char *param ) {
 }
 
 void CommandHandlerSystem::loadNesFile( const char *param ) {
+	//late binding to avoid singleton initialization hell
+	if ( consoleSystem == nullptr ) {
+		consoleSystem = &SystemMain::getInstance( )->consoleSystem;
+	}
+
 	if( !param ) {
 		consoleSystem->printMessage( "No filename entered." );
 		return;
@@ -61,7 +66,7 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		try {
 			systemMain->soundSystem->initialize();
 			systemMain->soundSystem->start();
-			consoleSystem->printMessage( "Soundsystem started" );
+			//consoleSystem->printMessage( "Soundsystem started" );
 		} catch( Sound::SoundSystemException e ) {
 			consoleSystem->printMessage( "Soundsystem start failed - %s", e.getMessage().c_str() );
 		}
@@ -77,8 +82,8 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		systemMain->nesMain.setState( Emulating );
 		return;
 	}
-	catch( NesFile::NesFileException *e ) {
-		consoleSystem->printMessage( "Error loading nes file: %s", e->getMessage() );
+	catch( NesFile::NesFileException e ) {
+		consoleSystem->printMessage( "Error loading nes file: %s", e.getMessage() );
 	}
 }
 
@@ -110,44 +115,44 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 		return;
 	}
 
-	string p = param;
+	std::string p = param;
 		
 	//get tokens
 	StringTokenizer st;
 	st.setDelims( " " );
-	vector< string* > *tokens = st.tokenize( &p );
+	auto tokens = st.tokenize( p );
 	
-	if( tokens->size() < 3 ) {
+	if( tokens.size() < 3 ) {
 		printBindKeyUsage( "Not enough params entered." );
 		return;
 	}
 	
-	if( tokens->size() > 3 ) {
+	if( tokens.size() > 3 ) {
 		printBindKeyUsage( "Too many params entered." );
 		return;
 	}
-	if( *tokens->at( 1 ) != "to" ) {
+	if( tokens.at( 1 ) != "to" ) {
 		printBindKeyUsage( "Param 2 must be \"to\"" );
 		return;
 	}
 
 	//parse command
-	string control;
-	string button;
-	string key = *tokens->at( 2 );
+	std::string control;
+	std::string button;
+	std::string key = tokens.at( 2 );
 
-	string command = *tokens->at( 0 );
+	std::string command = tokens.at( 0 );
 	
 	//tokenize command using '.' as delimiter
 	st.setDelims( "." );
-	tokens = st.tokenize( &command );
+	tokens = st.tokenize( command );
 
-	if( tokens->size() < 2 ) {
+	if( tokens.size() < 2 ) {
 		printBindKeyUsage( "Invalid command entered" );
 		return;
 	}
-	control = *tokens->at( 0 );
-	button = *tokens->at( 1 );
+	control = tokens.at( 0 );
+	button = tokens.at( 1 );
 
 	
 	//tokens are parsed, now interpret key and command
@@ -164,38 +169,38 @@ void CommandHandlerSystem::printBindKeyUsage( const char *errorMsg ) {
 
 void CommandHandlerSystem::reset( const char *param ) {
 	consoleSystem->printMessage( "Resetting cpu..." );
-	nesCpu->reset();
+	systemMain->nesMain.nesCpu.reset();
 	systemMain->nesMain.reset();
 }
 
 //help syntax: help [ command / param ]
 void CommandHandlerSystem::help( const char *param ) {
-	string params( param );
+	std::string params( param );
 	StringTokenizer st;
 	st.setDelims( " " );
-	vector< string* > *tokens = st.tokenize( &params );
+	auto tokens = st.tokenize( params );
 
-	if( tokens->size() == 0 ) {
+	if( tokens.size() == 0 ) {
 		printHelpUsage( NULL );
 		return;
 	}
 
-	if( tokens->size() > 1 ) {
+	if( tokens.size() > 1 ) {
 		printHelpUsage( "Too many params entered" );
 		return;
 	}
 
 	//first see if it is a variable
-	string desc = consoleSystem->variables.getVariableDescription( ( ( *tokens )[ 0 ] ) ) ;
+	std::string desc = consoleSystem->variables.getVariableDescription( ( ( tokens )[ 0 ] ) ) ;
 	if( desc != "NOT_FOUND" ) {
-		consoleSystem->printMessage( "%s: %s", ( *tokens )[ 0 ]->c_str(), desc.c_str() );
+		consoleSystem->printMessage( "%s: %s", ( tokens )[ 0 ].c_str(), desc.c_str() );
 		return;
 	}
 	
 	//now see if consoleCommand can be found ( since variable was not found"
-	desc = consoleSystem->getCommandDescription( ( *tokens )[ 0 ] );
+	desc = consoleSystem->getCommandDescription( ( tokens )[ 0 ] );
 	if( desc != "NOT_FOUND" ) {
-		consoleSystem->printMessage( "%s: %s", ( *tokens )[ 0 ]->c_str(), desc.c_str() );
+		consoleSystem->printMessage( "%s: %s", ( tokens )[ 0 ].c_str(), desc.c_str() );
 		return;
 	}
 	//if here, then console or variable was not found

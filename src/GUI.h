@@ -6,7 +6,13 @@
 #if !defined( AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_ )
 #define AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_
 
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
 #include < list >
+#include <string>
+#include <memory>
 #include "Image.h"
 
 //to fix name collision
@@ -45,16 +51,14 @@ namespace GUISystem {
 	class GEDrawElement {
 	public:	
 		GEDrawElement() {
-			image = NULL;
 			opacity = 1.0;
 		}
 
 		virtual ~GEDrawElement() {
-			if( image != NULL )
-				delete image;
+		
 		}
 
-		Image *image;
+		Image image;
 		unsigned int imageid;
 		GuiDim x, y, 
 			stretchFactorx, //how much to stretch if not ST_NONE
@@ -109,18 +113,18 @@ namespace GUISystem {
 		//initialize exception class
 		class GUITexturesLoadException {
 		  public:
-			GUITexturesLoadException( string header, string m, bool s = true ) {
+			GUITexturesLoadException( std::string header, std::string m, bool s = true ) {
 				::CgtException( header, m, s );
 			}
 		};
 		
 		
 	private:
-		std::list< std::string > fileList;
-		std::list< std::string >::iterator iter;
+		std::vector< std::string > fileList;
+		std::vector< std::string >::iterator iter;
 		std::string fileName;
-		void loadFromFile( std::string fileName );
-		void parseLine( std::string line );
+		void loadFromFile( const std::string &fileName );
+		void parseLine( const std::string &line );
 
 		char buffer[ 255 ];
 
@@ -149,7 +153,7 @@ namespace GUISystem {
 
 	class GUIElement {
 	public:
-		GUIElement() {}	
+		GUIElement() : name("unnamed") {}
 		GUIElement( std::string guitextures );
 
 		virtual ~GUIElement();
@@ -192,7 +196,7 @@ namespace GUISystem {
 		//add child to this elements childList
 		void addChild( GUIElement *elem ) {
 			elem->setParent( this );
-			children.push_front( elem );
+			children.push_back( elem );
 		}
 		
 		//which child is the active child
@@ -226,7 +230,7 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIElementInitializeException : public CgtException {
 		public:
-			GUIElementInitializeException( string header, string m, bool s = true ) {
+			GUIElementInitializeException(std::string header, std::string m, bool s = true ) {
 				::CgtException( header, m, s );
 			}
 		};
@@ -234,30 +238,35 @@ namespace GUISystem {
 		friend class GUI;
 
 	protected:
+
+		std::string name;
 		//every gui element will have 0 or more children.  Children are guielements
 		//contained within this gui element
-		std::list< GUIElement* > children;
+		std::vector< GUIElement* > children;
 
 		//list of draw elements
-		std::list< GEDrawElement* >drawList;
+		std::vector< GEDrawElement >drawList;
 
 		//gui textures object
 		GUITextures gt;
 
-		GuiDim x, y, width, height;
-		int type;
+		GuiDim x		= 0;
+		GuiDim y		= 0;	
+		GuiDim width	= 0;
+		GuiDim height	= 0;
+		int type		= 0;
 		
-		bool activeElement;
-		bool open;
+		bool activeElement = false;;
+		bool open = true;
 
 		//if this element is a child to another gui element than this will point to
 		//the parent gui element
-		GUIElement *parent;
+		GUIElement *parent = nullptr;
 
 		virtual void initialize( std::string guitextures );	
 		
-		void unactivateChildren( std::list< GUIElement* > childList );
-		GUIElement *getActiveChild( std::list< GUIElement* > childList );
+		void unactivateChildren( std::vector< GUIElement* > childList );
+		GUIElement *getActiveChild( std::vector< GUIElement* > childList );
 	};
 	/*
 	=================================================================
@@ -268,6 +277,8 @@ namespace GUISystem {
 	*/
 	struct TextureCoord {
 			GuiDim x0, y0, x1, y1;	
+
+			TextureCoord( ): x0(0), y0(0), x1(0), y1(0) {}
 	};
 
 	class Font {
@@ -280,29 +291,28 @@ namespace GUISystem {
 		GuiDim &getFontWidth() {return fontWidth;}
 		GuiDim &getFontHeight() {return fontHeight;}
 
-		Image *geImage() {return image;}
+		Image getImage() {return image;}
 
 		//pixel coordinates to draw given character at
 		//must call setChar first to get these
-		TextureCoord *getCoord( char c );
+		TextureCoord *getCoord( unsigned char c );
 
-		unsigned int geImageid() {return imageid;}
+		unsigned int getImageid() {return imageid;}
 
 	private:
 		char currChar;
 		GuiDim fontWidth;
 		GuiDim fontHeight;
 	
-
 		//builds the texture coordinate lookup table
 		void buildCoordTable();
 
 		//current coordinates
 		TextureCoord currCoord;
 
-		vector< TextureCoord > coordTable;
+		std::vector< TextureCoord > coordTable;
 
-		Image *image;
+		Image image;
 		unsigned int imageid;
 	};
 
@@ -331,7 +341,7 @@ namespace GUISystem {
 
 		void update() {}
 
-		void loadFont( Font *font ) {this->font = font;}
+		void loadFont( Font *font ) {this->font = *font;}
 		
 		std::string &getString() {return str;}
 		
@@ -339,14 +349,14 @@ namespace GUISystem {
 		
 		void setString( const char *n ) {
 			str = n;
-			height = font->getFontHeight();
-			width = font->getFontWidth() * str.length();
+			height = font.getFontHeight();
+			width = font.getFontWidth() * str.length();
 		}
 		
-		Font *getFont() {return font;}
+		Font *getFont() {return &font;}
 
 	protected:
-		Font *font;
+		Font font;
 		std::string str;
 		void initialize( std::string &guitextures );
 	};
@@ -376,9 +386,11 @@ namespace GUISystem {
 		void setY( GuiDim val );
 
 		//fills text labels with multi-lined string "in"
-		bool fillLines( string in );
+		bool fillLines( const std::string &in );
 	private:
-		vector< TextLabel* > lines;
+		//store as unique pointer since we want to pass these pointers around and
+		//automatically deallocate with this class
+		std::vector< std::unique_ptr<TextLabel> > lines;
 		Font font;
 
 		GuiDim yaddPos;	//current y position (of next 
@@ -527,7 +539,7 @@ namespace GUISystem {
 		bool movement;
 
 		DialogTitle *textLabel;
-		CloseButton *closeButton;
+		CloseButton closeButton;
 
 		void initialize( std::string guitextures );
 	};
@@ -555,13 +567,13 @@ namespace GUISystem {
 		void onRightMouseRelease();
 		void update() {}
 
-		void setTitle( char *str ) {title->setString( str );}
+		void setTitle( char *str ) {title.setString( str );}
 
 	protected:
-		TitleBar *titleBar;
+		TitleBar titleBar;
 
-		DialogTitle *title;
-		Font *font;
+		DialogTitle title;
+		Font font;
 		
 		GEDrawElement lborder, rborder, blcorner, brcorner, bborder, background;
 
@@ -583,7 +595,7 @@ namespace GUISystem {
 		//								or left and right
 		Slider( int type );
 		Slider( std::string guitextures, int type );
-		
+		Slider( ) {}
 		~Slider();
 
 		void onLeftMouseDown();
@@ -631,6 +643,7 @@ namespace GUISystem {
 		public:	
 			SliderBar( int type );
 			SliderBar( std::string guitextures, int type );
+			SliderBar( ) {};
 			~SliderBar();
 
 			void onLeftMouseDown();
@@ -646,7 +659,7 @@ namespace GUISystem {
 			int type;
 
 			void initialize( std::string guitextures );
-		}*sliderBar;
+		}sliderBar;
 	};
 
 	/*
@@ -665,8 +678,8 @@ namespace GUISystem {
 		//renders ui
 		void render();
 		
-		//adds a gui element to the gui system
-		void addElement( GUIElement *ge ) {elements.push_front( ge );}
+		//adds a gui element to the gui system - caller is responsible for managing lifetime of object
+		void addElement( GUIElement *ge ) {elements.push_back( ge );}
 
 		//sets whether the gui is using the mouse
 		void setUsingMouse( bool val ) {usingMouse = val;}
@@ -680,15 +693,17 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIRunException : public CgtException {
 		public:
-			GUIRunException( string header, string m, bool s = true ) {
+			GUIRunException( std::string header, std::string m, bool s = true ) {
 				::CgtException( header, m, s );
 			}
 		};
 		GUI();
 		virtual ~GUI();
 
+		void initialize( );
+
 	private:
-		std::list< GUIElement* > elements;
+		std::vector< GUIElement* > elements;
 		
 		bool usingMouse;
 		//bool usingKeyboard;
@@ -696,11 +711,11 @@ namespace GUISystem {
 		//used so elements don't overlap when drawn overtop of eachother
 		float zdrawpos;
 
-		void updateElementsList( std::list< GUIElement* > elems );
-		void renderElements( std::list< GUIElement* > elems );
+		void updateElementsList( std::vector< GUIElement* > elems );
+		void renderElements( std::vector< GUIElement* > elems );
 		void renderTextLabel( TextLabel *fs );
 		void renderDebugLines( GUIElement *element );
-		void renderDrawList( std::list< GEDrawElement* > drawList );
+		void renderDrawList( const std::vector< GEDrawElement > &drawList );
 		GUIElement *findElementCursorOver();
 		void sendActiveToFront();
 

@@ -12,8 +12,8 @@
 #include < windows.h >	
 #include < vector >
 #include < string >
-using namespace std;
 
+#include "typedefs.h"
 
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
@@ -164,19 +164,19 @@ namespace FrontEnd {
 			void updateControllables();
 
 			//binds a key to a control
-			bool bindKeyToControl( string key, string control, string button );
+			bool bindKeyToControl( std::string key, std::string control, std::string button );
 
 			//get control from list of controls
-			Controllable *getControl( string control );
+			Controllable *getControl( std::string control );
 
 			//writes all binds to a file
 			void writeBindsToFile( const char *filename );
 
-			//convert keyid to it's string form
-			string keyIdToString( uword keyid );
+			//convert keyid to it's std::string form
+			std::string keyIdToString( uword keyid );
 
 			//convert a key in string form to it's id number
-			uword keyStringToNumber( string key );
+			uword keyStringToNumber( std::string key );
 			
 		private:
 

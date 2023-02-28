@@ -53,6 +53,17 @@ SystemMain::SystemMain() {
 	input->setUseDelay( true );
 }
 
+void SystemMain::initialize( ) {
+	gui.initialize( );
+	nesMain.nesCpu.initialize( );
+	nesMain.nesMemory.initialize( );
+	nesMain.nesPpu.initialize( );
+	nesMain.nesPpu.scanlineDrawer.initialize( );
+	nesMain.nesPpu.initialize( );
+	guiTimeProfiler.initialize( );
+
+}
+
 /*
 ==============================================
 SystemMain::~SystemMain()
@@ -72,18 +83,13 @@ void SystemMain::start() {
 	try {
 		//get keybinds
 		consoleSystem.loadCommandFile( "binds.cfg" );
-		
-		gui.addElement( &gc );
-		gui.addElement( &frameCounter );
-		gui.setUsingMouse( true );
-		frameCounter.setOpen( true );
 
 		//TEST ROMS - load here
 		//TODO what happens if no rom is loaded - test and handle this case
 
 		//test invalid file name
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/__" ), false );
-
+		
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/icehock" ), false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/contra" ), false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/castlevania" ), false );
@@ -169,9 +175,6 @@ void SystemMain::start() {
 		//nesMain.nesDebugger.setToSingleStepMode( nesMain.nesCpu.getPC() );
 	}
 
-	//don't want console to show up automatically
-	gc.setOpen( false );
-
 	//setup timeProfiler
 	timeProfiler.addSection( "Apu" );
 	timeProfiler.addSection( "Cpu" );
@@ -179,7 +182,14 @@ void SystemMain::start() {
 	timeProfiler.addSection( "Gui" );
 	timeProfiler.addSection( "Render" );
 
+	gui.addElement( &guiConsole );
+	gui.addElement( &frameCounter );
 	gui.addElement( &guiTimeProfiler );
+
+	frameCounter.setOpen( true );
+	gui.setUsingMouse( true );
+	guiConsole.setOpen( false );
+
 }
 
 /*
@@ -194,8 +204,8 @@ void SystemMain::runFrame() {
 	input->updateControllables();
 
 	if( input->isKeyDownUnset( KB_TILDE ) ) {
-		gc.setOpen( !gc.isOpen() );
-		gc.editLine->onLeftMouseDown();
+		guiConsole.setOpen( !guiConsole.isOpen() );
+		guiConsole.editLine.onLeftMouseDown();
 	}
 	
 #ifndef LIGHT_BUILD

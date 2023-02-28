@@ -210,7 +210,7 @@ namespace NesApu {
 		
 		//divide by two on timer
 		bool halfTimer;
-		bool currClock;
+		ubyte currClock;
 	};
 
 	

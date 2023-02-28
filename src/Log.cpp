@@ -69,9 +69,7 @@ void CLog::Write( const char *msg, ... )
 	//if( target&LOG_APP )
 	// {
 		appLog<< szBuf<< "\n";
-#ifdef _DEBUG
-		appLog.flush();
-#endif
+		//appLog.flush();
 	/*}
 	if( target&LOG_CLIENT )
 	 {

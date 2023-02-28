@@ -5,6 +5,7 @@
 #if !defined( AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_ )
 #define AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_
 
+//TODO investigate these supressed warnings
 #if _MSC_VER > 1000
 #pragma once
 #pragma warning( disable : 4786 ) 
@@ -54,6 +55,8 @@ namespace FrontEnd {
 		  
 		friend Singleton< SystemMain >;
 		
+		void initialize( );
+
 		//sets up and starts the class
 		void start();
 		
@@ -75,7 +78,7 @@ namespace FrontEnd {
 		Console::ConsoleSystem	consoleSystem;
 		
 		GUISystem::GUI			gui;
-		GUISystem::GUIConsole	gc;
+		GUISystem::GUIConsole	guiConsole;
 		
 		NesEmulator::NesMain	nesMain;
 		
@@ -84,8 +87,8 @@ namespace FrontEnd {
 		GUISystem::GUIFPSCounter frameCounter;
 		FPSTimer fpsTimer;
 		
-		GUISystem::GuiTimeProfiler guiTimeProfiler;
 		TimeProfiler timeProfiler;
+		GUISystem::GuiTimeProfiler guiTimeProfiler;
 
 		Sound::SoundSystem *soundSystem;
 		

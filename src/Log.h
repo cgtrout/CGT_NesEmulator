@@ -20,7 +20,7 @@
 //#include < stdarg.h >
 //#include < windows.h >	
 
-using namespace std;
+
 
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
@@ -37,11 +37,11 @@ namespace FrontEnd {
 	protected:
 		CLog();
 		
-		ofstream appLog;
+		std::ofstream appLog;
 		//ofstream clientLog;
 		//ofstream serverLog;
 
-		string logStrings[ MAX_LOG_STRINGS ];
+		std::string logStrings[ MAX_LOG_STRINGS ];
 		bool LoadStrings();
 
 	public:

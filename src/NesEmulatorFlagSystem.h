@@ -8,6 +8,7 @@
 #include < deque >
 
 #include "CGTSingleton.h"
+#include "typedefs.h"
 using namespace CGTSingleton;
 
 namespace NesEmulator {

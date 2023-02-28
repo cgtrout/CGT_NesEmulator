@@ -90,25 +90,29 @@ NesCpu()
 ==============================================
 */
 NesCpu::NesCpu() {
-	//onStatus = false;
-	m			= &SystemMain::getInstance()->nesMain;
-
-  #ifndef LIGHT_BUILD
-	nesDebugger = &m->nesDebugger;
-  #endif
-
-	nesMemory	= &m->nesMemory;
-	ppu			= &m->nesPpu;
-
-	timer		= Timer::getInstance();
-	flagSystem	= &m->emulatorFlags;
-
-	consoleSystem->variables.addIntVariable( &traceSize );
-	consoleSystem->variables.addBoolVariable( &traceAlreadyRun );
-	buildReadWriteTimeTables();
+	
 }
 
 NesCpu::~NesCpu() {}
+
+void NesCpu::initialize( ) {
+	//onStatus = false;
+	m = &SystemMain::getInstance( )->nesMain;
+
+#ifndef LIGHT_BUILD
+	nesDebugger = &m->nesDebugger;
+#endif
+
+	nesMemory = &m->nesMemory;
+	ppu = &m->nesPpu;
+
+	timer = Timer::getInstance( );
+	flagSystem = &m->emulatorFlags;
+
+	consoleSystem->variables.addIntVariable( &traceSize );
+	consoleSystem->variables.addBoolVariable( &traceAlreadyRun );
+	buildReadWriteTimeTables( );
+}
 
 /*
 ==============================================
@@ -256,7 +260,7 @@ void NesCpu::buildReadWriteTimeTables() {
 
 void NesCpu::buildReadTimeTable() {
 	const opcodeLookUpTableEntry *e;
-	for( int i = 0; i < 0x100; i++ ) {
+	for( int i = 0; i < 0xFF; i++ ) {
 		e = &opcodeLookUpTable[ i ];
 		switch( e->type ) {
 			case IT_BAD:
@@ -286,7 +290,7 @@ void NesCpu::buildReadTimeTable() {
 
 void NesCpu::buildWriteTimeTable() {
 	const opcodeLookUpTableEntry *e;
-	for( int i = 0; i < 0x100; i++ ) {
+	for( int i = 0; i < 0xFF; i++ ) {
 		e = &opcodeLookUpTable[ i ];
 		switch( e->type ) {
 			case IT_BRANCH:

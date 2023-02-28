@@ -146,7 +146,7 @@ void GraphGen< UnitType >::placePlotData() {
 	
 	//slow method - renders every data val
 	for( int x = startPos_x; x < endPos_x; ++x ) {
-		UnitType dataVal = dataBuffer[ x ];
+		UnitType dataVal = (*dataBuffer)[ x ];
 		pointDrawer.pos.x = findNearestPixel_x( x );
 		pointDrawer.pos.y = this->getPixelHeight() - findNearestPixel_y( dataVal ) - 1;
 		

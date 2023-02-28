@@ -75,7 +75,7 @@ Input::~Input()
 ==============================================
 */
 Input::~Input() {
-	writeBindsToFile( "keybinds.cfg" );
+	//writeBindsToFile( "binds.cfg" );
 }
 
 /*
@@ -169,13 +169,13 @@ void Input::addControl( Controllable *control ) {
 
 /* 
 ==============================================
-bool Input::bindKeyToControl( string key, string control, string button )
+bool Input::bindKeyToControl( std::string key, string control, string button )
 TODO way for user to find out what key a control's button is bound to
 	 way for user to find out what buttons are in a particular command
 	 way for user to find out what commands are in input system
 ==============================================
 */
-bool Input::bindKeyToControl( string keystr, string controlstr, string buttonstr ) {
+bool Input::bindKeyToControl( std::string keystr, std::string controlstr, std::string buttonstr ) {
 	//validation
 	//TODO Exception handler
 	if( keystr == "NULL" ) {
@@ -214,10 +214,10 @@ bool Input::bindKeyToControl( string keystr, string controlstr, string buttonstr
 
 /* 
 ==============================================
-Controllable *Input::getControl( string control )
+Controllable *Input::getControl( std::string control )
 ==============================================
 */
-Controllable *Input::getControl( string control ) {
+Controllable *Input::getControl( std::string control ) {
 	//find control
 	for( unsigned int x = 0 ; x < controllables.size(); x++ ) {
 		if( controllables[ x ]->name == control ) {
@@ -245,7 +245,7 @@ void Input::writeBindsToFile( const char *filename ) {
 			file << keyIdToString( controllables[ c ]->buttons[ b ]->keyid ) << "\n";
 		}
 	}
-	file << endl;
+	file << std::endl;
 	file.close();
 }
 
@@ -355,10 +355,10 @@ std::string Input::keyIdToString( uword keyid ) {
 
 /* 
 ==============================================
-uword Input::keyStringToNumber( string key )
+uword Input::keyStringToNumber( std::string key )
 ==============================================
 */
-uword Input::keyStringToNumber( string key ) {	
+uword Input::keyStringToNumber( std::string key ) {	
 	if( key == "back" )		{ return KB_BACK;	}
 	if( key == "tab" )		{ return KB_TAB;	}
 	if( key == "clear" )	{ return KB_CLEAR ; }

@@ -55,7 +55,7 @@ namespace NesApu {
 		int playPos;
 
 		//actual sound buffer
-		uword *buffer;
+		std::vector<uword> buffer;
 	};
 
 	/*
