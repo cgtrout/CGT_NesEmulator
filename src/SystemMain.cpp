@@ -205,7 +205,7 @@ void SystemMain::runFrame() {
 
 	if( input->isKeyDownUnset( KB_TILDE ) ) {
 		guiConsole.setOpen( !guiConsole.isOpen() );
-		guiConsole.editLine->onLeftMouseDown();
+		guiConsole.editLine.onLeftMouseDown();
 	}
 	
 #ifndef LIGHT_BUILD

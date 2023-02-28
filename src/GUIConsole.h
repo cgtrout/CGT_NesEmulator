@@ -30,11 +30,11 @@ namespace GUISystem {
 		};
 
 	public:
-		ConsoleEditBox *editLine;
+		ConsoleEditBox editLine;
 
 	private:
 		
-		GUISystem::Font *font;
+		GUISystem::Font font;
 
 		std::string consoleLog;	
 
