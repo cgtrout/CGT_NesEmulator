@@ -12,6 +12,7 @@
 
 #include < list >
 #include <string>
+#include <memory>
 #include "Image.h"
 
 //to fix name collision
@@ -387,7 +388,9 @@ namespace GUISystem {
 		//fills text labels with multi-lined string "in"
 		bool fillLines( const std::string &in );
 	private:
-		std::vector< TextLabel* > lines;
+		//store as unique pointer since we want to pass these pointers around and
+		//automatically deallocate with this class
+		std::vector< std::unique_ptr<TextLabel> > lines;
 		Font font;
 
 		GuiDim yaddPos;	//current y position (of next 

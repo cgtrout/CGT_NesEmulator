@@ -1476,7 +1476,6 @@ void DialogTitle::onLeftMouseDown() {
 
 TextLabel::TextLabel() {
 	type = GE_FONT;
-	//font = new Font();
 }
 
 TextLabel::~TextLabel() {
@@ -1560,16 +1559,16 @@ void MultiLineTextLabel::onRightMouseRelease() {
 
 void MultiLineTextLabel::addLines( int numLines ) {
 	for( int i = 0; i < numLines; i++ ) {
-		TextLabel *l = new TextLabel();
+		auto label = std::make_unique<TextLabel>( );
 		
-		l->setX( x );
-		l->setY( y + yaddPos );
+		label->setX( x );
+		label->setY( y + yaddPos );
 		
 		yaddPos += font.getFontHeight() + yPad;
 
-		l->loadFont( &font );
-		lines.push_back( l );
-		addChild( l );
+		label->loadFont( &font );
+		addChild( label.get( ) );
+		lines.push_back( std::move(label) );
 
 		height = getNumLines() * ( font.getFontHeight() + yPad );	
 	}
@@ -1577,20 +1576,20 @@ void MultiLineTextLabel::addLines( int numLines ) {
 
 void MultiLineTextLabel::setX( GuiDim val ) {
 	x = val;
-	std::vector< TextLabel* >::iterator i = lines.begin();
+	auto i = lines.begin();
 	for( ; i != lines.end(); i++ ) {
 		(*i)->setX( val );
 	}
 }
 
 void MultiLineTextLabel::setY( GuiDim val ) {
-	std::vector< TextLabel* >::iterator i = lines.begin();
+	auto i = lines.begin();
 	y = val;
 	GuiDim curry = y;
 	for( ; i != lines.end(); i++ ) {
 		(*i)->setY( curry );
 		curry += font.getFontHeight() + yPad;
-	}	
+	}
 }
 
 bool MultiLineTextLabel::fillLines( const std::string &in ) {
@@ -1606,11 +1605,10 @@ bool MultiLineTextLabel::fillLines( const std::string &in ) {
 	}
 
 	//fill lines
-	std::vector< TextLabel* >::iterator i = lines.begin();
+	auto i = lines.begin();
 	for( int ct = 0; i != lines.end(); i++, ct++ ) {
 		(*i)->setString( (tokens)[ ct ] ); 
 	}	
-	
 	return true;
 }
 
