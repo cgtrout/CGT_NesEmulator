@@ -14,13 +14,13 @@ void NesSprite::loadSpriteInformation( ubyte *spriteRamPtr ) {
 	ubyte *sram = spriteRamPtr;
 
 	for( int x = 0; x < 64; x++, currAddress += 4 ) {
-		sprites[ x ].y					=   sram[ currAddress ];
+		sprites[ x ].y				=   sram[ currAddress ];
 		sprites[ x ].tileIndex			=   sram[ currAddress + 1 ];
 		sprites[ x ].verticleFlip		=   sram[ currAddress + 2 ] >> 7 ; 
 		sprites[ x ].horizontalFlip		= ( sram[ currAddress + 2 ] >> 6 ) & 1;
-		sprites[ x ].backGroundPriority	= ( sram[ currAddress + 2 ] >> 5 ) & 1;
+		sprites[ x ].backGroundPriority		= ( sram[ currAddress + 2 ] >> 5 ) & 1;
 		sprites[ x ].upperColorBits		=   sram[ currAddress + 2 ] & 3;
-		sprites[ x ].x					=   sram[ currAddress + 3 ];
+		sprites[ x ].x				=   sram[ currAddress + 3 ];
 		sprites[ x ].isSprite0			= ( x == 0 );
 	}
 

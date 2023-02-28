@@ -70,10 +70,10 @@ void NesFile::loadFile( std::string filename ) {
 	is >> controlbyte1 >> controlbyte2;
 
 	//extract information from control bytes
-	horizontalMirroring = !( controlbyte1 & 1);		   //0001
+	horizontalMirroring 	= !( controlbyte1 & 1);		   //0001
 	verticalMirroring	=  ( controlbyte1 & 1);	
-	sramEnabled			=  ( controlbyte1 >> 1 ) & 1;  //0010
-	trainer				=  ( controlbyte1 >> 2 ) & 1 ; //0100
+	sramEnabled		=  ( controlbyte1 >> 1 ) & 1;  //0010
+	trainer			=  ( controlbyte1 >> 2 ) & 1 ; //0100
 	fourScreenVRam		=  ( controlbyte1 >> 3 ) & 1 ; //1000
 	
 	mapperNum = ( controlbyte1 >> 4 ) & 0x0f;
