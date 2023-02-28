@@ -108,9 +108,9 @@ GUI::updateElementsList()
   elems given as parameter
 ==============================================
 */
-void GUI::updateElementsList( std::list< GUIElement* > elems ) {
+void GUI::updateElementsList(std::vector< GUIElement* > elems ) {
 	GUIElement *curr;
-	std::list< GUIElement* >::iterator iter;
+	std::vector< GUIElement* >::iterator iter;
 	for( iter = elems.begin(); iter != elems.end(); iter++ ) {
 		curr = ( GUIElement* )( *iter );
 		if( !curr->isOpen() ) {
@@ -149,14 +149,14 @@ GUI::sendActiveToFront()
 */
 void GUI::sendActiveToFront() {
 	GUIElement *elem;
-	std::list< GUIElement* > newList;
+	std::vector< GUIElement* > newList;
 
-	std::list< GUIElement* >::iterator iter;
+	std::vector< GUIElement* >::iterator iter;
 	for( iter = elements.begin(); iter != elements.end(); iter++ ) {
 		elem = ( GUIElement* )( *iter );
 		
 		if( elem->isActiveElement() ) {
-			newList.push_front( elem );
+			newList.push_back( elem );
 			continue;
 		}
 		newList.push_back( elem );
@@ -175,7 +175,7 @@ GUI::findElementCursorOver()
 ==============================================
 */
 GUIElement *GUI::findElementCursorOver() {
-	std::list< GUIElement* > currlist;
+	std::vector< GUIElement* > currlist;
 	GUIElement *currelem = NULL;
 	GUIElement *retelem = NULL;
 
@@ -185,7 +185,7 @@ GUIElement *GUI::findElementCursorOver() {
 	currlist = elements;
 			
 	while( !currlist.empty() ) {
-		std::list< GUIElement* >::iterator iter;
+		std::vector< GUIElement* >::iterator iter;
 		for( iter = currlist.begin(); iter != currlist.end(); iter++ ) {
 			currelem = ( GUIElement* )( *iter );
 
@@ -221,13 +221,13 @@ void GUI::unactivateAllElements() {
 
 /*
 ==============================================
-GUI::renderElements( std::list< GUIElement* > elems )
+GUI::renderElements(std::vector< GUIElement* > elems )
 
   renders elements in elems list
 ==============================================
 */
-void GUI::renderElements( std::list< GUIElement* > elems ) {
-	std::list< GUIElement* >::reverse_iterator iter;
+void GUI::renderElements(std::vector< GUIElement* > elems ) {
+	std::vector< GUIElement* >::reverse_iterator iter;
 	GUIElement *curr;
 
 	for( iter = elems.rbegin(); iter != elems.rend(); iter++ ) {
@@ -317,18 +317,18 @@ void GUIElement::move( int xm, int ym ) {
 	x += xm;
 	y += ym;
 
-	std::list< GUIElement* >::iterator iter;
+	std::vector< GUIElement* >::iterator iter;
 	for( iter = children.begin(); iter != children.end(); iter++ ) 
 		(*iter)->move( xm, ym );
 }
 
 /*
 ==============================================
-void GUIElement::unactivateChildren( std::list< GUIElement* > childList )
+void GUIElement::unactivateChildren(std::vector< GUIElement* > childList )
 ==============================================
 */
-void GUIElement::unactivateChildren( std::list< GUIElement* > childList ) {
-	std::list< GUIElement* >::iterator iter;
+void GUIElement::unactivateChildren(std::vector< GUIElement* > childList ) {
+	std::vector< GUIElement* >::iterator iter;
 	GUIElement *curr;
 
 	for( iter = childList.begin(); iter != childList.end(); iter++ ) {
@@ -342,11 +342,11 @@ void GUIElement::unactivateChildren( std::list< GUIElement* > childList ) {
 
 /*
 ==============================================
-GUIElement *GUIElement::getActiveChild( std::list< GUIElement* > childList )
+GUIElement *GUIElement::getActiveChild(std::vector< GUIElement* > childList )
 ==============================================
 */
-GUIElement *GUIElement::getActiveChild( std::list< GUIElement* > childList ) {
-	std::list< GUIElement* >::iterator iter;
+GUIElement *GUIElement::getActiveChild(std::vector< GUIElement* > childList ) {
+	std::vector< GUIElement* >::iterator iter;
 	GUIElement *curr = NULL;
 
 	for( iter = childList.begin(); iter != childList.end(); iter++ ) {

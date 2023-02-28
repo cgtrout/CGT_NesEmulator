@@ -11,6 +11,7 @@
 #endif // _MSC_VER > 1000
 
 #include < list >
+#include <string>
 #include "Image.h"
 
 //to fix name collision
@@ -118,8 +119,8 @@ namespace GUISystem {
 		
 		
 	private:
-		std::list< std::string > fileList;
-		std::list< std::string >::iterator iter;
+		std::vector< std::string > fileList;
+		std::vector< std::string >::iterator iter;
 		std::string fileName;
 		void loadFromFile( const std::string &fileName );
 		void parseLine( const std::string &line );
@@ -151,7 +152,7 @@ namespace GUISystem {
 
 	class GUIElement {
 	public:
-		GUIElement() {}	
+		GUIElement() : name("unnamed") {}
 		GUIElement( std::string guitextures );
 
 		virtual ~GUIElement();
@@ -194,7 +195,7 @@ namespace GUISystem {
 		//add child to this elements childList
 		void addChild( GUIElement *elem ) {
 			elem->setParent( this );
-			children.push_front( elem );
+			children.push_back( elem );
 		}
 		
 		//which child is the active child
@@ -236,12 +237,14 @@ namespace GUISystem {
 		friend class GUI;
 
 	protected:
+
+		std::string name;
 		//every gui element will have 0 or more children.  Children are guielements
 		//contained within this gui element
-		std::list< GUIElement* > children;
+		std::vector< GUIElement* > children;
 
 		//list of draw elements
-		std::list< GEDrawElement* >drawList;
+		std::vector< GEDrawElement* >drawList;
 
 		//gui textures object
 		GUITextures gt;
@@ -258,8 +261,8 @@ namespace GUISystem {
 
 		virtual void initialize( std::string guitextures );	
 		
-		void unactivateChildren( std::list< GUIElement* > childList );
-		GUIElement *getActiveChild( std::list< GUIElement* > childList );
+		void unactivateChildren( std::vector< GUIElement* > childList );
+		GUIElement *getActiveChild( std::vector< GUIElement* > childList );
 	};
 	/*
 	=================================================================
@@ -288,14 +291,13 @@ namespace GUISystem {
 		//must call setChar first to get these
 		TextureCoord *getCoord( unsigned char c );
 
-		unsigned int geImageid() {return imageid;}
+		unsigned int getImageid() {return imageid;}
 
 	private:
 		char currChar;
 		GuiDim fontWidth;
 		GuiDim fontHeight;
 	
-
 		//builds the texture coordinate lookup table
 		void buildCoordTable();
 
@@ -668,7 +670,7 @@ namespace GUISystem {
 		void render();
 		
 		//adds a gui element to the gui system
-		void addElement( GUIElement *ge ) {elements.push_front( ge );}
+		void addElement( GUIElement *ge ) {elements.push_back( ge );}
 
 		//sets whether the gui is using the mouse
 		void setUsingMouse( bool val ) {usingMouse = val;}
@@ -692,7 +694,7 @@ namespace GUISystem {
 		void initialize( );
 
 	private:
-		std::list< GUIElement* > elements;
+		std::vector< GUIElement* > elements;
 		
 		bool usingMouse;
 		//bool usingKeyboard;
@@ -700,11 +702,11 @@ namespace GUISystem {
 		//used so elements don't overlap when drawn overtop of eachother
 		float zdrawpos;
 
-		void updateElementsList( std::list< GUIElement* > elems );
-		void renderElements( std::list< GUIElement* > elems );
+		void updateElementsList( std::vector< GUIElement* > elems );
+		void renderElements( std::vector< GUIElement* > elems );
 		void renderTextLabel( TextLabel *fs );
 		void renderDebugLines( GUIElement *element );
-		void renderDrawList( std::list< GEDrawElement* > drawList );
+		void renderDrawList( std::vector< GEDrawElement* > drawList );
 		GUIElement *findElementCursorOver();
 		void sendActiveToFront();
 

@@ -75,10 +75,10 @@ GUI::renderDrawList( list< GEDrawElement* > drawList )
   renders drawList
 ==============================================
 */
-void GUI::renderDrawList( std::list< GEDrawElement* > drawList ) {
+void GUI::renderDrawList( std::vector< GEDrawElement* > drawList ) {
 	if( !drawGUI ) return;
 
-	std::list< GEDrawElement* >::iterator iter;
+	std::vector< GEDrawElement* >::iterator iter;
 	GEDrawElement *curr;
 	
 	GuiDim posx;
