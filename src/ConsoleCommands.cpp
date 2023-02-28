@@ -82,8 +82,8 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		systemMain->nesMain.setState( Emulating );
 		return;
 	}
-	catch( NesFile::NesFileException *e ) {
-		consoleSystem->printMessage( "Error loading nes file: %s", e->getMessage() );
+	catch( NesFile::NesFileException e ) {
+		consoleSystem->printMessage( "Error loading nes file: %s", e.getMessage() );
 	}
 }
 
