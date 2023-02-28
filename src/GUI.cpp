@@ -227,11 +227,8 @@ GUI::renderElements(std::vector< GUIElement* > elems )
 ==============================================
 */
 void GUI::renderElements(std::vector< GUIElement* > elems ) {
-	std::vector< GUIElement* >::reverse_iterator iter;
-	GUIElement *curr;
-
-	for( iter = elems.rbegin(); iter != elems.rend(); iter++ ) {
-		curr = ( GUIElement* )( *iter );
+	for( auto iter = elems.rbegin(); iter != elems.rend(); iter++ ) {
+		GUIElement* curr = ( GUIElement* )( *iter );
 
 		if( curr->isOpen() ) {			
 			if( ( int )drawDebugLines.getValue() == TRUE ) {

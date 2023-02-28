@@ -84,7 +84,6 @@ void GUI::renderDrawList( const std::vector< GEDrawElement > &drawList ) {
 	
 	//go through drawList and draw all of the elements contained within
 	for( auto curr : drawList ) {
-
 		posx = curr.x;
 		posy = curr.y;
 
