@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <list>
 #include <vector>
+#include <array>
 
 namespace NesEmulator {
 	class NesMemory;
@@ -140,8 +141,8 @@ namespace NesEmulator {
 		PpuMemBanks *physicalMemBanks;
 
 		//palette data for background and sprites
-		ubyte bgPalette [ 0x10 ];
-		ubyte sprPalette[ 0x10 ];
+		std::array<ubyte, 0x10> bgPalette;
+		std::array<ubyte, 0x10> sprPalette;
 
 		//calculates resolved address (to handle mirroring)
 		uword resolveAddress( uword address );
