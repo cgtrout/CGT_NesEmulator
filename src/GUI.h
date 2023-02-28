@@ -674,7 +674,7 @@ namespace GUISystem {
 		//renders ui
 		void render();
 		
-		//adds a gui element to the gui system
+		//adds a gui element to the gui system - caller is responsible for managing lifetime of object
 		void addElement( GUIElement *ge ) {elements.push_back( ge );}
 
 		//sets whether the gui is using the mouse
