@@ -551,12 +551,12 @@ void DialogBox::onRender() {
 	background.stretchFactorx = width - rborder.image.sizeX;
 	background.stretchFactory = height - ( titleBar->middle.image.sizeY + bborder.image.sizeY );
 
-	drawList.push_back( &lborder );
-	drawList.push_back( &rborder );
-	drawList.push_back( &brcorner );
-	drawList.push_back( &blcorner );
-	drawList.push_back( &bborder );
-	drawList.push_back( &background );
+	drawList.push_back( lborder );
+	drawList.push_back( rborder );
+	drawList.push_back( brcorner );
+	drawList.push_back( blcorner );
+	drawList.push_back( bborder );
+	drawList.push_back( background );
 }
 
 void DialogBox::onRightMouseDown() {
@@ -710,14 +710,14 @@ void EditBox::onRender() {
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 
-		drawList.push_back( &l );
-		drawList.push_back( &r );
-		drawList.push_back( &bl );
-		drawList.push_back( &br );
-		drawList.push_back( &b );
-		drawList.push_back( &tl );
-		drawList.push_back( &t );
-		drawList.push_back( &tr );
+		drawList.push_back(l );
+		drawList.push_back(r );
+		drawList.push_back(bl );
+		drawList.push_back(br );
+		drawList.push_back(b );
+		drawList.push_back(tl );
+		drawList.push_back(t );
+		drawList.push_back(tr );
 	}
 
 	//control blinking of position cursor
@@ -739,7 +739,7 @@ void EditBox::onRender() {
 		cursor.x = ( x + 4 + cursorPos * font.getFontWidth() );
 		cursor.y = y + 4;
 
-		drawList.push_back( &cursor );
+		drawList.push_back( cursor );
 	}
 
 	boxtext.setX( x + 5 );
@@ -993,14 +993,14 @@ void Button::onRender() {
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 	
-		drawList.push_back( &l );
-		drawList.push_back( &r );
-		drawList.push_back( &bl );
-		drawList.push_back( &br );
-		drawList.push_back( &b );
-		drawList.push_back( &tl );
-		drawList.push_back( &t );
-		drawList.push_back( &tr );
+		drawList.push_back( l );
+		drawList.push_back( r );
+		drawList.push_back( bl );
+		drawList.push_back( br );
+		drawList.push_back( b );
+		drawList.push_back( tl );
+		drawList.push_back( t );
+		drawList.push_back( tr );
 	}
 	else {
 		dl.x = x;
@@ -1039,14 +1039,14 @@ void Button::onRender() {
 		dtr.y = y;
 		dtr.stretchType = ST_NONE;
 
-		drawList.push_back( &dl );
-		drawList.push_back( &dr );
-		drawList.push_back( &dbl );
-		drawList.push_back( &dbr );
-		drawList.push_back( &db );
-		drawList.push_back( &dtl );
-		drawList.push_back( &dt );
-		drawList.push_back( &dtr );
+		drawList.push_back( dl );
+		drawList.push_back( dr );
+		drawList.push_back( dbl );
+		drawList.push_back( dbr );
+		drawList.push_back( db );
+		drawList.push_back( dtl );
+		drawList.push_back( dt );
+		drawList.push_back( dtr );
 	}
 }
 
@@ -1157,9 +1157,9 @@ void TitleBar::onRender() {
 	right.y = parent->getY();
 	right.stretchType = ST_NONE;
 
-	drawList.push_back( &left );
-	drawList.push_back( &right );
-	drawList.push_back( &middle );
+	drawList.push_back( left );
+	drawList.push_back( right );
+	drawList.push_back( middle );
 
 	textLabel->setX( parent->getX()+4 );
 	textLabel->setY( parent->getY()+4 );
@@ -1262,7 +1262,7 @@ void Slider::SliderBar::onRender() {
 		sliderBar.y = parent->getY() - ( parent->getHeight()/2 ) + 10;
 	}
 	
-	drawList.push_back( &sliderBar );
+	drawList.push_back( sliderBar );
 }
 
 void Slider::SliderBar::onRightMouseDown() {
@@ -1413,9 +1413,9 @@ void Slider::onRender() {
 		valueLabel.setString( strvalue );
 	}
 
-	drawList.push_back( &top );
-	drawList.push_back( &middle );
-	drawList.push_back( &bottom );
+	drawList.push_back( top );
+	drawList.push_back( middle );
+	drawList.push_back( bottom );
 }
 
 void Slider::onRightMouseDown() {

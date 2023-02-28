@@ -123,7 +123,7 @@ void GUIConsole::onRender() {
 			background.stretchType = GUISystem::ST_XY;
 		}
 			
-		drawList.push_back( &background );
+		drawList.push_back( background );
 		changed = false;
 	}
 }

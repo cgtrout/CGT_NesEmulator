@@ -244,7 +244,7 @@ namespace GUISystem {
 		std::vector< GUIElement* > children;
 
 		//list of draw elements
-		std::vector< GEDrawElement* >drawList;
+		std::vector< GEDrawElement >drawList;
 
 		//gui textures object
 		GUITextures gt;
@@ -711,7 +711,7 @@ namespace GUISystem {
 		void renderElements( std::vector< GUIElement* > elems );
 		void renderTextLabel( TextLabel *fs );
 		void renderDebugLines( GUIElement *element );
-		void renderDrawList( std::vector< GEDrawElement* > drawList );
+		void renderDrawList( std::vector< GEDrawElement > drawList );
 		GUIElement *findElementCursorOver();
 		void sendActiveToFront();
 

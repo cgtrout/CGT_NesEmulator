@@ -70,15 +70,14 @@ void GUI::renderDebugLines( GUIElement *element ) {
 
 /*
 ==============================================
-GUI::renderDrawList( list< GEDrawElement* > drawList )
+GUI::renderDrawList
 
   renders drawList
 ==============================================
 */
-void GUI::renderDrawList( std::vector< GEDrawElement* > drawList ) {
+void GUI::renderDrawList( std::vector< GEDrawElement > drawList ) {
 	if( !drawGUI ) return;
 
-	std::vector< GEDrawElement* >::iterator iter;
 	GEDrawElement *curr;
 	
 	GuiDim posx;
@@ -86,40 +85,39 @@ void GUI::renderDrawList( std::vector< GEDrawElement* > drawList ) {
 	GuiDim yres = renderSystem->getyRes();
 	
 	//go through drawList and draw all of the elements contained within
-	for( iter = drawList.begin(); iter != drawList.end(); ++iter ) {
-		curr = ( GEDrawElement* )( *iter );
+	for( auto curr : drawList ) {
 
-		posx = curr->x;
-		posy = curr->y;
+		posx = curr.x;
+		posy = curr.y;
 
-		glBindTexture( GL_TEXTURE_2D, curr->imageid );
-		glColor4f( 1.0f, 1.0f, 1.0f, *opacity * curr->opacity );			
+		glBindTexture( GL_TEXTURE_2D, curr.imageid );
+		glColor4f( 1.0f, 1.0f, 1.0f, *opacity * curr.opacity );			
 
 		glBegin( GL_POLYGON );
-		switch( curr->stretchType ) {
+		switch( curr.stretchType ) {
 		case ST_X:
-				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - posy - curr->image.sizeY, zdrawpos );
+				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - posy - curr.image.sizeY, zdrawpos );
 				glTexCoord2f( 0.0, 1.0 ); glVertex3f( posx, yres- posy, zdrawpos );
-				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->stretchFactorx, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->stretchFactorx, yres - posy - curr->image.sizeY, zdrawpos );
+				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr.stretchFactorx, yres - posy, zdrawpos );
+				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr.stretchFactorx, yres - posy - curr.image.sizeY, zdrawpos );
 			break;
 		case ST_Y:
-				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr->stretchFactory ), zdrawpos );
+				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr.stretchFactory ), zdrawpos );
 				glTexCoord2f( 0.0, 1.0 ); glVertex3f( posx,  yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->image.sizeX, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->image.sizeX, yres - posy - curr->image.sizeY - curr->stretchFactory, zdrawpos );
+				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr.image.sizeX, yres - posy, zdrawpos );
+				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr.image.sizeX, yres - posy - curr.image.sizeY - curr.stretchFactory, zdrawpos );
 			break;
 		case ST_XY:
-				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr->stretchFactory ), zdrawpos );
+				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr.stretchFactory ), zdrawpos );
 				glTexCoord2f( 0.0, 1.0 ); glVertex3f( posx,  yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->stretchFactorx,yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->stretchFactorx, yres - ( posy + curr->stretchFactory ), zdrawpos );
+				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr.stretchFactorx,yres - posy, zdrawpos );
+				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr.stretchFactorx, yres - ( posy + curr.stretchFactory ), zdrawpos );
 			break;
 		case ST_NONE:
-				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr->image.sizeY ), zdrawpos );
+				glTexCoord2f( 0.0, 0.0 ); glVertex3f( posx, yres - ( posy + curr.image.sizeY ), zdrawpos );
 				glTexCoord2f( 0.0, 1.0 ); glVertex3f( posx, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->image.sizeX, yres - posy, zdrawpos );
-				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->image.sizeX, yres - ( posy + curr->image.sizeY ), zdrawpos );
+				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr.image.sizeX, yres - posy, zdrawpos );
+				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr.image.sizeX, yres - ( posy + curr.image.sizeY ), zdrawpos );
 		}	
 		glEnd();
 		
