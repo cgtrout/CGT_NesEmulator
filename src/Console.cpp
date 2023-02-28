@@ -767,20 +767,20 @@ void VariableFile::loadFile( const char *filename ) {
 		file.getline( line, CMAXNAMESIZE );
 		ptr = line;
 
-		DefinitionLine *def = new DefinitionLine();
+		DefinitionLine def;
 	
 		if( *ptr == 0 || *ptr == ' ' ) {
-			def->blank = true;
+			def.blank = true;
 		}
 		
-		if( !def->blank ) {
+		if( !def.blank ) {
 			//if a comment
 			if( ptr[ 0 ] == '/' && ptr[ 1 ] == '/' ) {
 				ptr = &ptr[ 2 ];
-				def->comment = true;
+				def.comment = true;
 
 				//parse whole line and put in name
-				def->name = line;
+				def.name = line;
 			}
 
 			//see if we have reached end of file
@@ -788,7 +788,7 @@ void VariableFile::loadFile( const char *filename ) {
 				break;
 			}
 
-			if( !def->comment ) {
+			if( !def.comment ) {
 				//find space position 
 				int spacePos = 0;
 				while( true ) {
@@ -804,17 +804,17 @@ void VariableFile::loadFile( const char *filename ) {
 				}
 				
 				//parse var name
-				//strncpy( def->name, line, spacePos );
-				def->name = line;
-				def->name = def->name.substr( 0, spacePos );
-				def->name[ spacePos ] = '\0';
+				//strncpy( def.name, line, spacePos );
+				def.name = line;
+				def.name = def.name.substr( 0, spacePos );
+				def.name[ spacePos ] = '\0';
 
 				//parse float value
 				//ptr = &ptr[ spacePos + 1 ];
 				strcpy( valBuf, ptr );
 			}
 
-			def->valstr = valBuf;
+			def.valstr = valBuf;
 		}
 		//put in new definition
 		vars.push_back( def );
@@ -829,15 +829,15 @@ VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varn
 */
 VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varname ) {
 	  //loop through vector
-	  for( unsigned int x = 0 ; x < vars.size(); x++ ) {
+	  for( auto &v : vars ) {
 		  //check to see if def line is a comment or a blank
-		  if( vars[ x ]->blank || vars[ x ]->comment ) {
+		  if( v.blank || v.comment ) {
 			  continue;
 		  }
 		  //compare variable defintion name to requested name
-		  if( vars[ x ]->name == varname ) {
+		  if( v.name == varname ) {
 			  //matching definition found - return it
-			  return vars[ x ];
+			  return &v;
 		  }
 	  }
 	  return NULL;
@@ -867,16 +867,16 @@ void VariableFile::saveFile( const char *filename, Variables *vars ) {
 			DefinitionLine *def = getDefinition( *(*i) );
 			if( def == NULL ) {
 				//def not found so create a new one
-				def = new DefinitionLine();
+				DefinitionLine newdef;
 				
 				//copy current variable into new definition
-				def->name = *currVarName;
+				newdef.name = *currVarName;
 				
 				//convert value to string
-				def->valstr = vars->getValueString( *currVarName );
+				newdef.valstr = vars->getValueString( *currVarName );
 
 				//add to definition list
-				this->vars.push_back( def );
+				this->vars.push_back( newdef );
 			}
 			//def was found simply change it
 			else {
@@ -887,16 +887,16 @@ void VariableFile::saveFile( const char *filename, Variables *vars ) {
 	
 	//all vars with saveToFile status have now been added to line list 
 	//now write to file
-	for( unsigned int x = 0; x < this->vars.size(); x++ ) {
-		if( this->vars[ x ]->blank ) {
+	for( auto v : this->vars ) {
+		if( v.blank ) {
 			file << " \n";
 			continue;
 		}
-		else if( this->vars[ x ]->comment ) {
-			file << this->vars[ x ]->name << "\n";
+		else if( v.comment ) {
+			file << v.name << "\n";
 		}
 		else { //normal instance
-			file << this->vars[ x ]->name << " " << this->vars[ x ]->valstr << "\n";
+			file << v.name << " " << v.valstr << "\n";
 		}
 	}
 	//TODO get rid of this

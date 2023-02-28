@@ -110,7 +110,7 @@ namespace Console {
 		  //other wise returns null if varname was not found
 		  DefinitionLine *getDefinition( std::string_view varName );
 	  private:
-		  std::vector< DefinitionLine* > vars;
+		  std::vector< DefinitionLine > vars;
 	};
 
 	/*
