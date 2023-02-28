@@ -78,7 +78,7 @@ namespace FrontEnd {
 		Console::ConsoleSystem	consoleSystem;
 		
 		GUISystem::GUI			gui;
-		GUISystem::GUIConsole	gc;
+		GUISystem::GUIConsole	guiConsole;
 		
 		NesEmulator::NesMain	nesMain;
 		
