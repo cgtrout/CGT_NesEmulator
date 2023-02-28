@@ -711,7 +711,7 @@ namespace GUISystem {
 		void renderElements( std::vector< GUIElement* > elems );
 		void renderTextLabel( TextLabel *fs );
 		void renderDebugLines( GUIElement *element );
-		void renderDrawList( std::vector< GEDrawElement > drawList );
+		void renderDrawList( const std::vector< GEDrawElement > &drawList );
 		GUIElement *findElementCursorOver();
 		void sendActiveToFront();
 

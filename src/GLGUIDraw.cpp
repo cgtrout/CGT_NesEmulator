@@ -75,11 +75,9 @@ GUI::renderDrawList
   renders drawList
 ==============================================
 */
-void GUI::renderDrawList( std::vector< GEDrawElement > drawList ) {
+void GUI::renderDrawList( const std::vector< GEDrawElement > &drawList ) {
 	if( !drawGUI ) return;
 
-	GEDrawElement *curr;
-	
 	GuiDim posx;
 	GuiDim posy;
 	GuiDim yres = renderSystem->getyRes();
