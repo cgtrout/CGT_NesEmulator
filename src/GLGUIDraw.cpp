@@ -142,7 +142,7 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 	int x = fs->getX();	//x must move every time a letter is printed
 	int yres = renderSystem->getyRes();
 
-	glBindTexture( GL_TEXTURE_2D, font->geImageid() );
+	glBindTexture( GL_TEXTURE_2D, font->getImageid() );
 
 	//get console opacity value
 	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( "fontOpacity")));
