@@ -29,7 +29,7 @@ namespace FrontEnd {
 		int		counterFrame;
 
 		//fps of last frames
-		float	frameFPS[ FRAMES_PER_SAMPLE ];
+		std::array<float, FRAMES_PER_SAMPLE> frameFPS;
 		
 		//fps over last number of samples
 		float	averagedFPS;
