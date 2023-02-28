@@ -71,12 +71,12 @@ public:
 }; 
 
 void copyImage( Image *source, int sx, int sy, int width, int height, Image *destination, int dx, int dy );
-Image loadImage( const char *strFileName );
+Image loadImage( std::string_view strFileName );
 Image *flipImage( Image *image );
 Image convertToAlpha( int aR, int aG, int aB, Image image );
 
 // This loads and returns the BMP data
-Image LoadBMP( const char *strFileName );
+Image LoadBMP( std::string_view strFileName );
 
 void ExportImageToBMP( const Image &image, std::string_view fileName );
 

@@ -83,16 +83,16 @@ void Image::resizePowerOfTwo( ) {
 
 /* 
 ==============================================
-Image *loadImage( const char *strFileName )
+loadImage
 
   TODO add loaders for different file types
 ==============================================
 */
-Image loadImage( const char *strFileName ) {
+Image loadImage( std::string_view strFileName ) {
 	Image pImage;
 
 	// If the file is a bitmap, load the bitmap and store the data in pImage
-	if( strstr( strFileName, ".bmp" ) ) {
+	if( strstr( strFileName.data(), ".bmp" ) ) {
 		pImage = LoadBMP( strFileName );
 	}
 	// Else we don't support the file format that is trying to be loaded
@@ -196,9 +196,9 @@ unsigned int readLSBFirstInt( std::ifstream *is ) {
 
 //only supports 24-bit bmps
 //does not take into account padding bytes if bmp dimensions x and y are not a multiple of 4
-Image LoadBMP( const char *strFileName ) {
+Image LoadBMP( std::string_view strFileName ) {
     std::string error;
-    std::ifstream is( strFileName, std::ios::binary );
+    std::ifstream is( strFileName.data(), std::ios::binary );
     
     //Image to return
     Image img;
