@@ -449,6 +449,7 @@ DialogBox::DialogBox( std::string guitextures ) {
 }
 
 void DialogBox::initialize( std::string guitextures ) {
+	name = "DialogBox";
 	GUIElement::initialize( guitextures );
 	type = GE_DIALOGBOX;
 	
@@ -582,6 +583,7 @@ EditBox::EditBox( std::string guitextures ) {
 }
 
 void EditBox::initialize( std::string guitextures ) {
+	name = "EditBox";
 	GUIElement::initialize( guitextures );
 	type = GE_EDITBOX;
 	height = 22;
@@ -865,6 +867,7 @@ Button::~Button() {
 }
 
 void Button::initialize( std::string guitextures ) {
+	name = "Button";
 	GUIElement::initialize( guitextures );
 	buttonDown = false;
 	
@@ -1083,6 +1086,7 @@ TitleBar::~TitleBar() {
 }
 
 void TitleBar::initialize( std::string guitextures ) {
+	name = "TitleBar";
 	GUIElement::initialize( guitextures );
 	movement = false;
 
@@ -1205,6 +1209,7 @@ Slider::SliderBar::~SliderBar() {
 }
 
 void Slider::SliderBar::initialize( std::string guitextures ) {
+	name="SliderBar";
 	GUIElement::initialize( guitextures );
 	try {
 		if( type == SLIDER_Y ) {
@@ -1295,6 +1300,8 @@ Slider::~Slider() {
 }
 
 void Slider::initialize( std::string guitextures ) {
+	name = "Slider";
+	
 	GUIElement::initialize( guitextures );
 	drawValueLabel = false;
 	this->type = type;
@@ -1491,6 +1498,7 @@ TextLabel::~TextLabel() {
 }
 
 void TextLabel::initialize( std::string &guitextures ) {
+	name = "TextLabel";
 	GUIElement::initialize( guitextures );
 }
 
@@ -1532,6 +1540,8 @@ MultiLineTextLabel::MultiLineTextLabel() {
 
 	yaddPos = 0;
 	yPad = 3;
+
+	name = "MultilineTextLabel";
 }
 
 MultiLineTextLabel::~MultiLineTextLabel() {
@@ -1626,9 +1636,11 @@ bool MultiLineTextLabel::fillLines( const std::string &in ) {
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Font::Font() {
+Font::Font( ) {
 	fontWidth = 0;
 	fontHeight = 0;
+	currChar = 0;
+	
 }
 
 Font::~Font() {
