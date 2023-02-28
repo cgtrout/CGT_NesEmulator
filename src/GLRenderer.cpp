@@ -413,7 +413,7 @@ void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
     glBindTexture( GL_TEXTURE_2D, imgid );
     
     float zdrawpos	= 0.0f;
-
+	
     glBegin( GL_POLYGON );  
 		glTexCoord2f( 0.0, 0.0 ); glVertex3f( x, y, zdrawpos );
 		glTexCoord2f( 0.0, 1.0 ); glVertex3f( x, y + ( img.sizeY*scale ), zdrawpos );
@@ -421,8 +421,20 @@ void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
 		glTexCoord2f( 1.0, 0.0 ); glVertex3f( x + ( img.sizeX*scale ), y, zdrawpos );
 	glEnd();
 
+	zdrawPos += 0.001f;
+
 	glEnable( GL_BLEND );
-	
+	glDisable( GL_TEXTURE_2D );
+
+	glBegin( GL_LINE_LOOP );
+		glColor3f( 1.0f, 1.0f, 1.0f );
+		glVertex3f( x, y-1, zdrawpos );
+		glVertex3f( x, y + ( img.sizeY * scale ), zdrawpos );
+		glVertex3f( x + ( img.sizeX * scale )+1, y + ( img.sizeY * scale ), zdrawpos );
+		glVertex3f( x + ( img.sizeX * scale )+1, y-1, zdrawpos );
+	glEnd( );
+	glEnable( GL_TEXTURE_2D );
+
 	//reset data pointer so data isn't deleted
 	//img.data = 0;
 }
