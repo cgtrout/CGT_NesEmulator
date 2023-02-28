@@ -5,6 +5,8 @@ Note that this was written before I had a modern understanding of C++ memory man
 
 The goal for this project was to learn how to build an emulator and to get it to run several games for the NES.  I succeeded in this goal, as it runs several games such as:
 
+* Super Mario Bros
 * Ice Hockey
 * Contra
 * Megaman
+
