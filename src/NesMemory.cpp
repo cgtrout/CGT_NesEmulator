@@ -1039,12 +1039,12 @@ ubyte PPUMemory::getPaletteByte( uword address )
 ==============================================
 */
 ubyte PPUMemory::getPaletteByte( uword address ) {
-	address = resolvePaletteAddress( address );
+	uword newAddress = resolvePaletteAddress( address );
 
-	if( address >= 0x3f10 ) {
-		return sprPalette[ address & 0x000f ];
+	if( address > 0x3f10 ) {
+		return sprPalette[ newAddress & 0x000f ];
 	} else {
-		return bgPalette[ address & 0x000f ];
+		return bgPalette[ newAddress & 0x000f ];
 	}
 }
 
@@ -1053,13 +1053,13 @@ ubyte PPUMemory::getPaletteByte( uword address ) {
 void PPUMemory::setPaletteByte( uword address, ubyte val )
 ==============================================
 */
-void PPUMemory::setPaletteByte( uword address, ubyte val ) {
-	address = resolvePaletteAddress( address );
-
-	if( address >= 0x3f10 ) {
-		sprPalette[ address & 0x000f ] = val;
+void PPUMemory::setPaletteByte( uword address, ubyte val ) {	
+	uword newAddress = resolvePaletteAddress( address );
+	
+	if( newAddress >= 0x3f11 ) {
+		sprPalette[ newAddress & 0x000f ] = val;
 	} else {
-		bgPalette[ address & 0x000f ] = val;
+		bgPalette[ newAddress & 0x000f ] = val;
 	}
 }
 
@@ -1070,11 +1070,12 @@ inline uword PPUMemory::resolvePaletteAddress( uword address )
 */
 inline uword PPUMemory::resolvePaletteAddress( uword address ) {
 	//if address is divisible by 4 then it will mirror to 0x3f00 / 0x3f10
-	if( address % 4 == 0 ) {
-		address &= 0xFFF0;	
+	uword newAddress = address;
+	if( address >= 0x3f10 && address % 4 == 0 ) {
+		newAddress = address - 0x10;
 	}
 
-	return address;
+	return newAddress;
 }
 
 /*
