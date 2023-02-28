@@ -450,19 +450,15 @@ void DialogBox::initialize( std::string guitextures ) {
 	GUIElement::initialize( guitextures );
 	type = GE_DIALOGBOX;
 	
-	titleBar = new TitleBar();
-	font = new Font();
-
-	font->loadFont( "fonts/8x16.bmp" );
+	font.loadFont( "fonts/8x16.bmp" );
 	
-	title = new DialogTitle();
-	title->setString( "Dialog" );
-	title->loadFont( font );
+	title.setString( "Dialog" );
+	title.loadFont( &font );
 		
-	titleBar->setX( x ); 
-	titleBar->setY( y ); 
-	titleBar->setWidth( width );
-	titleBar->setDialogTitle( title );
+	titleBar.setX( x ); 
+	titleBar.setY( y ); 
+	titleBar.setWidth( width );
+	titleBar.setDialogTitle( &title );
 
 	try {
 		lborder.image = loadImage( gt.getNextTexture() );
@@ -490,7 +486,7 @@ void DialogBox::initialize( std::string guitextures ) {
 		throw GUIElementInitializeException( "DialogBox: ", "error loading image" );
 	}
 	
-	addChild( titleBar );	
+	addChild( &titleBar );	
 }
 
 DialogBox::~DialogBox() {
@@ -499,9 +495,6 @@ DialogBox::~DialogBox() {
 	//delete blcorner.image;
 	//delete brcorner.image;
 	//delete bborder.image;
-	delete titleBar;
-	delete font;
-	delete title;
 }
 
 void DialogBox::onLeftMouseDown() {
@@ -520,13 +513,13 @@ void DialogBox::onRender() {
 	drawList.clear();
 
 	lborder.x = x;
-	lborder.y = y + titleBar->left.image.sizeY;
-	lborder.stretchFactory = height - ( blcorner.image.sizeY+1 ) - titleBar->left.image.sizeY;
+	lborder.y = y + titleBar.left.image.sizeY;
+	lborder.stretchFactory = height - ( blcorner.image.sizeY+1 ) - titleBar.left.image.sizeY;
 	lborder.stretchType = ST_Y;
 
 	rborder.x = x + ( width - rborder.image.sizeX );
-	rborder.y = y + titleBar->right.image.sizeY;
-	rborder.stretchFactory = height - ( brcorner.image.sizeY+1 ) - titleBar->right.image.sizeY;
+	rborder.y = y + titleBar.right.image.sizeY;
+	rborder.stretchFactory = height - ( brcorner.image.sizeY+1 ) - titleBar.right.image.sizeY;
 	rborder.stretchType = ST_Y;
 
 	blcorner.x = x;
@@ -543,10 +536,10 @@ void DialogBox::onRender() {
 	bborder.stretchType = ST_X;
 
 	background.x = x + lborder.image.sizeX;
-	background.y = y + titleBar->left.image.sizeY;
+	background.y = y + titleBar.left.image.sizeY;
 	background.stretchType = ST_XY;
 	background.stretchFactorx = width - rborder.image.sizeX;
-	background.stretchFactory = height - ( titleBar->middle.image.sizeY + bborder.image.sizeY );
+	background.stretchFactory = height - ( titleBar.middle.image.sizeY + bborder.image.sizeY );
 
 	drawList.push_back( lborder );
 	drawList.push_back( rborder );
@@ -1079,7 +1072,6 @@ TitleBar::TitleBar( std::string guitextures ) {
 }
 
 TitleBar::~TitleBar() {
-	delete closeButton;
 }
 
 void TitleBar::initialize( std::string guitextures ) {
@@ -1087,11 +1079,10 @@ void TitleBar::initialize( std::string guitextures ) {
 	GUIElement::initialize( guitextures );
 	movement = false;
 
-	closeButton = new CloseButton();
-	closeButton->setX( x + width - 5 );
-	closeButton->setY( y + ( height / 2 ) );
-	closeButton->setWidth( 16 );
-	closeButton->setHeight( 16 );
+	closeButton.setX( x + width - 5 );
+	closeButton.setY( y + ( height / 2 ) );
+	closeButton.setWidth( 16 );
+	closeButton.setHeight( 16 );
 	
 	try {
 		left.image = loadImage( gt.getNextTexture() );
@@ -1107,13 +1098,12 @@ void TitleBar::initialize( std::string guitextures ) {
 		createTexture( middle.image, &middle.imageid );
 	}
 	catch( ImageException ) {
-		delete closeButton;
 		throw GUIElementInitializeException( "TitleBar: error", "loading image" );
 	}
 
 	height = (GuiDim)middle.image.sizeY;
 
-	addChild( closeButton );
+	addChild( &closeButton );
 }
 
 void TitleBar::onLeftMouseDown() {
@@ -1160,8 +1150,8 @@ void TitleBar::onRender() {
 
 	textLabel->setX( parent->getX()+4 );
 	textLabel->setY( parent->getY()+4 );
-	closeButton->setX( getRootParent()->getX() + getRootParent()->getWidth()-20 );
-	closeButton->setY( getRootParent()->getY() + 5 );
+	closeButton.setX( getRootParent()->getX() + getRootParent()->getWidth()-20 );
+	closeButton.setY( getRootParent()->getY() + 5 );
 }
 
 void TitleBar::onRightMouseDown() {
@@ -1293,7 +1283,6 @@ Slider::Slider( std::string guitextures, int type ) {
 }
 
 Slider::~Slider() {
-	delete sliderBar;
 }
 
 void Slider::initialize( std::string guitextures ) {
@@ -1314,7 +1303,7 @@ void Slider::initialize( std::string guitextures ) {
 	velocity = 16000;
 	slideControl = false;
 
-	sliderBar = new SliderBar( type );
+	sliderBar = SliderBar( type );
 	font.loadFont( "fonts/8x16.bmp" );
 	valueLabel.loadFont( &font );
 	valueLabel.setOpen( false );
@@ -1343,7 +1332,7 @@ void Slider::initialize( std::string guitextures ) {
 		throw GUIElementInitializeException( "Slider:", "Error loading texture" );
 	}
 	
-	addChild( sliderBar );
+	addChild( &sliderBar );
 	addChild( &valueLabel );
 }
 

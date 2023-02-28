@@ -340,7 +340,7 @@ namespace GUISystem {
 
 		void update() {}
 
-		void loadFont( Font *font ) {this->font = font;}
+		void loadFont( Font *font ) {this->font = *font;}
 		
 		std::string &getString() {return str;}
 		
@@ -348,14 +348,14 @@ namespace GUISystem {
 		
 		void setString( const char *n ) {
 			str = n;
-			height = font->getFontHeight();
-			width = font->getFontWidth() * str.length();
+			height = font.getFontHeight();
+			width = font.getFontWidth() * str.length();
 		}
 		
-		Font *getFont() {return font;}
+		Font *getFont() {return &font;}
 
 	protected:
-		Font *font;
+		Font font;
 		std::string str;
 		void initialize( std::string &guitextures );
 	};
@@ -536,7 +536,7 @@ namespace GUISystem {
 		bool movement;
 
 		DialogTitle *textLabel;
-		CloseButton *closeButton;
+		CloseButton closeButton;
 
 		void initialize( std::string guitextures );
 	};
@@ -564,13 +564,13 @@ namespace GUISystem {
 		void onRightMouseRelease();
 		void update() {}
 
-		void setTitle( char *str ) {title->setString( str );}
+		void setTitle( char *str ) {title.setString( str );}
 
 	protected:
-		TitleBar *titleBar;
+		TitleBar titleBar;
 
-		DialogTitle *title;
-		Font *font;
+		DialogTitle title;
+		Font font;
 		
 		GEDrawElement lborder, rborder, blcorner, brcorner, bborder, background;
 
@@ -592,7 +592,7 @@ namespace GUISystem {
 		//								or left and right
 		Slider( int type );
 		Slider( std::string guitextures, int type );
-		
+		Slider( ) {}
 		~Slider();
 
 		void onLeftMouseDown();
@@ -640,6 +640,7 @@ namespace GUISystem {
 		public:	
 			SliderBar( int type );
 			SliderBar( std::string guitextures, int type );
+			SliderBar( ) {};
 			~SliderBar();
 
 			void onLeftMouseDown();
@@ -655,7 +656,7 @@ namespace GUISystem {
 			int type;
 
 			void initialize( std::string guitextures );
-		}*sliderBar;
+		}sliderBar;
 	};
 
 	/*

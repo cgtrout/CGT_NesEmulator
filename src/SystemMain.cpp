@@ -83,8 +83,6 @@ void SystemMain::start() {
 	try {
 		//get keybinds
 		consoleSystem.loadCommandFile( "binds.cfg" );
-		
-		
 
 		//TEST ROMS - load here
 		//TODO what happens if no rom is loaded - test and handle this case
