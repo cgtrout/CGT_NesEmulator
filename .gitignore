@@ -56,3 +56,4 @@ binds.cfg
 ConsoleDefs.txt
 roms/icehock.nes
 roms/mario.nes
+*.nes
