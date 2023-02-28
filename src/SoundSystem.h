@@ -91,9 +91,6 @@ namespace Sound {
 		
 	};
 
-	
-
-
 	class SoundSystemException : public CgtException {
 	  public:
 		SoundSystemException( std::string header, std::string m, bool s = true ) {

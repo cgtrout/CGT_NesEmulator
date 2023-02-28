@@ -2,9 +2,11 @@
 #include "WinSoundSystem.h"
 #include "Windows.h"
 
+#include <vector>
+
 NesApu::NesSoundBuffer *nesSoundBuffer_w;
 
-WAVEHDR *waveHdr = 0;		
+std::vector<WAVEHDR> waveHdr;
 
 //callback function
 void CALLBACK WinSoundSystem::waveOutProc(  HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD dwParam1, DWORD dwParam2 ) {
@@ -63,7 +65,7 @@ void WinSoundSystem::initialize() {
 	//create wavehdr's
 	//TODO this is never deleted
 	
-	waveHdr = new WAVEHDR[ this->getNumBuffers() ];
+	waveHdr = std::vector<WAVEHDR>( this->getNumBuffers( ) );
 	for( int x = 0; x < this->getNumBuffers(); x++ ) {
 		waveHdr[x].lpData			= (LPSTR)this->getBuffer( x )->get();
 		waveHdr[x].dwBufferLength	= this->getBufferSize() * 2;
@@ -81,7 +83,6 @@ void WinSoundSystem::initialize() {
 		res = waveOutPrepareHeader( phwo, &waveHdr[x], sizeof( waveHdr[x] ) );
 		if( res != MMSYSERR_NOERROR ) {
 			throw Sound::SoundSystemException( "WinSoundSystem::initialize", "Error preparing header" );
-			delete[] waveHdr;
 		}
 
 		//zero out buffer
@@ -109,7 +110,6 @@ void WinSoundSystem::start() {
 	return;
 error:
 	throw Sound::SoundSystemException( "WinSoundSystem::start", "Error sending data to device" );
-	//delete[] waveHdr;			
 }
 
 void WinSoundSystem::shutDown() {
@@ -124,8 +124,6 @@ void WinSoundSystem::shutDown() {
 	}
 
 	this->setUninitialized();
-
-	delete[] waveHdr;
 }
 void WinSoundSystem::assignNesSoundBuffer( NesApu::NesSoundBuffer* b ) {
 	nesSoundBuffer_w = b;
