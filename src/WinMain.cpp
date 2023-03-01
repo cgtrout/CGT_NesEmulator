@@ -9,6 +9,8 @@
 #include "Console.h"
 #include "resource1.h"
 
+#include <chrono>
+
 bool	active=TRUE;		// Window Active Flag Set To TRUE By Default
 bool	fullscreen=TRUE;	// Fullscreen Flag Set To Fullscreen Mode By Default
 
@@ -186,7 +188,6 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	timer = Timer::getInstance();
 	
 	systemMain->fpsTimer.clearTimer();
-	systemMain->timeProfiler.startFrame();
 
 	//allow sleep to sleep for 1ms
 	MMRESULT res = timeBeginPeriod( 1 );
@@ -194,34 +195,23 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		_log->Write( "Error setting timer resolution to 1ms" );
 	}
 
-	const float FRAME_TIME = 1.0f/60.0f;
+	const double FRAME_TIME = 1.0f/60.0f;
 	
 	systemMain->consoleSystem.variables.addBoolVariable( &capFrameRate );
-	float elapsedTime = 0.0f;
-	float currTime = 0.0f;
-	float lastTime = 0.0f;
-	
-	//debug testing values
-	//DWORD debCurrTime = 0;
-	//DWORD debElapsedTime = 0;
-	
 	bool freshFrame = true;
 
 	while( !done ) {		
-		//debCurrTime = timeGetTime();
-		//debCurrTime = timer->getAbsoluteTime();
+		//start of game loop
 		
-		//reset timers
-		timer->reset();
-		currTime = timer->getCurrTime();	
-
 		systemMain->timeProfiler.startFrame();
-
-		elapsedTime = 0;
+		
+		auto start_time = std::chrono::steady_clock::now( );
+		std::chrono::duration<double> elapsedTime = std::chrono::steady_clock::now( ) - start_time;
+		
 		freshFrame = true;
 
 		//cap to 60 frames per second
-		while( elapsedTime < FRAME_TIME ) {
+		while( elapsedTime.count() < FRAME_TIME ) {
 
 			if ( PeekMessage( &msg,NULL,0,0,PM_REMOVE ) )	// Is There A Message Waiting?
 			{
@@ -261,9 +251,6 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 					freshFrame = false;
 					input->clear();
 					SwapBuffers( hDC );					// Swap Buffers ( Double Buffering )
-					
-					systemMain->timeProfiler.stopFrame();
-					systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport() );
 				}
 											
 				if( systemMain->quitRequestSubmitted() ) {
@@ -271,34 +258,21 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 				}
 			}
 
+			elapsedTime = std::chrono::steady_clock::now( ) - start_time;
+
+			//_log->Write( "new=%f", elapsedTime.count() );
+
 			//only run through loop once if we are not capping the framerate
 			if( !capFrameRate ) {
 				break;
 			}
-
-			elapsedTime = timer->getCurrTime() - currTime;
-			
-			//if( ( ( FRAME_TIME - elapsedTime ) * 1000 ) < 14 ) {
-			//	Sleep( 1 );
-			//}
 		}
 
-		elapsedTime = timer->getCurrTime() - currTime;
-
 		//done frame - finish off frame
-		systemMain->fpsTimer.updateTimer( elapsedTime );
-				
-		//debElapsedTime = timeGetTime() - debCurrTime;
-		//debElapsedTime = timer->getAbsoluteTime() - debCurrTime;
-
-		elapsedTime = timer->getCurrTime() - currTime;
-
-		//_log->Write( "end frame time = %f", elapsedTime );
-		//_log->Write( "debug elapsed time = %f", (float)(debElapsedTime)/1000);
-
+		systemMain->timeProfiler.stopFrame( );
+		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
+		systemMain->fpsTimer.updateTimer( elapsedTime.count() );
 	}
-
-	//delete system;
 
 	//allow sleep to sleep for 1ms
 	timeEndPeriod( 1 );

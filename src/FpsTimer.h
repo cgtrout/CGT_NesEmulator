@@ -4,22 +4,22 @@
 namespace FrontEnd {
 	class FPSTimer {
 	  public:
-		float getAvgFps();
+		double getAvgFps();
 		
 		//used to update timer at end of frame
 		//also caps framerate
-		void updateTimer( float elapsedTime );
+		void updateTimer( double elapsedTime );
 		
 		//clears timer for start of frame
 		void clearTimer();
 
 		FPSTimer();
 	  private:
-		float	elapsedTime;
-		float	currTime;
+		double	elapsedTime;
+		double	currTime;
 		
-		float	totalElapsedTime;
-		float	frameNumber;
+		double 	totalElapsedTime;
+		double frameNumber;
 
 		//frames per used to calulate average fps
 		static const int FRAMES_PER_SAMPLE = 60;
@@ -29,10 +29,10 @@ namespace FrontEnd {
 		int		counterFrame;
 
 		//fps of last frames
-		std::array<float, FRAMES_PER_SAMPLE> frameFPS;
+		std::array<double, FRAMES_PER_SAMPLE> frameFPS;
 		
 		//fps over last number of samples
-		float	averagedFPS;
+		double averagedFPS;
 	};
 }
 #endif

@@ -25,20 +25,20 @@ FPSTimer::FPSTimer() {
 
 /* 
 ==============================================
-float FPSTimer::getAvgFps()
+double FPSTimer::getAvgFps()
 ==============================================
 */
-float FPSTimer::getAvgFps() {
+double  FPSTimer::getAvgFps() {
 	return frameNumber / totalElapsedTime;
 }
 
 /* 
 ==============================================
-void FPSTimer::updateTimer(float elapsedTime)
+void FPSTimer::updateTimer(double elapsedTime)
 ==============================================
 */
 
-void FPSTimer::updateTimer( float elapsedTime ) {
+void FPSTimer::updateTimer( double elapsedTime ) {
 	
 	//for fps calc
 	frameNumber += 1;
@@ -58,7 +58,7 @@ void FPSTimer::updateTimer( float elapsedTime ) {
 	}
 
 	//calculate average fps among all of the frames
-	float total = 0;	
+	double total = 0;	
 	for( int x = 0; x < FRAMES_PER_SAMPLE; x++ ) {
 		total += frameFPS[ x ];
 	}
@@ -81,6 +81,5 @@ void FPSTimer::clearTimer()
 */
 void FPSTimer::clearTimer() {
 	currTime = 0; 
-	Timer::getInstance()->reset();
 }
 

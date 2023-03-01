@@ -34,21 +34,21 @@ TimedSection::~TimedSection( ) {
 
 /* 
 ==============================================
-void TimedSection::start( float time )
+void TimedSection::start( double time )
 
   TODO what if it starts and stops more than once a frame??
 ==============================================
 */
-void TimedSection::start( float time ) {
+void TimedSection::start( double time ) {
 	startTime = time;
 }
 
 /* 
 ==============================================
-void TimedSection::stop( float time )
+void TimedSection::stop( double time )
 ==============================================
 */
-void TimedSection::stop( float time ) {
+void TimedSection::stop( double time ) {
 	stopTime = time;
 	elapsedTime += stopTime - startTime;
 	startTime = 0;
@@ -76,15 +76,15 @@ void TimedSection::endFrame() {
 
 /* 
 ==============================================
-void TimedSection::addPercentSample( float sample, int index )
+void TimedSection::addPercentSample( double sample, int index )
 ==============================================
 */
-void TimedSection::addPercentSample( float sample, int index ) {
+void TimedSection::addPercentSample( double sample, int index ) {
 	//TODO add fault tolerance
 	usagePercentAvg[ index ] = sample;
 }
 
-void TimedSection::addTimeSample( float sample, int index ) {
+void TimedSection::addTimeSample( double sample, int index ) {
 	//TODO add fault tolerance
 
 	//convert to ms
@@ -93,19 +93,19 @@ void TimedSection::addTimeSample( float sample, int index ) {
 
 /* 
 ==============================================
-float TimedSection::calcAvgPercent()
+double TimedSection::calcAvgPercent()
 ==============================================
 */
-float TimedSection::calcAvgPercent() {
-	float total = 0;
+double TimedSection::calcAvgPercent() {
+	double total = 0;
 	for( int i = 0; i < TIMED_SECTION_SAMPLES; i++ ) {
 		total += usagePercentAvg[ i ];
 	}
 	return total / TIMED_SECTION_SAMPLES;
 }
 
-float TimedSection::calcAvgTime() {
-	float total = 0;
+double TimedSection::calcAvgTime() {
+	double total = 0;
 	for( int i = 0; i < TIMED_SECTION_SAMPLES; i++ ) {
 		total += timeAvg[ i ];
 	}
@@ -130,9 +130,6 @@ TimeProfiler::TimeProfiler() : timedSections() {
 	fullSet = false;	//set to true when a full set of samples is obtained
 	sampleNum = 0;
 	rateCounter = 0;
-	frameStartTime = 0;
-	frameStopTime = 0;
-	elapsedTime = 0;
 }
 
 TimeProfiler::~TimeProfiler( ) {
@@ -145,7 +142,7 @@ void TimeProfiler::startFrame( )
 ==============================================
 */
 void TimeProfiler::startFrame( ) {
-	frameStartTime = timer->getCurrTime();
+	frameStartTime = std::chrono::steady_clock::now( );
 	
 	auto i = timedSections.begin();
 	for( ; i != timedSections.end(); ++i ) {
@@ -159,14 +156,16 @@ void TimeProfiler::stopFrame( )
 ==============================================
 */
 void TimeProfiler::stopFrame( ) {
-	frameStopTime = timer->getCurrTime();
+	frameStopTime = std::chrono::steady_clock::now( );
 	elapsedTime = frameStopTime - frameStartTime;
+	
+	_log->Write( "TimeProfiler: %f", elapsedTime );
 
 	//iterate through all time sections to add run percentages
 	for( auto &i : timedSections ) {
 		
 		//add run percent to percent average array in current timed section
-		i.addPercentSample( ( i.getElapsedTime() / elapsedTime ) * 100.0f, sampleNum );
+		i.addPercentSample( ( i.getElapsedTime() / elapsedTime.count() ) * 100.0f, sampleNum );
 		i.addTimeSample( i.getElapsedTime(), sampleNum );
 		i.startFrame();
 	}
@@ -248,10 +247,10 @@ void TimeProfiler::stopSection( const std::string &name ) {
 
 /* 
 ==============================================
-float TimeProfiler::getSectionRunPercent( const std::string &name )
+double TimeProfiler::getSectionRunPercent( const std::string &name )
 ==============================================
 */
-float TimeProfiler::getSectionRunPercent( const std::string &name ) {
+double TimeProfiler::getSectionRunPercent( const std::string &name ) {
 	return getSection( name )->calcAvgPercent();
 }
 
