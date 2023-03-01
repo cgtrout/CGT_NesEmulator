@@ -65,6 +65,10 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		//start sound system
 		try {
 			systemMain->soundSystem->initialize();
+
+			//attach buffer
+			systemMain->soundSystem->assignNesSoundBuffer( systemMain->nesMain.nesApu.getNesSoundBuffer( ) );
+			
 			systemMain->soundSystem->start();
 			//consoleSystem->printMessage( "Soundsystem started" );
 		} catch( Sound::SoundSystemException e ) {

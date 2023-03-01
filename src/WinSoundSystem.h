@@ -8,6 +8,8 @@ class WinSoundSystem : public Sound::SoundSystem {
 	void initialize();
 	void start();
 	void shutDown();
+
+	void unprepareHeaders( );
 	
 	//windows callback procedure
 	static void CALLBACK waveOutProc(  HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD dwParam1, DWORD dwParam2 );

@@ -175,8 +175,7 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	
 	//assign soundsystem
 	systemMain->soundSystem = &winSoundSystem;
-	systemMain->soundSystem->assignNesSoundBuffer( systemMain->nesMain.nesApu.getNesSoundBuffer() );
-
+	
 	systemMain->start();
 	
 	//set frame rate counter pos based on screen size

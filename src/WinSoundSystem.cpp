@@ -4,7 +4,7 @@
 
 #include <vector>
 
-NesApu::NesSoundBuffer *nesSoundBuffer_w;
+NesApu::NesSoundBuffer *nesSoundBuffer_w = nullptr;
 
 std::vector<WAVEHDR> waveHdr;
 
@@ -14,15 +14,15 @@ void CALLBACK WinSoundSystem::waveOutProc(  HWAVEOUT hwo, UINT uMsg, DWORD_PTR d
 	//static float timeDelta = 0;
 	switch( uMsg ) {
 		case WM_CLOSE:
+			break;
 		case WOM_DONE:
-			//float time = timer->getAbsoluteTime();
-			//timeDelta = time - lastTime;
-			//lastTime = time;
-			//_log->Write( "time delta from last WOM_DONE call = %f",  timeDelta);
+			//if buffer is null it means sound system is not active
+			if ( nesSoundBuffer_w == nullptr ) {
+				break;
+			}
 
 			//switching data blocks
 			WAVEHDR *waveHdr = reinterpret_cast<WAVEHDR*>(dwParam1);
-			//waveHdr->dwBufferLength = 
 			
 			//put sound data in waveHdr->lpData
 			nesSoundBuffer_w->fillExternalBuffer( ( word* )waveHdr->lpData, waveHdr->dwBufferLength / 2 );
@@ -112,18 +112,59 @@ error:
 	throw Sound::SoundSystemException( "WinSoundSystem::start", "Error sending data to device" );
 }
 
+void checkSoundError( MMRESULT res, std::string_view error, std::string_view system ) {
+	if ( res != MMSYSERR_NOERROR ) {
+		auto inval = MMSYSERR_INVALHANDLE;
+		auto nodriver = MMSYSERR_NODRIVER;
+		auto nomem = MMSYSERR_NOMEM;
+		auto stillplay = WAVERR_STILLPLAYING;
+
+		//get reason for error
+		char buf[ 256 ];
+		auto error_code = GetLastError( );
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL, error_code, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),
+			buf, ( sizeof( buf ) / sizeof( char ) ), NULL );
+		std::string str( buf );
+		str += ' ';
+
+		throw Sound::SoundSystemException( system.data( ), str + error.data( ) );
+	}
+}
+
 void WinSoundSystem::shutDown() {
 	if( !this->isInitialized() ) {
 		return;
 	}
 
-	//close sound device
-	MMRESULT res = WAVERR_STILLPLAYING;
-	while( res != WAVERR_STILLPLAYING ) {
-		res = waveOutClose( phwo );	
-	}
+	MMRESULT res;
+
+	//assign nullptr to sound buffer to so that callback has a way to notice that sound is being shut down
+	this->assignNesSoundBuffer( nullptr );
+
+	_log->Write( "Audio: Starting shutdown" );
+
+	res = waveOutReset( phwo );	//hangs
+	checkSoundError( res, "waveOutReset", "shutdown" );
+
+	res = waveOutClose( phwo );
+	checkSoundError( res, "waveOutClose", "shutdown" );
+
+	unprepareHeaders( );
+
+	_log->Write( "Closing sound system" );
 
 	this->setUninitialized();
+}
+
+void WinSoundSystem::unprepareHeaders(  )
+{
+	MMRESULT res;
+	//clear waveout headers
+	for ( int x = 0; x < this->getNumBuffers( ); x++ ) {
+		//clear wave headers
+		res = waveOutUnprepareHeader( phwo, &waveHdr[ x ], sizeof( waveHdr[ x ] ) );
+	}
 }
 void WinSoundSystem::assignNesSoundBuffer( NesApu::NesSoundBuffer* b ) {
 	nesSoundBuffer_w = b;
