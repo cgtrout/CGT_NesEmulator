@@ -39,7 +39,6 @@ void NesFile::loadFile( std::string filename ) {
 		
 	if( !is ) throw NesFileException( "NesFile::loadFile error", "Could not find file" );
 	
-	
 	//if memory has already been allocated delete it first
 	if( prgRomPages != 0 ) {
 		delete[] prgRomPages; 

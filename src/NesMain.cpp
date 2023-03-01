@@ -77,6 +77,7 @@ void NesMain::update() {
 				systemMain->timeProfiler.stopSection( "Apu" );
 				systemMain->timeProfiler.startSection( "Cpu" );
 			}
+
 			//reset internal clock counters
 			nesPpu.resetCC();
 			nesCpu.resetCC();
