@@ -10,4 +10,8 @@ The goal for this project was simply to learn how to build an emulator and to ge
 * Contra
 * Megaman
 
+Features a full hex viewer and step debugger:
+
+![image](https://user-images.githubusercontent.com/6323654/222130609-10ab1074-1e87-47b7-a39d-82cc2071bd7c.png)
+
 It has limited support for all the "mappers" available, so many games will not even load.  The sound is partially implemented and has some issues in its current state.
