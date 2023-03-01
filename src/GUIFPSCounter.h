@@ -20,7 +20,7 @@ namespace GUISystem {
 
 		void update();
 
-		void setFps( float f ) { fps = f; }
+		void setFps( double f ) { fps = f; }
 		void setX ( GuiDim val );
 		void setY ( GuiDim val );
 
@@ -36,7 +36,7 @@ namespace GUISystem {
 		//position from back of history that we want to print from
 		int offset;
 
-		float fps;
+		double fps;
 		
 		void initialize( std::string guitextures );
 	};
