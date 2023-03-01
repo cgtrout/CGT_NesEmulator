@@ -170,9 +170,9 @@ std::string Variables::getValueString( std::string *varName )
 */
 std::string Variables::getValueString( std::string_view varName ) {
 	//go through varlists
-	ConsoleVariable< int > *i	 = getIntVariable( varName );
-	ConsoleVariable< float > *f  = getFloatVariable( varName );
-	ConsoleVariable< bool > *b   = getBoolVariable( varName );
+	ConsoleVariable< int > *i	  = getIntVariable( varName );
+	ConsoleVariable< float > *f  	  = getFloatVariable( varName );
+	ConsoleVariable< bool > *b   	  = getBoolVariable( varName );
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
@@ -194,9 +194,9 @@ std::string Variables::getVariableDescription( std::string_view varName )
 */
 std::string Variables::getVariableDescription( std::string_view varName ) {
 	//go through varlists
-	ConsoleVariable< int > *i	 = getIntVariable( varName );
-	ConsoleVariable< float > *f  = getFloatVariable( varName );
-	ConsoleVariable< bool > *b   = getBoolVariable( varName );
+	ConsoleVariable< int > *i	  = getIntVariable( varName );
+	ConsoleVariable< float > *f 	  = getFloatVariable( varName );
+	ConsoleVariable< bool > *b   	  = getBoolVariable( varName );
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
@@ -220,9 +220,9 @@ bool Variables::getSaveVarToFile( std::string_view varName ) {
 	std::string retVal;
 	std::stringstream ss;
 	//go through varlists
-	ConsoleVariable< int > *i	 = getIntVariable( varName );
-	ConsoleVariable< float > *f  = getFloatVariable( varName );
-	ConsoleVariable< bool > *b   = getBoolVariable( varName );
+	ConsoleVariable< int > *i	  = getIntVariable( varName );
+	ConsoleVariable< float > *f  	  = getFloatVariable( varName );
+	ConsoleVariable< bool > *b   	  = getBoolVariable( varName );
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
@@ -368,10 +368,10 @@ bool ConsoleSystem::findAndRunVariable( std::string *varName, std::string *value
 */
 bool ConsoleSystem::findAndRunVariable( std::string_view varName, std::string_view value, bool run ) {
     //go through variables until varName is found
-	ConsoleVariable< int >    *i = variables.getIntVariable( varName );
-	ConsoleVariable< float >  *f = variables.getFloatVariable( varName );
-	ConsoleVariable< bool >   *b = variables.getBoolVariable( varName );
-	ConsoleVariable< std::string > *s = variables.getStringVariable( varName );
+	ConsoleVariable< int >    *i 		= variables.getIntVariable( varName );
+	ConsoleVariable< float >  *f 		= variables.getFloatVariable( varName );
+	ConsoleVariable< bool >   *b 		= variables.getBoolVariable( varName );
+	ConsoleVariable< std::string > *s 	= variables.getStringVariable( varName );
 	
 	if( i == NULL && f == NULL && b == NULL && s == NULL ) {
 		//not found so return false

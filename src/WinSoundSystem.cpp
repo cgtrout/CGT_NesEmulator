@@ -10,8 +10,6 @@ std::vector<WAVEHDR> waveHdr;
 
 //callback function
 void CALLBACK WinSoundSystem::waveOutProc(  HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD dwParam1, DWORD dwParam2 ) {
-	//static float lastTime = 0;
-	//static float timeDelta = 0;
 	switch( uMsg ) {
 		case WM_CLOSE:
 			break;
@@ -62,15 +60,13 @@ void WinSoundSystem::initialize() {
 		throw Sound::SoundSystemException( "WinSoundSystem::initialize", "Error initializing sound device" );
 	}
 
-	//create wavehdr's
-	//TODO this is never deleted
-	
+	//create wavehdr's (wave headers)
 	waveHdr = std::vector<WAVEHDR>( this->getNumBuffers( ) );
 	for( int x = 0; x < this->getNumBuffers(); x++ ) {
-		waveHdr[x].lpData			= (LPSTR)this->getBuffer( x )->get();
+		waveHdr[x].lpData		= (LPSTR)this->getBuffer( x )->get();
 		waveHdr[x].dwBufferLength	= this->getBufferSize() * 2;
 		waveHdr[x].dwBytesRecorded	= 0;
-		waveHdr[x].dwUser			= 0;
+		waveHdr[x].dwUser		= 0;
 		
 		if( x == 0) {
 			waveHdr[x].dwFlags = WHDR_BEGINLOOP;
@@ -98,7 +94,6 @@ void WinSoundSystem::start() {
 	if( !this->isInitialized() ) {
 		throw Sound::SoundSystemException( "WinSoundSystem::start", "Attempting to start soundsystem without initializing" );
 	}
-	//MMSYSERR_INVALHANDLE
 	
 	//first buffer
 	MMRESULT res = waveOutWrite( phwo, &waveHdr[0], sizeof( waveHdr[0] ));
@@ -114,11 +109,6 @@ error:
 
 void checkSoundError( MMRESULT res, std::string_view error, std::string_view system ) {
 	if ( res != MMSYSERR_NOERROR ) {
-		auto inval = MMSYSERR_INVALHANDLE;
-		auto nodriver = MMSYSERR_NODRIVER;
-		auto nomem = MMSYSERR_NOMEM;
-		auto stillplay = WAVERR_STILLPLAYING;
-
 		//get reason for error
 		char buf[ 256 ];
 		auto error_code = GetLastError( );
@@ -144,7 +134,7 @@ void WinSoundSystem::shutDown() {
 
 	_log->Write( "Audio: Starting shutdown" );
 
-	res = waveOutReset( phwo );	//hangs
+	res = waveOutReset( phwo );
 	checkSoundError( res, "waveOutReset", "shutdown" );
 
 	res = waveOutClose( phwo );
