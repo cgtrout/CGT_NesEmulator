@@ -298,4 +298,9 @@
     <None Include="..\..\src\Graph.imp" />
     <None Include="..\..\src\GUI.h~" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\nesEmResourse.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
 </Project>

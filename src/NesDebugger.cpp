@@ -17,11 +17,12 @@ NesDebugger::NesDebugger()
 ==============================================
 */
 NesDebugger::NesDebugger() {
-	memory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
+	
 }
 
 void NesDebugger::initialize() {
-    singleStepMode = false;
+	memory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory;
+	singleStepMode = false;
 	//singleStepMode = true;
     justInSingleStepMode = false;
     numBreakPoints = 0;

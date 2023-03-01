@@ -16,7 +16,7 @@ using namespace NesEmulator;
 
 
 extern NesMemory	*nesMemory;
-NesCpu		*nesCpu;
+extern NesCpu		*nesCpu;
 
 int ( __stdcall* WinDebugger::fnOldList3Proc )( void );
 
@@ -38,9 +38,7 @@ WinDebugger::WinDebugger()
 ==============================================
 */
 WinDebugger::WinDebugger(): numDebugLines( 32 ) {
-	nesDebugger = &FrontEnd::SystemMain::getInstance()->nesMain.nesDebugger;
-	nesMemory   = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
-	nesCpu		= &FrontEnd::SystemMain::getInstance()->nesMain.nesCpu;
+	
 };
 /*
 ==============================================
@@ -48,6 +46,10 @@ void WinDebugger::initialize()
 ==============================================
 */
 void WinDebugger::initialize() {
+	nesDebugger = &FrontEnd::SystemMain::getInstance( )->nesMain.nesDebugger;
+	nesMemory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory;
+	nesCpu = &FrontEnd::SystemMain::getInstance( )->nesMain.nesCpu;
+	
 	//subclass the window that was just created
 	fnOldList3Proc = ( FARPROC )SetWindowLong( GetDlgItem( debugWnd,IDC_LIST3 ), GWL_WNDPROC, ( DWORD )WinDebugger::List3Proc ); \
 	nesDebugger->initialize();
