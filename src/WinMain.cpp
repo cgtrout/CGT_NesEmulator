@@ -188,7 +188,6 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 	timer = Timer::getInstance();
 	
 	systemMain->fpsTimer.clearTimer();
-	systemMain->timeProfiler.startFrame();
 
 	//allow sleep to sleep for 1ms
 	MMRESULT res = timeBeginPeriod( 1 );
@@ -252,9 +251,6 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 					freshFrame = false;
 					input->clear();
 					SwapBuffers( hDC );					// Swap Buffers ( Double Buffering )
-					
-					systemMain->timeProfiler.stopFrame();
-					systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport() );
 				}
 											
 				if( systemMain->quitRequestSubmitted() ) {
@@ -273,6 +269,8 @@ int WINAPI WinMain( 	HINSTANCE	hInstance,			// Instance
 		}
 
 		//done frame - finish off frame
+		systemMain->timeProfiler.stopFrame( );
+		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
 		systemMain->fpsTimer.updateTimer( elapsedTime.count() );
 	}
 

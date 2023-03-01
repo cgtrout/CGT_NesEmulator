@@ -66,7 +66,6 @@ namespace NesEmulator {
 		void setState ( States s ) { state = s; }
 		States getState() { return state; }
 	  private:
-		//float elapsedTime;
 		PpuClockCycles masterClock;
 		PpuClockCycles cpuOverflow;
 		float frameTime;	

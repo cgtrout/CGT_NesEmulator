@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 
 namespace FrontEnd {
 	
@@ -27,37 +28,37 @@ namespace FrontEnd {
 		TimedSection( const std::string &name );
 		~TimedSection( );
 		
-		void start( float time );
-		void stop( float time );
+		void start( double  time );
+		void stop( double  time );
 		
 		//send these at start/end of frame to let section
 		//know that frame is starting or done
 		void startFrame();
 		void endFrame();
 
-		float getElapsedTime( ) { return elapsedTime; }
+		double  getElapsedTime( ) { return elapsedTime; }
 
 		//is this section still being timed?
 		//bool isActive() { return activeFrame; }
 
 		const std::string& getName( ) { return name; } 
 
-		void addPercentSample( float sample, int index );
-		void addTimeSample( float sample, int index );
+		void addPercentSample( double  sample, int index );
+		void addTimeSample( double  sample, int index );
 
-		float calcAvgPercent( );
-		float calcAvgTime();
+		double  calcAvgPercent( );
+		double  calcAvgTime();
 	
 	  private:	
 	
 		TimedSection();
 		bool activeFrame;
 		  
-		float startTime;
-		float stopTime;
-		float elapsedTime;
-		std::array<float, TIMED_SECTION_SAMPLES> usagePercentAvg;
-		std::array<float, TIMED_SECTION_SAMPLES> timeAvg;
+		double  startTime;
+		double  stopTime;
+		double  elapsedTime;
+		std::array<double , TIMED_SECTION_SAMPLES> usagePercentAvg;
+		std::array<double , TIMED_SECTION_SAMPLES> timeAvg;
 		std::string name;
 	};
 
@@ -84,7 +85,7 @@ namespace FrontEnd {
 		void startSection( const std::string &name );
 		void stopSection( const std::string &name );
 
-		float getSectionRunPercent( const std::string &name );
+		double  getSectionRunPercent( const std::string &name );
 
 		std::string getSectionReport();
 
@@ -98,9 +99,9 @@ namespace FrontEnd {
 		//do we have a full set of samples yet?
 		bool fullSet;
 
-		float frameStartTime;
-		float frameStopTime;
-		float elapsedTime;
+		std::chrono::steady_clock::time_point frameStartTime;
+		std::chrono::steady_clock::time_point frameStopTime;
+		std::chrono::duration<double>  elapsedTime;
 
 		std::vector< TimedSection > timedSections;
 
