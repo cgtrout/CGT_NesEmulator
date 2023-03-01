@@ -1,4 +1,7 @@
 # CGT_NesEmulator
+
+![image](https://user-images.githubusercontent.com/6323654/222131333-edcbfb2c-befa-4635-b027-d0a8c9ff26d2.png)
+
 Basic NES emulator project - a learning project not designed to be feature competitive with other emulators.  Written for C++ for Windows.
 
 Much of the code was written several years ago, and does not conform to the latest C++ standards in all cases.  However, recently I have spent some time updating the project to be more conformant in several areas.
