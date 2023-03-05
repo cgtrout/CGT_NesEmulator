@@ -2,8 +2,8 @@
 
 #include <SDL.h>
 
-constexpr auto SCREEN_WIDTH = 1024;
-constexpr auto SCREEN_HEIGHT = 768;
+constexpr auto SCREEN_WIDTH = 800;
+constexpr auto SCREEN_HEIGHT = 600;
 
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
@@ -45,8 +45,18 @@ int main( int argc, char* args[] )
 				quit = true;
 			}
 		}
+		//frame initialization
+		auto start_time = std::chrono::steady_clock::now( );
+		std::chrono::duration<double> elapsedTime = std::chrono::steady_clock::now( ) - start_time;
+		systemMain->timeProfiler.startFrame( );
 		systemMain->runFrame( );
 		SDL_GL_SwapWindow( window );
+		
+		//frame finish
+		systemMain->timeProfiler.stopFrame( );
+		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
+		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
+		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );
 	}
 
 	SDL_DestroyWindow( window );

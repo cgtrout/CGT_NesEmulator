@@ -185,7 +185,9 @@ void SystemMain::start() {
 	timeProfiler.addSection( "Cpu" );
 	timeProfiler.addSection( "Ppu" );
 	timeProfiler.addSection( "Gui" );
-	timeProfiler.addSection( "Render" );
+	timeProfiler.addSection( "RenGUI" );
+	timeProfiler.addSection( "RenFrame" );
+	timeProfiler.addSection( "RenPPU" );
 
 	gui.addElement( &guiConsole );
 	gui.addElement( &frameCounter );
@@ -258,12 +260,14 @@ SystemMain::graphicUpdate()
 ==============================================
 */
 void SystemMain::graphicUpdate() {
-	timeProfiler.startSection( "Render" );
+	timeProfiler.startSection( "RenFrame" );
 
 	renderer.renderFrame();
 
+	timeProfiler.stopSection( "RenFrame" );
+
 	//renderer.drawImage( nesMain.nesApu.getGraph(), &Vec2d( 0, 20 ),true, 1, 0.5f );
-		
+	timeProfiler.startSection( "RenGUI" );
 	try {
 		gui.render();
 	}
@@ -273,6 +277,6 @@ void SystemMain::graphicUpdate() {
 		exit( 0 );
 	}
 
-	timeProfiler.stopSection( "Render" );
+	timeProfiler.stopSection( "RenGUI" );
 }
 

@@ -10,13 +10,13 @@ using namespace GUISystem;
 #endif
 
 Console::ConsoleVariable< int > timeProfileX (  
-/*start val*/	0, 
+/*start val*/	550, 
 /*name*/		"timeProfileX", 
 /*description*/	"Sets x dim of TimeProfile window",
 /*save?*/		SAVE_TO_FILE );
 
 Console::ConsoleVariable< int > timeProfileY (  
-/*start val*/	0, 
+/*start val*/	250, 
 /*name*/		"timeProfileY", 
 /*description*/	"Sets Y dim of TimeProfile window",
 /*save?*/		SAVE_TO_FILE );

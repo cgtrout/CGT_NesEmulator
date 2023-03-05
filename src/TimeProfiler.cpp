@@ -271,7 +271,7 @@ std::string TimeProfiler::getSectionReport( ) {
 		auto i = timedSections.begin();
 		for( ; i != timedSections.end(); i++ ) {
 			out << std::setiosflags( std::ios::left )
-				<< std::setw(6) << (*i).getName()
+				<< std::setw(12) << (*i).getName()
 				<< std::resetiosflags( std::ios::left )
 				<< std::setw(6) << std::setiosflags( std::ios::fixed ) << std::setprecision(2) << (*i).calcAvgTime() \
 				<< "ms" 
