@@ -54,6 +54,7 @@ SystemMain::SystemMain() {
 }
 
 void SystemMain::initialize( ) {
+	consoleSystem.initialize( );
 	gui.initialize( );
 	nesMain.nesCpu.initialize( );
 	nesMain.nesMemory.initialize( );
@@ -70,7 +71,9 @@ SystemMain::~SystemMain()
 ==============================================
 */
 SystemMain::~SystemMain() {
-	soundSystem->shutDown();
+	if ( soundSystem ) {
+		soundSystem->shutDown( );
+	}
 	input->writeBindsToFile( "binds.cfg" );
 }
 
@@ -90,7 +93,9 @@ void SystemMain::start() {
 		//test invalid file name
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/__" ), false );
 		
-		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/icehock" ), false );
+		//consoleSystem.executeRequest( "loadnesfile", "mario" , false );
+		//consoleSystem.executeRequest( "loadnesfile", "contra", false );
+		consoleSystem.executeRequest( "loadnesfile", "icehock", false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/contra" ), false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/castlevania" ), false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "../RomSource/ppu_test001/ppuTest001" ), false );
@@ -162,7 +167,7 @@ void SystemMain::start() {
 	}
 	catch( GUIElement::GUIElementInitializeException ) {
 		//FIXME windows specific code
-		MessageBox( hWnd, "Error initializing gui element", "Error", MB_OK );
+		//MessageBox( hWnd, "Error initializing gui element", "Error", MB_OK );
 		exit( 0 );
 	}
 	
@@ -263,8 +268,8 @@ void SystemMain::graphicUpdate() {
 		gui.render();
 	}
 	catch( GUI::GUIRunException ) {
-		//todo - windows specific
-		MessageBox( hWnd, "GUIRunException caught", "Error", MB_OK );
+		//FIXME - windows specific
+		//MessageBox( hWnd, "GUIRunException caught", "Error", MB_OK );
 		exit( 0 );
 	}
 

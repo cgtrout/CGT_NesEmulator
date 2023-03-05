@@ -57,19 +57,21 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		//systemMain->nesMain.nesMemory.zeroMemory();
 		//systemMain->nesMain.nesMemory.ppuMemory.zeroMemory();
 		//restart sound system if it is already running
-		if( systemMain->soundSystem->isInitialized() ) {
+		if( systemMain->soundSystem != nullptr && systemMain->soundSystem->isInitialized() ) {
 			systemMain->soundSystem->shutDown();
 		}
 		consoleSystem->printMessage( "Initializing soundsystem" );
 
 		//start sound system
 		try {
-			systemMain->soundSystem->initialize();
+			if ( systemMain->soundSystem != nullptr ) {
+			systemMain->soundSystem->initialize( );
 
 			//attach buffer
 			systemMain->soundSystem->assignNesSoundBuffer( systemMain->nesMain.nesApu.getNesSoundBuffer( ) );
-			
-			systemMain->soundSystem->start();
+
+			systemMain->soundSystem->start( );
+		}
 			//consoleSystem->printMessage( "Soundsystem started" );
 		} catch( Sound::SoundSystemException e ) {
 			consoleSystem->printMessage( "Soundsystem start failed - %s", e.getMessage().c_str() );

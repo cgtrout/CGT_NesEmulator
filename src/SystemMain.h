@@ -32,8 +32,6 @@
 
 using namespace CGTSingleton;
 
-extern HWND hWnd;
-
 namespace FrontEnd {
 	
 	/*
