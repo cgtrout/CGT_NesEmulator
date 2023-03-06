@@ -19,16 +19,17 @@ int main( int argc, char* args[] )
 	SDL_Surface* screenSurface = nullptr;
 
 	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
-		//TODO error handing
-		return 1;
+		const char *error = SDL_GetError( );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
+		SDL_Quit( );
 	}
 
 	window = SDL_CreateWindow( "CGT Nes Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL );
 
 	if ( window == nullptr ) {
-		//TODO error handling
-		//throw "test";
-		return 2;
+		const char *error = SDL_GetError( );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
+		SDL_Quit( );
 	}
 
 	SDL_GLContext context = SDL_GL_CreateContext( window );
