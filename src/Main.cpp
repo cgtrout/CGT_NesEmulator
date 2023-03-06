@@ -48,11 +48,11 @@ int main( int argc, char* args[] )
 					break;
 				case SDL_KEYDOWN:
 					SDL_Keysym keydown = e.key.keysym;
-					input->setKeyDown( keydown.scancode );
+					input->setKeyDown( keydown.sym );
 					break;
 				case SDL_KEYUP:
 					SDL_Keysym keyup = e.key.keysym;
-					input->setKeyUp( keyup.scancode );
+					input->setKeyUp( keyup.sym );
 					break;
 				case SDL_TEXTINPUT:
 					input->addTextInput( e.text.text );

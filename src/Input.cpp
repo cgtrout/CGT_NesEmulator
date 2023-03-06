@@ -202,7 +202,7 @@ bool Input::bindKeyToControl( std::string keystr, std::string controlstr, std::s
 		return false;
 	}
 	
-	uword keyid = keyStringToNumber( keystr );
+	SDL_Keycode keyid = keyStringToNumber( keystr );
 	if( keyid == NULL ) {
 		consoleSystem->printMessage( "Input::bindKeyToControl - key doesn't exist" );
 		return false;
@@ -264,7 +264,9 @@ void Input::writeBindsToFile( const char *filename ) {
 			
 			//dont output if keybind = 0
 			if ( controllables[ c ]->buttons[ b ]->keyid != 0 ) {
-				file << keyIdToString( controllables[ c ]->buttons[ b ]->keyid );
+				SDL_Keycode keyId = controllables[ c ]->buttons[ b ]->keyid;
+				auto keyString = keyIdToString( keyId );
+				file << keyString;
 			}
 			file << """\n";
 		}
@@ -273,8 +275,9 @@ void Input::writeBindsToFile( const char *filename ) {
 	file.close();
 }
 
-std::string Input::keyIdToString( uword keyid ) {
-	return std::string(SDL_GetKeyName( keyid ));
+std::string Input::keyIdToString( SDL_Keycode keyid ) {
+	std::string retValue( SDL_GetKeyName( keyid ) );
+	return retValue;
 }
 
 /* 
@@ -282,9 +285,9 @@ std::string Input::keyIdToString( uword keyid ) {
 uword Input::keyStringToNumber
 ==============================================
 */
-uword Input::keyStringToNumber( std::string_view key ) {	
-	ubyte ret = SDL_GetScancodeFromName( key.data() );
-	if ( ret == SDL_SCANCODE_UNKNOWN ) {
+SDL_Keycode Input::keyStringToNumber( std::string_view key ) {	
+	SDL_Keycode ret = SDL_GetKeyFromName( key.data() );
+	if ( ret == SDLK_UNKNOWN ) {
 		throw std::invalid_argument( "Input: KeyStringToNumber - invalid" );
 	}
 

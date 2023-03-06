@@ -211,7 +211,7 @@ void SystemMain::runFrame() {
 	input->updateControllables();
 
 	//tilde key
-	if( input->isKeyDownUnset( SDL_SCANCODE_GRAVE ) ) {
+	if( input->isKeyDownUnset( SDLK_BACKQUOTE ) ) {
 		guiConsole.setOpen( !guiConsole.isOpen() );
 		guiConsole.editLine.onLeftMouseDown();
 	}

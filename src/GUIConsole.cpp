@@ -149,7 +149,7 @@ void GUIConsole::onKeyDown( uword key ) {
 	int origOffset = offset;
 	
 	switch( key ) {
-	case SDL_SCANCODE_PAGEDOWN:
+	case SDLK_PAGEDOWN:
 		//move up a line
 		offset++;
 		//offset can not be larger than number of total lines in history
@@ -157,25 +157,25 @@ void GUIConsole::onKeyDown( uword key ) {
 			offset--;
 		}
 		break;
-	case SDL_SCANCODE_PAGEUP:
+	case SDLK_PAGEUP:
 		//move down a line
 		offset--;
 		if( offset < 0 ) {
 			offset = 0;
 		}
 		break;
-	case SDL_SCANCODE_TAB:
+	case SDLK_TAB:
 		res = consoleSystem->printMatches( editLine.getText() );
 		if( !res.empty() ) {
 			editLine.setText( res );
 		}
 		changed = true;
 		break;
-	case SDL_SCANCODE_UP:
+	case SDLK_UP:
 		//get previous request
 		editLine.setText( consoleSystem->getPreviousRequest() );
 		break;
-	case SDL_SCANCODE_DOWN:
+	case SDLK_DOWN:
 		//get next request
 		editLine.setText( consoleSystem->getNextRequest() );
 		break;

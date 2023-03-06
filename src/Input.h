@@ -43,7 +43,7 @@ namespace FrontEnd {
 			ControllableButton( char *name, int keyid );
 			friend class Controllable;
 
-			uword keyid;
+			SDL_Keycode keyid;
 			std::string name;
 
 			KeyPressState getState() { return keystate; }
@@ -149,13 +149,13 @@ namespace FrontEnd {
 
 			std::string getTextInput( ) { return textInput; }
 
-			bool isKeyDown( uword key ) { return keystate[ key ]; }
+			bool isKeyDown( SDL_Keycode key ) { return keystate[ key ]; }
 			
 			//unsets they key as it reads it
 			bool isKeyDownUnset( uword key );
 			
-			void setKeyDown( uword key ) { keystate[ key ] = true; }
-			void setKeyUp( uword key ) { keystate[ key ] = false; lastKeyPressed = key; }
+			void setKeyDown( SDL_Keycode key ) { keystate[ key ] = true; }
+			void setKeyUp( SDL_Keycode key ) { keystate[ key ] = false; lastKeyPressed = key; }
 
 			void setUseDelay( bool val ) { useDelay = val; }
 
@@ -177,21 +177,21 @@ namespace FrontEnd {
 			void writeBindsToFile( const char *filename );
 
 			//convert keyid to it's std::string form
-			std::string keyIdToString( uword keyid );
+			std::string keyIdToString( SDL_Keycode keyid );
 
 			//convert a key in string form to it's id number
-			uword keyStringToNumber( std::string_view key );
+			SDL_Keycode keyStringToNumber( std::string_view key );
 			
 		private:
 
 			InputSystemStates inputState;
 			//todo extend keystate system to handle external
 			//controllers through direct input			
-			std::array<bool, SDL_NUM_SCANCODES>  keystate;
+			std::array<bool, SDLK_ENDCALL>  keystate;
 			int kbpos;			//keybuffer position
 			bool useDelay;
 
-			uword lastKeyPressed;
+			SDL_Keycode lastKeyPressed;
 
 
 			std::string textInput;

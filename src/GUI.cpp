@@ -742,15 +742,15 @@ void EditBox::update() {
 		//max chars that can be fit in editbox at a time
 		unsigned int maxSize = ( (int)width - 10 ) / (int)font.getFontWidth();
 
-		if( input->isKeyDown( SDL_SCANCODE_RETURN ) ) {
+		if( input->isKeyDown( SDLK_RETURN ) ) {
 			onEnterKey();
 		}
 
-		if( input->isKeyDown( SDL_SCANCODE_HOME ) ) {
+		if( input->isKeyDown( SDLK_HOME ) ) {
 			cursorPos = 0;
 			viewPos = 0;
 		}
-		if( input->isKeyDown( SDL_SCANCODE_END ) ) {
+		if( input->isKeyDown( SDLK_END ) ) {
 			if( text.length() < maxSize ) {
 				cursorPos = text.length();
 				viewPos = 0;
@@ -760,15 +760,15 @@ void EditBox::update() {
 				viewPos = text.length() - maxSize;
 			}			                             
 		}
-		if( input->isKeyDown( SDL_SCANCODE_LEFT ) ) {
+		if( input->isKeyDown( SDLK_LEFT ) ) {
 			if( viewPos + cursorPos > 0 )
 				--cursorPos;
 		}
-		if( input->isKeyDown( SDL_SCANCODE_RIGHT ) ) {
+		if( input->isKeyDown( SDLK_RIGHT ) ) {
 			if( viewPos + cursorPos < text.length() )
 				++cursorPos;
 		}
-		if( input->isKeyDown( SDL_SCANCODE_BACKSPACE ) ) {
+		if( input->isKeyDown( SDLK_BACKSPACE ) ) {
 			if( text.length() > 0 && viewPos + cursorPos != 0 ) {
 				text.erase( viewPos + ( cursorPos-1 ), 1 );
 				--cursorPos;
@@ -784,7 +784,7 @@ void EditBox::update() {
 				}	
 			}
 		}
-		if( input->isKeyDown( SDL_SCANCODE_DELETE ) ) {
+		if( input->isKeyDown( SDLK_DELETE ) ) {
 			if( text.length() > 0 ) {
 				text.erase( viewPos + cursorPos, 1 );
 			}
