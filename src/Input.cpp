@@ -129,6 +129,7 @@ void Input::setState( InputSystemStates s ) {
 			break;
 		case InputSystemStates::NORMAL_MODE:
 			SDL_StopTextInput( );
+			clearTextInput( );
 			break;
 	}
 
@@ -150,7 +151,9 @@ bool Input::isKeyDownUnset
 ==============================================
 */
 bool Input::isKeyDownUnset( SDL_Keycode key ) {
-	return keystate[ key ];
+	bool s = keystate[ key ];
+	keystate[ key ] = false;
+	return s;
 }
 
 /* 

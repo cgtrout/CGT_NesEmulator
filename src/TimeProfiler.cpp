@@ -159,7 +159,7 @@ void TimeProfiler::stopFrame( ) {
 	frameStopTime = std::chrono::steady_clock::now( );
 	elapsedTime = frameStopTime - frameStartTime;
 	
-	_log->Write( "TimeProfiler: %f", elapsedTime );
+	//_log->Write( "TimeProfiler: %f", elapsedTime );
 
 	//iterate through all time sections to add run percentages
 	for( auto &i : timedSections ) {

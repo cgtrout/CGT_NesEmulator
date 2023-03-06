@@ -38,6 +38,7 @@ int main( int argc, char* args[] )
 	bool quit = false;
 
 	initializeEmulator( );
+	SDL_StopTextInput( );
 
 	//main loop
 	while ( quit == false ) {

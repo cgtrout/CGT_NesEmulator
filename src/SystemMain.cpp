@@ -213,7 +213,13 @@ void SystemMain::runFrame() {
 	//tilde key
 	if( input->isKeyDownUnset( SDLK_BACKQUOTE ) ) {
 		guiConsole.setOpen( !guiConsole.isOpen() );
-		guiConsole.editLine.onLeftMouseDown();
+		
+		if ( guiConsole.isOpen( ) ) {
+			guiConsole.editLine.onLeftMouseDown( );
+		} else {
+			input->setState( Input::InputSystemStates::NORMAL_MODE );
+			guiConsole.editLine.unactivateElement( );
+		}
 	}
 	
 #ifndef LIGHT_BUILD

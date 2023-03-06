@@ -190,7 +190,6 @@ void GUIConsole::setOpen( bool val ) {
 	GUIElement::setOpen( val );
 	using namespace FrontEnd;
 	using namespace InputSystem;
-	Input::getInstance()->setState( Input::InputSystemStates::NORMAL_MODE );
 }
 
 /*
