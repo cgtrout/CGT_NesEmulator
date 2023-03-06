@@ -18,6 +18,7 @@
 #include "typedefs.h"
 
 #include "CGTSingleton.h"
+#include <map>
 using namespace CGTSingleton;
 
 
@@ -97,7 +98,7 @@ namespace FrontEnd {
 		public:
 			friend Singleton< Input >;
 			
-			enum InputSystemStates { 
+			enum class InputSystemStates { 
 				TYPE_MODE,		// user is in type control
 				NORMAL_MODE		// 
 			};
@@ -152,7 +153,7 @@ namespace FrontEnd {
 			bool isKeyDown( SDL_Keycode key ) { return keystate[ key ]; }
 			
 			//unsets they key as it reads it
-			bool isKeyDownUnset( uword key );
+			bool isKeyDownUnset( SDL_Keycode key );
 			
 			void setKeyDown( SDL_Keycode key ) { keystate[ key ] = true; }
 			void setKeyUp( SDL_Keycode key ) { keystate[ key ] = false; lastKeyPressed = key; }
@@ -185,14 +186,11 @@ namespace FrontEnd {
 		private:
 
 			InputSystemStates inputState;
-			//todo extend keystate system to handle external
-			//controllers through direct input			
-			std::array<bool, SDLK_ENDCALL>  keystate;
+			std::map<SDL_Keycode, bool>  keystate;
 			int kbpos;			//keybuffer position
 			bool useDelay;
 
 			SDL_Keycode lastKeyPressed;
-
 
 			std::string textInput;
 				

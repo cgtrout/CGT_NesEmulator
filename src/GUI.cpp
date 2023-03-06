@@ -122,11 +122,11 @@ void GUI::updateElementsList(std::vector< GUIElement* > elems ) {
 		}
 		if( curr->getType() == GE_EDITBOX ) {
 			if( curr->isActiveElement() && usingMouse ) {
-				input->setState( Input::TYPE_MODE );
+				input->setState( Input::InputSystemStates::TYPE_MODE );
 				curr->update();
 			}
 			else {
-				input->setState( Input::NORMAL_MODE );
+				input->setState( Input::InputSystemStates::NORMAL_MODE );
 				curr->update();
 			}
 		}

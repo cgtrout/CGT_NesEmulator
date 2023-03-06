@@ -67,7 +67,7 @@ Input::Input():
 	mouseRightDownLastFrame( false ),
 	useDelay( false ),
 	lastKeyPressed( 0 ),
-	inputState( NORMAL_MODE ) { 
+	inputState( InputSystemStates::NORMAL_MODE ) { 
 }
 
 /*
@@ -108,7 +108,7 @@ void Input::clear() {
 	mouseRightDown = false;
 	mouseRightUp = false;
 	//clearKeyBuffers();
-	if( inputState == TYPE_MODE ) {
+	if( inputState == InputSystemStates::TYPE_MODE ) {
 		clearKeyState();
 	}
 	kbpos = 0;
@@ -124,10 +124,10 @@ void Input::setState( InputSystemStates s ) {
 	inputState = s; 
 
 	switch ( inputState ) {
-		case TYPE_MODE:
+		case InputSystemStates::TYPE_MODE:
 			SDL_StartTextInput( );
 			break;
-		case NORMAL_MODE:
+		case InputSystemStates::NORMAL_MODE:
 			SDL_StopTextInput( );
 			break;
 	}
@@ -140,21 +140,17 @@ void Input::clearKeyState()
 ==============================================
 */
 void Input::clearKeyState() {
-	for( int x = 0; x < SDL_NUM_SCANCODES; x++ ) {
-		keystate[ x ] = false;
-	}	
+	keystate.clear( );
 }
 
 /*
 ==============================================
-bool Input::isKeyDownUnset( uword key )
-	unsets the key as it retursn the state
+bool Input::isKeyDownUnset
+	unsets the key as it returns the state
 ==============================================
 */
-bool Input::isKeyDownUnset( uword key ) { 
-	bool ks = keystate[key];
-	keystate[key] = 0; 
-	return ks; 
+bool Input::isKeyDownUnset( SDL_Keycode key ) {
+	return keystate[ key ];
 }
 
 /* 
@@ -167,7 +163,7 @@ void Input::updateControllables()
 */
 void Input::updateControllables() {
 	// check to see if input is currently using input to fill a gui control 
-	if( inputState == TYPE_MODE ) {
+	if( inputState == Input::InputSystemStates::TYPE_MODE ) {
 		return;
 	}
 	for( unsigned int c = 0 ; c < controllables.size(); c++ ) {
