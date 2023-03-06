@@ -9,7 +9,6 @@
   #include "NesDebugger.h"
 #endif  #end
 
-
 using namespace GUISystem;
 using namespace FrontEnd;
 using namespace Render;
@@ -24,6 +23,7 @@ using namespace NesEmulator;
 #ifndef LIGHT_BUILD
   extern NesDebugger *nesDebugger;
 #endif
+#include <SDL_scancode.h>
 
 using namespace Console;
 using namespace InputSystem;
@@ -210,7 +210,8 @@ void SystemMain::runFrame() {
 	//update all controls linked to input
 	input->updateControllables();
 
-	if( input->isKeyDownUnset( KB_TILDE ) ) {
+	//tilde key
+	if( input->isKeyDownUnset( SDL_SCANCODE_GRAVE ) ) {
 		guiConsole.setOpen( !guiConsole.isOpen() );
 		guiConsole.editLine.onLeftMouseDown();
 	}

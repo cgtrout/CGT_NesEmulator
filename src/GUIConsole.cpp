@@ -16,6 +16,7 @@ using namespace GUISystem;
 #if _MSC_VER > 1000
 #pragma warning( disable : 4996 )
 #endif
+#include <SDL_scancode.h>
 
 GUIConsole::GUIConsole():offset( 0 ) {
 	initialize( "gui/console/console.gt" );
@@ -148,7 +149,7 @@ void GUIConsole::onKeyDown( uword key ) {
 	int origOffset = offset;
 	
 	switch( key ) {
-	case KB_PGUP:
+	case SDL_SCANCODE_PAGEDOWN:
 		//move up a line
 		offset++;
 		//offset can not be larger than number of total lines in history
@@ -156,25 +157,25 @@ void GUIConsole::onKeyDown( uword key ) {
 			offset--;
 		}
 		break;
-	case KB_PGDOWN:
+	case SDL_SCANCODE_PAGEUP:
 		//move down a line
 		offset--;
 		if( offset < 0 ) {
 			offset = 0;
 		}
 		break;
-	case KB_TAB:
+	case SDL_SCANCODE_TAB:
 		res = consoleSystem->printMatches( editLine.getText() );
 		if( !res.empty() ) {
 			editLine.setText( res );
 		}
 		changed = true;
 		break;
-	case KB_UP:
+	case SDL_SCANCODE_UP:
 		//get previous request
 		editLine.setText( consoleSystem->getPreviousRequest() );
 		break;
-	case KB_DOWN:
+	case SDL_SCANCODE_DOWN:
 		//get next request
 		editLine.setText( consoleSystem->getNextRequest() );
 		break;

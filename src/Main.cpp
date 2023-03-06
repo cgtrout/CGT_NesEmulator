@@ -42,9 +42,24 @@ int main( int argc, char* args[] )
 	//main loop
 	while ( quit == false ) {
 		while ( SDL_PollEvent( &e ) ) {
-			if ( e.type == SDL_QUIT ) {
-				quit = true;
-			}
+			switch ( e.type ) {
+				case SDL_QUIT:
+					quit = true;
+					break;
+				case SDL_KEYDOWN:
+					SDL_Keysym keydown = e.key.keysym;
+					input->setKeyDown( keydown.scancode );
+					break;
+				case SDL_KEYUP:
+					SDL_Keysym keyup = e.key.keysym;
+					input->setKeyUp( keyup.scancode );
+					break;
+				case SDL_TEXTINPUT:
+					input->addTextInput( e.text.text );
+					break;
+				default:
+					break;
+			}	
 		}
 		//frame initialization
 		auto start_time = std::chrono::steady_clock::now( );

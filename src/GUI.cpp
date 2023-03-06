@@ -16,6 +16,7 @@ using namespace InputSystem;
 #if _MSC_VER > 1000
 	#pragma warning( disable : 4996 )
 #endif
+#include <SDL_scancode.h>
 using namespace Console;
 
 ConsoleVariable< bool > drawDebugLines ( 
@@ -741,15 +742,15 @@ void EditBox::update() {
 		//max chars that can be fit in editbox at a time
 		unsigned int maxSize = ( (int)width - 10 ) / (int)font.getFontWidth();
 
-		if( input->isKeyDown( KB_RETURN ) ) {
+		if( input->isKeyDown( SDL_SCANCODE_RETURN ) ) {
 			onEnterKey();
 		}
 
-		if( input->isKeyDown( KB_HOME ) ) {
+		if( input->isKeyDown( SDL_SCANCODE_HOME ) ) {
 			cursorPos = 0;
 			viewPos = 0;
 		}
-		if( input->isKeyDown( KB_END ) ) {
+		if( input->isKeyDown( SDL_SCANCODE_END ) ) {
 			if( text.length() < maxSize ) {
 				cursorPos = text.length();
 				viewPos = 0;
@@ -759,15 +760,15 @@ void EditBox::update() {
 				viewPos = text.length() - maxSize;
 			}			                             
 		}
-		if( input->isKeyDown( KB_LEFT ) ) {
+		if( input->isKeyDown( SDL_SCANCODE_LEFT ) ) {
 			if( viewPos + cursorPos > 0 )
 				--cursorPos;
 		}
-		if( input->isKeyDown( KB_RIGHT ) ) {
+		if( input->isKeyDown( SDL_SCANCODE_RIGHT ) ) {
 			if( viewPos + cursorPos < text.length() )
 				++cursorPos;
 		}
-		if( input->isKeyDown( KB_BACK ) ) {
+		if( input->isKeyDown( SDL_SCANCODE_BACKSPACE ) ) {
 			if( text.length() > 0 && viewPos + cursorPos != 0 ) {
 				text.erase( viewPos + ( cursorPos-1 ), 1 );
 				--cursorPos;
@@ -783,16 +784,18 @@ void EditBox::update() {
 				}	
 			}
 		}
-		if( input->isKeyDown( KB_DELETE ) ) {
+		if( input->isKeyDown( SDL_SCANCODE_DELETE ) ) {
 			if( text.length() > 0 ) {
 				text.erase( viewPos + cursorPos, 1 );
 			}
 		}
 		std::string strIns;
 		int x = 0;
-		while( input->isMoreKeyMessages() ) {
-			strIns += input->getNextKeyMessage();
-		}
+		
+		//TODO get text input from stl
+		strIns = input->getTextInput();
+		input->clearTextInput( );
+
 		unsigned int availSize = maxSize - text.length();
 		unsigned int sizeToUse;
 		if( strIns.size() > availSize ) {
