@@ -1,6 +1,7 @@
 #include "precompiled.h"
 
 #include <SDL.h>
+#include <span>
 
 constexpr auto SCREEN_WIDTH = 800;
 constexpr auto SCREEN_HEIGHT = 600;
@@ -252,7 +253,7 @@ double getTimePerSample( int samplerate ) {
 
 //convert a double float to 16bit sample
 Uint16 doubleTo16bit( double f ) {
-	return f * 0x7FFF;
+	return (Uint16)(f * 0x7FFF);
 }
 
 //audio callback function
