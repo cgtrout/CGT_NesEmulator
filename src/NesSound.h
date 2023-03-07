@@ -26,11 +26,11 @@ namespace NesApu {
 		
 		//fills an external buffer with "size" number of bytes from 
 		//internal buffer
-		void fillExternalBuffer( word *rawPointer, int size );
+		void fillExternalBuffer( Uint16* rawPointer, int size );
 
 		//adds a sample to buffer - note: will average out a number 
 		//of samples before adding to buffer
-		void addSample( word sample );
+		void addSample( Uint16 sample );
 
 		int getBufferPos() { return bufferPos; }
 		void resetBufferPos() { bufferPos = 0; }
@@ -55,7 +55,7 @@ namespace NesApu {
 		int playPos;
 
 		//actual sound buffer
-		std::vector<uword> buffer;
+		std::vector<Uint16> buffer;
 	};
 
 	/*

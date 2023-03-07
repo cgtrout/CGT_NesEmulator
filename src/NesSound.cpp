@@ -42,7 +42,7 @@ NesSoundBuffer::~NesSoundBuffer() {
 
 //boost::mutex mutex;
 //size is number of samples, and not actual byte size of copy
-void NesSoundBuffer::fillExternalBuffer( word *ptr, int size ) {
+void NesSoundBuffer::fillExternalBuffer( Uint16* ptr, int size ) {
 	_ASSERTE( size <= bufferLength );
 	if( this == NULL ) { 
 		return;
@@ -95,7 +95,7 @@ void NesSoundBuffer::fillExternalBuffer( word *ptr, int size ) {
 	}
 }
 
-void NesSoundBuffer::addSample( word sample ) {
+void NesSoundBuffer::addSample( Uint16 sample ) {
 	sampleTotal += sample;
 	if( ++sampleNum == 40 ) {
 		sampleNum = 0;
