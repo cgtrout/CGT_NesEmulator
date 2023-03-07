@@ -88,6 +88,11 @@ int main( int argc, char* args[] )
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
 		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );
+
+		//allow console quit command to work
+		if ( systemMain->quitRequestSubmitted( ) ) {
+			quit = true;
+		}
 	}
 
 	SDL_DestroyWindow( window );
