@@ -62,7 +62,7 @@ int main( int argc, char* args[] )
 	//ensure SDL isn't initialized to take text input rather than raw presses
 	SDL_StopTextInput( );
 
-	//main loop
+	//main sdl loop
 	while ( quit == false ) {
 		//check to see if vsync needs to be set
 		if ( vsyncSetting != vsync.getValue( ) ) {
@@ -87,7 +87,6 @@ int main( int argc, char* args[] )
 		if ( capFrameRate.getValue() == true ) {
 			while ( elapsedTime.count( ) < FRAME_TIME ) {
 				elapsedTime = std::chrono::steady_clock::now( ) - start_time;
-				//SDL_Delay( 1 );
 			}
 		}
 
@@ -95,9 +94,7 @@ int main( int argc, char* args[] )
 		systemMain->timeProfiler.stopFrame( );
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
-		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );
-
-		
+		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );		
 	}
 
 	SDL_DestroyWindow( window );
