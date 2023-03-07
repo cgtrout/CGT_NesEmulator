@@ -107,7 +107,7 @@ void Variables::addVariable( ConsoleVariable< T > *variable, std::list< ConsoleV
 	if( getValueString( *variable->getName() ) != "NOT_FOUND" ) {
 		std::stringstream ss;
 		ss << "Variable: " << *variable->getName() << " already exists";
-		throw new ConsoleSystemException( "Variables::addVariable", ss.str().c_str(), true );
+		throw ConsoleSystemException( "Variables::addVariable", ss.str().c_str(), true );
 	}
 	
 	varList->push_back( variable );
