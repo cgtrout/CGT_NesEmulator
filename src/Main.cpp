@@ -10,13 +10,19 @@ Console::ConsoleVariable< bool > capFrameRate(
 	/*name*/		"capFrameRate",
 	/*description*/	"Caps frame rate to 60hz if set to true",
 	/*save?*/		SAVE_TO_FILE );
+Console::ConsoleVariable< bool > vsync (
+	/*start val*/	false,
+	/*name*/		"vsync",
+	/*description*/	"Enable vsync",
+	/*save?*/		SAVE_TO_FILE );
 
+//function declarations
 void initializeEmulator( );
-
-void SDL_EventHandler( SDL_Event& e, bool& quit );
+void SDL_EventHandler( SDL_Event& event, bool& quit );
 
 int main( int argc, char* args[] )
 {
+
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 
@@ -35,11 +41,18 @@ int main( int argc, char* args[] )
 	}
 
 	SDL_GLContext context = SDL_GL_CreateContext( window );
+	
+	initializeEmulator( );
 
+	//insert console variables
+	consoleSystem->variables.addBoolVariable( &capFrameRate );
+	consoleSystem->variables.addBoolVariable( &vsync );
+
+	//SDL loop variables
 	SDL_Event sdl_event;
 	bool quit = false;
 
-	initializeEmulator( );
+	//ensure SDL isn't initialized to take text input rather than raw presses
 	SDL_StopTextInput( );
 
 	//main loop
@@ -48,13 +61,17 @@ int main( int argc, char* args[] )
 		auto start_time = std::chrono::steady_clock::now( );
 		std::chrono::duration<double> elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		systemMain->timeProfiler.startFrame( );
+		
+		//reset input state
+		input->clear( );
+
+		//handle sdl events
+		SDL_EventHandler( sdl_event, quit );
+		
+		//run frame
 		systemMain->runFrame( );
 		SDL_GL_SwapWindow( window );
 
-		//input / event handling
-		input->clear( );
-		SDL_EventHandler( sdl_event, quit );
-		
 		//frame finish
 		systemMain->timeProfiler.stopFrame( );
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
@@ -68,7 +85,8 @@ int main( int argc, char* args[] )
 	return 0;
 }
 
-void SDL_EventHandler( const SDL_Event& event, bool& quit ) {
+void SDL_EventHandler( SDL_Event& event, bool& quit ) {
+	//take input events and pass them to input system
 	while ( SDL_PollEvent( &event ) ) {
 		switch ( event.type ) {
 			case SDL_QUIT:
@@ -137,6 +155,5 @@ void initializeEmulator( ) {
 
 	const double FRAME_TIME = 1.0f / 60.0f;
 
-	systemMain->consoleSystem.variables.addBoolVariable( &capFrameRate );
 	bool freshFrame = true;
 }
