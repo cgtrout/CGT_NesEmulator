@@ -54,7 +54,6 @@ SystemMain::SystemMain() {
 }
 
 void SystemMain::initialize( ) {
-	consoleSystem.initialize( );
 	gui.initialize( );
 	nesMain.nesCpu.initialize( );
 	nesMain.nesMemory.initialize( );

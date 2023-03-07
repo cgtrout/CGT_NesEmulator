@@ -77,7 +77,7 @@ int main( int argc, char* args[] )
 		//reset input state
 		input->clear( );
 
-		//handle sdl events
+		//handle sdl input events
 		SDL_EventHandler( sdl_event, quit );
 		
 		//run frame

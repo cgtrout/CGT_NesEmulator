@@ -604,11 +604,11 @@ TODO return string that matches given partial until the point where the matches 
 ==============================================
 */
 std::string ConsoleSystem::printMatches( std::string_view partial ) {
-	std::list< std::string* > matchList;
+	std::list< std::string* > matchList{};
 
 	int partialLength = partial.length();
 	int matchesFound = 0;
-	std::string lastMatch;	//last match found string
+	std::string lastMatch{};	//last match found string
 	
 	if( partialLength == 0 ) {
 		return std::string();
@@ -617,19 +617,16 @@ std::string ConsoleSystem::printMatches( std::string_view partial ) {
 	//convert to lowercase
 	std::string plcase = CgtString::strtolower( partial );
 	
-	//go through all commands
-	std::list< ConsoleCommand * >::iterator citer;
-	ConsoleCommand *ccurr;
-	for( citer = commands.begin(); citer != commands.end(); citer++ ) {
-		ccurr = ( ConsoleCommand* )( *citer );
-		std::string compstr = CgtString::strtolower( ccurr->name.c_str() );
+	//loop through all commands
+	for( auto &ccur : commands ) {
+		std::string compstr = CgtString::strtolower( ccur->name );
 		
 		//if current command's name == partial
-		if( strncmp( compstr.c_str(), plcase.c_str(), partialLength ) == 0 ) {
+		if( compstr.compare( 0, partialLength, plcase ) == 0 ) {
 			//partial match made so add it to list
-			matchList.push_back( &ccurr->name );			
+			matchList.push_back( &ccur->name );			
 			matchesFound++;
-			lastMatch = ccurr->name;
+			lastMatch = ccur->name;
 		}	
 	}
 
