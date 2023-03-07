@@ -5,6 +5,10 @@
 constexpr auto SCREEN_WIDTH = 800;
 constexpr auto SCREEN_HEIGHT = 600;
 constexpr double FRAME_TIME = 1.0f / 60.0f;
+constexpr auto AUDIO_SAMPLE_RATE = 44100;
+
+//audio specification given back by audio system
+SDL_AudioSpec audioSpecification;
 
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
@@ -22,18 +26,19 @@ Console::ConsoleVariable< bool > vsync (
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
 bool VsyncHandler( SDL_Window* window );
-void initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec );
+SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec );
 void initializeVideo( SDL_Window*& window );
 void audioCallbackFunction( void* unused, Uint8* stream, int len );
+
+void sinewaveTest( Uint8* stream, int len );
 
 int main( int argc, char* args[] )
 {
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
-	SDL_AudioSpec audioSpec;
 
 	initializeVideo( window );
-	initializeSound( window, &audioSpec );
+	SDL_AudioDeviceID soundDeviceId = initializeSound( window, &audioSpecification );
 	
 	//initialize emulation systems
 	initializeEmulator( );
@@ -115,23 +120,30 @@ void initializeVideo( SDL_Window*& window )
 }
 
 //outAudioSpec is the returned audio spec
-void initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec )
+//returns deviceId that audio was assigned to
+SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec )
 {
 	//initialize sound
 	SDL_AudioSpec want;
-	want.freq = 44100;
+	want.freq = AUDIO_SAMPLE_RATE;
 	want.format = AUDIO_S16;
 	want.samples = 4096;
 	want.callback = audioCallbackFunction;
 	want.userdata = nullptr;
 	want.channels = 1;
-	if ( SDL_OpenAudioDevice( nullptr, 0, &want, outAudioSpec, 0 ) < 0 ) {
+	auto deviceId = SDL_OpenAudioDevice( nullptr, 0, &want, outAudioSpec, 0 );
+	if ( deviceId < 0 ) {
 		const char* error = SDL_GetError( );
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Sound init Error", error, window );
 		SDL_Quit( );
 	}
 
 	//TODO validate that want and have are the same?
+
+	//start sound
+	SDL_PauseAudioDevice( deviceId, 0 );
+
+	return deviceId;
 }
 
 bool VsyncHandler( SDL_Window* window ) {
@@ -225,7 +237,45 @@ void initializeEmulator( ) {
 	bool freshFrame = true;
 }
 
+//sine wave audio functions - to generate test 'tone'
+double timeToRadian( double intime, double hertz ) {
+	return 2.0f * intime * hertz * M_PI;
+}
+double waveFormSine( double intime, double hertz ) {
+	return sin( timeToRadian( intime, hertz ) );
+}
+
+double getTimePerSample( int samplerate ) {
+	return 1.0f / ( double )samplerate;
+}
+
+Uint16 doubleTo16bit( double f ) {
+	return f * 0x7FFF;
+}
+
 //audio callback function
 void audioCallbackFunction( void* unused, Uint8* stream, int len ) {
+	sinewaveTest( stream, len );
+}
 
+//run stream through here to generate 440hz test tone (sine wave)
+void sinewaveTest( Uint8* stream, int len )
+{
+	double timePerSample = getTimePerSample( AUDIO_SAMPLE_RATE );
+	static double accumulatedTime = 0.0f;
+	float hzTone = 440.f;
+
+	//we are using 16 bit samples rather than eight, so cast 8bit pointer to a 16 bit pointer
+	Uint16* pointer16 = ( Uint16* )&stream[ 0 ];
+
+	for ( int i = 0; i < len / 2; i++ ) {
+		pointer16[ i ] = doubleTo16bit( waveFormSine( accumulatedTime + ( double )i * timePerSample, hzTone ) );
+	}
+
+	//ensure accumulated time doesn't grow forever
+	//it will always wrap every (1/hz)
+	accumulatedTime += ( len / 2.0f ) * timePerSample;
+	while ( accumulatedTime >( 1 / hzTone ) ) {
+		accumulatedTime -= ( 1 / hzTone );
+	}
 }
