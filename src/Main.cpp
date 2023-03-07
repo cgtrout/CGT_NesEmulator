@@ -4,6 +4,7 @@
 
 constexpr auto SCREEN_WIDTH = 800;
 constexpr auto SCREEN_HEIGHT = 600;
+constexpr double FRAME_TIME = 1.0f / 60.0f;
 
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
@@ -83,16 +84,20 @@ int main( int argc, char* args[] )
 		systemMain->runFrame( );
 		SDL_GL_SwapWindow( window );
 
+		if ( capFrameRate.getValue() == true ) {
+			while ( elapsedTime.count( ) < FRAME_TIME ) {
+				elapsedTime = std::chrono::steady_clock::now( ) - start_time;
+				//SDL_Delay( 1 );
+			}
+		}
+
 		//frame finish
 		systemMain->timeProfiler.stopFrame( );
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
 		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );
 
-		//allow console quit command to work
-		if ( systemMain->quitRequestSubmitted( ) ) {
-			quit = true;
-		}
+		
 	}
 
 	SDL_DestroyWindow( window );
