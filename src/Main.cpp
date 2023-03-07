@@ -245,10 +245,12 @@ double waveFormSine( double intime, double hertz ) {
 	return sin( timeToRadian( intime, hertz ) );
 }
 
+//get seconds per sample
 double getTimePerSample( int samplerate ) {
 	return 1.0f / ( double )samplerate;
 }
 
+//convert a double float to 16bit sample
 Uint16 doubleTo16bit( double f ) {
 	return f * 0x7FFF;
 }
@@ -259,8 +261,7 @@ void audioCallbackFunction( void* unused, Uint8* stream, int len ) {
 }
 
 //run stream through here to generate 440hz test tone (sine wave)
-void sinewaveTest( Uint8* stream, int len )
-{
+void sinewaveTest( Uint8* stream, int len ) {
 	double timePerSample = getTimePerSample( AUDIO_SAMPLE_RATE );
 	static double accumulatedTime = 0.0f;
 	float hzTone = 440.f;
