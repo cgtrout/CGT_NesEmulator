@@ -160,7 +160,7 @@ namespace FrontEnd {
 
 			void setUseDelay( bool val ) { useDelay = val; }
 
-			uword getLastKeyPressed() { return lastKeyPressed; }
+			SDL_Keycode getLastKeyPressed() { return lastKeyPressed; }
 
 			//adds control to input system 
 			void addControl( Controllable* );

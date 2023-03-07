@@ -143,13 +143,13 @@ void GUIConsole::ConsoleEditBox::onEnterKey() {
 	clearText();	
 }
 
-void GUIConsole::onKeyDown( uword key ) {
+void GUIConsole::onKeyDown( SDL_Keycode key ) {
 	std::string res;
 	
 	int origOffset = offset;
 	
 	switch( key ) {
-	case SDLK_PAGEDOWN:
+	case SDLK_PAGEUP:
 		//move up a line
 		offset++;
 		//offset can not be larger than number of total lines in history
@@ -157,7 +157,7 @@ void GUIConsole::onKeyDown( uword key ) {
 			offset--;
 		}
 		break;
-	case SDLK_PAGEUP:
+	case SDLK_PAGEDOWN:
 		//move down a line
 		offset--;
 		if( offset < 0 ) {

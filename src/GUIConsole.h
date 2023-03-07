@@ -15,7 +15,7 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( uword key );
+		void onKeyDown( SDL_Keycode key );
 
 		void update();
 

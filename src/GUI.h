@@ -166,7 +166,7 @@ namespace GUISystem {
 		virtual void onRightMouseRelease() {}
 
 		//called when user presses a key on keyboard while a control is selected
-		virtual void onKeyDown( unsigned short key ) {}
+		virtual void onKeyDown( SDL_Keycode key ) {}
 		
 		//called when gui is rendering the guielements
 		virtual void onRender() {}
@@ -337,7 +337,7 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( unsigned char key ) {}
+		void onKeyDown( SDL_Keycode key ) {}
 
 		void update() {}
 
@@ -374,7 +374,7 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( unsigned char key ) {}
+		void onKeyDown( SDL_Keycode key ) {}
 
 		void update() {}
 
@@ -424,7 +424,7 @@ namespace GUISystem {
 		void onRightMouseRelease();
 		virtual void onEnterKey();
 
-		virtual void onKeyDown( unsigned char key ) {}
+		virtual void onKeyDown( SDL_Keycode key ) {}
 
 		void update();
 
