@@ -116,15 +116,15 @@ void initializeVideo( SDL_Window*& window )
 void initializeSound( SDL_Window* window )
 {
 	//initialize sound
-	SDL_AudioSpec as;
-	SDL_AudioSpec obtainedAudioSpec;
-	as.freq = 44100;
-	as.format = AUDIO_S16;
-	as.samples = 4096;
-	as.callback = audioCallbackFunction;
-	as.userdata = nullptr;
-	as.channels = 1;
-	if ( SDL_OpenAudioDevice( nullptr, 0, &as, &obtainedAudioSpec, 0 ) < 0 ) {
+	SDL_AudioSpec want;
+	SDL_AudioSpec have;
+	want.freq = 44100;
+	want.format = AUDIO_S16;
+	want.samples = 4096;
+	want.callback = audioCallbackFunction;
+	want.userdata = nullptr;
+	want.channels = 1;
+	if ( SDL_OpenAudioDevice( nullptr, 0, &want, &have, 0 ) < 0 ) {
 		const char* error = SDL_GetError( );
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Sound init Error", error, window );
 		SDL_Quit( );
