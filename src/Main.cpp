@@ -10,8 +10,9 @@ Console::ConsoleVariable< bool > capFrameRate(
 	/*name*/		"capFrameRate",
 	/*description*/	"Caps frame rate to 60hz if set to true",
 	/*save?*/		SAVE_TO_FILE );
+
 Console::ConsoleVariable< bool > vsync (
-	/*start val*/	false,
+	/*start val*/	true,
 	/*name*/		"vsync",
 	/*description*/	"Enable vsync",
 	/*save?*/		SAVE_TO_FILE );
@@ -19,6 +20,7 @@ Console::ConsoleVariable< bool > vsync (
 //function declarations
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
+bool VsyncHandler( SDL_Window* window );
 
 int main( int argc, char* args[] )
 {
@@ -47,16 +49,25 @@ int main( int argc, char* args[] )
 	//insert console variables
 	consoleSystem->variables.addBoolVariable( &capFrameRate );
 	consoleSystem->variables.addBoolVariable( &vsync );
+	
+	//set vsync based on console variable setting
+	VsyncHandler( window );
 
 	//SDL loop variables
 	SDL_Event sdl_event;
 	bool quit = false;
+	bool vsyncSetting = vsync.getValue( );
 
 	//ensure SDL isn't initialized to take text input rather than raw presses
 	SDL_StopTextInput( );
 
 	//main loop
 	while ( quit == false ) {
+		//check to see if vsync needs to be set
+		if ( vsyncSetting != vsync.getValue( ) ) {
+			vsyncSetting = VsyncHandler( window );
+		}
+		
 		//frame initialization
 		auto start_time = std::chrono::steady_clock::now( );
 		std::chrono::duration<double> elapsedTime = std::chrono::steady_clock::now( ) - start_time;
@@ -83,6 +94,24 @@ int main( int argc, char* args[] )
 	SDL_Quit( );
 
 	return 0;
+}
+
+bool VsyncHandler( SDL_Window* window ) {
+	int vsyncError = -2;
+	if ( vsync.getValue( ) == true ) {
+		vsyncError = SDL_GL_SetSwapInterval( 1 );
+		_log->Write( "Vsync Handler: setting to ON" );
+		return true;
+	} else {
+		vsyncError = SDL_GL_SetSwapInterval( 0 );
+		_log->Write( "Vsync Handler: setting to OFF" );
+		return false;
+	}
+	//show error if vsync was not successfull
+	if ( vsyncError == -1 ) {
+		const char* error = SDL_GetError( );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "VSYNC Error", error, window );
+	}
 }
 
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
