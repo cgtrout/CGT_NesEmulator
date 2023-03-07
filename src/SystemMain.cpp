@@ -215,7 +215,7 @@ void SystemMain::runFrame() {
 		guiConsole.setOpen( !guiConsole.isOpen() );
 		
 		if ( guiConsole.isOpen( ) ) {
-			guiConsole.editLine.onLeftMouseDown( );
+			guiConsole.editLine.setAsActiveElement( );
 		} else {
 			input->setState( Input::InputSystemStates::NORMAL_MODE );
 			guiConsole.editLine.unactivateElement( );
