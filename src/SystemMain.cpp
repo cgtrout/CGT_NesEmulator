@@ -14,6 +14,9 @@ using namespace FrontEnd;
 using namespace Render;
 using namespace NesEmulator;
 
+#include <SDL_scancode.h>
+#include <filesystem>
+
 #include "Console.h"
 #include "NesMain.h"
 
@@ -23,7 +26,6 @@ using namespace NesEmulator;
 #ifndef LIGHT_BUILD
   extern NesDebugger *nesDebugger;
 #endif
-#include <SDL_scancode.h>
 
 using namespace Console;
 using namespace InputSystem;
@@ -83,8 +85,12 @@ SystemMain::start()
 */
 void SystemMain::start() {
 	try {
-		//get keybinds
-		consoleSystem.loadCommandFile( "binds.cfg" );
+		//if binds file not present load from default binds
+		if ( std::filesystem::exists( "binds.cfg" ) ) {
+			consoleSystem.loadCommandFile( "binds.cfg" );
+		} else {
+			consoleSystem.loadCommandFile( "default-binds.cfg" );
+		}
 
 		//TEST ROMS - load here
 		//TODO what happens if no rom is loaded - test and handle this case
