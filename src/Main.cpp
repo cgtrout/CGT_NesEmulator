@@ -22,6 +22,7 @@ Console::ConsoleVariable< bool > vsync (
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
 bool VsyncHandler( SDL_Window* window );
+void audioCallbackFunction( void* unused, Uint8* stream, int len );
 
 int main( int argc, char* args[] )
 {
@@ -42,8 +43,24 @@ int main( int argc, char* args[] )
 		SDL_Quit( );
 	}
 
+	//initialize OpenGL
 	SDL_GLContext context = SDL_GL_CreateContext( window );
+
+	//initialize sound
+	SDL_AudioSpec as;
+	as.freq = 44100;
+	as.format = AUDIO_S16;
+	as.samples = 4096;
+	as.callback = audioCallbackFunction;
+	as.userdata = nullptr;
+	as.channels = 1;
+	if ( SDL_OpenAudio( &as, nullptr ) < 0 ) {
+		const char* error = SDL_GetError( );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Sound init Error", error, window );
+		SDL_Quit( );
+	}
 	
+	//initialize emulation systems
 	initializeEmulator( );
 
 	//insert console variables
@@ -191,4 +208,9 @@ void initializeEmulator( ) {
 	const double FRAME_TIME = 1.0f / 60.0f;
 
 	bool freshFrame = true;
+}
+
+//audio callback function
+void audioCallbackFunction( void* unused, Uint8* stream, int len ) {
+
 }
