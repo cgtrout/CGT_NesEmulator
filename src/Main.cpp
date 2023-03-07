@@ -13,6 +13,8 @@ Console::ConsoleVariable< bool > capFrameRate(
 
 void initializeEmulator( );
 
+void SDL_EventHandler( SDL_Event& e, bool& quit );
+
 int main( int argc, char* args[] )
 {
 	SDL_Window* window = nullptr;
@@ -34,7 +36,7 @@ int main( int argc, char* args[] )
 
 	SDL_GLContext context = SDL_GL_CreateContext( window );
 
-	SDL_Event e;
+	SDL_Event sdl_event;
 	bool quit = false;
 
 	initializeEmulator( );
@@ -42,32 +44,16 @@ int main( int argc, char* args[] )
 
 	//main loop
 	while ( quit == false ) {
-		while ( SDL_PollEvent( &e ) ) {
-			switch ( e.type ) {
-				case SDL_QUIT:
-					quit = true;
-					break;
-				case SDL_KEYDOWN:
-					SDL_Keysym keydown = e.key.keysym;
-					input->setKeyDown( keydown.sym );
-					break;
-				case SDL_KEYUP:
-					SDL_Keysym keyup = e.key.keysym;
-					input->setKeyUp( keyup.sym );
-					break;
-				case SDL_TEXTINPUT:
-					input->addTextInput( e.text.text );
-					break;
-				default:
-					break;
-			}	
-		}
 		//frame initialization
 		auto start_time = std::chrono::steady_clock::now( );
 		std::chrono::duration<double> elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		systemMain->timeProfiler.startFrame( );
 		systemMain->runFrame( );
 		SDL_GL_SwapWindow( window );
+
+		//input / event handling
+		input->clear( );
+		SDL_EventHandler( sdl_event, quit );
 		
 		//frame finish
 		systemMain->timeProfiler.stopFrame( );
@@ -80,6 +66,53 @@ int main( int argc, char* args[] )
 	SDL_Quit( );
 
 	return 0;
+}
+
+void SDL_EventHandler( const SDL_Event& event, bool& quit ) {
+	while ( SDL_PollEvent( &event ) ) {
+		switch ( event.type ) {
+			case SDL_QUIT:
+				quit = true;
+				break;
+			case SDL_KEYDOWN:
+				SDL_Keysym keydown = event.key.keysym;
+				input->setKeyDown( keydown.sym );
+				break;
+			case SDL_KEYUP:
+				SDL_Keysym keyup = event.key.keysym;
+				input->setKeyUp( keyup.sym );
+				break;
+			case SDL_TEXTINPUT:
+				input->addTextInput( event.text.text );
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				switch ( event.button.button ) {
+					case SDL_BUTTON_LEFT:
+						input->setMouseLeftDown( true );
+						break;
+					case SDL_BUTTON_RIGHT:
+						input->setMouseRightDown( true );
+						break;
+				}
+				break;
+			case SDL_MOUSEBUTTONUP:
+				switch ( event.button.button ) {
+					case SDL_BUTTON_LEFT:
+						input->setMouseLeftUp( true );
+						break;
+					case SDL_BUTTON_RIGHT:
+						input->setMouseRightUp( true );
+						break;
+				}
+				break;
+			case SDL_MOUSEMOTION:
+				input->setMouseX( event.motion.x );
+				input->setMouseY( event.motion.y );
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 void initializeEmulator( ) {
