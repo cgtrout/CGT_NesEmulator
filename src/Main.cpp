@@ -22,7 +22,7 @@ Console::ConsoleVariable< bool > vsync (
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
 bool VsyncHandler( SDL_Window* window );
-void initializeSound( SDL_Window* window );
+void initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec );
 void initializeVideo( SDL_Window*& window );
 void audioCallbackFunction( void* unused, Uint8* stream, int len );
 
@@ -30,9 +30,10 @@ int main( int argc, char* args[] )
 {
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
+	SDL_AudioSpec audioSpec;
 
 	initializeVideo( window );
-	initializeSound( window );
+	initializeSound( window, &audioSpec );
 	
 	//initialize emulation systems
 	initializeEmulator( );
@@ -113,22 +114,24 @@ void initializeVideo( SDL_Window*& window )
 	SDL_GLContext context = SDL_GL_CreateContext( window );
 }
 
-void initializeSound( SDL_Window* window )
+//outAudioSpec is the returned audio spec
+void initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec )
 {
 	//initialize sound
 	SDL_AudioSpec want;
-	SDL_AudioSpec have;
 	want.freq = 44100;
 	want.format = AUDIO_S16;
 	want.samples = 4096;
 	want.callback = audioCallbackFunction;
 	want.userdata = nullptr;
 	want.channels = 1;
-	if ( SDL_OpenAudioDevice( nullptr, 0, &want, &have, 0 ) < 0 ) {
+	if ( SDL_OpenAudioDevice( nullptr, 0, &want, outAudioSpec, 0 ) < 0 ) {
 		const char* error = SDL_GetError( );
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Sound init Error", error, window );
 		SDL_Quit( );
 	}
+
+	//TODO validate that want and have are the same?
 }
 
 bool VsyncHandler( SDL_Window* window ) {
