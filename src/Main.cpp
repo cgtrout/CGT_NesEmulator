@@ -22,6 +22,8 @@ Console::ConsoleVariable< bool > vsync (
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
 bool VsyncHandler( SDL_Window* window );
+void initializeSound( SDL_Window* window );
+void initializeVideo( SDL_Window*& window );
 void audioCallbackFunction( void* unused, Uint8* stream, int len );
 
 int main( int argc, char* args[] )
@@ -29,41 +31,13 @@ int main( int argc, char* args[] )
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 
-	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 ) {
-		const char *error = SDL_GetError( );
-		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
-		SDL_Quit( );
-	}
-
-	window = SDL_CreateWindow( "CGT Nes Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL );
-
-	if ( window == nullptr ) {
-		const char *error = SDL_GetError( );
-		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
-		SDL_Quit( );
-	}
-
-	//initialize OpenGL
-	SDL_GLContext context = SDL_GL_CreateContext( window );
-
-	//initialize sound
-	SDL_AudioSpec as;
-	as.freq = 44100;
-	as.format = AUDIO_S16;
-	as.samples = 4096;
-	as.callback = audioCallbackFunction;
-	as.userdata = nullptr;
-	as.channels = 1;
-	if ( SDL_OpenAudio( &as, nullptr ) < 0 ) {
-		const char* error = SDL_GetError( );
-		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Sound init Error", error, window );
-		SDL_Quit( );
-	}
+	initializeVideo( window );
+	initializeSound( window );
 	
 	//initialize emulation systems
 	initializeEmulator( );
 
-	//insert console variables
+	//insert console variables for capping frame rate and setting vsync
 	consoleSystem->variables.addBoolVariable( &capFrameRate );
 	consoleSystem->variables.addBoolVariable( &vsync );
 	
@@ -117,6 +91,44 @@ int main( int argc, char* args[] )
 	SDL_Quit( );
 
 	return 0;
+}
+
+void initializeVideo( SDL_Window*& window )
+{
+	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 ) {
+		const char* error = SDL_GetError( );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
+		SDL_Quit( );
+	}
+
+	window = SDL_CreateWindow( "CGT Nes Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL );
+
+	if ( window == nullptr ) {
+		const char* error = SDL_GetError( );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
+		SDL_Quit( );
+	}
+
+	//initialize OpenGL
+	SDL_GLContext context = SDL_GL_CreateContext( window );
+}
+
+void initializeSound( SDL_Window* window )
+{
+	//initialize sound
+	SDL_AudioSpec as;
+	SDL_AudioSpec obtainedAudioSpec;
+	as.freq = 44100;
+	as.format = AUDIO_S16;
+	as.samples = 4096;
+	as.callback = audioCallbackFunction;
+	as.userdata = nullptr;
+	as.channels = 1;
+	if ( SDL_OpenAudioDevice( nullptr, 0, &as, &obtainedAudioSpec, 0 ) < 0 ) {
+		const char* error = SDL_GetError( );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Sound init Error", error, window );
+		SDL_Quit( );
+	}
 }
 
 bool VsyncHandler( SDL_Window* window ) {
