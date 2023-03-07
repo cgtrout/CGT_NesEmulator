@@ -25,11 +25,10 @@ bool VsyncHandler( SDL_Window* window );
 
 int main( int argc, char* args[] )
 {
-
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 
-	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
+	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 ) {
 		const char *error = SDL_GetError( );
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
 		SDL_Quit( );
