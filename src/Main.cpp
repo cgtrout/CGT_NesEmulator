@@ -8,8 +8,7 @@ constexpr auto SCREEN_HEIGHT = 600;
 constexpr double FRAME_TIME = 1.0f / 60.0f;
 constexpr auto AUDIO_SAMPLE_RATE = 44100;
 
-//audio specification given back by audio system
-SDL_AudioSpec audioSpecification;
+
 
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
@@ -37,6 +36,9 @@ int main( int argc, char* args[] )
 {
 	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
+	
+	//audio specification given back by audio system
+	SDL_AudioSpec audioSpecification;
 
 	initializeVideo( window );
 	SDL_AudioDeviceID soundDeviceId = initializeSound( window, &audioSpecification );
