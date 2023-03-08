@@ -102,6 +102,7 @@ void NesSoundBuffer::fillExternalBuffer( Uint16* ptr, int samples ) {
 
 void NesSoundBuffer::addSample( Uint16 sample ) {
 	sampleTotal += sample;
+	//should calculate 40 as a constexpr for clarity
 	if( ++sampleNum == 40 ) {
 		sampleNum = 0;
 		
