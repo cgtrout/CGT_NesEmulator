@@ -188,8 +188,8 @@ inline void NesSound::clock() {
 
 //TODO handle 5 step
 void NesSound::clock240Hz( ) {
-	square0.clock240Hz( curr240Clock );
-	square1.clock240Hz( curr240Clock );
+	square0.clock240Hz( curr240ClockCycle );
+	square1.clock240Hz( curr240ClockCycle );
 	//triangle.clock240Hz( curr240Clock );
 	//noise.clock240Hz( curr240Clock );
 	//dmc.clock240Hz( curr240Clock );
@@ -198,6 +198,8 @@ void NesSound::clock240Hz( ) {
 	if( ++curr240ClockCycle == 4 ) {
 		curr240ClockCycle = 0;
 	}
+
+	//TODO need to implement 4-step (mode 0) of 'frame sequencer'
 }
 
 //
