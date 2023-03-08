@@ -152,6 +152,25 @@ Image *NesSound::getGraph() {
 	return graph.getImage();
 }
 
+#include <cstdint> // for int16_t type
+
+
+//convert float value to 16bit value
+//assumes that float is a sample between 0.0 and 1.0
+Uint16 floatTo16Bit( float value ) {
+	// clamp value to [0.0, 1.0] range
+	if ( value < 0.0f ) {
+		value = 0.0f;
+	} else if ( value > 1.0f ) {
+		value = 1.0f;
+	}
+
+	// convert float to integer in range [-32768, 32767]
+	int16_t result = static_cast< Uint16 >( value * 65535.0f - 32768.0f );
+	return result;
+}
+
+
 void NesSound::makeSample() {
 	float squareOut = 0;
 	if( square0.getDacValue() == 0 && square1.getDacValue() == 0 ) {
@@ -159,13 +178,14 @@ void NesSound::makeSample() {
 	} else {
 		//TODO slow - use tables
 		squareOut = (float)95.88 / ( ( 8128 / ( square0.getDacValue() + square1.getDacValue() ) ) + 100 );
+		//_log->Write( "squareOut=%f", squareOut );
 		//if( square1.getDacValue() == 0 ) squareOut = 0;
 		//else squareOut = (float)95.88 / ( ( 8128 / ( square1.getDacValue() ) ) + 100 );
 	}
 	float output = squareOut;
 	
 	//convert and scale to uword
-	buffer.addSample( (uword)( output * 0xffff ) ); 
+	buffer.addSample( floatTo16Bit( output ) );
 }
 
 inline void NesSound::clock() {
