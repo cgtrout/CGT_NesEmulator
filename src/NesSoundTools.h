@@ -247,6 +247,9 @@ namespace NesApu {
 	class SweepUnit {
 	  public:
 		SweepUnit();
+
+		//sweep changes timer period, so it needs access to the timer object
+		void setTimer( Timer* t );
 		
 		//sets period for sweep units divider  
 		void setPeriod( ubyte );
@@ -269,17 +272,22 @@ namespace NesApu {
 	  private:
 	
 		Divider divider;
+		Timer* timer;
 		ubyte enabled;
 		ubyte negative;
 		ubyte shiftAmt;
 		uword lastShiftVal;
 
-		uword *squarePeriod;
 		ubyte squareChannel;
 
 		//was a write done to sweep since last clock?
 		bool outstandingWrite;
 	};
+
+	inline void SweepUnit::setTimer( Timer* t ) {
+		timer = t;
+	}
+
 	inline void SweepUnit::setPeriod( ubyte val ) {
 		divider.setPeriod( val + 1 );
 	}
@@ -292,7 +300,9 @@ namespace NesApu {
 		}
 
 		if( dividerClocked ) {
-			uword shiftVal = *squarePeriod >> shiftAmt;
+			uword period = timer->getPeriod( );
+
+			uword shiftVal = period >> shiftAmt;
 			if( negative ) {
 				//invert
 				shiftVal = ~shiftVal;
@@ -301,14 +311,11 @@ namespace NesApu {
 				}
 			}
 			if( shiftVal <= 0x7ff && enabled && shiftAmt > 0 ) {
-				*squarePeriod += shiftVal;
+				period += shiftVal;
 			}
 			lastShiftVal = shiftVal;
+			timer->setPeriod( period );
 		}
-	}
-
-	inline void SweepUnit::setSquarePeriodPtr ( uword *squarePeriod ) {
-		this->squarePeriod = squarePeriod;
 	}
 
 	inline void SweepUnit::setSquareChannel( ubyte ch ) {

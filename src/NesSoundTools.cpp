@@ -23,7 +23,6 @@ SweepUnit::SweepUnit():
 	enabled(false),
 	negative(false),
 	shiftAmt(0),
-	squarePeriod(0),
 	squareChannel(0),
 	outstandingWrite(false),
 	lastShiftVal(0){

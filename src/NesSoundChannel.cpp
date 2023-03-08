@@ -25,6 +25,7 @@ void SquareChannel::clock240Hz( int clock ) {
 		lengthCounter.clock();
 		
 		//clock sweep unit
+		sweep.setTimer( &this->timer );
 		sweep.clock();
 	} 
 }
