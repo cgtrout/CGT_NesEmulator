@@ -112,13 +112,17 @@ namespace NesApu {
 		CpuClockCycles cc;
 		FractionAdder<PpuClockCycles> fracCC;
 
+		//current cpu clock we are at relative to the next 240hz timing point
 		int curr240Clock;
+		
+		//current stage in 4 step (mode 0)
+		int curr240ClockCycle;
 		FractionAdder<int> frac240Clock;		
 	};
 
 
 	inline PpuClockCycles NesSound::getCC() {
-		return CpuToMaster( cc );
+		return CpuToPpu( cc );
 	}
 
 	

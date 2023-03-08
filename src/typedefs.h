@@ -8,7 +8,9 @@ typedef short word;
 typedef int CpuClockCycles;
 typedef int PpuClockCycles;
 
-#define CpuToMaster( val ) (val * 3)
+//#define CpuToMaster( val ) (val * 3)
+#define CpuToPpu( val ) (val * 3)
 
-#define PpuToMaster( val ) (val / 3)
-#define PpuToMasterMod( val ) (val % 3)
+
+#define PpuToCpu( val ) (val / 3)
+#define PpuToCpuMod( val ) (val % 3)

@@ -6,6 +6,7 @@
 using namespace NesApu;
 
 //number of clocks in 240hz
+//precise value is 7,457.386363636422
 static const int clocksPer240Hz = 7457;
 
 #include "graph.h"
@@ -125,7 +126,7 @@ NesSound::NesSound():
 
 //descc desired clock cycle
 void NesSound::runTo( PpuClockCycles desPpucc ) {
-	CpuClockCycles descc = PpuToMaster( desPpucc );
+	CpuClockCycles descc = PpuToCpu( desPpucc );
 	
 	//descc must be greater than cc
 	_ASSERTE( descc > cc );
@@ -133,7 +134,7 @@ void NesSound::runTo( PpuClockCycles desPpucc ) {
 	//currc = descc;
 	
 	//if fraction adds up to whole numbers add it to current cc;
-	cc += fracCC.add( PpuToMasterMod( desPpucc ) );
+	cc += fracCC.add( PpuToCpuMod( desPpucc ) );
 
 	for( ; cc < descc; ++cc ) {
 		clock();
@@ -193,9 +194,9 @@ void NesSound::clock240Hz( ) {
 	//noise.clock240Hz( curr240Clock );
 	//dmc.clock240Hz( curr240Clock );
 	
-	//increment 240 clock and reset it if necessary
-	if( ++curr240Clock == 4 ) {
-		curr240Clock = 0;
+	//increment 240 clock cycle and reset it if necessary
+	if( ++curr240ClockCycle == 4 ) {
+		curr240ClockCycle = 0;
 	}
 }
 

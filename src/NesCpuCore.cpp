@@ -241,7 +241,7 @@ void NesCpu::runInstruction() {
 				iTime++;
 	}
 
-	cpuTimer += CpuToMaster( iTime );
+	cpuTimer += CpuToPpu( iTime );
 	oldPc = pc;
 
 	//goto system interrupt if requested, but only if i flag is not set
@@ -322,14 +322,14 @@ void NesCpu::buildWriteTimeTable() {
 PpuClockCycles NesCpu::getWriteTime() {
 	PpuClockCycles retTime = 0;
 	if( pageBoundaryCrossed ) retTime++;
-	retTime = cpuTimer + CpuToMaster( opcodeWriteTime[currOp] );
+	retTime = cpuTimer + CpuToPpu( opcodeWriteTime[currOp] );
 	return retTime;
 }
 
 PpuClockCycles NesCpu::getReadTime() {
 	PpuClockCycles retTime = 0;
 	if( pageBoundaryCrossed ) retTime++;
-	retTime = cpuTimer + CpuToMaster( opcodeReadTime[currOp] );
+	retTime = cpuTimer + CpuToPpu( opcodeReadTime[currOp] );
 	return retTime;
 }
 

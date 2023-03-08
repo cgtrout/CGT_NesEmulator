@@ -56,7 +56,7 @@ void NesMain::update() {
 			//calculate cpu overflow
 
 			PpuClockCycles vintTime = emulatorFlags.getFlagSetTime( FT_VINT );
-			cpuOverflow = nesCpu.getCC() + CpuToMaster( nesPpu.registers.executeNMIonVBlank * 7 ) - vintTime;
+			cpuOverflow = nesCpu.getCC() + CpuToPpu( nesPpu.registers.executeNMIonVBlank * 7 ) - vintTime;
 			
 			//cap master clock so we don't render the ppu past this frame
 			//masterClock = vintTime - 1;
