@@ -43,6 +43,12 @@ extern Console::ConsoleSystem *consoleSystem;
 //#define CYCLES_PER_FRAME 89492
 #define CYCLES_PER_FRAME 89342
 
+constexpr auto SCREEN_WIDTH = 800;
+constexpr auto SCREEN_HEIGHT = 600;
+constexpr double FRAME_TIME = 1.0f / 60.0f;
+constexpr auto AUDIO_SAMPLE_RATE = 44100;
+constexpr auto AUDIO_SAMPLES = 4096;
+
 //must be set to this to pass nmi clearing test 
 //it seems higher than it should have to be though...
 const int vblankOffTime = 6810;//6821;//7161;

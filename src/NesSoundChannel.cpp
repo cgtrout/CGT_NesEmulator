@@ -22,11 +22,13 @@ void SquareChannel::clock240Hz( int clock ) {
 	
 	if( clock == 1 || clock == 3 ) {
 		//clock length counter
-		lengthCounter.clock();
+		//lengthCounter.clock();
 		
 		//clock sweep unit
-		sweep.setTimer( &this->timer );
-		sweep.clock();
+		//TODO sweep currently disabled as it currently is making sound worse
+		// need to revise this sweep algorithm
+		//sweep.setTimer( &this->timer );
+		//sweep.clock();
 	} 
 }
 

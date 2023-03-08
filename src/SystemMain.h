@@ -26,10 +26,6 @@
 
 #include "CGTSingleton.h"
 
-//#ifdef WIN32
- #include "SoundSystem.h"
-//#endif
-
 using namespace CGTSingleton;
 
 namespace FrontEnd {
@@ -87,8 +83,6 @@ namespace FrontEnd {
 		
 		TimeProfiler timeProfiler;
 		GUISystem::GuiTimeProfiler guiTimeProfiler;
-
-		Sound::SoundSystem *soundSystem;
 		
 	  private:
 		

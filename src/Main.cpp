@@ -3,13 +3,6 @@
 #include <SDL.h>
 #include <span>
 
-constexpr auto SCREEN_WIDTH = 800;
-constexpr auto SCREEN_HEIGHT = 600;
-constexpr double FRAME_TIME = 1.0f / 60.0f;
-constexpr auto AUDIO_SAMPLE_RATE = 44100;
-
-
-
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
 	/*name*/		"capFrameRate",
@@ -30,6 +23,8 @@ SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSp
 void initializeVideo( SDL_Window*& window );
 void audioCallbackFunction( void* unused, Uint8* stream, int len );
 
+void nesAudio( Uint8* stream, int len );
+
 void sinewaveTest( Uint8* stream, int len );
 
 int main( int argc, char* args[] )
@@ -45,6 +40,9 @@ int main( int argc, char* args[] )
 	
 	//initialize emulation systems
 	initializeEmulator( );
+
+	//start sound
+	SDL_PauseAudioDevice( soundDeviceId, 0 );
 
 	//insert console variables for capping frame rate and setting vsync
 	consoleSystem->variables.addBoolVariable( &capFrameRate );
@@ -130,7 +128,7 @@ SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSp
 	SDL_AudioSpec want;
 	want.freq = AUDIO_SAMPLE_RATE;
 	want.format = AUDIO_S16;
-	want.samples = 4096;
+	want.samples = AUDIO_SAMPLES;
 	want.callback = audioCallbackFunction;
 	want.userdata = nullptr;
 	want.channels = 1;
@@ -142,9 +140,6 @@ SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSp
 	}
 
 	//TODO validate that want and have are the same?
-
-	//start sound
-	SDL_PauseAudioDevice( deviceId, 0 );
 
 	return deviceId;
 }
@@ -260,7 +255,22 @@ Uint16 doubleTo16bit( double f ) {
 
 //audio callback function
 void audioCallbackFunction( void* unused, Uint8* stream, int len ) {
-	sinewaveTest( stream, len );
+	//sinewaveTest( stream, len );
+
+	nesAudio( stream, len );
+}
+
+void nesAudio( Uint8* stream, int len )
+{
+	//we are using 16 bit samples rather than eight, so cast 8bit pointer to a 16 bit pointer
+	Uint16* pointer16 = ( Uint16* )&stream[ 0 ];
+
+	auto* apu = &systemMain->nesMain.nesApu;
+
+	if ( apu->isInitialized( ) ) {
+		auto* buffer = apu->getNesSoundBuffer( );
+		buffer->fillExternalBuffer( pointer16, len / 2 );
+	}
 }
 
 //run stream through here to generate 440hz test tone (sine wave)

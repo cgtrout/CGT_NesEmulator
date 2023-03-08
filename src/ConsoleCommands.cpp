@@ -54,29 +54,7 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 
 	try {
 		//TODO move to seperate function in nesmain
-		//systemMain->nesMain.nesMemory.zeroMemory();
-		//systemMain->nesMain.nesMemory.ppuMemory.zeroMemory();
-		//restart sound system if it is already running
-		if( systemMain->soundSystem != nullptr && systemMain->soundSystem->isInitialized() ) {
-			systemMain->soundSystem->shutDown();
-		}
-		consoleSystem->printMessage( "Initializing soundsystem" );
-
-		//start sound system
-		try {
-			if ( systemMain->soundSystem != nullptr ) {
-			systemMain->soundSystem->initialize( );
-
-			//attach buffer
-			systemMain->soundSystem->assignNesSoundBuffer( systemMain->nesMain.nesApu.getNesSoundBuffer( ) );
-
-			systemMain->soundSystem->start( );
-		}
-			//consoleSystem->printMessage( "Soundsystem started" );
-		} catch( Sound::SoundSystemException e ) {
-			consoleSystem->printMessage( "Soundsystem start failed - %s", e.getMessage().c_str() );
-		}
-		
+		systemMain->nesMain.nesApu.setUninitialized( );
 		systemMain->nesMain.setState( WaitingForFile );
 		systemMain->nesMain.nesFile.loadFile( param );
 		consoleSystem->printMessage( "NES file load successful" );
@@ -85,6 +63,8 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		systemMain->nesMain.reset();
 		systemMain->nesMain.nesCpu.reset();
 		//systemMain->nesMain.nesCpu.setOnStatus( true );
+		systemMain->nesMain.nesApu.setInitialized( );
+
 		systemMain->nesMain.setState( Emulating );
 		return;
 	}

@@ -210,7 +210,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\src\STLSoundSystem.cpp" />
     <ClCompile Include="..\..\src\StringToNumber.cpp" />
     <ClCompile Include="..\..\src\SystemMain.cpp" />
     <ClCompile Include="..\..\src\TimeProfiler.cpp" />
@@ -270,7 +269,6 @@
     <ClInclude Include="..\..\src\NesSprite.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\resource1.h" />
-    <ClInclude Include="..\..\src\STLSoundSystem.h" />
     <ClInclude Include="..\..\src\StringToNumber.h" />
     <ClInclude Include="..\..\src\SystemMain.h" />
     <ClInclude Include="..\..\src\TFreeList.h" />
@@ -282,7 +280,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\src\WinSoundSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\Graph.imp" />

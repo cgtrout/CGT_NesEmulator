@@ -72,9 +72,6 @@ SystemMain::~SystemMain()
 ==============================================
 */
 SystemMain::~SystemMain() {
-	if ( soundSystem ) {
-		soundSystem->shutDown( );
-	}
 	input->writeBindsToFile( "binds.cfg" );
 }
 
@@ -98,9 +95,9 @@ void SystemMain::start() {
 		//test invalid file name
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/__" ), false );
 		
-		//consoleSystem.executeRequest( "loadnesfile", "mario" , false );
+		consoleSystem.executeRequest( "loadnesfile", "mario" , false );
 		//consoleSystem.executeRequest( "loadnesfile", "contra", false );
-		consoleSystem.executeRequest( "loadnesfile", "icehock", false );
+		//consoleSystem.executeRequest( "loadnesfile", "icehock", false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/contra" ), false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "/castlevania" ), false );
 		//consoleSystem.executeRequest( &string( "loadnesfile" ), &string( "../RomSource/ppu_test001/ppuTest001" ), false );

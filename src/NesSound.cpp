@@ -1,6 +1,8 @@
 #include "Precompiled.h"
 #include "NesSound.h"
 
+#include <assert.h>
+
 //#include <boost/thread/mutex.hpp>
 
 using namespace NesApu;
@@ -42,9 +44,9 @@ NesSoundBuffer::~NesSoundBuffer() {
 }
 
 //boost::mutex mutex;
-//size is number of samples, and not actual byte size of copy
-void NesSoundBuffer::fillExternalBuffer( Uint16* ptr, int size ) {
-	_ASSERTE( size <= bufferLength );
+//samples is number of samples, and not actual byte size  of copy
+void NesSoundBuffer::fillExternalBuffer( Uint16* ptr, int samples ) {
+	_ASSERTE( samples <= bufferLength );
 	if( this == NULL ) { 
 		return;
 	}
@@ -53,42 +55,44 @@ void NesSoundBuffer::fillExternalBuffer( Uint16* ptr, int size ) {
 	//boost::mutex::scoped_lock lock(mutex);
 
 	//may need to do in two steps
-	bool twoStep = ( playPos + size ) >= bufferLength;
-
-	/*
+	bool twoStep = ( playPos + samples ) >= bufferLength;
+		
 	_log->Write( "\n\nfilling external buffer" );
+	_log->Write( "sample count request = %d", samples );
+	_log->Write( "apu buffer length = %d ", bufferLength);
 	_log->Write( "playPos at start = %d ", playPos );
 	_log->Write( "bufferPos = %d", bufferPos  );
-	_log->Write( "size request = %d", size );
-	*/
+	
 
 	try {
 		if( !twoStep ) {
 			//copy in one step
-			memcpy( ptr, &buffer[ playPos ], size );
-			playPos += size;
-			//_log->Write( "one step copy" );
-			//_log->Write( "playPos at end = %d ", playPos );
+			memcpy( ptr, &buffer[ playPos ], samples );
+			playPos += samples;
+			_log->Write( "one step copy" );
+			_log->Write( "playPos at end = %d ", playPos );
 			
 			return;
 		} else {
-			//_log->Write( "two step copy" );
+			_log->Write( "two step copy" );
 
 			//first chunck
 			int chunk1Size = bufferLength - playPos;
 			memcpy( ptr, &buffer[ playPos ], chunk1Size * 2 );
 
-			//_log->Write( "copying chunk 1 - chunk1Size = %d", chunk1Size );
+			_log->Write( "copying chunk 1 - chunk1Size = %d", chunk1Size );
 			//playPos = 0;
 			
 			//second chunk
-			int chunk2Size = size - chunk1Size;
+			int chunk2Size = samples - chunk1Size;
 			memcpy( &ptr[ chunk1Size ] , &buffer[0], chunk2Size * 2 );
-			//_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
+			_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
 			playPos = chunk2Size;
 			
-			//_log->Write( "playPos at end = %d ", playPos );			
+			_log->Write( "playPos at end = %d ", playPos );			
 		}
+
+		assert( playPos >= 0 && playPos < bufferLength );
 	}
 	catch( std::exception ) {
 		//TODO handle this better
@@ -114,14 +118,16 @@ void NesSoundBuffer::addSample( Uint16 sample ) {
 	}
 }
 
-NesSound::NesSound():  
-	curr240Clock(0),
-	fracCC(0, 3),
+NesSound::NesSound( ) :
+	curr240Clock( 0 ),
+	fracCC( 0, 3 ),
 	frac240Clock( 0, 2 ),
 	square0( 0 ),
-	square1( 1 ), 
+	square1( 1 ),
+	initialized( false ),
 	
-	buffer( 44100 / 2 )  {
+	buffer( AUDIO_SAMPLES * 2 * 2 ) //2 bytes per sample with enough room to hold two full buffers in the circular buffer
+{
 }
 
 //descc desired clock cycle
@@ -157,7 +163,7 @@ Image *NesSound::getGraph() {
 
 //convert float value to 16bit value
 //assumes that float is a sample between 0.0 and 1.0
-Uint16 floatTo16Bit( float value ) {
+Uint8 floatTo16Bit( float value ) {
 	// clamp value to [0.0, 1.0] range
 	if ( value < 0.0f ) {
 		value = 0.0f;
@@ -166,7 +172,7 @@ Uint16 floatTo16Bit( float value ) {
 	}
 
 	// convert float to integer in range [-32768, 32767]
-	int16_t result = static_cast< Uint16 >( value * 65535.0f - 32768.0f );
+	Uint8 result = ( Uint8 )( ( value - 0.5f ) * 2 * 0x7fff );
 	return result;
 }
 
@@ -185,7 +191,9 @@ void NesSound::makeSample() {
 	float output = squareOut;
 	
 	//convert and scale to uword
-	buffer.addSample( floatTo16Bit( output ) );
+	auto bitval = floatTo16Bit( output );
+	//_log->Write( "audio 16bit out=%d", bitval);
+	buffer.addSample( bitval );
 }
 
 inline void NesSound::clock() {

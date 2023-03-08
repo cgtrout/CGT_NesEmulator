@@ -35,6 +35,8 @@ namespace NesApu {
 		int getBufferPos() { return bufferPos; }
 		void resetBufferPos() { bufferPos = 0; }
 
+		std::vector<Uint16>* getBuffer( ) { return &buffer; }
+
 	  private:
 		//these are used for calculating average sample value
 		int sampleNum;
@@ -72,6 +74,10 @@ namespace NesApu {
 	  public:
 		NesSound();
 		  
+		void setInitialized( ) { initialized = true; }
+		void setUninitialized( ) { initialized = false; }
+		bool isInitialized( ) { return initialized; }
+
 		//"catch up" the sound system - cc based on
 		//offset from last vint
 		void runTo( PpuClockCycles );
@@ -99,6 +105,8 @@ namespace NesApu {
 
 	  private:
 				
+		bool initialized;
+		
 		//sound buffer - holds sound data
 		NesSoundBuffer buffer;
 
