@@ -163,7 +163,7 @@ Image *NesSound::getGraph() {
 
 //convert float value to 16bit value
 //assumes that float is a sample between 0.0 and 1.0
-Uint8 floatTo16Bit( float value ) {
+Uint16 floatTo16Bit( float value ) {
 	// clamp value to [0.0, 1.0] range
 	if ( value < 0.0f ) {
 		value = 0.0f;
@@ -172,7 +172,7 @@ Uint8 floatTo16Bit( float value ) {
 	}
 
 	// convert float to integer in range [-32768, 32767]
-	Uint8 result = ( Uint8 )( ( value - 0.5f ) * 2 * 0x7fff );
+	Uint16 result = ( Uint16 )( ( value - 0.5f ) * 2 * 0x7fff );
 	return result;
 }
 
