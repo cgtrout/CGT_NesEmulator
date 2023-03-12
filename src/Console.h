@@ -302,7 +302,7 @@ namespace Console {
 
 	class ConsoleSystemException : public CgtException {
 	public:
-		ConsoleSystemException( const char *h, const char *m, bool s = true) { ::CgtException( h, m, s );	}
+		ConsoleSystemException( std::string_view h, std::string_view m, bool s = true) { ::CgtException( h, m, s );	}
 	private:
 		ConsoleSystemException();
 	};

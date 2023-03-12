@@ -293,9 +293,9 @@ namespace NesEmulator {
 
 	class NesMemoryException : public CgtException {
 	  public:
-		NesMemoryException( std::string header, std::string m, unsigned short loc, bool s = true ) {
-			std::stringstream ss( m.c_str() );
-			ss << m.c_str() << " at " << std::setbase(16) << loc;
+		NesMemoryException( std::string_view header, std::string_view m, unsigned short loc, bool s = true ) {
+			std::stringstream ss( m.data() );
+			ss << m.data() << " at " << std::setbase(16) << loc;
 			::CgtException( header, ss.str(), s );
 		}
 	};

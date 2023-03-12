@@ -1,10 +1,8 @@
 #include "precompiled.h"
 
-
 #include "Timer.h"
 //#include "CgtException.h"
 #include "Console.h"
-
 
 using namespace FrontEnd;
 using namespace NesEmulator;
@@ -125,8 +123,8 @@ NesMain::NesMain() {
 	try {
 		timer = Timer::getInstance();
 	}
-	catch ( CgtException *e ) {
-		_log->Write( "%s: %s", e->getHeader().c_str(), e->getMessage().c_str() );
+	catch ( CgtException e ) {
+		_log->Write( "%s: %s", e.getHeader(), e.getMessage() );
 		exit( 0 );
 	}
 	

@@ -33,7 +33,7 @@ namespace NesEmulator {
 
 		class NesFileException : public CgtException {
 		public:
-			NesFileException( const char *header, const char *message, bool showMessage = true ) {
+			NesFileException( std::string_view header, std::string_view message, bool showMessage = true ) {
 				::CgtException( header, message, showMessage);
 			}
 		};

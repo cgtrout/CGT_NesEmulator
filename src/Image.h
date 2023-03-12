@@ -65,7 +65,7 @@ class Image {
 
 class ImageException : public CgtException {
 public:	
-	ImageException( const char *h, const char *m, bool show = true) {
+	ImageException( std::string_view h, std::string_view m, bool show = true) {
 		::CgtException(h, m, show);
 	}
 }; 

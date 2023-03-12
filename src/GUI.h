@@ -230,8 +230,8 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIElementInitializeException : public CgtException {
 		public:
-			GUIElementInitializeException(std::string header, std::string m, bool s = true ) {
-				::CgtException( header, m, s );
+			GUIElementInitializeException( std::string_view header, std::string_view message, bool show = true ) {
+				::CgtException( header, message, show );
 			}
 		};
 
