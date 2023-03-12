@@ -3,6 +3,10 @@
 #include <SDL.h>
 #include <span>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl2.h"
+#include "imgui/imgui_impl_opengl2.h"
+
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
 	/*name*/		"capFrameRate",
@@ -66,10 +70,16 @@ int main( int argc, char* args[] )
 			vsyncSetting = VsyncHandler( window );
 		}
 		
-		//frame initialization
+		////frame initialization
+		////
 		auto start_time = std::chrono::steady_clock::now( );
 		std::chrono::duration<double> elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		systemMain->timeProfiler.startFrame( );
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL2_NewFrame( );
+		ImGui_ImplSDL2_NewFrame( );
+		ImGui::NewFrame( );
 		
 		//reset input state
 		input->clear( );
@@ -77,8 +87,15 @@ int main( int argc, char* args[] )
 		//handle sdl input events
 		SDL_EventHandler( sdl_event, quit );
 		
-		//run frame
+		////run frame
+		////
 		systemMain->runFrame( );
+
+		//do imgui handling here
+
+		ImGui::Render( );
+		ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
+
 		SDL_GL_SwapWindow( window );
 
 		if ( capFrameRate.getValue() == true ) {
@@ -87,7 +104,8 @@ int main( int argc, char* args[] )
 			}
 		}
 
-		//frame finish
+		////frame finish
+		////
 		systemMain->timeProfiler.stopFrame( );
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
@@ -118,6 +136,20 @@ void initializeVideo( SDL_Window*& window )
 
 	//initialize OpenGL
 	SDL_GLContext context = SDL_GL_CreateContext( window );
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION( );
+	ImGui::CreateContext( );
+	ImGuiIO& io = ImGui::GetIO( ); ( void )io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	ImGui::StyleColorsDark( );
+	//ImGui::StyleColorsLight();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplSDL2_InitForOpenGL( window, context );
+	ImGui_ImplOpenGL2_Init( );
 }
 
 //outAudioSpec is the returned audio spec
@@ -165,6 +197,7 @@ bool VsyncHandler( SDL_Window* window ) {
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 	//take input events and pass them to input system
 	while ( SDL_PollEvent( &event ) ) {
+		ImGui_ImplSDL2_ProcessEvent( &event );
 		switch ( event.type ) {
 			case SDL_QUIT:
 				quit = true;

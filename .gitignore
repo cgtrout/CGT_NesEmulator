@@ -25,3 +25,4 @@ CGT_NesEmulator/CGT NES Emulator/Release/CGT NES Emulator.vcxproj.FileListAbsolu
 CGT_NesEmulator/CGT NES Emulator/Debug/nesEmResourse.res
 CGT_NesEmulator/CGT NES Emulator/Release/nesEmResourse.res
 reset binds.bat
+imgui.ini
