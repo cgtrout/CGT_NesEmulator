@@ -8,8 +8,6 @@
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
 
-#include "WinDebugger.h"
-
 typedef unsigned short uword;
 namespace NesEmulator {
 	
@@ -20,6 +18,9 @@ namespace NesEmulator {
 	    
 		void loadWindowText();
 		void updateDebugger();
+
+		//draw debugger using imgui
+		void draw( );
 		
 		//turn on single step mode
 		void setToSingleStepMode( uword address );
@@ -56,8 +57,8 @@ namespace NesEmulator {
 		uword findNextInstructionLocation( uword address );
 
 		void setRenderPos( uword val );
-		void setSelectedAddress( uword address ) {selectedPos = address;}
-		uword getSelectedAddress() {return selectedPos;}
+		void setSelectedAddress( uword address ) {selectedAddress = address;}
+		uword getSelectedAddress() {return selectedAddress;}
 		void selectDissasemblerLine( int );
 
 		char *buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val );
@@ -65,9 +66,8 @@ namespace NesEmulator {
 		NesDebugger();
 		~NesDebugger();
 		
-		WinDebugger winDebugger;
 	private:
-		std::string buildOutputString( uword startAddress, const int length );
+		void buildDissassemblerLines( uword startAddress, const int length );
 		bool instructionIsPointingTo( uword opAddress, uword knownAddress );
 		bool isAPreviousValidInst( uword opAddress );
 		
@@ -79,6 +79,20 @@ namespace NesEmulator {
 		uword numBreakPoints;
 		uword renderPos;			//address pos to render from
 		uword selectedPos;
+		uword selectedAddress;
+
+		bool showWindow;
+
+		struct DebugLine
+		{
+			uword address;
+			std::string line;
+
+			DebugLine( uword a, std::string l ) : address( a ), line( l ) {}
+		};
+
+		std::vector<DebugLine> debugLines;
+		int numDebugLines = 20;
 	};
 
 }

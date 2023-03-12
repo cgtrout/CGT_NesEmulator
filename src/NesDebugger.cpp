@@ -1,5 +1,5 @@
 #include "precompiled.h"
-
+#include "imgui/imgui.h"
 
 using namespace NesEmulator;
 
@@ -16,10 +16,36 @@ NesMemory *memory;
 NesDebugger::NesDebugger()
 ==============================================
 */
-NesDebugger::NesDebugger() {
-	
+NesDebugger::NesDebugger( ) :
+	singleStepMode( false ),
+	doSingleStep( false ),
+	numBreakPoints( 0 ),
+	justInSingleStepMode( false ),
+	renderPos( 0 ),
+	selectedPos( 0 ),
+	showWindow( false ),
+	debugLines( ),
+	selectedAddress (0)
+{
+	for ( int i = 0; i < MAX_BREAKPOINTS; i++ ) {
+		breakPoints[ i ] = 0;
+	}
 }
 
+/*
+==============================================
+NesDebugger::~NesDebugger()
+==============================================
+*/
+NesDebugger::~NesDebugger( ) {
+}
+
+
+/*
+==============================================
+NesDebugger::initialize()
+==============================================
+*/
 void NesDebugger::initialize() {
 	memory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory;
 	singleStepMode = false;
@@ -32,24 +58,62 @@ void NesDebugger::initialize() {
 		breakPoints[ x ] = 0;
 	}
 }
+
 /*
 ==============================================
-NesDebugger::~NesDebugger()
+NesDebugger::draw()
 ==============================================
 */
-NesDebugger::~NesDebugger() {
+void NesDebugger::draw( ) {
+	if ( showWindow == false ) {
+		return;
+	}
+
+	ImGui::Begin( "Debugger Window", &this->showWindow, ImGuiWindowFlags_MenuBar );
+	if ( ImGui::BeginMenuBar( ) )
+	{
+		if ( ImGui::BeginMenu( "File" ) )
+		{
+			if ( ImGui::MenuItem( "Close", "Ctrl+W" ) ) { 
+				this->showWindow = false; 
+			}
+			ImGui::EndMenu( );
+		}
+		ImGui::EndMenuBar( );
+	}
+
+	// Display contents in a scrolling region
+	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
+		ImGui::BeginChild( "Scrolling" );
+			for ( unsigned int n = 0; n < debugLines.size( ); n++ ) {
+				if ( isBreakPointAt( debugLines[ n ].address ) ) {
+					ImGui::Text( " + " );
+				} else {
+					ImGui::Text( "   " );
+				}
+				ImGui::SameLine( 0.0f, 0.0f );
+				if ( ImGui::Selectable( debugLines[ n ].line.c_str( ), selectedPos == n ) ) {
+					selectedPos = n;
+					selectedAddress = debugLines[ n ].address;
+				}
+			}
+		ImGui::EndChild( );
+	ImGui::End( );
 }
 
+
 bool NesDebugger::isOpen() {
-	return winDebugger.isOpen();
+	return showWindow;
 }
 
 void NesDebugger::onEnter() {
-	winDebugger.onEnter();
+	//winDebugger.onEnter();
+	throw CgtException( "Warning", "unimplemented", true );
 }
 
 void NesDebugger::selectDissasemblerLine( int line ) {
-	winDebugger.selectDissasemblerLine( line );
+	//winDebugger.selectDissasemblerLine( line );
+	throw CgtException( "Warning", "unimplemented", true );
 }
 
 void NesDebugger::setRenderPos( uword val ) {
@@ -115,14 +179,15 @@ void NesDebugger::loadWindowText
 ==============================================
 */
 void NesDebugger::loadWindowText() {
-	static char buffer[ 1024 ];
-	//static uword lastAddress = 0;
+	static uword lastAddress = 0;
 
-	//if( renderPos != lastAddress ) {
-		strcpy( buffer, buildOutputString( renderPos, winDebugger.numDebugLines ).c_str() );
-		winDebugger.loadDisassemblyWindow( buffer );
-	//	lastAddress = renderPos;
-	//}
+	if( renderPos != lastAddress ) {
+		//strcpy( buffer, buildOutputString( renderPos, winDebugger.numDebugLines ).c_str() );
+		//winDebugger.loadDisassemblyWindow( buffer );
+		buildDissassemblerLines( renderPos, numDebugLines );
+		lastAddress = renderPos;
+	}
+	//throw CgtException( "Warning", "unimplemented", true );
 }
 /*
 ==============================================
@@ -131,7 +196,8 @@ void NesDebugger::updateDebugger()
 */
 void NesDebugger::updateDebugger() {
 	loadWindowText();
-	winDebugger.fillWindow();
+	//winDebugger.fillWindow();
+	//throw CgtException( "Warning", "unimplemented", true );
 }
 /*
 ==============================================
@@ -142,14 +208,13 @@ void NesDebugger::setToSingleStepMode( uword address ) {
 	singleStepMode = true;
 	justInSingleStepMode = true;
 	renderPos = address;
-
-	//show debugger window incase it is not open
-	winDebugger.showWindow();
+	showWindow = true;
 	
     //winDebugger.fillWindow();
     updateDebugger();
 	
-	winDebugger.selectDissasemblerLine( 0 );
+	//winDebugger.selectDissasemblerLine( 0 );
+	//throw CgtException( "Warning", "unimplemented", true );
 }
 
 /* 
@@ -160,8 +225,9 @@ void NesDebugger::turnOffSingleStepMode()
 void NesDebugger::turnOffSingleStepMode() {
 	singleStepMode = false; 
 	justInSingleStepMode = true;
-
-	winDebugger.hideWindow();
+	showWindow = false;
+	//winDebugger.hideWindow();
+	//throw CgtException( "Warning", "unimplemented", true );
 }
 
 /*
@@ -257,18 +323,17 @@ bool NesDebugger::isAPreviousValidInst( uword opAddress ) {
 ==============================================
 NesDebugger::buildOutputString( uword startAddress, const int length )
 - builds debug output of length "length" starting at first valid opcode found at address "startAddress"
-- returns output string
+- sets vector of output strings
 ==============================================
 */
-std::string NesDebugger::buildOutputString( uword startAddress, const int length ) {
-	static std::string output;
+void NesDebugger::buildDissassemblerLines( uword startAddress, const int length ) {
 	int linesMade;
 	uword currAddress = 0;
 
 	int opLength;
 	ubyte b1, b2;
 	//uword fullb;
-	output.clear();
+	debugLines.clear();
 	linesMade = 0;
 	
 	//starting at address at pos startAddress move foward until first valid opcode is found
@@ -298,15 +363,13 @@ std::string NesDebugger::buildOutputString( uword startAddress, const int length
 		//fullb = ( b2 << 8 ) + b1;
 		opLength = addModeLengthTable[ lookupEntry->mode ];		
 		
-		//build outputline
-		output += buildDebugLine( currAddress, lookupEntry, memory->getMemory( currAddress ), b1, b2 );
+		//build debugLinesline
+		debugLines.push_back( DebugLine( currAddress, buildDebugLine( currAddress, lookupEntry, memory->getMemory( currAddress ), b1, b2 ) ));
 		
 		//increment currAddress to point to next opcode
 		currAddress += opLength;
 		linesMade++;
 	}
-
-	return output;
 }
 
 /* 
@@ -417,23 +480,12 @@ char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *
 		sprintf( symbol, "$" ); 
 		break;
 	}
-	char breakpstr[ 2 ];
-
-	//draw breakpoint symbol if there is a breakpoint here
-	if( isBreakPointAt( address ) ) {
-		sprintf( breakpstr, "+" );
-	}
-	else {
-		sprintf( breakpstr, " " );
-	}
-	//sprintf( breakpstr, "-", bullet );
-
+	
 	//pad to zero
 	std::string &convertedAddress = uwordToString( address, false );
 
 	sprintf( addressStr, "$%s: ", convertedAddress.c_str() );
 
-	strcat( debugBuffer, breakpstr );
 	strcat( debugBuffer, addressStr );
 	
 	//print data
@@ -486,11 +538,9 @@ char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *
 		strcat( debugBuffer, end );
 	}
 	
-	char *delimString = "_";
 	char *charReturn = "\0";
 	
 	strcat( debugBuffer, charReturn );
-	strcat( debugBuffer, delimString );
 	
 	return debugBuffer;
 }

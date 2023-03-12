@@ -93,6 +93,9 @@ int main( int argc, char* args[] )
 
 		//do imgui handling here
 
+		//static bool showDemo = false;
+		//ImGui::ShowDemoWindow( &showDemo );
+
 		ImGui::Render( );
 		ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
 

@@ -64,6 +64,10 @@ void SystemMain::initialize( ) {
 	nesMain.nesPpu.initialize( );
 	guiTimeProfiler.initialize( );
 
+#ifndef LIGHT_BUILD
+	nesDebugger->initialize( );
+#endif
+
 }
 
 /*
@@ -226,14 +230,14 @@ void SystemMain::runFrame() {
 	
 #ifndef LIGHT_BUILD
 	//see if escape key is down for quitting
-	if( input->isKeyDownUnset( KB_ESCAPE ) ) {
+	if( input->isKeyDownUnset( SDLK_BACKSPACE ) ) {
 		if( !nesMain.nesDebugger.inSingleStepMode() ) {
 			nesMain.nesDebugger.turnOffSingleStepMode();
 		}
 	}
 	
 	//F5 controls single stepping with the debugger
-	if( input->isKeyDownUnset( KB_F5 ) ) {
+	if( input->isKeyDownUnset( SDLK_F5 ) ) {
 		if( !nesMain.nesDebugger.inSingleStepMode() ) {
 			if( nesMain.getState() == Emulating ) {
 				nesMain.nesDebugger.setToSingleStepMode( nesMain.nesCpu.getPC() );
@@ -243,15 +247,15 @@ void SystemMain::runFrame() {
 			nesMain.nesDebugger.turnOffSingleStepMode();
 		}
 	}
-	if( input->isKeyDownUnset( KB_F9 ) ) {
+	if( input->isKeyDownUnset( SDLK_F9 ) ) {
 		nesMain.nesDebugger.addBreakPoint( nesMain.nesDebugger.getSelectedAddress() );
 	}
-	if( input->isKeyDownUnset( KB_F6 ) ) {
+	if( input->isKeyDownUnset( SDLK_F6 ) ) {
 		if( nesMain.nesDebugger.inSingleStepMode() ) {
 			nesMain.nesDebugger.singleStepRequest();
 		}
 	}
-	if( input->isKeyDown( KB_RETURN ) ) {
+	if( input->isKeyDown( SDLK_RETURN ) ) {
 		if( nesMain.nesDebugger.isOpen() ) {
 			nesMain.nesDebugger.onEnter();
 		}
@@ -285,6 +289,8 @@ void SystemMain::graphicUpdate() {
 		//MessageBox( hWnd, "GUIRunException caught", "Error", MB_OK );
 		exit( 0 );
 	}
+
+	nesDebugger->draw( );
 
 	timeProfiler.stopSection( "RenGUI" );
 }
