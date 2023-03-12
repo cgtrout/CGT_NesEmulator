@@ -249,6 +249,7 @@ double getTimePerSample( int samplerate ) {
 }
 
 //convert a double float to 16bit sample
+//fixme: convert to signed int
 Uint16 doubleTo16bit( double f ) {
 	return (Uint16)(f * 0x7FFF);
 }
@@ -263,6 +264,7 @@ void audioCallbackFunction( void* unused, Uint8* stream, int len ) {
 void nesAudio( Uint8* stream, int len )
 {
 	//we are using 16 bit samples rather than eight, so cast 8bit pointer to a 16 bit pointer
+	//fixme: convert to signed int
 	Uint16* pointer16 = ( Uint16* )&stream[ 0 ];
 
 	auto* apu = &systemMain->nesMain.nesApu;
@@ -271,6 +273,8 @@ void nesAudio( Uint8* stream, int len )
 		auto* buffer = apu->getNesSoundBuffer( );
 		buffer->fillExternalBuffer( pointer16, len / 2 );
 	}
+	
+	//TODO - need to verify that entire buffer is filled (verify this)
 }
 
 //run stream through here to generate 440hz test tone (sine wave)
@@ -280,6 +284,7 @@ void sinewaveTest( Uint8* stream, int len ) {
 	float hzTone = 440.f;
 
 	//we are using 16 bit samples rather than eight, so cast 8bit pointer to a 16 bit pointer
+	//fixme: convert to signed int
 	Uint16* pointer16 = ( Uint16* )&stream[ 0 ];
 
 	for ( int i = 0; i < len / 2; i++ ) {

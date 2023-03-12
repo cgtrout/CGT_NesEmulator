@@ -102,6 +102,7 @@ void NesSoundBuffer::fillExternalBuffer( Uint16* ptr, int samples ) {
 
 void NesSoundBuffer::addSample( Uint16 sample ) {
 	sampleTotal += sample;
+	//should calculate 40 as a constexpr for clarity
 	if( ++sampleNum == 40 ) {
 		sampleNum = 0;
 		
@@ -126,7 +127,7 @@ NesSound::NesSound( ) :
 	square1( 1 ),
 	initialized( false ),
 	
-	buffer( AUDIO_SAMPLES * 2 * 2 ) //2 bytes per sample with enough room to hold two full buffers in the circular buffer
+	buffer( AUDIO_SAMPLES * 2 ) //2 bytes per sample with enough room to hold two full buffers in the circular buffer
 {
 }
 
