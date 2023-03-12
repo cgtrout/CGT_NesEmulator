@@ -273,6 +273,8 @@ void nesAudio( Uint8* stream, int len )
 		auto* buffer = apu->getNesSoundBuffer( );
 		buffer->fillExternalBuffer( pointer16, len / 2 );
 	}
+	
+	//TODO - need to verify that entire buffer is filled (verify this)
 }
 
 //run stream through here to generate 440hz test tone (sine wave)
