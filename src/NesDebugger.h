@@ -10,8 +10,6 @@ using namespace CGTSingleton;
 
 #include "WinDebugger.h"
 
-
-
 typedef unsigned short uword;
 namespace NesEmulator {
 	
