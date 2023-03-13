@@ -99,11 +99,30 @@ void NesDebugger::draw( ) {
 	ImGui::SameLine( );
 
 	ImGui::BeginChild( "second column" );
-		ImGui::Text( "A  0x%x", nesCpu->getAReg( ) );
-		ImGui::Text( "X  0x%x", nesCpu->getXReg( ) );
-		ImGui::Text( "Y  0x%x", nesCpu->getYReg( ) );
-		ImGui::Text( "PC 0x%x", nesCpu->getPC( ) );
-		ImGui::Text( "SP 0x%x", nesCpu->getSP( ) );
+	
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "A " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%02x", nesCpu->getAReg( ) );
+	
+		ImGui::SameLine( );
+
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "PC " );
+		ImGui::SameLine( );
+		ImGui::Text( "%04x", nesCpu->getPC( ) );
+
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "X " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%02x", nesCpu->getXReg( ) );
+	
+		ImGui::SameLine( );
+
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "SP " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%04x", nesCpu->getSP( ) );
+		
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "Y " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%02x", nesCpu->getYReg( ) );
 
 		ImGui::NewLine( );
 
@@ -120,14 +139,20 @@ void NesDebugger::draw( ) {
 		ImGui::Checkbox( "Breakpoint", &breakPoint );
 		ImGui::Checkbox( "Overflow", &overflow );
 		ImGui::Checkbox( "Negative", &negative);
+		
+		ImGui::NewLine( );
 
-		if ( ImGui::Button( "Step" ) ) {
-			this->singleStepRequest( );
-		}
+		ImGui::BeginChild( "buttons" );
+			if ( ImGui::Button( "Step" ) ) {
+				this->singleStepRequest( );
+			}
 
-		if ( ImGui::Button( "Run" ) ) {
-			this->turnOffSingleStepMode( );
-		}
+			ImGui::SameLine( );
+
+			if ( ImGui::Button( "Run" ) ) {
+				this->turnOffSingleStepMode( );
+			}
+		ImGui::EndChild( );
 
 	ImGui::EndChild();
 	
