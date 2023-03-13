@@ -142,6 +142,7 @@ void NesDebugger::draw( ) {
 		
 		ImGui::NewLine( );
 
+		//draw watchboxes
 		for ( unsigned int i = 0; i < watchStrings.size( ); i++ ) {
 			drawWatchBox( i );
 		}

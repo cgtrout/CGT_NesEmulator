@@ -230,7 +230,7 @@ void SystemMain::runFrame() {
 	
 #ifndef LIGHT_BUILD
 	//see if escape key is down for quitting
-	if( input->isKeyDownUnset( SDLK_BACKSPACE ) ) {
+	if( input->isKeyDown( SDLK_BACKSPACE ) ) {
 		if( !nesMain.nesDebugger.inSingleStepMode() ) {
 			nesMain.nesDebugger.turnOffSingleStepMode();
 		}
