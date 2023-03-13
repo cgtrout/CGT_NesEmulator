@@ -14,7 +14,6 @@ NesDebugger::NesDebugger()
 NesDebugger::NesDebugger( ) :
 	singleStepMode( false ),
 	doSingleStep( false ),
-	numBreakPoints( 0 ),
 	justInSingleStepMode( false ),
 	renderPos( 0 ),
 	selectedPos( 0 ),
@@ -22,9 +21,6 @@ NesDebugger::NesDebugger( ) :
 	debugLines( ),
 	selectedAddress (0)
 {
-	for ( int i = 0; i < MAX_BREAKPOINTS; i++ ) {
-		breakPoints[ i ] = 0;
-	}
 }
 
 /*
@@ -45,12 +41,6 @@ void NesDebugger::initialize() {
 	memory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory;
 	singleStepMode = false;
     justInSingleStepMode = false;
-    numBreakPoints = 0;
-	
-    //clear all breakpoints
-	for( int x = 0; x < MAX_BREAKPOINTS; x++ ) {
-		breakPoints[ x ] = 0;
-	}
 }
 
 /*
@@ -166,6 +156,12 @@ void NesDebugger::draw( ) {
 	ImGui::End( );	
 }
 
+
+/*
+==============================================
+NesDebugger::drawWatchBox()
+==============================================
+*/
 void NesEmulator::NesDebugger::drawWatchBox( const int index )
 {
 	ImGui::PushItemWidth( 50 );
@@ -180,75 +176,93 @@ void NesEmulator::NesDebugger::drawWatchBox( const int index )
 	ImGui::Text( "0x%02X", memory->getMemory( watchLoc ) );
 }
 
+
+/*
+==============================================
+NesDebugger::isOpen()
+==============================================
+*/
 bool NesDebugger::isOpen() {
 	return showWindow;
 }
 
+/*
+==============================================
+NesDebugger::onEnter()
+==============================================
+*/
 void NesDebugger::onEnter() {
 	//winDebugger.onEnter();
 	throw CgtException( "Warning", "unimplemented", true );
 }
 
+/*
+==============================================
+NesDebugger::selectDissasemblerLine()
+==============================================
+*/
 void NesDebugger::selectDissasemblerLine( int line ) {
 	selectedPos = line;
 }
 
+/*
+==============================================
+NesDebugger::setRenderPos()
+==============================================
+*/
 void NesDebugger::setRenderPos( uword val ) {
 	renderPos = val;
 	updateDebugger();
 }
 
-//TODO very slow algorithm
+/*
+==============================================
+NesDebugger::isBreakPointAt()
+==============================================
+*/
 bool NesDebugger::isBreakPointAt( uword address ) {
-	int bpFound = 0;	//breakpoints found
-	for( int x = 0; x < MAX_BREAKPOINTS, bpFound < numBreakPoints; x++ ) {
-		if( breakPoints[ x ] != 0 ) {
-			bpFound++;
-		}
-		if( breakPoints[ x ] == address ) {
-			return true;
-		}
+	if ( breakPoints.empty( ) ) {
+		return false;
+	} else {
+		auto find_result = std::find( breakPoints.begin( ), breakPoints.end( ), address );
+		return ( find_result != breakPoints.end( ) );
 	}
-	return false;	
 }
-//returns true if breakpoint was added
+
+/*
+==============================================
+NesDebugger::addBreakPoint()
+==============================================
+*/
 bool NesDebugger::addBreakPoint( uword address ) {
 	int bpFound = 0;	//breakpoints found
 	
 	if( isBreakPointAt( address ) ) {
 		removeBreakPoint( address );
-		loadWindowText();;
+		loadWindowText();
 		return false;
 	}
 
-	for( int x = 0; x < MAX_BREAKPOINTS; x++ ) {
-		if( breakPoints[ x ] != 0 ) {
-			bpFound++;
-		}		
-		//find first empty spot in array
-		else if( breakPoints[ x ] == 0 ) {
-			breakPoints[ x ] = address;
-			numBreakPoints++;
-			loadWindowText();;
-			return true;
-		}
-	}
-	return false;	//no empty spot found
+	breakPoints.push_back( address );
+	return true;	
 }
 
+
+/*
+==============================================
+NesDebugger::removeBreakPoint
+==============================================
+*/
 bool NesDebugger::removeBreakPoint( uword address ) {
 	int bpFound = 0;	//breakpoints found
-	for( int x = 0; x < MAX_BREAKPOINTS, bpFound < numBreakPoints; x++ ) {
-		if( breakPoints[ x ] != 0 ) {
-			bpFound++;
-		}
-		if( breakPoints[ x ] == address ) {
-			breakPoints[ x ] = 0;
-			numBreakPoints--;
-			return true;
-		}
+	auto find_result = std::find( breakPoints.begin( ), breakPoints.end( ), address );
+
+	if ( find_result != breakPoints.end( ) ) { 
+		breakPoints.erase( find_result );
+		return true;
+	} else {
+		return false;  //breakpoint was not found
 	}
-	return false;  //breakpoint was not found
 }
 /*
 ==============================================

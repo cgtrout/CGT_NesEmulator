@@ -1,8 +1,6 @@
 #if !defined( NESDEBUGGER_INC )
 #define NESDEBUGGER_INC
 
-#define MAX_BREAKPOINTS 256
-
 #include < string >
 
 #include "CGTSingleton.h"
@@ -76,8 +74,7 @@ namespace NesEmulator {
 		bool doSingleStep;
 		bool justInSingleStepMode;
 
-		uword breakPoints[ MAX_BREAKPOINTS ];
-		uword numBreakPoints;
+		std::vector<uword> breakPoints;
 		uword renderPos;			//address pos to render from
 		uword selectedPos;
 		uword selectedAddress;
