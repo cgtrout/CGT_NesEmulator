@@ -17,9 +17,14 @@ NesDebugger::NesDebugger( ) :
 	justInSingleStepMode( false ),
 	renderPos( 0 ),
 	selectedPos( 0 ),
-	showWindow( false ),
+	showDebugWindow( false ),
+	showMemoryDump( false ),
 	debugLines( ),
-	selectedAddress (0)
+	selectedAddress (0),
+	dumpAddress(0),
+	dumpSize(368),
+	dumpAddressStr( 5, 0 ), //5 chars long initialized to 0
+	memDumpType( MemoryDumper::MEMDUMPTYPE_MAIN )
 {
 }
 
@@ -49,20 +54,20 @@ NesDebugger::draw()
 ==============================================
 */
 void NesDebugger::draw( ) {
-	if ( showWindow == false ) {
+	if ( showDebugWindow == false ) {
 		return;
 	}
 
-	//ImGui::Begin( "Debugger Window", &this->showWindow, ImGuiWindowFlags_MenuBar );
+	//ImGui::Begin( "Debugger Window", &this->showDebugWindow, ImGuiWindowFlags_MenuBar );
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
-	ImGui::Begin( "Debugger Window", &this->showWindow, window_flags );
+	ImGui::Begin( "Debugger Window", &this->showDebugWindow, window_flags );
 	/*
 	if ( ImGui::BeginMenuBar( ) )
 	{
 		if ( ImGui::BeginMenu( "File" ) )
 		{
 			if ( ImGui::MenuItem( "Close", "Ctrl+W" ) ) { 
-				this->showWindow = false; 
+				this->showDebugWindow = false; 
 			}
 			ImGui::EndMenu( );
 		}
@@ -149,11 +154,91 @@ void NesDebugger::draw( ) {
 			if ( ImGui::Button( "Run" ) ) {
 				this->turnOffSingleStepMode( );
 			}
+
+			ImGui::SameLine(  );
+
+			if ( ImGui::Button( "Show memory dump" ) ) {
+				showMemoryDump = !showMemoryDump;
+			}
 		ImGui::EndChild( );
 
 	ImGui::EndChild();
 	
 	ImGui::End( );	
+
+
+	//show memory dump window
+	if ( this->showMemoryDump ) {
+		ImGui::Begin( "Memory dump", &this->showMemoryDump, 0 );
+			ImGui::PushItemWidth( 50 );
+			ImGui::InputText( "Address", &dumpAddressStr[0], 5, ImGuiInputTextFlags_CharsHexadecimal);
+
+			ImGui::SameLine( );
+
+			static bool cpuSet = true;
+			static bool ppuSet = false;
+
+			ImGui::BeginListBox( "Memory Selection", ImVec2(100, 40) );
+				if ( ImGui::Selectable( "CPU Memory", &cpuSet ) ) {
+					memDumpType = MemoryDumper::MEMDUMPTYPE_MAIN;
+					cpuSet = true;
+					ppuSet = false;
+				}
+				if ( ImGui::Selectable( "PPU Memory", &ppuSet ) ) {
+					memDumpType = MemoryDumper::MEMDUMPTYPE_PPU;
+					ppuSet = true;
+					cpuSet = false;
+				}
+			ImGui::EndListBox( );
+
+			ImGui::PopItemWidth( );
+
+			dumpAddress = ( uword )strtol( dumpAddressStr.c_str(), NULL, 16 );
+			std::string memoryDumpString = loadMemoryDump( );
+			ImGui::Text( memoryDumpString.c_str( ), 500.0f );
+
+		ImGui::End( );
+	}
+}
+
+std::string NesDebugger::loadMemoryDump(  ) {
+	MemoryDumper md;
+	std::vector<ubyte> memdumpBuffer(dumpSize) ;
+
+	//how many dumps should be on each line of the printout
+	static const int dumpsPerLine = 16;
+
+	//determine dump type
+	//int memDumpType;
+	//if ( IsDlgButtonChecked( debugWnd, IDC_CPUDUMP ) == BST_CHECKED ) {
+	//	memDumpType = md.MEMDUMPTYPE_MAIN;
+	//} else {
+	//	memDumpType = md.MEMDUMPTYPE_PPU;
+	//}
+
+	try {
+		//grab dump
+		md.getMemoryDump( memDumpType, memdumpBuffer.data(), dumpAddress, dumpSize );
+	} catch ( NesMemoryException e ) {
+		throw CgtException( "Memory Dump Error", e.getMessage( ), true );
+		return "DUMP_ISSUE";
+	}
+
+	//print header
+	std::string dumpstr;
+	dumpstr = "       ";
+	char t[ 4 ];
+	//loop through to 
+	for ( int i = 0; i < dumpsPerLine; i++ ) {
+		sprintf( t, "0%x ", i );
+		dumpstr += t;
+	}
+	dumpstr += "\r\n\r\n";
+
+	//get formatted string form of dump
+	dumpstr += md.formatDump( memdumpBuffer.data(), dumpAddress, dumpSize, dumpsPerLine );
+
+	return dumpstr;
 }
 
 
@@ -183,7 +268,7 @@ NesDebugger::isOpen()
 ==============================================
 */
 bool NesDebugger::isOpen() {
-	return showWindow;
+	return showDebugWindow;
 }
 
 /*
@@ -294,7 +379,7 @@ void NesDebugger::setToSingleStepMode( uword address ) {
 	singleStepMode = true;
 	justInSingleStepMode = true;
 	renderPos = address;
-	showWindow = true;
+	showDebugWindow = true;
 	
     updateDebugger();
 	
@@ -309,7 +394,7 @@ void NesDebugger::turnOffSingleStepMode()
 void NesDebugger::turnOffSingleStepMode() {
 	singleStepMode = false; 
 	justInSingleStepMode = true;
-	showWindow = false;
+	showDebugWindow = false;
 }
 
 /*

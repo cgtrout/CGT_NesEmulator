@@ -79,7 +79,14 @@ namespace NesEmulator {
 		uword selectedPos;
 		uword selectedAddress;
 
-		bool showWindow;
+		bool showDebugWindow;
+		bool showMemoryDump;
+		
+		uword dumpAddress;
+		std::string dumpAddressStr;
+		int dumpSize;
+		int memDumpType;
+		std::string loadMemoryDump(  );
 
 		struct DebugLine
 		{
