@@ -3,11 +3,6 @@
 
 using namespace NesEmulator;
 
-//disable string warning
-#if _MSC_VER > 1000
-	#pragma warning ( disable : 4996 )
-#endif
-
 NesMemory *memory;
 
 #ifndef LIGHT_BUILD
@@ -139,7 +134,6 @@ void NesDebugger::draw( ) {
 	ImGui::End( );
 	
 }
-
 
 bool NesDebugger::isOpen() {
 	return showWindow;
@@ -409,8 +403,8 @@ char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *
 char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val ) {
 	char byte1[ 3 ];
 	char byte2[ 3 ];
-	char symbol[ 3 ];
-	char end[ 4 ];
+	char symbol[ 4 ];
+	char end[ 5 ];
 	char addressStr[ 8 ];  
 	char opString[ 3 ];
 
