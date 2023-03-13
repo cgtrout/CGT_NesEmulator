@@ -68,7 +68,10 @@ void NesDebugger::draw( ) {
 		return;
 	}
 
-	ImGui::Begin( "Debugger Window", &this->showWindow, ImGuiWindowFlags_MenuBar );
+	//ImGui::Begin( "Debugger Window", &this->showWindow, ImGuiWindowFlags_MenuBar );
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+	ImGui::Begin( "Debugger Window", &this->showWindow, window_flags );
+	/*
 	if ( ImGui::BeginMenuBar( ) )
 	{
 		if ( ImGui::BeginMenu( "File" ) )
@@ -80,10 +83,10 @@ void NesDebugger::draw( ) {
 		}
 		ImGui::EndMenuBar( );
 	}
+	*/
 
-	// Display contents in a scrolling region
 	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
-		ImGui::BeginChild( "Scrolling" );
+		ImGui::BeginChild( "Scrolling", ImVec2( ImGui::GetContentRegionAvail( ).x * 0.5f, ImGui::GetContentRegionAvail( ).y ), false, window_flags );
 			for ( unsigned int n = 0; n < debugLines.size( ); n++ ) {
 				if ( isBreakPointAt( debugLines[ n ].address ) ) {
 					ImGui::Text( " + " );
@@ -97,7 +100,44 @@ void NesDebugger::draw( ) {
 				}
 			}
 		ImGui::EndChild( );
+
+	ImGui::SameLine( );
+
+	ImGui::BeginChild( "second column" );
+		ImGui::Text( "A  0x%x", nesCpu->getAReg( ) );
+		ImGui::Text( "X  0x%x", nesCpu->getXReg( ) );
+		ImGui::Text( "Y  0x%x", nesCpu->getYReg( ) );
+		ImGui::Text( "PC 0x%x", nesCpu->getPC( ) );
+		ImGui::Text( "SP 0x%x", nesCpu->getSP( ) );
+
+		ImGui::NewLine( );
+
+		bool carry = nesCpu->getCarry( );
+		bool zero = nesCpu->getZero( );
+		bool interruptDis = nesCpu->getInterruptDisable( );
+		bool breakPoint = nesCpu->getBreakPoint( );
+		bool overflow = nesCpu->getOverflow( );
+		bool negative = nesCpu->getNegative( );
+
+		ImGui::Checkbox( "Carry", &carry );
+		ImGui::Checkbox( "Zero", &zero );
+		ImGui::Checkbox( "Interupt Dis.", &interruptDis );
+		ImGui::Checkbox( "Breakpoint", &breakPoint );
+		ImGui::Checkbox( "Overflow", &overflow );
+		ImGui::Checkbox( "Negative", &negative);
+
+		if ( ImGui::Button( "Step" ) ) {
+			this->singleStepRequest( );
+		}
+
+		if ( ImGui::Button( "Run" ) ) {
+			this->turnOffSingleStepMode( );
+		}
+
+	ImGui::EndChild();
+	
 	ImGui::End( );
+	
 }
 
 
@@ -111,8 +151,7 @@ void NesDebugger::onEnter() {
 }
 
 void NesDebugger::selectDissasemblerLine( int line ) {
-	//winDebugger.selectDissasemblerLine( line );
-	throw CgtException( "Warning", "unimplemented", true );
+	selectedPos = line;
 }
 
 void NesDebugger::setRenderPos( uword val ) {
