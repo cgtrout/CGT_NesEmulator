@@ -102,27 +102,27 @@ void NesDebugger::draw( ) {
 	
 		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "A " );
 		ImGui::SameLine( );
-		ImGui::Text( "0x%02x", nesCpu->getAReg( ) );
+		ImGui::Text( "0x%02X", nesCpu->getAReg( ) );
 	
 		ImGui::SameLine( );
 
 		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "PC " );
 		ImGui::SameLine( );
-		ImGui::Text( "%04x", nesCpu->getPC( ) );
+		ImGui::Text( "%04X", nesCpu->getPC( ) );
 
 		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "X " );
 		ImGui::SameLine( );
-		ImGui::Text( "0x%02x", nesCpu->getXReg( ) );
+		ImGui::Text( "0x%02X", nesCpu->getXReg( ) );
 	
 		ImGui::SameLine( );
 
 		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "SP " );
 		ImGui::SameLine( );
-		ImGui::Text( "0x%04x", nesCpu->getSP( ) );
+		ImGui::Text( "0x%04X", nesCpu->getSP( ) );
 		
 		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "Y " );
 		ImGui::SameLine( );
-		ImGui::Text( "0x%02x", nesCpu->getYReg( ) );
+		ImGui::Text( "0x%02X", nesCpu->getYReg( ) );
 
 		ImGui::NewLine( );
 
@@ -163,13 +163,11 @@ void NesDebugger::draw( ) {
 
 	ImGui::EndChild();
 	
-	ImGui::End( );
-	
+	ImGui::End( );	
 }
 
 void NesEmulator::NesDebugger::drawWatchBox( const int index )
 {
-	//watch window
 	ImGui::PushItemWidth( 50 );
 	std::string title{ "Watch" };
 	title += '0' + index;
@@ -179,7 +177,7 @@ void NesEmulator::NesDebugger::drawWatchBox( const int index )
 	uword watchLoc = ( uword )strtol( watchStrings[ index ], NULL, 16 );
 
 	ImGui::SameLine( );
-	ImGui::Text( "0x%04x", memory->getMemory( watchLoc ) );
+	ImGui::Text( "0x%02X", memory->getMemory( watchLoc ) );
 }
 
 bool NesDebugger::isOpen() {
