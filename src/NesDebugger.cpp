@@ -49,7 +49,6 @@ NesDebugger::initialize()
 void NesDebugger::initialize() {
 	memory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory;
 	singleStepMode = false;
-	//singleStepMode = true;
     justInSingleStepMode = false;
     numBreakPoints = 0;
 	
@@ -182,12 +181,9 @@ void NesDebugger::loadWindowText() {
 	static uword lastAddress = 0;
 
 	if( renderPos != lastAddress ) {
-		//strcpy( buffer, buildOutputString( renderPos, winDebugger.numDebugLines ).c_str() );
-		//winDebugger.loadDisassemblyWindow( buffer );
 		buildDissassemblerLines( renderPos, numDebugLines );
 		lastAddress = renderPos;
 	}
-	//throw CgtException( "Warning", "unimplemented", true );
 }
 /*
 ==============================================
@@ -196,8 +192,6 @@ void NesDebugger::updateDebugger()
 */
 void NesDebugger::updateDebugger() {
 	loadWindowText();
-	//winDebugger.fillWindow();
-	//throw CgtException( "Warning", "unimplemented", true );
 }
 /*
 ==============================================
@@ -210,11 +204,9 @@ void NesDebugger::setToSingleStepMode( uword address ) {
 	renderPos = address;
 	showWindow = true;
 	
-    //winDebugger.fillWindow();
     updateDebugger();
 	
 	//winDebugger.selectDissasemblerLine( 0 );
-	//throw CgtException( "Warning", "unimplemented", true );
 }
 
 /* 
@@ -226,8 +218,6 @@ void NesDebugger::turnOffSingleStepMode() {
 	singleStepMode = false; 
 	justInSingleStepMode = true;
 	showWindow = false;
-	//winDebugger.hideWindow();
-	//throw CgtException( "Warning", "unimplemented", true );
 }
 
 /*
