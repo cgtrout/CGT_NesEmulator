@@ -142,6 +142,12 @@ void NesDebugger::draw( ) {
 		
 		ImGui::NewLine( );
 
+		for ( unsigned int i = 0; i < watchStrings.size( ); i++ ) {
+			drawWatchBox( i );
+		}
+
+		ImGui::NewLine( );
+
 		ImGui::BeginChild( "buttons" );
 			if ( ImGui::Button( "Step" ) ) {
 				this->singleStepRequest( );
@@ -158,6 +164,21 @@ void NesDebugger::draw( ) {
 	
 	ImGui::End( );
 	
+}
+
+void NesEmulator::NesDebugger::drawWatchBox( const int index )
+{
+	//watch window
+	ImGui::PushItemWidth( 50 );
+	std::string title{ "Watch" };
+	title += '0' + index;
+	ImGui::InputText( title.c_str() , watchStrings[index], 5, ImGuiInputTextFlags_CharsHexadecimal );
+	ImGui::PopItemWidth( );
+
+	uword watchLoc = ( uword )strtol( watchStrings[ index ], NULL, 16 );
+
+	ImGui::SameLine( );
+	ImGui::Text( "0x%04x", memory->getMemory( watchLoc ) );
 }
 
 bool NesDebugger::isOpen() {

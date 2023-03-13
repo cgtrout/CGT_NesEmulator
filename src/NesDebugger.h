@@ -70,6 +70,7 @@ namespace NesEmulator {
 		void buildDissassemblerLines( uword startAddress, const int length );
 		bool instructionIsPointingTo( uword opAddress, uword knownAddress );
 		bool isAPreviousValidInst( uword opAddress );
+		void drawWatchBox( const int index );
 		
 		bool singleStepMode;
 		bool doSingleStep;
@@ -93,6 +94,8 @@ namespace NesEmulator {
 
 		std::vector<DebugLine> debugLines;
 		int numDebugLines = 20;
+
+		std::array<char[ 5 ], 4> watchStrings;
 	};
 
 }
