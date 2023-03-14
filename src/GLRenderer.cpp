@@ -150,6 +150,11 @@ void Renderer::render2D() {
 			ppuDraw.drawPaletteTable( &FrontEnd::SystemMain::getInstance()->nesMain.nesPpu.nesPalette );
 		}
 	}
+
+	//render nes output
+	systemMain->timeProfiler.startSection( "RenPPU" );
+	ppuDraw.drawOutput( systemMain->nesMain.nesPpu.vidoutBuffer );
+	systemMain->timeProfiler.stopSection( "RenPPU" );
 }
 
 void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte color ) {

@@ -100,12 +100,6 @@ void NesMain::update() {
 	frameNum++;
 
 	systemMain->timeProfiler.stopSection( "Cpu" );
-	systemMain->timeProfiler.startSection( "RenPPU" );
-	
-	//render ppu output to PPUDraw
-	FrontEnd::SystemMain::getInstance()->renderer.ppuDraw.drawOutput( nesPpu.vidoutBuffer );
-
-	systemMain->timeProfiler.stopSection( "RenPPU" );
 }
 
 void NesMain::reset() {
