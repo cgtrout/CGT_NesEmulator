@@ -20,7 +20,6 @@ using namespace CGTSingleton;
 #define SYSTEM_PLATFORM = "Win32"
 #endif
 
-
 //define this to build a light weight version of the emulator
 //no extra debugging systems
 //#define LIGHT_BUILD
@@ -43,8 +42,8 @@ extern Console::ConsoleSystem *consoleSystem;
 //#define CYCLES_PER_FRAME 89492
 #define CYCLES_PER_FRAME 89342
 
-constexpr auto SCREEN_WIDTH = 800;
-constexpr auto SCREEN_HEIGHT = 600;
+constexpr auto SCREEN_WIDTH = 1280;
+constexpr auto SCREEN_HEIGHT = 764;
 constexpr double FRAME_TIME = 1.0f / 60.0f;
 constexpr auto AUDIO_SAMPLE_RATE = 44100;
 constexpr auto AUDIO_SAMPLES = 4096;
@@ -52,7 +51,6 @@ constexpr auto AUDIO_SAMPLES = 4096;
 //must be set to this to pass nmi clearing test 
 //it seems higher than it should have to be though...
 const int vblankOffTime = 6810;//6821;//7161;
-
 
 template< class T >
 T FORCE_LOW( const T val, const T lowestAllowed ) {
