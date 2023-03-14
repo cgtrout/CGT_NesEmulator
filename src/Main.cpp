@@ -106,9 +106,11 @@ int main( int argc, char* args[] )
 		//ImGui::ShowDemoWindow( &showDemo );
 
 		//draw profiler
-		ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
-		ImGui::Text( profilerReport.c_str( ) );
-		ImGui::End( );
+		if ( drawTimeProfiler ) {
+			ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
+			ImGui::Text( profilerReport.c_str( ) );
+			ImGui::End( );
+		}
 
 		ImGui::Render( );
 		ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );

@@ -143,10 +143,10 @@ void Renderer::render2D() {
 	//glDisable( GL_TEXTURE_2D );
 	
 	if( systemMain->nesMain.getState() == Emulating ) {
-		if( drawPatternTable.getValue() == 1.0f ) {
+		if( drawPatternTable ) {
 			ppuDraw.drawPatternTable();   
 		}
-		if( drawPaletteTable.getValue() == 1.0f ) {
+		if( drawPaletteTable ) {
 			ppuDraw.drawPaletteTable( &FrontEnd::SystemMain::getInstance()->nesMain.nesPpu.nesPalette );
 		}
 	}
