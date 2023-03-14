@@ -19,6 +19,12 @@ Console::ConsoleVariable< bool > vsync (
 	/*description*/	"Enable vsync",
 	/*save?*/		SAVE_TO_FILE );
 
+Console::ConsoleVariable< bool > drawTimeProfiler(
+	/*start val*/	true,
+	/*name*/		"drawTimeProfiler",
+	/*description*/	"Show time profiler window",
+	/*save?*/		SAVE_TO_FILE );
+
 //function declarations
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
@@ -51,6 +57,8 @@ int main( int argc, char* args[] )
 	//insert console variables for capping frame rate and setting vsync
 	consoleSystem->variables.addBoolVariable( &capFrameRate );
 	consoleSystem->variables.addBoolVariable( &vsync );
+	consoleSystem->variables.addBoolVariable( &drawTimeProfiler );
+
 	
 	//set vsync based on console variable setting
 	VsyncHandler( window );
@@ -59,6 +67,7 @@ int main( int argc, char* args[] )
 	SDL_Event sdl_event;
 	bool quit = false;
 	bool vsyncSetting = vsync.getValue( );
+	std::string profilerReport{};
 
 	//ensure SDL isn't initialized to take text input rather than raw presses
 	SDL_StopTextInput( );
@@ -96,6 +105,11 @@ int main( int argc, char* args[] )
 		//static bool showDemo = false;
 		//ImGui::ShowDemoWindow( &showDemo );
 
+		//draw profiler
+		ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
+		ImGui::Text( profilerReport.c_str( ) );
+		ImGui::End( );
+
 		ImGui::Render( );
 		ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
 
@@ -111,7 +125,8 @@ int main( int argc, char* args[] )
 		////
 		systemMain->timeProfiler.stopFrame( );
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
-		systemMain->guiTimeProfiler.setReportString( systemMain->timeProfiler.getSectionReport( ) );
+		profilerReport = systemMain->timeProfiler.getSectionReport( );
+		//TODO show time profiler window
 		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );		
 	}
 

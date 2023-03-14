@@ -19,7 +19,6 @@
 
 #include "GUIConsole.h"
 #include "GUIFPSCounter.h"
-#include "GuiTimeProfiler.h"
 
 #include "FPSTimer.h"
 #include "TimeProfiler.h"
@@ -82,7 +81,6 @@ namespace FrontEnd {
 		FPSTimer fpsTimer;
 		
 		TimeProfiler timeProfiler;
-		GUISystem::GuiTimeProfiler guiTimeProfiler;
 		
 	  private:
 		

@@ -67,6 +67,7 @@ namespace Console {
 		std::string getValueString();
 
 		T getValue() { return value; }
+		T* getPointer( ) { return &value; }
 		void setValueString( std::string_view val );
 		void setValue( T val );
 

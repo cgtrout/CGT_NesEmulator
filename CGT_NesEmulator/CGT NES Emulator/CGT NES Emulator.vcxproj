@@ -181,7 +181,6 @@
     <ClCompile Include="..\..\src\GUI.cpp" />
     <ClCompile Include="..\..\src\GUIConsole.cpp" />
     <ClCompile Include="..\..\src\GUIFPSCounter.cpp" />
-    <ClCompile Include="..\..\src\GuiTimeProfiler.cpp" />
     <ClCompile Include="..\..\src\Image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -268,7 +267,6 @@
     <ClInclude Include="..\..\src\GUI.h" />
     <ClInclude Include="..\..\src\GUIConsole.h" />
     <ClInclude Include="..\..\src\GUIFPSCounter.h" />
-    <ClInclude Include="..\..\src\GuiTimeProfiler.h" />
     <ClInclude Include="..\..\src\Image.h" />
     <ClInclude Include="..\..\src\ImageTools.h" />
     <ClInclude Include="..\..\src\imgui\imconfig.h" />

@@ -62,7 +62,6 @@ void SystemMain::initialize( ) {
 	nesMain.nesPpu.initialize( );
 	nesMain.nesPpu.scanlineDrawer.initialize( );
 	nesMain.nesPpu.initialize( );
-	guiTimeProfiler.initialize( );
 
 #ifndef LIGHT_BUILD
 	nesDebugger->initialize( );
@@ -197,7 +196,6 @@ void SystemMain::start() {
 
 	gui.addElement( &guiConsole );
 	gui.addElement( &frameCounter );
-	gui.addElement( &guiTimeProfiler );
 
 	frameCounter.setOpen( true );
 	gui.setUsingMouse( true );
