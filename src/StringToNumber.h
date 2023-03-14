@@ -31,7 +31,7 @@ std::string ubyteToString( ubyte val, bool leader = false );
 
 //converts a uword number to string
 //leader is used to print leading "0x" at the end of the string
-std::string uwordToString( uword val, bool leader = false );
+std::string uwordToString( uword val, unsigned int width, bool leader = false );
 
 //initialize exception class
 class StringToNumberException {

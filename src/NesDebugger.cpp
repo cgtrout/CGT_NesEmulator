@@ -541,175 +541,129 @@ void NesDebugger::buildDissassemblerLines( uword startAddress, const int length 
 
 /* 
 ==============================================
-char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte byte1val, ubyte byte2val )
+char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *opcodeLookup, ubyte byte1val, ubyte byte2val )
 ==============================================
 */
-char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val ) {
-	char byte1[ 3 ];
-	char byte2[ 3 ];
-	char symbol[ 4 ];
-	char end[ 5 ];
-	char addressStr[ 8 ];  
-	char opString[ 3 ];
+std::string NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry* opcodeLookup, ubyte opcode, ubyte byte1val, ubyte byte2val )
+{
+	std::ostringstream oss;
+	std::string byte1 = uwordToString( byte1val, 2 );
+	std::string byte2 = uwordToString( byte2val, 2 );
+	std::string symbol;
+	std::string end;
+	std::string addressStr = "$" + uwordToString( address, 4, false ) + ": ";
 
-	bool usebyte1;
-	bool usebyte2;
-	bool useend; //use string after bytes are printed
+	bool usebyte1 = false;
+	bool usebyte2 = false;
+	bool useend = false;
 
-	static char debugBuffer[ 1000 ];
-	debugBuffer[ 0 ] = '\0';
-	usebyte1 = false;
-	usebyte2 = false;
-	useend = false;
-
-	sprintf( byte1, "%X", byte1val );
-	sprintf( byte2, "%X", byte2val );
-
-	//pad with '0' if length is one
-	if( strlen( byte1 ) == 1 ) {
-		byte1[ 1 ] = byte1[ 0 ];
-		byte1[ 0 ] = '0';
-		byte1[ 2 ] = '\0';
-	}
-	if( strlen( byte2 ) == 1 ) {
-		byte2[ 1 ] = byte2[ 0 ];
-		byte2[ 0 ] = '0';
-		byte2[ 2 ] = '\0';
-	}
-
-	switch( l->mode ) {
-	case M_IMMEDIATE:
-		usebyte1 = true;
-		sprintf( symbol, "#$" ); 
-		break;
-	case M_ZEROPAGE:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		break;
-	case M_ZEROPAGEX:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",X" );
-		useend = true;
-		break;
-	case M_ZEROPAGEY:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",X" );
-		useend = true;
-		break;
-	case M_ABSOLUTE:
-		usebyte1 = true;
-		usebyte2 = true;
-		sprintf( symbol, "$" ); 
-		break;
-	case M_ABSOLUTEX:
-		usebyte1 = true;
-		usebyte2 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",X" );
-		useend = true;
-		break;
-	case M_ABSOLUTEY:
-		usebyte2 = true;
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",Y" );
-		useend = true;
-		break;
-	case M_INDIRECT:
-		usebyte1 = true;
-		usebyte2 = true;
-		sprintf( symbol, "( $" ); 
-		sprintf( end, " )" );
-		useend = true;
-		break;
-	case M_INDIRECTX:
-		usebyte1 = true;
-		sprintf( symbol, "( $" ); 
-		sprintf( end, ",X )" );
-		useend = true;
-		break;
-	case M_INDIRECTY:
-		usebyte1 = true;
-		sprintf( symbol, "( $" ); 
-		sprintf( end, " ),Y" );
-		useend = true;
-		break;
-	case M_IMPLIED:
-		symbol[ 0 ] = '\0';
-		break;
-	case M_ACCUMULATOR:
-		sprintf( symbol, "A" ); 
-		break;
-	case M_RELATIVE:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		break;
-	}
-	
-	//pad to zero
-	std::string &convertedAddress = uwordToString( address, false );
-
-	sprintf( addressStr, "$%s: ", convertedAddress.c_str() );
-
-	strcat( debugBuffer, addressStr );
-	
-	//print data
-	//
-	sprintf( opString, "%X", opcode );
-	
-	//pad with '0' if length is one
-	if( strlen( opString ) == 1 ) {
-		opString[ 1 ] = opString[ 0 ];
-		opString[ 0 ] = '0';
-		opString[ 2 ] = '\0';
-	}
-	strcat( debugBuffer, opString );
-	strcat( debugBuffer, " " );
-	if( usebyte1 ) {
-		strcat( debugBuffer, byte1 );
-		strcat( debugBuffer, " " );
-	}
-	if( usebyte2 ) {
-		strcat( debugBuffer, byte2 );
-		strcat( debugBuffer, "  " );
+	switch ( opcodeLookup->mode )
+	{
+		case M_IMMEDIATE:
+			usebyte1 = true;
+			symbol = "#$";
+			break;
+		case M_ZEROPAGE:
+			usebyte1 = true;
+			symbol = "$";
+			break;
+		case M_ZEROPAGEX:
+			usebyte1 = true;
+			symbol = "$";
+			end = ",X";
+			useend = true;
+			break;
+		case M_ZEROPAGEY:
+			usebyte1 = true;
+			symbol = "$";
+			end = ",Y";
+			useend = true;
+			break;
+		case M_ABSOLUTE:
+			usebyte1 = true;
+			usebyte2 = true;
+			symbol = "$";
+			break;
+		case M_ABSOLUTEX:
+			usebyte1 = true;
+			usebyte2 = true;
+			symbol = "$";
+			end = ",X";
+			useend = true;
+			break;
+		case M_ABSOLUTEY:
+			usebyte2 = true;
+			usebyte1 = true;
+			symbol = "$";
+			end = ",Y";
+			useend = true;
+			break;
+		case M_INDIRECT:
+			usebyte1 = true;
+			usebyte2 = true;
+			symbol = "($";
+			end = ")";
+			useend = true;
+			break;
+		case M_INDIRECTX:
+			usebyte1 = true;
+			symbol = "($";
+			end = ",X)";
+			useend = true;
+			break;
+		case M_INDIRECTY:
+			usebyte1 = true;
+			symbol = "($";
+			end = "),Y";
+			useend = true;
+			break;
+		case M_IMPLIED:
+			symbol = "";
+			break;
+		case M_ACCUMULATOR:
+			symbol = "A";
+			break;
+		case M_RELATIVE:
+			usebyte1 = true;
+			symbol = "$";
+			break;
 	}
 
-	//ensure we are at position 16 ( to pad output string so 
-	//instructions line up properly )
-	int position = strlen( debugBuffer )-1;
-	//position in the string that instruction string should start
-	static int opPadPosition = 17;		
-	
-	if( position != opPadPosition ) {
-		//determine how many spaces are needed
-		int spaceNeeded = opPadPosition - position;
-				
-		//add spaces
-		for( int x = 0; x < spaceNeeded; x++ ) {
-			strcat( debugBuffer, " " );
-		}
+	oss << addressStr;
+
+	oss << uwordToString( opcode, 2 ) << " ";
+	if ( usebyte1 )
+	{
+		oss << byte1 << " ";
+	}
+	if ( usebyte2 )
+	{
+		oss << byte2 << "  ";
 	}
 
-	strcat( debugBuffer, l->syntax );
-	strcat( debugBuffer, " " );
-	strcat( debugBuffer, symbol );
-	if( usebyte2 ) {
-		strcat( debugBuffer, byte2 );
+	// Pad to position 16
+	auto position = oss.tellp( );
+	const int opPadPosition = 17;
+	if ( position != opPadPosition )
+	{
+		oss << std::setw( opPadPosition - position ) << "";
 	}
-	if( usebyte1 ) {
-		strcat( debugBuffer, byte1 );
+
+	oss << opcodeLookup->syntax << " " << symbol;
+	if ( usebyte2 )
+	{
+		oss << byte2;
 	}
-	if( useend ) {
-		strcat( debugBuffer, end );
+	if ( usebyte1 )
+	{
+		oss << byte1;
 	}
-	
-	char *charReturn = "\0";
-	
-	strcat( debugBuffer, charReturn );
-	
-	return debugBuffer;
+	if ( useend )
+	{
+		oss << end;
+	}
+
+	return oss.str( );
 }
 
 

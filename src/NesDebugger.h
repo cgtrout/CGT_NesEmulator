@@ -59,7 +59,7 @@ namespace NesEmulator {
 		uword getSelectedAddress() {return selectedAddress;}
 		void selectDissasemblerLine( int );
 
-		char *buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val );
+		std::string buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val );
 			
 		NesDebugger();
 		~NesDebugger();

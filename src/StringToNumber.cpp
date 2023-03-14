@@ -159,28 +159,20 @@ std::string uwordToString( uword val, bool leader )
   leader is used to print leading "0x" at the end of the string
 ==============================================
 */
-std::string uwordToString( uword val, bool leader ) {
-	char buf[ 6 ];
-	char zeroBuf[ 3 ];
-	std::string out( "" );
-	out.clear();
-	if( leader ) {
-		out += "0x";
+std::string uwordToString( uword val, unsigned int width, bool leader ) {
+	std::string_view hexChars = "0123456789ABCDEF";
+	std::string result;
+	result.reserve( width + ((size_t)leader * 3 ));
+
+	if ( leader ) {
+		result += "0x";
 	}
 
-	sprintf( buf, "%x", val );
-	
-	//need to pad with zero's?
-	if( strlen( buf ) < 4 ) {
-		int zeroPadSize = 4 - strlen( buf );
-		int i = 0;
-		for( ; i < zeroPadSize; i++ ) {
-			zeroBuf[ i ] = '0';
-		}
-		zeroBuf[ i ] = '\0';
-		out += zeroBuf;
+	for ( int i = width - 1; i >= 0; i-- )
+	{
+		int digit = ( val >> ( 4 * i ) ) & 0xF;
+		result += hexChars[ digit ];
 	}
-	out += buf;
-	return out;
 
+	return result;
 }
