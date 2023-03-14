@@ -462,26 +462,13 @@ void DialogBox::initialize( std::string guitextures ) {
 	titleBar.setDialogTitle( &title );
 
 	try {
-		lborder.image = loadImage( gt.getNextTexture() );
-		rborder.image = loadImage( gt.getNextTexture() );
-		blcorner.image = loadImage( gt.getNextTexture() );
-		brcorner.image = loadImage( gt.getNextTexture() );
-		bborder.image = loadImage( gt.getNextTexture() );
-		background.image = loadImage( gt.getNextTexture() );
+		lborder.image = ((loadImage( gt.getNextTexture() )));
+		rborder.image = (loadImage( gt.getNextTexture() ));
+		blcorner.image = (loadImage( gt.getNextTexture() ));
+		brcorner.image = (loadImage( gt.getNextTexture() ));
+		bborder.image = (loadImage( gt.getNextTexture() ));
+		background.image = (loadImage( gt.getNextTexture() ));
 
-		lborder.image = convertToAlpha( 0,0,0,lborder.image );
-		rborder.image = convertToAlpha( 0,0,0,rborder.image );
-		blcorner.image = convertToAlpha( 0,0,0,blcorner.image );
-		brcorner.image = convertToAlpha( 0,0,0,brcorner.image );
-		bborder.image = convertToAlpha( 0,0,0,bborder.image );
-		background.image = convertToAlpha( 0,0,0,background.image );
-
-		createTexture( lborder.image, &lborder.imageid );
-		createTexture( rborder.image, &rborder.imageid );
-		createTexture( blcorner.image, &blcorner.imageid );
-		createTexture( brcorner.image, &brcorner.imageid );
-		createTexture( bborder.image, &bborder.imageid );
-		createTexture( background.image, &background.imageid );
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "DialogBox: ", "error loading image" );
@@ -542,12 +529,12 @@ void DialogBox::onRender() {
 	background.stretchFactorx = width - rborder.image.sizeX;
 	background.stretchFactory = height - ( titleBar.middle.image.sizeY + bborder.image.sizeY );
 
-	drawList.push_back( lborder );
-	drawList.push_back( rborder );
-	drawList.push_back( brcorner );
-	drawList.push_back( blcorner );
-	drawList.push_back( bborder );
-	drawList.push_back( background );
+	drawList.push_back( &lborder );
+	drawList.push_back( &rborder );
+	drawList.push_back( &brcorner );
+	drawList.push_back( &blcorner );
+	drawList.push_back( &bborder );
+	drawList.push_back( &background );
 }
 
 void DialogBox::onRightMouseDown() {
@@ -599,36 +586,16 @@ void EditBox::initialize( std::string guitextures ) {
 	addChild( &boxtext );
 
 	try	 {
-		l.image = loadImage( gt.getNextTexture() );
-		r.image = loadImage( gt.getNextTexture() );
-		b.image = loadImage( gt.getNextTexture() );
-		t.image = loadImage( gt.getNextTexture() );
-		bl.image = loadImage( gt.getNextTexture() );
-		br.image = loadImage( gt.getNextTexture() );
-		tl.image = loadImage( gt.getNextTexture() );
-		tr.image = loadImage( gt.getNextTexture() );
-		cursor.image = loadImage( gt.getNextTexture() );
+		l.image = (loadImage( gt.getNextTexture() ));
+		r.image = (loadImage( gt.getNextTexture() ));
+		b.image = (loadImage( gt.getNextTexture() ));
+		t.image = (loadImage( gt.getNextTexture() ));
+		bl.image = (loadImage( gt.getNextTexture() ));
+		br.image = (loadImage( gt.getNextTexture() ));
+		tl.image = (loadImage( gt.getNextTexture() ));
+		tr.image = (loadImage( gt.getNextTexture() ));
+		cursor.image = (loadImage( gt.getNextTexture() ));
 		
-		//TODO what if a tga file with alpha is specified??
-		l.image = convertToAlpha( 255,255,255,l.image );
-		r.image = convertToAlpha( 255,255,255,r.image );
-		b.image = convertToAlpha( 255,255,255,b.image );
-		t.image = convertToAlpha( 255,255,255,t.image );
-		bl.image = convertToAlpha( 255,255,255,bl.image );
-		br.image = convertToAlpha( 255,255,255,br.image );
-		tl.image = convertToAlpha( 255,255,255,tl.image );
-		tr.image = convertToAlpha( 255,255,255,tr.image );
-		cursor.image = convertToAlpha( 0,0,0,cursor.image );
-
-		createTexture( l.image, &l.imageid );
-		createTexture( r.image, &r.imageid );
-		createTexture( b.image, &b.imageid );
-		createTexture( t.image, &t.imageid );
-		createTexture( bl.image, &bl.imageid );
-		createTexture( br.image, &br.imageid );
-		createTexture( tl.image, &tl.imageid );
-		createTexture( tr.image, &tr.imageid );
-		createTexture( cursor.image, &cursor.imageid );
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "EditBox", "loading image" );
@@ -701,14 +668,14 @@ void EditBox::onRender() {
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 
-		drawList.push_back(l );
-		drawList.push_back(r );
-		drawList.push_back(bl );
-		drawList.push_back(br );
-		drawList.push_back(b );
-		drawList.push_back(tl );
-		drawList.push_back(t );
-		drawList.push_back(tr );
+		drawList.push_back(&l );
+		drawList.push_back(&r );
+		drawList.push_back(&bl );
+		drawList.push_back(&br );
+		drawList.push_back(&b );
+		drawList.push_back(&tl );
+		drawList.push_back(&t );
+		drawList.push_back(&tr );
 	}
 
 	//control blinking of position cursor
@@ -730,7 +697,7 @@ void EditBox::onRender() {
 		cursor.x = ( x + 4 + cursorPos * font.getFontWidth() );
 		cursor.y = y + 4;
 
-		drawList.push_back( cursor );
+		drawList.push_back( &cursor );
 	}
 
 	boxtext.setX( x + 5 );
@@ -865,59 +832,23 @@ void Button::initialize( std::string guitextures ) {
 	buttonDown = false;
 	
 	try {
-		l.image = loadImage( gt.getNextTexture() );
-		r.image = loadImage( gt.getNextTexture() );
-		b.image = loadImage( gt.getNextTexture() );
-		t.image = loadImage( gt.getNextTexture() );
-		bl.image = loadImage( gt.getNextTexture() );
-		br.image = loadImage( gt.getNextTexture() );
-		tl.image = loadImage( gt.getNextTexture() );
-		tr.image = loadImage( gt.getNextTexture() );
+		l.image = (loadImage( gt.getNextTexture() ));
+		r.image = (loadImage( gt.getNextTexture() ));
+		b.image = (loadImage( gt.getNextTexture() ));
+		t.image = (loadImage( gt.getNextTexture() ));
+		bl.image = (loadImage( gt.getNextTexture() ));
+		br.image = (loadImage( gt.getNextTexture() ));
+		tl.image = (loadImage( gt.getNextTexture() ));
+		tr.image = (loadImage( gt.getNextTexture() ));
 		
-		dl.image = loadImage( gt.getNextTexture() );
-		dr.image = loadImage( gt.getNextTexture() );
-		db.image = loadImage( gt.getNextTexture() );
-		dt.image = loadImage( gt.getNextTexture() );
-		dbl.image = loadImage( gt.getNextTexture() );
-		dbr.image = loadImage( gt.getNextTexture() );
-		dtl.image = loadImage( gt.getNextTexture() );
-		dtr.image = loadImage( gt.getNextTexture() );
-
-		l.image = convertToAlpha( 0,0,0,l.image );
-		r.image = convertToAlpha( 0,0,0,r.image );
-		b.image = convertToAlpha( 0,0,0,b.image );
-		t.image = convertToAlpha( 0,0,0,t.image );
-		bl.image = convertToAlpha( 0,0,0,bl.image );
-		br.image = convertToAlpha( 0,0,0,br.image );
-		tl.image = convertToAlpha( 0,0,0,tl.image );
-		tr.image = convertToAlpha( 0,0,0,tr.image );
-
-		dl.image = convertToAlpha( 0,0,0,dl.image );
-		dr.image = convertToAlpha( 0,0,0,dr.image );
-		db.image = convertToAlpha( 0,0,0,db.image );
-		dt.image = convertToAlpha( 0,0,0,dt.image );
-		dbl.image = convertToAlpha( 0,0,0,dbl.image );
-		dbr.image = convertToAlpha( 0,0,0,dbr.image );
-		dtl.image = convertToAlpha( 0,0,0,dtl.image );
-		dtr.image = convertToAlpha( 0,0,0,dtr.image );
-
-		createTexture( l.image, &l.imageid );
-		createTexture( r.image, &r.imageid );
-		createTexture( b.image, &b.imageid );
-		createTexture( t.image, &t.imageid );
-		createTexture( bl.image, &bl.imageid );
-		createTexture( br.image, &br.imageid );
-		createTexture( tl.image, &tl.imageid );
-		createTexture( tr.image, &tr.imageid );
-
-		createTexture( dl.image, &dl.imageid );
-		createTexture( dr.image, &dr.imageid );
-		createTexture( db.image, &db.imageid );
-		createTexture( dt.image, &dt.imageid );
-		createTexture( dbl.image, &dbl.imageid );
-		createTexture( dbr.image, &dbr.imageid );
-		createTexture( dtl.image, &dtl.imageid );
-		createTexture( dtr.image, &dtr.imageid );
+		dl.image = (loadImage( gt.getNextTexture() ));
+		dr.image = (loadImage( gt.getNextTexture() ));
+		db.image = (loadImage( gt.getNextTexture() ));
+		dt.image = (loadImage( gt.getNextTexture() ));
+		dbl.image = (loadImage( gt.getNextTexture() ));
+		dbr.image = (loadImage( gt.getNextTexture() ));
+		dtl.image = (loadImage( gt.getNextTexture() ));
+		dtr.image = (loadImage( gt.getNextTexture() ));
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "Button: error", "loading image" );
@@ -986,14 +917,14 @@ void Button::onRender() {
 		tr.y = y;
 		tr.stretchType = ST_NONE;
 	
-		drawList.push_back( l );
-		drawList.push_back( r );
-		drawList.push_back( bl );
-		drawList.push_back( br );
-		drawList.push_back( b );
-		drawList.push_back( tl );
-		drawList.push_back( t );
-		drawList.push_back( tr );
+		drawList.push_back( &l );
+		drawList.push_back( &r );
+		drawList.push_back( &bl );
+		drawList.push_back( &br );
+		drawList.push_back( &b );
+		drawList.push_back( &tl );
+		drawList.push_back( &t );
+		drawList.push_back( &tr );
 	}
 	else {
 		dl.x = x;
@@ -1032,14 +963,14 @@ void Button::onRender() {
 		dtr.y = y;
 		dtr.stretchType = ST_NONE;
 
-		drawList.push_back( dl );
-		drawList.push_back( dr );
-		drawList.push_back( dbl );
-		drawList.push_back( dbr );
-		drawList.push_back( db );
-		drawList.push_back( dtl );
-		drawList.push_back( dt );
-		drawList.push_back( dtr );
+		drawList.push_back( &dl );
+		drawList.push_back( &dr );
+		drawList.push_back( &dbl );
+		drawList.push_back( &dbr );
+		drawList.push_back( &db );
+		drawList.push_back( &dtl );
+		drawList.push_back( &dt );
+		drawList.push_back( &dtr );
 	}
 }
 
@@ -1088,17 +1019,9 @@ void TitleBar::initialize( std::string guitextures ) {
 	closeButton.setHeight( 16 );
 	
 	try {
-		left.image = loadImage( gt.getNextTexture() );
-		right.image = loadImage( gt.getNextTexture() );
-		middle.image = loadImage( gt.getNextTexture() );
-
-		left.image = convertToAlpha( 0,0,0,left.image );
-		right.image = convertToAlpha( 0,0,0,right.image ); 
-		middle.image = convertToAlpha( 0,0,0,middle.image );
-
-		createTexture( left.image, &left.imageid );
-		createTexture( right.image, &right.imageid );
-		createTexture( middle.image, &middle.imageid );
+		left.image = (loadImage( gt.getNextTexture() ));
+		right.image = (loadImage( gt.getNextTexture() ));
+		middle.image = (loadImage( gt.getNextTexture() ));
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "TitleBar: error", "loading image" );
@@ -1147,9 +1070,9 @@ void TitleBar::onRender() {
 	right.y = parent->getY();
 	right.stretchType = ST_NONE;
 
-	drawList.push_back( left );
-	drawList.push_back( right );
-	drawList.push_back( middle );
+	drawList.push_back( &left );
+	drawList.push_back( &right );
+	drawList.push_back( &middle );
 
 	textLabel->setX( parent->getX()+4 );
 	textLabel->setY( parent->getY()+4 );
@@ -1203,13 +1126,11 @@ void Slider::SliderBar::initialize( std::string guitextures ) {
 	GUIElement::initialize( guitextures );
 	try {
 		if( type == SLIDER_Y ) {
-			sliderBar.image = loadImage( gt.getNextTexture() );
+			sliderBar.image = (loadImage( gt.getNextTexture() ));
 		}	
 		else if( type == SLIDER_X ) {
-			sliderBar.image = loadImage( gt.getNextTexture() );
+			sliderBar.image = (loadImage( gt.getNextTexture() ));
 		}
-		sliderBar.image = convertToAlpha( 255,255,255, sliderBar.image );
-		createTexture( sliderBar.image, &sliderBar.imageid );		
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "SliderBar:", "error loading image" );
@@ -1252,7 +1173,7 @@ void Slider::SliderBar::onRender() {
 		sliderBar.y = parent->getY() - ( parent->getHeight()/2 ) + 10;
 	}
 	
-	drawList.push_back( sliderBar );
+	drawList.push_back( &sliderBar );
 }
 
 void Slider::SliderBar::onRightMouseDown() {
@@ -1306,30 +1227,23 @@ void Slider::initialize( std::string guitextures ) {
 	velocity = 16000;
 	slideControl = false;
 
-	sliderBar = SliderBar( type );
+	//sliderBar = SliderBar( type );
 	font.loadFont( "fonts/8x16.bmp" );
 	valueLabel.loadFont( &font );
 	valueLabel.setOpen( false );
 			
 	try {
 		if( type == SLIDER_Y ) {
-			top.image = loadImage( gt.getNextTexture() );
-			bottom.image = loadImage( gt.getNextTexture() );
-			middle.image = loadImage( gt.getNextTexture() );
+			top.image = (loadImage( gt.getNextTexture() ));
+			bottom.image = (loadImage( gt.getNextTexture() ));
+			middle.image = (loadImage( gt.getNextTexture() ));
 		}
 		else if( type == SLIDER_X ) {
-			top.image = loadImage( gt.getNextTexture() );
-			bottom.image = loadImage( gt.getNextTexture() );
-			middle.image = loadImage( gt.getNextTexture() );
+			top.image = (loadImage( gt.getNextTexture() ));
+			bottom.image = (loadImage( gt.getNextTexture() ));
+			middle.image = (loadImage( gt.getNextTexture() ));
 		}
 
-		top.image = convertToAlpha( 0,0,0, top.image );
-		bottom.image = convertToAlpha( 0,0,0, bottom.image );
-		middle.image = convertToAlpha( 0,0,0, middle.image );
-		
-		createTexture( top.image, &top.imageid );
-		createTexture( bottom.image, &bottom.imageid );
-		createTexture( middle.image, &middle.imageid );
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "Slider:", "Error loading texture" );
@@ -1402,9 +1316,9 @@ void Slider::onRender() {
 		valueLabel.setString( strvalue );
 	}
 
-	drawList.push_back( top );
-	drawList.push_back( middle );
-	drawList.push_back( bottom );
+	drawList.push_back( &top );
+	drawList.push_back( &middle );
+	drawList.push_back( &bottom );
 }
 
 void Slider::onRightMouseDown() {
@@ -1631,18 +1545,15 @@ Font::Font( ) {
 }
 
 Font::~Font() {
-	_log->Write( "Font box destructor called" );
 }
 
 void Font::loadFont( const char *file ) {
 	try {
 		//_log->Write( "Load font %s", file );
-	        image = loadImage( file );
+	    image = (loadImage( file ));
 		fontWidth = (GuiDim)image.sizeX / 32;
 		fontHeight = (GuiDim)image.sizeY / 4;	
-		if( image.channels == 3 )
-			image = convertToAlpha( 0, 0, 0, image );	
-		createTexture( image, &imageid );
+		image.createGLTexture( );
 	}
 	catch( ImageException ) {
 		std::string error = "Error loading font: ";

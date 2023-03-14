@@ -37,7 +37,8 @@ class Image {
   public:
 	int channels = 0;			
 	int sizeX = 0;				
-	int sizeY = 0;				
+	int sizeY = 0;	
+	unsigned int handle = 0;
 	
 	void plotPixel( const Vec2d *pos, const Pixel3Byte *color, ubyte alpha = 255 );
 	void clearImage();
@@ -51,16 +52,22 @@ class Image {
 	void setData( ubyte* data );
 
 	int getSize() { return channels * sizeX * sizeY; }
+
+	void createGLTexture( );
+	void bindGLTexture( );
 	
 	//size up to next power of two to satisfy opengl requirements
 	void resizePowerOfTwo( );
 
-	Image(): data(), imgid(0) {}
+	Image(): data() {}
+	Image( Image& ) = delete;
+	Image( Image&& );
+	Image& operator=( Image&& );
+
 	~Image();
 
 	//TODO eventually this should probably be private
 	std::vector<ubyte> data;	
-	unsigned int imgid;
 };
 
 class ImageException : public CgtException {
@@ -73,7 +80,7 @@ public:
 void copyImage( Image *source, int sx, int sy, int width, int height, Image *destination, int dx, int dy );
 Image loadImage( std::string_view strFileName );
 Image *flipImage( Image *image );
-Image convertToAlpha( int aR, int aG, int aB, Image image );
+Image convertToAlpha( int aR, int aG, int aB, const Image& image );
 
 // This loads and returns the BMP data
 Image LoadBMP( std::string_view strFileName );

@@ -41,8 +41,7 @@ void GUIConsole::initialize( std::string guitextures ) {
 
 	try {
 		background.image = loadImage( gt.getNextTexture() );
-		background.image = convertToAlpha( 0,0,0,background.image );
-		createTexture( background.image, &background.imageid );
+		background.image.createGLTexture( );
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "GUIConsole:", "error loading image" );
@@ -121,7 +120,7 @@ void GUIConsole::onRender() {
 			background.stretchType = GUISystem::ST_XY;
 		}
 			
-		drawList.push_back( background );
+		drawList.push_back( &background );
 		changed = false;
 	}
 }

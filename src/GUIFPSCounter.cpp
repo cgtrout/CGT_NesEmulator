@@ -28,8 +28,7 @@ void GUIFPSCounter::initialize( std::string guitextures ) {
 	
 	try {
 		background.image = loadImage( gt.getNextTexture() );
-		background.image = convertToAlpha( 0,0,0,background.image );
-		createTexture( background.image, &background.imageid );
+		background.image.createGLTexture( );
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "GUIFPSCounter:", "error loading image" );

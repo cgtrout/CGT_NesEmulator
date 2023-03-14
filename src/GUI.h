@@ -58,8 +58,20 @@ namespace GUISystem {
 		
 		}
 
+		//copy constructor
+		GEDrawElement( const GEDrawElement& de ) = delete;
+		/*
+		{
+			image = de.image;
+			x = de.x;
+			y = de.y;
+			stretchFactorx = de.stretchFactorx;
+			stretchFactory = de.stretchFactory;
+			stretchType = de.stretchType;
+			opacity = de.opacity;
+		}*/
+
 		Image image;
-		unsigned int imageid;
 		GuiDim x, y, 
 			stretchFactorx, //how much to stretch if not ST_NONE
 			stretchFactory;
@@ -245,7 +257,7 @@ namespace GUISystem {
 		std::vector< GUIElement* > children;
 
 		//list of draw elements
-		std::vector< GEDrawElement >drawList;
+		std::vector< GEDrawElement* >drawList;
 
 		//gui textures object
 		GUITextures gt;
@@ -291,13 +303,11 @@ namespace GUISystem {
 		GuiDim &getFontWidth() {return fontWidth;}
 		GuiDim &getFontHeight() {return fontHeight;}
 
-		Image getImage() {return image;}
+		Image& getImage() {return image;}
 
 		//pixel coordinates to draw given character at
 		//must call setChar first to get these
 		TextureCoord *getCoord( unsigned char c );
-
-		unsigned int getImageid() {return imageid;}
 
 	private:
 		char currChar;
@@ -313,7 +323,6 @@ namespace GUISystem {
 		std::vector< TextureCoord > coordTable;
 
 		Image image;
-		unsigned int imageid;
 	};
 
 
@@ -341,7 +350,7 @@ namespace GUISystem {
 
 		void update() {}
 
-		void loadFont( Font *font ) {this->font = *font;}
+		void loadFont( Font* font ) {this->font = font;}
 		
 		std::string &getString() {return str;}
 		
@@ -349,14 +358,14 @@ namespace GUISystem {
 		
 		void setString( const char *n ) {
 			str = n;
-			height = font.getFontHeight();
-			width = font.getFontWidth() * str.length();
+			height = font->getFontHeight();
+			width = font->getFontWidth() * str.length();
 		}
 		
-		Font *getFont() {return &font;}
+		Font *getFont() {return font;}
 
 	protected:
-		Font font;
+		Font *font;
 		std::string str;
 		void initialize( std::string &guitextures );
 	};
@@ -715,7 +724,7 @@ namespace GUISystem {
 		void renderElements( std::vector< GUIElement* > elems );
 		void renderTextLabel( TextLabel *fs );
 		void renderDebugLines( GUIElement *element );
-		void renderDrawList( const std::vector< GEDrawElement > &drawList );
+		void renderDrawList( std::vector< GEDrawElement* > &drawList );
 		GUIElement *findElementCursorOver();
 		void sendActiveToFront();
 

@@ -95,6 +95,14 @@ int main( int argc, char* args[] )
 
 		//handle sdl input events
 		SDL_EventHandler( sdl_event, quit );
+
+
+		//draw profiler
+		if ( drawTimeProfiler ) {
+			ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
+			ImGui::Text( profilerReport.c_str( ) );
+			ImGui::End( );
+		}
 		
 		////run frame
 		////
@@ -104,16 +112,6 @@ int main( int argc, char* args[] )
 
 		//static bool showDemo = false;
 		//ImGui::ShowDemoWindow( &showDemo );
-
-		//draw profiler
-		if ( drawTimeProfiler ) {
-			ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
-			ImGui::Text( profilerReport.c_str( ) );
-			ImGui::End( );
-		}
-
-		ImGui::Render( );
-		ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
 
 		SDL_GL_SwapWindow( window );
 

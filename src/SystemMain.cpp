@@ -26,6 +26,8 @@ using namespace NesEmulator;
 #ifndef LIGHT_BUILD
   extern NesDebugger *nesDebugger;
 #endif
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_opengl2.h"
 
 using namespace Console;
 using namespace InputSystem;
@@ -274,6 +276,9 @@ void SystemMain::graphicUpdate() {
 	timeProfiler.startSection( "RenFrame" );
 
 	renderer.renderFrame();
+
+	ImGui::Render( );
+	ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
 
 	timeProfiler.stopSection( "RenFrame" );
 

@@ -11,12 +11,12 @@ createTexture()
   texid
 ==============================================
 */
-void createTexture( Image image, unsigned int *texid, GLenum format ) {
+void _createTexture( Image image, unsigned int *texid, GLenum format ) {
 	glEnable( GL_TEXTURE_2D );
 	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
 	glGenTextures( 1, texid );
-	glBindTexture( GL_TEXTURE_2D, *texid );
+	//glBindTexture( GL_TEXTURE_2D, *texid );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );

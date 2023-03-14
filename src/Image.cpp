@@ -2,16 +2,63 @@
 #include < windows.h >
 #include < fstream >
 #include <assert.h>
+#include <gl/GL.h>
 
-//TODO change all loading functions so that they take in an image rather than
-//returning one
+/*
+==============================================
+Image Move Constructor
+==============================================
+*/
+Image::Image( Image&& other)
+{
+	this->data = std::move( other.data );
+	this->sizeX = other.sizeX;
+	this->sizeY = other.sizeY;
+	this->channels = other.channels;
+	this->handle = other.handle;
+	other.handle = 0;
+}
 
-/* 
+/*
+==============================================
+Image Move Assignment
+==============================================
+*/
+Image& Image::operator=( Image&& other ) {
+	this->data = std::move( other.data );
+	this->sizeX = other.sizeX;
+	this->sizeY = other.sizeY;
+	this->channels = other.channels;
+	this->handle = other.handle;
+	other.handle = 0;
+
+	return *this;
+}
+
+/*
+==============================================
+Image Copy Constructor
+==============================================
+*/
+/*
+Image& Image::operator=( const Image& other ) {
+	this->data = std::move( other.data );
+	this->sizeX = other.sizeX;
+	this->sizeY = other.sizeY;
+	this->channels = other.channels;
+	this->handle = other.handle;
+	//other.handle = 0;
+}*/
+
+/*
 ==============================================
 Image::~Image()
 ==============================================
 */
 Image::~Image() {
+	if ( handle ) {
+		glDeleteTextures( 1, &handle );
+	}
 }
 
 /* 
@@ -58,6 +105,39 @@ void Image::setData( ubyte* data ) {
 	this->data = std::vector<ubyte>( data, data + getSize());
 }
 
+void Image::createGLTexture(  ) {
+	if ( handle ) {
+		glDeleteTextures( 1, &handle );
+	}
+	
+	GLenum format = 0;
+	if ( channels == 3 ) {
+		format = GL_RGB;
+	} else if ( channels == 4 ) {
+		format = GL_RGBA;
+	} else {
+		throw CgtException( "Image::createGLTexture", "Invalid channel count", true );
+	}
+
+	glEnable( GL_TEXTURE_2D );
+	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+	glGenTextures( 1, &handle );
+	glBindTexture( GL_TEXTURE_2D, handle );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+
+	//ensure that x, and y dimensions are powers of two
+	resizePowerOfTwo( );
+
+	glTexImage2D( GL_TEXTURE_2D, 0, channels, sizeX, sizeY, 0, format, GL_UNSIGNED_BYTE, data.data( ) );
+}
+
+void Image::bindGLTexture( ) {
+	glBindTexture( GL_TEXTURE_2D, handle);
+}
+
 int pow2Table[] = { 2,4,6,8,16,32,64,128,256,512,1024,2048 };
 
 int getNextPowerOf2( int value ) {
@@ -99,6 +179,9 @@ Image loadImage( std::string_view strFileName ) {
 	else {
 		throw ImageException( "loadImage()", "unsupported file format" );
 	}
+	pImage = convertToAlpha( 0, 0, 0, pImage );
+
+	pImage.createGLTexture( );
 
 	return pImage;
 }
@@ -131,8 +214,7 @@ Image flipImage( Image image ) {
 		}
 	}
 	
-	image = newImage;
-	return image;
+	return newImage;
 }
 
 /*
@@ -146,7 +228,7 @@ convertToAlpha()
   alpha channel
 ==============================================
 */
-Image convertToAlpha( int aR, int aG, int aB, Image image ) {
+Image convertToAlpha( int aR, int aG, int aB, const Image& image ) {
 	Image newimage;
 	int sizeOfImage = image.sizeX * image.sizeY;
 
@@ -174,8 +256,7 @@ Image convertToAlpha( int aR, int aG, int aB, Image image ) {
 		newimage.data[ newimagecount+3 ] = alpha;		
 	}
 	
-	image = newimage;
-	return image;
+	return newimage;
 }
 
 //helper function for LoadBMP - loads an 'L.S.Byte first' format int from file
