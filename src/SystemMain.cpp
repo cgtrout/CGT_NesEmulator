@@ -274,13 +274,13 @@ SystemMain::graphicUpdate()
 */
 void SystemMain::graphicUpdate() {
 	timeProfiler.startSection( "RenFrame" );
-
 	renderer.renderFrame();
+	timeProfiler.stopSection( "RenFrame" );
+
+	nesDebugger->draw( );
 
 	ImGui::Render( );
 	ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
-
-	timeProfiler.stopSection( "RenFrame" );
 
 	//renderer.drawImage( nesMain.nesApu.getGraph(), &Vec2d( 0, 20 ),true, 1, 0.5f );
 	timeProfiler.startSection( "RenGUI" );
@@ -292,8 +292,6 @@ void SystemMain::graphicUpdate() {
 		//MessageBox( hWnd, "GUIRunException caught", "Error", MB_OK );
 		exit( 0 );
 	}
-
-	nesDebugger->draw( );
 
 	timeProfiler.stopSection( "RenGUI" );
 }
