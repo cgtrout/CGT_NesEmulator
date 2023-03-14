@@ -541,7 +541,7 @@ void NesDebugger::buildDissassemblerLines( uword startAddress, const int length 
 
 /* 
 ==============================================
-char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *opcodeLookup, ubyte byte1val, ubyte byte2val )
+NesDebugger::buildDebugLine
 ==============================================
 */
 std::string NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry* opcodeLookup, ubyte opcode, ubyte byte1val, ubyte byte2val )
