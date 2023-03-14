@@ -278,7 +278,7 @@ NesDebugger::onEnter()
 */
 void NesDebugger::onEnter() {
 	//winDebugger.onEnter();
-	throw CgtException( "Warning", "unimplemented", true );
+	//throw CgtException( "Warning", "unimplemented", true );
 }
 
 /*

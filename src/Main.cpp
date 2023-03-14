@@ -96,7 +96,6 @@ int main( int argc, char* args[] )
 		//handle sdl input events
 		SDL_EventHandler( sdl_event, quit );
 
-
 		//draw profiler
 		if ( drawTimeProfiler ) {
 			ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
