@@ -23,21 +23,6 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  buffer( 0 ),
  playPos( 0 ) {
 	buffer.resize( bufferLength, 0 );
-
-	graph.setWindow_x( 0, 256 );
-	graph.setWindow_y( 0, 20000 );
-	graph.setDrawGrid_x( false );
-	graph.setDrawGrid_y( false );
-	graph.setGridSize_x( 1 );
-	graph.setGridSize_y( 1000 );
-	graph.setPixelHeight( 256 );
-	graph.setPixelWidth( 512 );
-	graph.setDataBuffer( &buffer, bufferLength );
-	graph.setShadeGraph( true );
-	graph.setAxisColor( &Pixel3Byte( 255, 255, 255 ) );
-	graph.setGridColor( &Pixel3Byte( 100, 100, 100 ) );
-	graph.setLineColor( &Pixel3Byte( 255, 255, 0 ) );
-	graph.setShadeColor( &Pixel3Byte( 200, 0, 0 ) );
 }
 
 NesSoundBuffer::~NesSoundBuffer() {
@@ -45,7 +30,7 @@ NesSoundBuffer::~NesSoundBuffer() {
 
 //boost::mutex mutex;
 //samples is number of samples, and not actual byte size  of copy
-void NesSoundBuffer::fillExternalBuffer( Uint16* ptr, int samples ) {
+void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 	_ASSERTE( samples <= bufferLength );
 	if( this == NULL ) { 
 		return;

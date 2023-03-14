@@ -26,7 +26,7 @@ namespace NesApu {
 		
 		//fills an external buffer with "size" number of bytes from 
 		//internal buffer
-		void fillExternalBuffer( Uint16* rawPointer, int size );
+		void fillExternalBuffer( Sint16* rawPointer, int size );
 
 		//adds a sample to buffer - note: will average out a number 
 		//of samples before adding to buffer
@@ -35,7 +35,7 @@ namespace NesApu {
 		int getBufferPos() { return bufferPos; }
 		void resetBufferPos() { bufferPos = 0; }
 
-		std::vector<Uint16>* getBuffer( ) { return &buffer; }
+		std::vector<Sint16>* getBuffer( ) { return &buffer; }
 
 	  private:
 		//these are used for calculating average sample value
@@ -57,7 +57,7 @@ namespace NesApu {
 		int playPos;
 
 		//actual sound buffer
-		std::vector<Uint16> buffer;
+		std::vector<Sint16> buffer;
 	};
 
 	/*

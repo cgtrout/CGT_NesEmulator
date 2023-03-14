@@ -208,14 +208,6 @@ std::string NesDebugger::loadMemoryDump(  ) {
 	//how many dumps should be on each line of the printout
 	static const int dumpsPerLine = 16;
 
-	//determine dump type
-	//int memDumpType;
-	//if ( IsDlgButtonChecked( debugWnd, IDC_CPUDUMP ) == BST_CHECKED ) {
-	//	memDumpType = md.MEMDUMPTYPE_MAIN;
-	//} else {
-	//	memDumpType = md.MEMDUMPTYPE_PPU;
-	//}
-
 	try {
 		//grab dump
 		md.getMemoryDump( memDumpType, memdumpBuffer.data(), dumpAddress, dumpSize );

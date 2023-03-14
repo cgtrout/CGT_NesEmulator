@@ -315,7 +315,7 @@ void nesAudio( Uint8* stream, int len )
 {
 	//we are using 16 bit samples rather than eight, so cast 8bit pointer to a 16 bit pointer
 	//fixme: convert to signed int
-	Uint16* pointer16 = ( Uint16* )&stream[ 0 ];
+	Sint16* pointer16 = ( Sint16* )&stream[ 0 ];
 
 	auto* apu = &systemMain->nesMain.nesApu;
 
