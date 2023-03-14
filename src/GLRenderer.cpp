@@ -14,22 +14,19 @@
 
 #include "GLGeneral.h"
 
+#include "ImGui/imgui.h"
+
 extern FrontEnd::CLog *_log;
 
 using namespace Console;
 using namespace Render;
 
-ConsoleVariable< bool > drawPatternTable( 
+ConsoleVariable< bool > drawDebugPPU( 
 /*start val*/	true, 
-/*name*/		"drawPatternTable", 
+/*name*/		"drawDebugPPU", 
 /*description*/	"Sets whether the debug pattern table should be drawn or not",
 /*save?*/		SAVE_TO_FILE );
 
-ConsoleVariable< bool > drawPaletteTable( 
-/*start val*/	true, 
-/*name*/		"drawPaletteTable",			
-/*description*/	"Sets whether the debug palette table should be drawn or not",
-/*save?*/		SAVE_TO_FILE );
 
 
 //TODO this turns off the conversion ( From int to float ) warning
@@ -60,8 +57,7 @@ float zdrawPos	= 0.0f;
 
 void Renderer::initialize() {
 	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
-	consoleSystem->variables.addBoolVariable( &drawPatternTable );
-	consoleSystem->variables.addBoolVariable( &drawPaletteTable );
+	consoleSystem->variables.addBoolVariable( &drawDebugPPU );
 
 	//prepare model and projection view for 2d drawing
 	glMatrixMode( GL_PROJECTION );
@@ -106,8 +102,15 @@ Renderer::renderFrame()
 ==============================================
 */
 void Renderer::renderFrame() {
+	//disable multitexuring so it doesn't affect 2d drawing
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
 	render2D();
 	
+	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+	glEnable( GL_BLEND );
+
 #ifdef _DEBUG
 	//see if there were any errors this frame
 	int glError = glGetError();
@@ -135,19 +138,15 @@ Renderer::render2D()
 ==============================================
 */
 void Renderer::render2D() {
-	//disable multitexuring so it doesn't affect 2d drawing
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	
-	//TODO disable fragments
-	//glDisable( GL_TEXTURE_2D );
-	
 	if( systemMain->nesMain.getState() == Emulating ) {
-		if( drawPatternTable ) {
-			ppuDraw.drawPatternTable();   
-		}
-		if( drawPaletteTable ) {
-			ppuDraw.drawPaletteTable( &FrontEnd::SystemMain::getInstance()->nesMain.nesPpu.nesPalette );
+		if( drawDebugPPU ) {
+			Image& patternImage = ppuDraw.drawPatternTableF();   
+			Image& paletteImage = ppuDraw.drawPaletteTableF(&systemMain->nesMain.nesPpu.nesPalette);
+			
+			ImGui::Begin( "PPU Debug Window", drawDebugPPU.getPointer( ), 0 );
+			ImGui::Image( ( void* )patternImage.handle, ImVec2( patternImage.sizeX, patternImage.sizeY ) );
+			ImGui::Image( ( void* )paletteImage.handle, ImVec2( paletteImage.sizeX, paletteImage.sizeY ) );
+			ImGui::End( );
 		}
 	}
 
@@ -155,6 +154,8 @@ void Renderer::render2D() {
 	systemMain->timeProfiler.startSection( "RenPPU" );
 	ppuDraw.drawOutput( systemMain->nesMain.nesPpu.vidoutBuffer );
 	systemMain->timeProfiler.stopSection( "RenPPU" );
+
+	
 }
 
 void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte color ) {
@@ -173,19 +174,9 @@ void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte 
 
 
 void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, float opacity ) {
-	static GLuint imgid = 0;
-				
-	if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
-
 	glEnable( GL_BLEND );
 	
-    if( image.channels == 3 ) {
-		createTexture( image, &imgid, GL_RGB );
-	} else {
-		createTexture( image, &imgid, GL_RGBA );
-	}
+	image.createGLTexture( );
     
 	//glBindTexture( GL_TEXTURE_2D, imgid );
 
@@ -217,7 +208,7 @@ void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, floa
 }
 /*
 ==============================================
-PPUDraw::drawPatternTable()
+PPUDraw::drawPatternTableF()
 
   Draws patterntable contents ( for debugging )
 
@@ -299,9 +290,9 @@ void PPUDraw::initialize( ) {
 }
 
 //TODO create generic routine for drawing data buffer to screen
-void PPUDraw::drawPatternTable() {
-    static GLuint imgid = 0;
-    
+Image& PPUDraw::drawPatternTableF() {
+	static Image img;
+	
 	float x = patternTableX.getValue();
 	float y = patternTableY.getValue();
 	float scale = patternTableScale.getValue();
@@ -330,12 +321,6 @@ void PPUDraw::drawPatternTable() {
     
     //feed data to gl
     //create texture
-    
-    Image img;
-
-    if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
 
     img.channels = 3; 
     img.sizeX = ( 0x0f * 8 ) * 2;
@@ -345,20 +330,10 @@ void PPUDraw::drawPatternTable() {
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( img, &imgid, GL_RGB );
-    glBindTexture( GL_TEXTURE_2D, imgid );
-    
-    float zdrawpos = 0.0001f;
-
-    glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, 1.0 ); glVertex3f( x, y, zdrawpos );
-		glTexCoord2f( 0.0, 0.0 ); glVertex3f( x, y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 0.0 ); glVertex3f( x + ( img.sizeX*scale ), y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 1.0 ); glVertex3f( x + ( img.sizeX*scale ), y, zdrawpos );
-	glEnd();
-
-	glEnable( GL_BLEND );
-	//img.data = 0;
+	img.createGLTexture( );
+    glBindTexture( GL_TEXTURE_2D, img.handle );
+   
+	return img;
 }
 
 /* 
@@ -367,81 +342,52 @@ void PPUDraw::drawOutput( ubyte *data )
 ==============================================
 */
 void PPUDraw::drawOutput( ubyte *data ) {
-	//is it correct to arbitrarily set this to 1?
-	static GLuint imgid = 0;
-	Image img;
+	static Image img;
 
 	float x = outputX.getValue();
 	float y = outputY.getValue();
 	
 	float scale		= outputScale.getValue();	
     
-    if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
-	
 	//TODO fix sketchy argument pass of image
     img.channels = 3; 
     img.sizeX	 = 256; 
     img.sizeY	 = 256;
     img.setData(data);
-    
-	Vec2d pos( x, y );
-	systemMain->renderer.drawImage( img, pos, true, scale );
+	img.createGLTexture( );
+
+	img.bindGLTexture( );
+
+	ImGui::Begin( "Main Video", nullptr, 0 );
+		ImGui::Image( ( void* )img.handle, ImVec2( img.sizeX*2, img.sizeY*2 ) );
+	ImGui::End( );
 }
 
-void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
-	//is it correct to arbitrarily set this to 1?
-	static GLuint imgid = 0;
-	Image img;
+/*
+==============================================
+PpuDraw::drawPalletteTableF
+==============================================
+*/
+Image& PPUDraw::drawPaletteTableF( PpuSystem::NesPalette *pal ) {
+	static Image img;
 
 	float x = paletteTableX;
 	float y = paletteTableY;
 	
 	float scale		= paletteTableScale;
     
-    if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
-
 	paletteGen.genPalettePixelData( pal );
 
     img.channels = 3; 
     img.sizeX	 = 128;
     img.sizeY	 = 16;
     img.setData(paletteGen.getPixelData());
+	img.createGLTexture( );
     
-	glDisable( GL_BLEND );
-	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
+	//glDisable( GL_BLEND );
+	//glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( img, &imgid, GL_RGB );
-    glBindTexture( GL_TEXTURE_2D, imgid );
-    
-    float zdrawpos	= 0.0f;
-	
-    glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, 0.0 ); glVertex3f( x, y, zdrawpos );
-		glTexCoord2f( 0.0, 1.0 ); glVertex3f( x, y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 1.0 ); glVertex3f( x + ( img.sizeX*scale ), y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 0.0 ); glVertex3f( x + ( img.sizeX*scale ), y, zdrawpos );
-	glEnd();
-
-	zdrawPos += 0.001f;
-
-	glEnable( GL_BLEND );
-	glDisable( GL_TEXTURE_2D );
-
-	glBegin( GL_LINE_LOOP );
-		glColor3f( 1.0f, 1.0f, 1.0f );
-		glVertex3f( x, y-1, zdrawpos );
-		glVertex3f( x, y + ( img.sizeY * scale ), zdrawpos );
-		glVertex3f( x + ( img.sizeX * scale )+1, y + ( img.sizeY * scale ), zdrawpos );
-		glVertex3f( x + ( img.sizeX * scale )+1, y-1, zdrawpos );
-	glEnd( );
-	glEnable( GL_TEXTURE_2D );
-
-	//reset data pointer so data isn't deleted
-	//img.data = 0;
+	return img;
 }
 
 /*

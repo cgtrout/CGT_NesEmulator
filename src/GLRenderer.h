@@ -55,12 +55,14 @@ namespace Render {
 		void initialize( );
 		
 		//renders ppu patterntable for debugging purposes
-		void drawPatternTable();
+		//F added to end to aviod name collision with console vars
+		Image& drawPatternTableF();
 
 		//draws raw pixel data to screen RGB pixel data expected
+		//F added to end to aviod name collision with console vars
 		void drawOutput( ubyte *data );
 
-		void drawPaletteTable( PpuSystem::NesPalette *p );
+		Image& drawPaletteTableF( PpuSystem::NesPalette *p );
 	private:
 		PpuSystem::NesPPUPixelGen ppuPixelGen;
 		PpuSystem::NesPPUPaletteGen paletteGen;
