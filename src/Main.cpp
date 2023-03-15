@@ -116,8 +116,6 @@ int main( int argc, char* args[] )
 				ImPlot::PlotBars( "Frame", frameTime.data(), FRAME_TIME_SIZE );
 				ImPlot::EndPlot( );
 			}
-
-			ImGui::Text( "max = %f", max );
 			ImGui::End( );
 		}
 		
