@@ -110,7 +110,7 @@ int main( int argc, char* args[] )
 			ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
 			ImGui::Text( profilerReport.c_str( ) );
 
-			double max = *std::max_element( frameTime.begin( ), frameTime.end() ) * 1.15f;
+			double max = *std::max_element( frameTime.begin( ), frameTime.end() ) * 1.3f;
 			if ( ImPlot::BeginPlot( "Frame time", ImVec2(-1,0)) ) {
 				ImPlot::SetupAxisLimits( ImAxis_Y1, 0, max, ImPlotCond_Always );
 				ImPlot::PlotBars( "Frame", frameTime.data(), FRAME_TIME_SIZE );
@@ -144,7 +144,7 @@ int main( int argc, char* args[] )
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		profilerReport = systemMain->timeProfiler.getSectionReport( );
 		
-		
+		//handle frame time buffer
 		frameTime[ frameTimeIndex++ ] = elapsedTime.count( );
 		if ( frameTimeIndex == FRAME_TIME_SIZE ) {
 			frameTimeIndex = 0;
