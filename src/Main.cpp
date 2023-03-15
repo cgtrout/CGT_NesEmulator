@@ -25,9 +25,14 @@ Console::ConsoleVariable< bool > drawTimeProfiler(
 	/*description*/	"Show time profiler window",
 	/*save?*/		SAVE_TO_FILE );
 
+
+SDL_Window* window = nullptr;
+bool isWindowMode = true;
+
 //function declarations
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
+void switchFullscreen( );
 bool VsyncHandler( SDL_Window* window );
 SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec );
 void initializeVideo( SDL_Window*& window );
@@ -39,7 +44,6 @@ void sinewaveTest( Uint8* stream, int len );
 
 int main( int argc, char* args[] )
 {
-	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 	
 	//audio specification given back by audio system
@@ -166,6 +170,8 @@ void initializeVideo( SDL_Window*& window )
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL2_InitForOpenGL( window, context );
 	ImGui_ImplOpenGL2_Init( );
+
+	isWindowMode = true;
 }
 
 //outAudioSpec is the returned audio spec
@@ -220,6 +226,12 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				break;
 			case SDL_KEYDOWN:
 				SDL_Keysym keydown = event.key.keysym;
+
+				//detect alt+enter for full screen switch
+				if ( ( keydown.sym == SDLK_RETURN ) && ( keydown.mod & KMOD_ALT ) ) {
+					switchFullscreen( );
+				}
+
 				input->setKeyDown( keydown.sym );
 				break;
 			case SDL_KEYUP:
@@ -257,6 +269,25 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				break;
 		}
 	}
+}
+
+void switchFullscreen( ) {
+	//switch to full screen sdl
+	if ( isWindowMode ) {
+		if ( SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP ) < 0 ) {
+			const char* error = SDL_GetError( );
+			SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Full screen Switch Error", error, window );
+			SDL_Quit( );
+		}
+	} else {
+		if ( SDL_SetWindowFullscreen( window, 0 ) < 0 ) {
+			const char* error = SDL_GetError( );
+			SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Window Mode Switch Error", error, window );
+			SDL_Quit( );
+		}
+	}
+	
+	isWindowMode = !isWindowMode;
 }
 
 void initializeEmulator( ) {
