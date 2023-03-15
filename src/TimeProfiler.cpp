@@ -3,6 +3,7 @@
 #include "TimeProfiler.h"
 
 #include <sstream>
+#include <numeric>
 using namespace FrontEnd;
 
 /*
@@ -130,6 +131,7 @@ TimeProfiler::TimeProfiler() : timedSections() {
 	fullSet = false;	//set to true when a full set of samples is obtained
 	sampleNum = 0;
 	rateCounter = 0;
+	frameTimeBuffer.fill( 0 );
 }
 
 TimeProfiler::~TimeProfiler( ) {
@@ -177,6 +179,11 @@ void TimeProfiler::stopFrame( ) {
 		if( !fullSet ) {
 			fullSet = true;
 		}
+	}
+
+	frameTimeBuffer[ frameTimeBufferIndex++ ] = elapsedTime.count( );
+	if ( frameTimeBufferIndex == frameTimeBufferSize ) {
+		frameTimeBufferIndex = 0;
 	}
 }
 
@@ -278,6 +285,11 @@ std::string TimeProfiler::getSectionReport( ) {
 				<< std::setw(6) << (*i).calcAvgPercent() << "%"
 				<< " \n";
 		}
+		
+		out << "\n";
+		
+		auto average = std::accumulate( frameTimeBuffer.begin( ), frameTimeBuffer.end( ), 0.0 ) / frameTimeBuffer.size( );
+		out << "FPS: " << 1.0f/average;
 		currentReport = out.str();
 
 		rateCounter = 0;

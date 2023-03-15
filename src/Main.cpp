@@ -1,11 +1,12 @@
 #include "precompiled.h"
 
 #include <SDL.h>
-#include <span>
+#include <algorithm>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl2.h"
 #include "imgui/imgui_impl_opengl2.h"
+#include "implot/implot.h"
 
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
@@ -72,6 +73,11 @@ int main( int argc, char* args[] )
 	bool vsyncSetting = vsync.getValue( );
 	std::string profilerReport{};
 
+	static const int FRAME_TIME_SIZE = 100;
+	std::array<double, 1000> frameTime{};
+	int frameTimeIndex = 0;
+	frameTime.fill( 0.0f );
+
 	//ensure SDL isn't initialized to take text input rather than raw presses
 	SDL_StopTextInput( );
 
@@ -103,6 +109,15 @@ int main( int argc, char* args[] )
 		if ( drawTimeProfiler ) {
 			ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
 			ImGui::Text( profilerReport.c_str( ) );
+
+			double max = *std::max_element( frameTime.begin( ), frameTime.end() ) * 1.15f;
+			if ( ImPlot::BeginPlot( "Frame time", ImVec2(-1,0)) ) {
+				ImPlot::SetupAxisLimits( ImAxis_Y1, 0, max, ImPlotCond_Always );
+				ImPlot::PlotBars( "Frame", frameTime.data(), FRAME_TIME_SIZE );
+				ImPlot::EndPlot( );
+			}
+
+			ImGui::Text( "max = %f", max );
 			ImGui::End( );
 		}
 		
@@ -128,10 +143,18 @@ int main( int argc, char* args[] )
 		systemMain->timeProfiler.stopFrame( );
 		elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 		profilerReport = systemMain->timeProfiler.getSectionReport( );
-		//TODO show time profiler window
+		
+		
+		frameTime[ frameTimeIndex++ ] = elapsedTime.count( );
+		if ( frameTimeIndex == FRAME_TIME_SIZE ) {
+			frameTimeIndex = 0;
+		}
+
 		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );		
 	}
 
+	ImGui::DestroyContext( );
+	ImPlot::DestroyContext( );
 	SDL_DestroyWindow( window );
 	SDL_Quit( );
 
@@ -160,6 +183,8 @@ void initializeVideo( SDL_Window*& window )
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION( );
 	ImGui::CreateContext( );
+	ImPlot::CreateContext( );
+
 	ImGuiIO& io = ImGui::GetIO( ); ( void )io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls

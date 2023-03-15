@@ -21,6 +21,7 @@ applog.txt
 CGT_NesEmulator/CGT NES Emulator/Debug/vc142.idb
 CGT_NesEmulator/SDL2
 /src/imgui
+/src/implot
 CGT_NesEmulator/CGT NES Emulator/Release/CGT NES Emulator.vcxproj.FileListAbsolute.txt
 CGT_NesEmulator/CGT NES Emulator/Debug/nesEmResourse.res
 CGT_NesEmulator/CGT NES Emulator/Release/nesEmResourse.res

@@ -105,6 +105,11 @@ namespace FrontEnd {
 
 		std::vector< TimedSection > timedSections;
 
+		//frame buffer - used to calculate average framerate
+		static const int frameTimeBufferSize = 60;
+		std::array<double, frameTimeBufferSize> frameTimeBuffer;
+		int frameTimeBufferIndex = 0;
+
 		TimedSection *getSection( const std::string &name );
 
 		std::string currentReport;
