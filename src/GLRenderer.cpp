@@ -148,8 +148,6 @@ void Renderer::render2D() {
 	systemMain->timeProfiler.startSection( "RenPPU" );
 	ppuDraw.drawOutput( systemMain->nesMain.nesPpu.vidoutBuffer );
 	systemMain->timeProfiler.stopSection( "RenPPU" );
-
-	
 }
 
 void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte color ) {
@@ -165,7 +163,6 @@ void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte 
 
 	glEnable( GL_TEXTURE_2D );
 }
-
 
 void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, float opacity ) {
 	glEnable( GL_BLEND );
