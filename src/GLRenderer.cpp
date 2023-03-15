@@ -58,6 +58,8 @@ void Renderer::initialize() {
 	consoleSystem->variables.addBoolVariable( &drawDebugPPU );
 
 	resizeInitialize( );
+
+	ppuDraw.initialize( );
 }
 
 /*
@@ -206,59 +208,12 @@ PPUDraw::drawPatternTableF()
 ==============================================
 */
 //positions of patterntable debug output
-ConsoleVariable< int > patternTableX( 
-/*start val*/	535, 
-/*name*/		"patternTableX", 
-/*description*/	"x position of debug pattern table",
+ConsoleVariable< bool > drawForceAspectRatio( 
+/*start val*/	false, 
+/*name*/		"drawForceAspectRatio", 
+/*description*/	"Force 1 to 1 aspect ratio of main video output",
 /*save?*/		SAVE_TO_FILE );
 
-ConsoleVariable< int > patternTableY( 
-/*start val*/	400, 
-/*name*/		"patternTableY", 
-/*description*/	"y position of debug pattern table",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< float > patternTableScale( 
-/*start val*/	1.0f, 
-/*name*/		"patternTableScale", 
-/*description*/	"scaling debug pattern table",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > outputX ( 
-/*start val*/	20, 
-/*name*/		"outputX", 
-/*description*/	"x position of main render output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > outputY ( 
-/*start val*/	-9, 
-/*name*/		"outputY", 
-/*description*/	"y position of main render output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< float > outputScale( 
-/*start val*/	2.0f, 
-/*name*/		"outputScale", 
-/*description*/	"scaling of main render output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > paletteTableX( 
-/*start val*/	604, 
-/*name*/		"paletteTableX", 
-/*description*/	"x position of debug palette output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > paletteTableY( 
-/*start val*/	65, 
-/*name*/		"paletteTableY", 
-/*description*/	"y position of debug palette output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< float > paletteTableScale( 
-/*start val*/	1.0f, 
-/*name*/		"paletteTableScale", 
-/*description*/	"scaling of debug palette output",
-/*save?*/		SAVE_TO_FILE );
 
 PPUDraw::PPUDraw() {
 	
@@ -267,27 +222,13 @@ PPUDraw::PPUDraw() {
 void PPUDraw::initialize( ) {
 	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
 
-	consoleSystem->variables.addIntVariable( &patternTableX );
-	consoleSystem->variables.addIntVariable( &patternTableY );
-	consoleSystem->variables.addFloatVariable( &patternTableScale );
-
-	consoleSystem->variables.addIntVariable( &outputX );
-	consoleSystem->variables.addIntVariable( &outputY );
-	consoleSystem->variables.addFloatVariable( &outputScale );
-
-	consoleSystem->variables.addIntVariable( &paletteTableX );
-	consoleSystem->variables.addIntVariable( &paletteTableY );
-	consoleSystem->variables.addFloatVariable( &paletteTableScale );
+	consoleSystem->variables.addBoolVariable( &drawForceAspectRatio );
 }
 
 //TODO create generic routine for drawing data buffer to screen
 Image& PPUDraw::drawPatternTableF() {
 	static Image img;
 	
-	float x = patternTableX.getValue();
-	float y = patternTableY.getValue();
-	float scale = patternTableScale.getValue();
-    
 	//TODO check to see if game is actually loaded
     ppuPixelGen.genPatternTablePixelData();
     
@@ -332,32 +273,30 @@ Image& PPUDraw::drawPatternTableF() {
 void PPUDraw::drawOutput( ubyte *data )
 ==============================================
 */
-void PPUDraw::drawOutput( ubyte *data ) {
+void PPUDraw::drawOutput( ubyte* data ) {
 	static Image img;
 
-	float x = outputX.getValue();
-	float y = outputY.getValue();
-	
-	float scale		= outputScale.getValue();	
-    
-	//TODO fix sketchy argument pass of image
-    img.channels = 3; 
-    img.sizeX	 = 256; 
-    img.sizeY	 = 256;
-    img.setData(data);
+	img.channels = 3;
+	img.sizeX = 256;
+	img.sizeY = 256;
+	img.setData( data );
 	img.createGLTexture( );
 
 	img.bindGLTexture( );
 
 	ImGui::Begin( "Main Video", nullptr, ImGuiWindowFlags_NoScrollbar );
-		auto width = ImGui::GetWindowWidth( );
-		auto height = ImGui::GetWindowHeight( );
+	auto width = ImGui::GetWindowWidth( );
+	auto height = ImGui::GetWindowHeight( );
+
+	if ( drawForceAspectRatio ) {
 		int widthHighestPower = pow( 2, floor( log2( width ) ) );
 		int heightHighestPower = pow( 2, floor( log2( height ) ) );
-
 		auto lowestVal = widthHighestPower < heightHighestPower ? widthHighestPower : heightHighestPower;
 
 		ImGui::Image( ( void* )img.handle, ImVec2( lowestVal, lowestVal ) );
+	} else {
+		ImGui::Image( ( void* )img.handle, ImVec2( width, height ) );
+	}
 	ImGui::End( );
 }
 
@@ -369,11 +308,6 @@ PpuDraw::drawPalletteTableF
 Image& PPUDraw::drawPaletteTableF( PpuSystem::NesPalette *pal ) {
 	static Image img;
 
-	float x = paletteTableX;
-	float y = paletteTableY;
-	
-	float scale		= paletteTableScale;
-    
 	paletteGen.genPalettePixelData( pal );
 
     img.channels = 3; 
