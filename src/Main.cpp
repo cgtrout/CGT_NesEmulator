@@ -58,7 +58,6 @@ int main( int argc, char* args[] )
 	consoleSystem->variables.addBoolVariable( &capFrameRate );
 	consoleSystem->variables.addBoolVariable( &vsync );
 	consoleSystem->variables.addBoolVariable( &drawTimeProfiler );
-
 	
 	//set vsync based on console variable setting
 	VsyncHandler( window );
@@ -143,7 +142,7 @@ void initializeVideo( SDL_Window*& window )
 		SDL_Quit( );
 	}
 
-	window = SDL_CreateWindow( "CGT Nes Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL );
+	window = SDL_CreateWindow( "CGT Nes Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
 
 	if ( window == nullptr ) {
 		const char* error = SDL_GetError( );
