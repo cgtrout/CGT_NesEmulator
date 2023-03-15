@@ -349,7 +349,7 @@ void PPUDraw::drawOutput( ubyte *data ) {
 
 	img.bindGLTexture( );
 
-	ImGui::Begin( "Main Video", nullptr, 0 );
+	ImGui::Begin( "Main Video", nullptr, ImGuiWindowFlags_NoScrollbar );
 		ImGui::Image( ( void* )img.handle, ImVec2( img.sizeX*2, img.sizeY*2 ) );
 	ImGui::End( );
 }
