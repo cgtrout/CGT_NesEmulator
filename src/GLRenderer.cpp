@@ -350,7 +350,14 @@ void PPUDraw::drawOutput( ubyte *data ) {
 	img.bindGLTexture( );
 
 	ImGui::Begin( "Main Video", nullptr, ImGuiWindowFlags_NoScrollbar );
-		ImGui::Image( ( void* )img.handle, ImVec2( img.sizeX*2, img.sizeY*2 ) );
+		auto width = ImGui::GetWindowWidth( );
+		auto height = ImGui::GetWindowHeight( );
+		int widthHighestPower = pow( 2, floor( log2( width ) ) );
+		int heightHighestPower = pow( 2, floor( log2( height ) ) );
+
+		auto lowestVal = widthHighestPower < heightHighestPower ? widthHighestPower : heightHighestPower;
+
+		ImGui::Image( ( void* )img.handle, ImVec2( lowestVal, lowestVal ) );
 	ImGui::End( );
 }
 
