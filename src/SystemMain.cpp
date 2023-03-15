@@ -197,9 +197,9 @@ void SystemMain::start() {
 	timeProfiler.addSection( "RenPPU" );
 
 	gui.addElement( &guiConsole );
-	gui.addElement( &frameCounter );
+	//gui.addElement( &frameCounter );
 
-	frameCounter.setOpen( true );
+	//frameCounter.setOpen( true );
 	gui.setUsingMouse( true );
 	guiConsole.setOpen( false );
 

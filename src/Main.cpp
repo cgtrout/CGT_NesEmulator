@@ -224,6 +224,15 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 			case SDL_QUIT:
 				quit = true;
 				break;
+			case  SDL_WINDOWEVENT:
+				//give width height to renderer object
+				if( event.window.event == SDL_WINDOWEVENT_RESIZED )	{
+					int w = 0;	int h = 0;
+					SDL_GetWindowSize( window, &w, &h );
+					systemMain->renderer.setXYRes( w, h ); 
+					systemMain->renderer.resizeInitialize( );
+				}
+				break;
 			case SDL_KEYDOWN:
 				SDL_Keysym keydown = event.key.keysym;
 
@@ -286,7 +295,7 @@ void switchFullscreen( ) {
 			SDL_Quit( );
 		}
 	}
-	
+
 	isWindowMode = !isWindowMode;
 }
 

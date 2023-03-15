@@ -27,8 +27,6 @@ ConsoleVariable< bool > drawDebugPPU(
 /*description*/	"Sets whether the debug pattern table should be drawn or not",
 /*save?*/		SAVE_TO_FILE );
 
-
-
 //TODO this turns off the conversion ( From int to float ) warning
 //this should be fixed correctly
 #if _MSC_VER > 1000
@@ -59,22 +57,24 @@ void Renderer::initialize() {
 	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
 	consoleSystem->variables.addBoolVariable( &drawDebugPPU );
 
+	resizeInitialize( );
+}
+
+/*
+==============================================
+Renderer::resizeInitialize()
+
+  initialize after resize
+==============================================
+*/
+void Renderer::resizeInitialize( ) {
 	//prepare model and projection view for 2d drawing
 	glMatrixMode( GL_PROJECTION );
-	//glPushMatrix();
-	glLoadIdentity();
-	//glOrtho( 0.0, ( GLfloat ) 640, 0.0, ( GLfloat ) 480, -2, 1 );
-	glOrtho( 0.0, ( GLfloat ) xres, 0.0, ( GLfloat ) yres, -2, 1 );
-	
-	glMatrixMode( GL_MODELVIEW );
-	//glPushMatrix();
-	glLoadIdentity();
-		
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	
-	glEnable( GL_TEXTURE_2D );
+	glLoadIdentity( );
+	glOrtho( 0.0, ( GLfloat )xres, 0.0, ( GLfloat )yres, -2, 1);
+	glViewport( 0, 0, xres, yres );
 }
+
 
 /*
 ==============================================
@@ -86,12 +86,6 @@ Renderer::initFrame()
 void Renderer::initFrame() {
 	// Clear The Screen And The Depth Buffer
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	
-	//ensure correct matrix mode is selected for next frame
-	glMatrixMode( GL_MODELVIEW );
-
-	// Reset The matrix
-	glLoadIdentity();	
 
 	zdrawPos = 0.0f;
 }

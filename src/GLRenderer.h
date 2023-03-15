@@ -78,6 +78,8 @@ namespace Render {
 	public:
 		void initialize();
 
+		void resizeInitialize( );
+
 		void initFrame();
 		void renderFrame();
 		void render2D();
@@ -93,6 +95,8 @@ namespace Render {
 		int getxRes() { return xres; }
 		int getyRes() { return yres; }
 	
+		void setXYRes( int x, int y ) { xres = x; yres = y; }
+
 		Renderer();
 		virtual ~Renderer();
 	private:
