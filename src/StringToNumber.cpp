@@ -1,5 +1,4 @@
 #include "precompiled.h"
-#include <ctype>
 
 #pragma warning ( disable : 4996 )
 

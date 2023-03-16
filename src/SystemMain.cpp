@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 #include "precompiled.h"
 
-#include <math>
+#include <cmath>
 
 #ifndef LIGHT_BUILD
   #include "NesDebugger.h"
