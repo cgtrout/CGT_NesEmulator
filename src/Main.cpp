@@ -38,6 +38,7 @@ void switchFullscreen( );
 bool VsyncHandler( SDL_Window* window );
 SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSpec );
 void initializeVideo( SDL_Window*& window );
+void initializeJoysticks( );
 void audioCallbackFunction( void* unused, Uint8* stream, int len );
 
 void nesAudio( Uint8* stream, int len );
@@ -57,18 +58,8 @@ int main( int argc, char* args[] )
 	//initialize emulation systems
 	initializeEmulator( );
 
-	//init joysticks
-	auto numJoysticks = SDL_NumJoysticks( );
-	for ( int i = 0; i < numJoysticks; i++ ) {
-		Joystick joy{};
-		joy.handle = SDL_JoystickOpen( i );
-		joy.name = SDL_JoystickName(joy.handle);
-
-		//replace space with underscore for easier parsing
-		std::replace( joy.name.begin( ), joy.name.end( ), ' ', '_' );
-
-		input->getJoysticks( ).push_back( joy );
-	}
+	//initialize SDL joysticks
+	initializeJoysticks( );
 
 	//start sound
 	SDL_PauseAudioDevice( soundDeviceId, 0 );
@@ -234,6 +225,22 @@ SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSp
 	//TODO validate that want and have are the same?
 
 	return deviceId;
+}
+
+void initializeJoysticks( )
+{
+	//init joysticks
+	auto numJoysticks = SDL_NumJoysticks( );
+	for ( int i = 0; i < numJoysticks; i++ ) {
+		Joystick joy{ };
+		joy.handle = SDL_JoystickOpen( i );
+		joy.name = SDL_JoystickName( joy.handle );
+
+		//replace space with underscore for easier parsing
+		std::replace( joy.name.begin( ), joy.name.end( ), ' ', '_' );
+
+		input->getJoysticks( ).push_back( joy );
+	}
 }
 
 bool VsyncHandler( SDL_Window* window ) {

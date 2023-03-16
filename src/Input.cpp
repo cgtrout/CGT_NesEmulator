@@ -145,7 +145,6 @@ void Input::setState( InputSystemStates s ) {
 			clearTextInput( );
 			break;
 	}
-
 }
 
 /*
