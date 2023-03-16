@@ -260,6 +260,7 @@ bool VsyncHandler( SDL_Window* window ) {
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "VSYNC Error", error, window );
 	}
 }
+
 std::ostringstream inputLog;
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 	ImGui::Begin( "Input log" );
@@ -299,18 +300,31 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				auto button = event.jbutton.button;
 				auto& joystick = input->getJoysticks( )[ event.jbutton.which ];
 				auto deviceName = joystick.name;
-				inputLog	<< "button=" << std::to_string( button ) << " " 
+				inputLog	<< "buttonDOWN=" << std::to_string( button ) << " " 
 							<< "device=" << deviceName
 							<< std::endl;
 
 				joystick.buttonState[ button ] = true;
 				
 				break; }
+			case SDL_JOYBUTTONUP: {
+				auto button = event.jbutton.button;
+				auto& joystick = input->getJoysticks( )[ event.jbutton.which ];
+				auto deviceName = joystick.name;
+				inputLog << "buttonUP=" << std::to_string( button ) << " "
+					<< "device=" << deviceName
+					<< std::endl;
+
+				joystick.buttonState[ button ] = false;
+
+				break; }
 			case SDL_JOYAXISMOTION: {
 				if ( ( event.jaxis.value < -3200 ) || ( event.jaxis.value > 3200 ) ) {
 					inputLog	<< "axis =" << std::to_string(event.jaxis.axis) << " "
 								<< "value=" << std::to_string( event.jaxis.value ) << std::endl;
 				}
+				auto& joystick = input->getJoysticks( )[ event.jbutton.which ];
+				joystick.axisState[ event.jaxis.axis ] = event.jaxis.value;
 				break; 
 			}
 			case SDL_TEXTINPUT:

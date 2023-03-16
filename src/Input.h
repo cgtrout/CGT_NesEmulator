@@ -109,6 +109,9 @@ namespace FrontEnd {
 
 			//button state <button_num, pressed?>
 			std::map<int, bool> buttonState;
+
+			//axis state <axis_num, axisVal>
+			std::map<int, int> axisState;
 		};
 
 		/*

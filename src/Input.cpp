@@ -80,7 +80,11 @@ Joystick::clearState( )
 void Joystick::clearState( ) {
 	//reset all bound buttons to false (not pressed state)
 	for ( auto& state : buttonState ) {
-		state.second = false;
+		//state.second = false;
+	}
+
+	for ( auto& state : axisState ) {
+		//state.second = 0;
 	}
 }
 
@@ -232,11 +236,6 @@ bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, 
 		return false;
 	}
 	
-	SDL_Keycode keyid = keyStringToNumber( keystr );
-	if( keyid == NULL ) {
-		consoleSystem->printMessage( "Input::bindKeyToControl - key doesn't exist" );
-		return false;
-	}
 
 	//find control
 	Controllable *control = getControl( controlstr );
@@ -295,7 +294,8 @@ void Input::writeBindsToFile( std::string_view filename ) {
 			file << "bind " << controllables[ c ]->name.c_str() << ".";
 			file << button->name.c_str() << " to ";
 			
-			file << "keyboard.";
+			file << button->deviceName << ".";
+			
 			//dont output if keybind = 0
 			if ( button->bindName.empty() == false ) {
 				file << button->bindName;
@@ -340,6 +340,22 @@ bool Input::getButtonState( std::string_view deviceName, std::string_view bindNa
 	//loop to find controller
 	for ( auto& joystick : joysticks ) {
 		if ( deviceName == joystick.name ) {
+			if ( bindName.length() >= 4 && bindName.substr( 0, 4 ) == "axis" ) {
+				int axisNum = bindName[ 4 ] - '0';
+				bool min = bindName.substr( 5, 4 ) == "min";
+				bool max = bindName.substr( 5, 4 ) == "max";
+				int axisValue = joystick.axisState[ axisNum ];
+				
+				if ( min && axisValue < -256 ) {
+					return true;
+
+				} else if ( max && axisValue > 256 ) {
+					return true;
+				}
+
+				return false;
+			}
+
 			//for now convert bindName to a int
 			int bindNum = std::stoi( bindName.data() );
 			bool buttonState = joystick.buttonState[ bindNum ];
