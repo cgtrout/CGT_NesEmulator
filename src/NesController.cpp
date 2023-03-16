@@ -44,10 +44,7 @@ NesController::NesController() {
 		}
 		addButton( &buttons[ i ] );
 	}
-	std::stringstream ss( "controller" );
-	ss.seekp( 0, std::ios::end );
-	ss << ( controllerNum + 1 );
-	name = ss.str();
+	name = "controller" + std::to_string(controllerNum + 1);
 
 	//add this control to input system
 	Input::getInstance()->addControl( dynamic_cast< Controllable* >( this ) );
