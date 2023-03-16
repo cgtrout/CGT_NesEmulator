@@ -9,17 +9,16 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include <vector>
-#include <string>
-
 #include <SDL_keyboard.h>
 
 #include "typedefs.h"
 
 #include "CGTSingleton.h"
 #include <map>
+#include <string_view>
+#include <vector>
+#include <string>
 using namespace CGTSingleton;
-
 
 namespace FrontEnd {
 	namespace InputSystem {
@@ -40,7 +39,7 @@ namespace FrontEnd {
 		 friend class Input;
 		 public:
 			ControllableButton() { }
-			ControllableButton( string_view name, int keyid );
+			ControllableButton( std::string_view name, int keyid );
 			friend class Controllable;
 
 			SDL_Keycode keyid;
@@ -68,7 +67,7 @@ namespace FrontEnd {
 		class Controllable {
 		  friend class Input;
 		  public:
-			Controllable( string_view name );
+			Controllable( std::string_view name );
 			Controllable() { }
 
 			void addButton( ControllableButton *b );
@@ -76,7 +75,7 @@ namespace FrontEnd {
 			
 			//get a button from controls list of buttons
 			//returns null if not found
-			ControllableButton *getButton( std::string name );
+			ControllableButton *getButton( std::string_view name );
 
 			//call once per frame to clear all button states
 			void clearStates();
@@ -174,7 +173,7 @@ namespace FrontEnd {
 			Controllable *getControl( std::string_view control );
 
 			//writes all binds to a file
-			void writeBindsToFile( string_view filename );
+			void writeBindsToFile( std::string_view filename );
 
 			//convert keyid to it's std::string form
 			std::string keyIdToString( SDL_Keycode keyid );

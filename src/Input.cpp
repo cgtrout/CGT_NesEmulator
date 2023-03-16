@@ -15,7 +15,7 @@ using namespace FrontEnd::InputSystem;
 Controllable::Controllable()
 ==============================================
 */
-Controllable::Controllable( string_view name ) : name( name ) {
+Controllable::Controllable( std::string_view name ) : name( name ) {
 
 }
 
@@ -30,10 +30,10 @@ void Controllable::addButton( ControllableButton *b ) {
 
 /* 
 ==============================================
-ControllableButton *Controllable::getButton( std::string name )
+ControllableButton *Controllable::getButton
 ==============================================
 */
-ControllableButton *Controllable::getButton( std::string name ) {
+ControllableButton *Controllable::getButton( std::string_view name ) {
 	for( unsigned int i = 0; i < buttons.size(); i++ ) {
 		if( buttons[ i ]->name == name ) {
 			return buttons[ i ];
@@ -47,7 +47,7 @@ ControllableButton *Controllable::getButton( std::string name ) {
 ControllableButton::ControllableButton()
 ==============================================
 */
-ControllableButton::ControllableButton( string_view name, int keyid ) {
+ControllableButton::ControllableButton( std::string_view name, int keyid ) {
 	this->name = name;
 	this->keyid = keyid;
 	keystate = NOT_PRESSED;
@@ -250,8 +250,8 @@ Controllable *Input::getControl( std::string_view control ) {
 void Input::writeBindsToFile
 ==============================================
 */
-void Input::writeBindsToFile( string_view filename ) {
-	std::ofstream file( filename );
+void Input::writeBindsToFile( std::string_view filename ) {
+	std::ofstream file( filename.data() );
 	file << "//Keybinds file - modify binds only.  Everything else is not preserved \n";
 	
 	//go through all controls
