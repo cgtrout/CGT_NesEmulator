@@ -123,10 +123,12 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	}
 
 	//parse command
+	std::string device;
 	std::string control;
 	std::string button;
 	std::string key = tokens.at( 2 );
 
+	//command example: controller1.a
 	std::string command = tokens.at( 0 );
 	
 	//tokenize command using '.' as delimiter
@@ -140,9 +142,20 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	control = tokens.at( 0 );
 	button = tokens.at( 1 );
 
+	tokens = st.tokenize( key );
 	
+	//device is keyboard or joystick id
+	device = tokens.at( 0 );
+	
+	if ( tokens.size() > 1 ) {
+		key = tokens.at( 1 );
+	} else {
+		printBindKeyUsage( "Invalid key entered" );
+		return;
+	}
+
 	//tokens are parsed, now interpret key and command
-	bool result = Input::getInstance()->bindKeyToControl( key, control, button );
+	bool result = Input::getInstance()->bindKeyToControl( device, key, control, button );
 	if( result ) {
 		consoleSystem->printMessage( "Key successfully bound" );
 	}
@@ -150,7 +163,8 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 
 void CommandHandlerSystem::printBindKeyUsage( const char *errorMsg ) {
 	consoleSystem->printMessage( "Invalid bind command: %s", errorMsg );
-	consoleSystem->printMessage( "Usage of bind:  \"bind controller.command to key\"" );
+	consoleSystem->printMessage( "Usage of bind:  \"bind controller.command to device.key\"" );
+	consoleSystem->printMessage( "For example: \"bind controller1.a to keyboard.z\"");
 }
 
 void CommandHandlerSystem::reset( const char *param ) {

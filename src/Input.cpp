@@ -47,10 +47,12 @@ ControllableButton *Controllable::getButton( std::string_view name ) {
 ControllableButton::ControllableButton()
 ==============================================
 */
-ControllableButton::ControllableButton( std::string_view name, int keyid ) {
-	this->name = name;
-	this->keyid = keyid;
-	keystate = NOT_PRESSED;
+ControllableButton::ControllableButton( std::string_view name, std::string_view deviceName, std::string_view bindName, int keyid ) :
+	name(name), 
+	deviceName(deviceName),
+	bindName(bindName ),
+	keystate(NOT_PRESSED)
+{
 }
 
 /*
@@ -171,7 +173,12 @@ void Input::updateControllables() {
 	}
 	for( unsigned int c = 0 ; c < controllables.size(); c++ ) {
 		for( unsigned int b = 0 ; b < controllables[ c ]->buttons.size(); b++ ) {
-			controllables[c]->buttons[b]->keystate = (KeyPressState)keystate[ controllables[c]->buttons[b]->keyid ];
+			if ( controllables[ c ]->buttons[ b ]->deviceName == "keyboard" ) {
+				auto& button = controllables[ c ]->buttons[ b ];
+				//get key id from string
+				auto keyid = keyStringToNumber( button->bindName );
+				button->keystate = ( KeyPressState )keystate[ keyid ];
+			}
 		}
 	}
 }
@@ -193,7 +200,7 @@ TODO way for user to find out what key a control's button is bound to
 	 way for user to find out what commands are in input system
 ==============================================
 */
-bool Input::bindKeyToControl( std::string_view keystr, std::string_view controlstr, std::string_view buttonstr ) {
+bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, std::string_view controlstr, std::string_view buttonstr ) {
 	//validation
 	//TODO Exception handler
 	if( keystr == "NULL" ) {
@@ -226,7 +233,8 @@ bool Input::bindKeyToControl( std::string_view keystr, std::string_view controls
 	}
 	
 	//everything looks good - now assign the new bind
-	button->keyid = keyid;
+	button->deviceName = "keyboard";
+	button->bindName = keystr;
 	return true;
 }
 
@@ -258,14 +266,15 @@ void Input::writeBindsToFile( std::string_view filename ) {
 	for( unsigned int c = 0; c < controllables.size(); c++ ) {
 		//go through all buttons on current control
 		for( unsigned int b = 0; b < controllables[ c ]->buttons.size(); b++ ) {
+			auto& controllable = controllables[ c ];
+			auto& button = controllable->buttons[ b ];
 			file << "bind " << controllables[ c ]->name.c_str() << ".";
-			file << controllables[ c ]->buttons[ b ]->name.c_str() << " to ";
+			file << button->name.c_str() << " to ";
 			
+			file << "keyboard.";
 			//dont output if keybind = 0
-			if ( controllables[ c ]->buttons[ b ]->keyid != 0 ) {
-				SDL_Keycode keyId = controllables[ c ]->buttons[ b ]->keyid;
-				auto keyString = keyIdToString( keyId );
-				file << keyString;
+			if ( button->bindName.empty() == false ) {
+				file << button->bindName;
 			}
 			file << """\n";
 		}

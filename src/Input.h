@@ -39,11 +39,14 @@ namespace FrontEnd {
 		 friend class Input;
 		 public:
 			ControllableButton() { }
-			ControllableButton( std::string_view name, int keyid );
+			ControllableButton( std::string_view name,
+								std::string_view deviceName,
+								std::string_view bindName, int keyid );
 			friend class Controllable;
 
-			SDL_Keycode keyid;
-			std::string name;
+			std::string name;			//name of this button
+			std::string deviceName;		//name of device bound to this
+			std::string bindName;		//name of button or keybind bound to this
 
 			KeyPressState getState() { return keystate; }
 			
@@ -167,7 +170,7 @@ namespace FrontEnd {
 			void updateControllables();
 
 			//binds a key to a control
-			bool bindKeyToControl( std::string_view key, std::string_view control, std::string_view button );
+			bool bindKeyToControl( std::string_view device, std::string_view key, std::string_view control, std::string_view button );
 
 			//get control from list of controls
 			Controllable *getControl( std::string_view control );

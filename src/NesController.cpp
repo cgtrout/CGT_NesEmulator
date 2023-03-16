@@ -15,7 +15,7 @@ NesController::NesController() {
 
 	//initialize buttons
 	for( int i = 0; i < NUM_NES_BUTTONS; i++ ) {
-		buttons[ i ].keyid = 0;
+		buttons[ i ].bindName = std::string();
 		switch( i ) {
 			case NES_BUTTON_A:
 				buttons[ i ].name = "a";
