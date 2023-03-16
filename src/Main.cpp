@@ -30,7 +30,6 @@ Console::ConsoleVariable< bool > drawTimeProfiler(
 SDL_Window* window = nullptr;
 bool isWindowMode = true;
 
-
 //function declarations
 void initializeEmulator( );
 void SDL_EventHandler( SDL_Event& event, bool& quit );
@@ -40,9 +39,7 @@ SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSp
 void initializeVideo( SDL_Window*& window );
 void initializeJoysticks( );
 void audioCallbackFunction( void* unused, Uint8* stream, int len );
-
 void nesAudio( Uint8* stream, int len );
-
 void sinewaveTest( Uint8* stream, int len );
 
 int main( int argc, char* args[] )
@@ -239,6 +236,7 @@ void initializeJoysticks( )
 		//replace space with underscore for easier parsing
 		std::replace( joy.name.begin( ), joy.name.end( ), ' ', '_' );
 
+		//fill joystick data structure with joystick info
 		input->getJoysticks( ).push_back( joy );
 	}
 }
@@ -261,9 +259,10 @@ bool VsyncHandler( SDL_Window* window ) {
 	}
 }
 
-std::ostringstream inputLog;
+
 
 //last input state - used for button binding
+std::ostringstream inputLog;
 int lastButton;
 int lastAxis;
 int lastAxisValue;
@@ -286,6 +285,7 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 		ImGui::Text( "Button deviceName %s", button->deviceName.c_str( ) );
 		
 		//TODO decide if last input was a keyboard key or joystick key
+
 
 		//deviceName is name of device (keyboard or name of gamepad)
 		//TODO - create string
@@ -312,12 +312,10 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 		//const std::string& tmp = inputLog.str( );
 		//const char* cstr = tmp.c_str( );
 		//ImGui::Text( "%s", cstr );
-		
-		
+			
 		ImGui::End( );
 	}
-	
-	
+		
 	//take input events and pass them to input system
 	while ( SDL_PollEvent( &event ) ) {
 		ImGui_ImplSDL2_ProcessEvent( &event );
