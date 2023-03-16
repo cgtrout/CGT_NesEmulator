@@ -25,7 +25,7 @@ std::string CgtString::strtolower( std::string_view str) {
 
 /* 
 ==============================================
-bool CgtString::strcasecmp
+bool CgtString::stringCaseCmp
 ==============================================
 */
 bool CgtString::stringCaseCmp( std::string_view str1, std::string_view str2 ) {
