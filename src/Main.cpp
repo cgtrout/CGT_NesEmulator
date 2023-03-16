@@ -26,9 +26,10 @@ Console::ConsoleVariable< bool > drawTimeProfiler(
 	/*description*/	"Show time profiler window",
 	/*save?*/		SAVE_TO_FILE );
 
-
+//variables
 SDL_Window* window = nullptr;
 bool isWindowMode = true;
+std::vector<_SDL_Joystick*> joysticks{ };
 
 //function declarations
 void initializeEmulator( );
@@ -52,6 +53,13 @@ int main( int argc, char* args[] )
 
 	initializeVideo( window );
 	SDL_AudioDeviceID soundDeviceId = initializeSound( window, &audioSpecification );
+
+	//init joysticks
+	auto numJoysticks = SDL_NumJoysticks( );
+	for ( int i = 0; i < numJoysticks; i++ ) {
+		SDL_Joystick* handle = SDL_JoystickOpen( i );
+		joysticks.push_back( handle );
+	}
 	
 	//initialize emulation systems
 	initializeEmulator( );
@@ -161,7 +169,7 @@ int main( int argc, char* args[] )
 
 void initializeVideo( SDL_Window*& window )
 {
-	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 ) {
+	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 ) {
 		const char* error = SDL_GetError( );
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Initialization Error", error, window );
 		SDL_Quit( );
@@ -175,6 +183,7 @@ void initializeVideo( SDL_Window*& window )
 		SDL_Quit( );
 	}
 
+	
 	//initialize OpenGL
 	SDL_GLContext context = SDL_GL_CreateContext( window );
 
@@ -269,6 +278,10 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 			case SDL_KEYUP:
 				SDL_Keysym keyup = event.key.keysym;
 				input->setKeyUp( keyup.sym );
+				break;
+			case SDL_JOYBUTTONDOWN:
+				break;
+			case SDL_JOYAXISMOTION:
 				break;
 			case SDL_TEXTINPUT:
 				input->addTextInput( event.text.text );
