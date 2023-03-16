@@ -47,7 +47,7 @@ SystemMain::SystemMain() {
 	input = Input::getInstance();
 	input->init();
 	input->clear();	
-	input->clearKeyState();
+	input->clearInputState();
 
 	//make sure that nesFile is loaded into memory before we load nes file
 	nesMain.nesFile.initialize();

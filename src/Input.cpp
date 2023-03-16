@@ -47,7 +47,7 @@ ControllableButton *Controllable::getButton( std::string_view name ) {
 ControllableButton::ControllableButton()
 ==============================================
 */
-ControllableButton::ControllableButton( std::string_view name, std::string_view deviceName, std::string_view bindName, int keyid ) :
+ControllableButton::ControllableButton( std::string_view name, std::string_view deviceName, std::string_view bindName ) :
 	name(name), 
 	deviceName(deviceName),
 	bindName(bindName ),
@@ -70,6 +70,18 @@ Input::Input():
 	useDelay( false ),
 	lastKeyPressed( 0 ),
 	inputState( InputSystemStates::NORMAL_MODE ) { 
+}
+
+/*
+==============================================
+Joystick::clearState( )
+==============================================
+*/
+void Joystick::clearState( ) {
+	//reset all bound buttons to false (not pressed state)
+	for ( auto& state : buttonState ) {
+		state.second = false;
+	}
 }
 
 /*
@@ -110,11 +122,10 @@ void Input::clear() {
 	mouseRightDown = false;
 	mouseRightUp = false;
 	//clearKeyBuffers();
-	if( inputState == InputSystemStates::TYPE_MODE ) {
-		clearKeyState();
-	}
 	kbpos = 0;
 	lastKeyPressed = 0;
+
+	clearInputState( );
 }
 
 /*
@@ -139,11 +150,15 @@ void Input::setState( InputSystemStates s ) {
 
 /*
 ==============================================
-void Input::clearKeyState()
+void Input::clearInputState()
 ==============================================
 */
-void Input::clearKeyState() {
+void Input::clearInputState() {
 	keystate.clear( );
+
+	for ( auto& j : joysticks ) {
+		j.clearState( );
+	}
 }
 
 /*
@@ -167,17 +182,27 @@ void Input::updateControllables()
 ==============================================
 */
 void Input::updateControllables() {
-	// check to see if input is currently using input to fill a gui control 
-	if( inputState == Input::InputSystemStates::TYPE_MODE ) {
-		return;
-	}
 	for( unsigned int c = 0 ; c < controllables.size(); c++ ) {
 		for( unsigned int b = 0 ; b < controllables[ c ]->buttons.size(); b++ ) {
-			if ( controllables[ c ]->buttons[ b ]->deviceName == "keyboard" ) {
-				auto& button = controllables[ c ]->buttons[ b ];
+			auto& button = controllables[ c ]->buttons[ b ];
+			if ( button->deviceName == "keyboard" ) {
+				if ( inputState == Input::InputSystemStates::TYPE_MODE ) {
+					return;
+				}
 				//get key id from string
 				auto keyid = keyStringToNumber( button->bindName );
 				button->keystate = ( KeyPressState )keystate[ keyid ];
+			} else {
+				auto& deviceName = button->deviceName;	//USB_Gamepad
+				
+				if ( deviceName.empty( ) ) {
+					return;
+				}
+				auto& bindName = button->bindName;		//1
+
+				//need to somehow get information from input datastructure
+				button->keystate = ( KeyPressState )input->getButtonState( deviceName, bindName );
+				
 			}
 		}
 	}
@@ -233,7 +258,7 @@ bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, 
 	}
 	
 	//everything looks good - now assign the new bind
-	button->deviceName = "keyboard";
+	button->deviceName = device;
 	button->bindName = keystr;
 	return true;
 }
@@ -305,4 +330,26 @@ SDL_Keycode Input::keyStringToNumber( std::string_view key ) {
 	}
 
 	return ret;
+}
+
+/*
+==============================================
+Input::getButtonState
+==============================================
+*/
+bool Input::getButtonState( std::string_view deviceName, std::string_view bindName ) {
+	//loop to find controller
+	for ( auto& joystick : joysticks ) {
+		if ( deviceName == joystick.name ) {
+			//for now convert bindName to a int
+			int bindNum = std::stoi( bindName.data() );
+			bool buttonState = joystick.buttonState[ bindNum ];
+			if ( buttonState ) {
+				int i = 0;
+			}
+			
+			return buttonState;
+		}
+	}
+	return false;
 }

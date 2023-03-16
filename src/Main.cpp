@@ -29,7 +29,7 @@ Console::ConsoleVariable< bool > drawTimeProfiler(
 //variables
 SDL_Window* window = nullptr;
 bool isWindowMode = true;
-std::vector<_SDL_Joystick*> joysticks{ };
+
 
 //function declarations
 void initializeEmulator( );
@@ -54,15 +54,21 @@ int main( int argc, char* args[] )
 	initializeVideo( window );
 	SDL_AudioDeviceID soundDeviceId = initializeSound( window, &audioSpecification );
 
+	//initialize emulation systems
+	initializeEmulator( );
+
 	//init joysticks
 	auto numJoysticks = SDL_NumJoysticks( );
 	for ( int i = 0; i < numJoysticks; i++ ) {
-		SDL_Joystick* handle = SDL_JoystickOpen( i );
-		joysticks.push_back( handle );
+		Joystick joy{};
+		joy.handle = SDL_JoystickOpen( i );
+		joy.name = SDL_JoystickName(joy.handle);
+
+		//replace space with underscore for easier parsing
+		std::replace( joy.name.begin( ), joy.name.end( ), ' ', '_' );
+
+		input->getJoysticks( ).push_back( joy );
 	}
-	
-	//initialize emulation systems
-	initializeEmulator( );
 
 	//start sound
 	SDL_PauseAudioDevice( soundDeviceId, 0 );
@@ -247,8 +253,11 @@ bool VsyncHandler( SDL_Window* window ) {
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "VSYNC Error", error, window );
 	}
 }
-
+std::ostringstream inputLog;
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
+	ImGui::Begin( "Input log" );
+	
+	
 	//take input events and pass them to input system
 	while ( SDL_PollEvent( &event ) ) {
 		ImGui_ImplSDL2_ProcessEvent( &event );
@@ -279,10 +288,24 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				SDL_Keysym keyup = event.key.keysym;
 				input->setKeyUp( keyup.sym );
 				break;
-			case SDL_JOYBUTTONDOWN:
-				break;
-			case SDL_JOYAXISMOTION:
-				break;
+			case SDL_JOYBUTTONDOWN: {
+				auto button = event.jbutton.button;
+				auto& joystick = input->getJoysticks( )[ event.jbutton.which ];
+				auto deviceName = joystick.name;
+				inputLog	<< "button=" << std::to_string( button ) << " " 
+							<< "device=" << deviceName
+							<< std::endl;
+
+				joystick.buttonState[ button ] = true;
+				
+				break; }
+			case SDL_JOYAXISMOTION: {
+				if ( ( event.jaxis.value < -3200 ) || ( event.jaxis.value > 3200 ) ) {
+					inputLog	<< "axis =" << std::to_string(event.jaxis.axis) << " "
+								<< "value=" << std::to_string( event.jaxis.value ) << std::endl;
+				}
+				break; 
+			}
 			case SDL_TEXTINPUT:
 				input->addTextInput( event.text.text );
 				break;
@@ -314,6 +337,11 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				break;
 		}
 	}
+
+	const std::string& tmp = inputLog.str( );
+	const char* cstr = tmp.c_str( );
+	ImGui::Text( "%s", cstr );
+	ImGui::End( );
 }
 
 void switchFullscreen( ) {

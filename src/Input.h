@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include <SDL_keyboard.h>
+#include <SDL_joystick.h>
 
 #include "typedefs.h"
 
@@ -41,7 +42,7 @@ namespace FrontEnd {
 			ControllableButton() { }
 			ControllableButton( std::string_view name,
 								std::string_view deviceName,
-								std::string_view bindName, int keyid );
+								std::string_view bindName );
 			friend class Controllable;
 
 			std::string name;			//name of this button
@@ -84,6 +85,30 @@ namespace FrontEnd {
 			void clearStates();
 		  private:
 			std::vector< ControllableButton* > buttons;
+		};
+
+		/*
+		================================================================
+		================================================================
+		struct Joystick
+
+		  SDL Joystick - this is used to store current state of buttons
+						 and axis's
+		================================================================
+		================================================================
+		*/
+		struct Joystick
+		{
+			_SDL_Joystick* handle;
+			std::string name;
+
+			//clear all button and axis states
+			void clearState( );
+
+			//axis state
+
+			//button state <button_num, pressed?>
+			std::map<int, bool> buttonState;
 		};
 
 		/*
@@ -141,7 +166,7 @@ namespace FrontEnd {
 			//moves mouse cursor to coordinates set by setMouseX and setMouseY
 			void moveMouseToNewCoordinates() {SetCursorPos( mousex + screenx, mousey + screeny );}
 
-			void clearKeyState();
+			void clearInputState();
 
 			//add text to textInput (for typing input)
 			void addTextInput( const std::string input ) { textInput += input; }
@@ -183,6 +208,11 @@ namespace FrontEnd {
 
 			//convert a key in string form to it's id number
 			SDL_Keycode keyStringToNumber( std::string_view key );
+
+			//get SDL joysticks
+			std::vector<Joystick>& getJoysticks( ) { return joysticks; }
+
+			bool getButtonState( std::string_view deviceName, std::string_view bindName );
 			
 		private:
 
@@ -211,6 +241,8 @@ namespace FrontEnd {
 
 			//list of all controllable classes
 			std::vector< Controllable* > controllables;
+
+			std::vector<Joystick> joysticks{ };
 		};
 	}
 }
