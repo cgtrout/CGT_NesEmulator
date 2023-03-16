@@ -48,3 +48,6 @@ void CircularBuffer<T>::increaseIndex() {
         index = 0;
     }
 }
+
+
+
