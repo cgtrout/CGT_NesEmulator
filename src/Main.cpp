@@ -263,6 +263,7 @@ bool VsyncHandler( SDL_Window* window ) {
 
 //last input state - used for button binding
 std::ostringstream inputLog;
+bool lastKeyWasKeyboard = false;
 int lastButton;
 int lastAxis;
 int lastAxisValue;
@@ -284,17 +285,21 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 		ImGui::Text( "Button bindName %s", button->bindName.c_str() );
 		ImGui::Text( "Button deviceName %s", button->deviceName.c_str( ) );
 		
-		//TODO decide if last input was a keyboard key or joystick key
+		std::string newDeviceName;
 
+		//was last key a keyboard key or joystick key?
+		if(lastKeyWasKeyboard) {
+			newDeviceName = "keyboard";
+		} else {
+			//must be gamepad- get from lastJoystick that was recognized
+			newDeviceName = lastJoystick->name;
+		}
 
-		//deviceName is name of device (keyboard or name of gamepad)
-		//TODO - create string
-		
 		//bindName is name of controller or keyboard bind (button, axis, or keyboard key)
 		//TODO - create string
 		
 		//TODO create bind command to send to input system
-		//input->bindKeyToControl( NEWbutton->deviceName, NEWbutton->bindName, controller->name, button->name );
+		//input->bindKeyToControl( newDeviceName, NEWbutton->bindName, controller->name, button->name );
 
 		ImGui::Text( "Nes button %s", button->name.c_str( ) );
 
@@ -341,6 +346,7 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				}
 
 				input->setKeyDown( keydown.sym );
+				lastKeyWasKeyboard = true;
 				break;
 			case SDL_KEYUP:
 				SDL_Keysym keyup = event.key.keysym;
@@ -356,6 +362,7 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				lastButton = button;
 				lastJoystick = &joystick;
 				joystick.buttonState[ button ] = true;
+				lastKeyWasKeyboard = false;
 				
 				break; }
 			case SDL_JOYBUTTONUP: {
@@ -382,6 +389,8 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				lastJoystick = &joystick;
 				lastAxis = event.jaxis.axis;
 				lastAxisValue = event.jaxis.value;
+				
+				lastKeyWasKeyboard = true;
 				break; 
 			}
 			case SDL_TEXTINPUT:
