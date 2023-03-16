@@ -10,7 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "typedefs.h"
-#include < string >
+#include <string>
 
 //converts std::string to an int
 int convertStrToInt( std::string n );

@@ -2,7 +2,7 @@
 #define NesFile_INCLUDED
 
 //nes file loader
-#include < string >
+#include <string>
 
 #include "CGTException.h"
 

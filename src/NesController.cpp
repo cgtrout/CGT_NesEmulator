@@ -1,7 +1,7 @@
 #include "precompiled.h"
 
 using namespace NesEmulator;
-#include < sstream >
+#include <sstream>
 
 /* 
 ==============================================

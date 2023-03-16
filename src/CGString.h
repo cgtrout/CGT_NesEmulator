@@ -1,6 +1,6 @@
-#include < string >
+#include <string>
 #include <string_view>
-#include < vector >
+#include <vector>
 //basic string routines
 
 namespace CgtString {
@@ -8,11 +8,10 @@ namespace CgtString {
 	std::string strtolower( std::string_view str );
 
 	//compare strings ignoring case
-	bool strcasecmp( std::string_view str1, std::string_view str2 );
+	bool stringCaseCmp( std::string_view str1, std::string_view str2 );
 
 	//converts a std::string to lower case
 	std::string toLower( std::string_view s );
-	
 
 	/*
 	================================================================

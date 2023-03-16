@@ -2,8 +2,6 @@
 #define ImageTools_INCLUDED
 
 //TODO somewhat messy / not very object oriented design
-
-
 /*
 ================================================================
 ================================================================

@@ -3,8 +3,6 @@
 #include "FpsTimer.h"
 using namespace FrontEnd;
 
-
-
 /* 
 ==============================================
 FPSTimer::FPSTimer()

@@ -7,7 +7,7 @@ using namespace Console;
 
 #include "StringToNumber.h"
 
-#include < sstream >
+#include <sstream>
 
 //string warning
 #if _MSC_VER > 1000
@@ -412,7 +412,7 @@ bool ConsoleSystem::findAndRunCommand( std::string_view commandName, std::string
 	for( iter = commands.begin(); iter != commands.end(); iter++ ) {
 		curr = ( ConsoleCommand* )( *iter );
 
-		if( CgtString::strcasecmp( curr->name.c_str(), commandName ) ) {
+		if( CgtString::stringCaseCmp( curr->name.c_str(), commandName ) ) {
 			if( run ) {
 				runCommand( curr, param );
 			}

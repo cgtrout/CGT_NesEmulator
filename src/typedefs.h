@@ -11,6 +11,5 @@ typedef int PpuClockCycles;
 //#define CpuToMaster( val ) (val * 3)
 #define CpuToPpu( val ) (val * 3)
 
-
 #define PpuToCpu( val ) (val / 3)
 #define PpuToCpuMod( val ) (val % 3)

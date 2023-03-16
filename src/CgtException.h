@@ -1,8 +1,7 @@
 #if !defined( CgtException__H )
 #define CgtException__H
 
-#include < string >
-
+#include <string>
 
 class CgtException {
 public:

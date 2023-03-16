@@ -1,6 +1,5 @@
 #include "image.h"
-#include < windows.h >
-#include < fstream >
+#include <fstream>
 #include <assert.h>
 #include <gl/GL.h>
 

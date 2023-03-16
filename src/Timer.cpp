@@ -4,9 +4,7 @@
 #include "precompiled.h"
 using namespace FrontEnd;
 
-#include < assert.h >
-
-#include < Windows.h >
+#include <cassert>
 
 //#define GETTIMESTAMP timeGetTime
 enum TIMER_COMMAND { TIMER_RESET, TIMER_START, TIMER_STOP, TIMER_ADVANCE,

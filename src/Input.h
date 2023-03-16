@@ -9,9 +9,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include < windows.h >	
-#include < vector >
-#include < string >
+#include <vector>
+#include <string>
 
 #include <SDL_keyboard.h>
 
@@ -41,7 +40,7 @@ namespace FrontEnd {
 		 friend class Input;
 		 public:
 			ControllableButton() { }
-			ControllableButton( char *name, int keyid );
+			ControllableButton( string_view name, int keyid );
 			friend class Controllable;
 
 			SDL_Keycode keyid;
@@ -69,7 +68,7 @@ namespace FrontEnd {
 		class Controllable {
 		  friend class Input;
 		  public:
-			Controllable( char *name );
+			Controllable( string_view name );
 			Controllable() { }
 
 			void addButton( ControllableButton *b );
@@ -169,13 +168,13 @@ namespace FrontEnd {
 			void updateControllables();
 
 			//binds a key to a control
-			bool bindKeyToControl( std::string key, std::string control, std::string button );
+			bool bindKeyToControl( std::string_view key, std::string_view control, std::string_view button );
 
 			//get control from list of controls
-			Controllable *getControl( std::string control );
+			Controllable *getControl( std::string_view control );
 
 			//writes all binds to a file
-			void writeBindsToFile( const char *filename );
+			void writeBindsToFile( string_view filename );
 
 			//convert keyid to it's std::string form
 			std::string keyIdToString( SDL_Keycode keyid );

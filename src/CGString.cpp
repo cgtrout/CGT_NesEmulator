@@ -1,9 +1,7 @@
 #include "precompiled.h"
 
 //#include "CGString.h"
-//#include < stdio.h > 
-#include < ctype.h > 
-#include < string.h >
+#include <string>
 
 using namespace CgtString;
 
@@ -30,7 +28,7 @@ std::string CgtString::strtolower( std::string_view str) {
 bool CgtString::strcasecmp
 ==============================================
 */
-bool CgtString::strcasecmp( std::string_view str1, std::string_view str2 ) {
+bool CgtString::stringCaseCmp( std::string_view str1, std::string_view str2 ) {
 	std::string cstr1 = CgtString::strtolower( str1 );
 	std::string cstr2 = CgtString::strtolower( str2 );
 	return cstr1 == cstr2;

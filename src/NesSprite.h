@@ -4,7 +4,7 @@
 #include "CGTSingleton.h"
 #include "NesMemory.h"
 
-#include < vector >
+#include <vector>
 
 using namespace CGTSingleton;
 typedef unsigned char ubyte;

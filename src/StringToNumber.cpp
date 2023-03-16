@@ -1,7 +1,5 @@
 #include "precompiled.h"
-#include < ctype.h >
-
-//#include < crtdbg.h >
+#include <ctype>
 
 #pragma warning ( disable : 4996 )
 

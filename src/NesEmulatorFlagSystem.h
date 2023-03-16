@@ -5,7 +5,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include < deque >
+#include <deque>
 
 #include "CGTSingleton.h"
 #include "typedefs.h"

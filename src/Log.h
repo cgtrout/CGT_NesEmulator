@@ -9,18 +9,12 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include < iostream >
-#include < ostream >
-#include < istream >
-#include < fstream >
-#include < list >
-#include < string >
-
-//#include < stdio.h > 
-//#include < stdarg.h >
-//#include < windows.h >	
-
-
+#include <iostream>
+#include <ostream>
+#include <istream>
+#include <fstream>
+#include <list>
+#include <string>
 
 #include "CGTSingleton.h"
 using namespace CGTSingleton;

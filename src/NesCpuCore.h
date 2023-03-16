@@ -16,8 +16,8 @@
 
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
 
-#include < string >
-#include < vector >
+#include <string>
+#include <vector>
 
 namespace NesEmulator {
 	

@@ -1,7 +1,6 @@
 #if !defined( NesPpuScanline_INCLUDED )
 #define NesPpuScanline_INCLUDED
 
-
 namespace PpuSystem {
 	static const int PIXELS_PER_SCANLINE = 256; 
 	static const int CLOCKS_PER_SCANLINE = 341;

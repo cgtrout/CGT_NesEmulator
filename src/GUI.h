@@ -10,7 +10,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include < list >
+#include <list>
 #include <string>
 #include <memory>
 #include "Image.h"

@@ -1,7 +1,7 @@
 #if !defined( NESDEBUGGER_INC )
 #define NESDEBUGGER_INC
 
-#include < string >
+#include <string>
 
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
