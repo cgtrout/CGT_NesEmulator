@@ -95,7 +95,7 @@ namespace FrontEnd {
 		struct Joystick
 
 		  SDL Joystick - this is used to store current state of buttons
-						 and axis's
+						 and axis's on a specific joystick
 		================================================================
 		================================================================
 		*/

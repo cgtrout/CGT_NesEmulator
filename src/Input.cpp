@@ -188,6 +188,7 @@ void Input::updateControllables() {
 	for( unsigned int c = 0 ; c < controllables.size(); c++ ) {
 		for( unsigned int b = 0 ; b < controllables[ c ]->buttons.size(); b++ ) {
 			auto& button = controllables[ c ]->buttons[ b ];
+			//handle keyboard
 			if ( button->deviceName == "keyboard" ) {
 				if ( inputState == Input::InputSystemStates::TYPE_MODE ) {
 					return;
@@ -196,6 +197,7 @@ void Input::updateControllables() {
 				auto keyid = keyStringToNumber( button->bindName );
 				button->keystate = ( KeyPressState )keystate[ keyid ];
 			} else {
+				//handle joystick/gamepad
 				auto& deviceName = button->deviceName;	//USB_Gamepad
 				
 				if ( deviceName.empty( ) ) {
@@ -203,9 +205,8 @@ void Input::updateControllables() {
 				}
 				auto& bindName = button->bindName;		//1
 
-				//need to somehow get information from input datastructure
+				//get information from input datastructure
 				button->keystate = ( KeyPressState )input->getButtonState( deviceName, bindName );
-				
 			}
 		}
 	}
@@ -223,9 +224,6 @@ void Input::addControl( Controllable *control ) {
 /* 
 ==============================================
 bool Input::bindKeyToControl
-TODO way for user to find out what key a control's button is bound to
-	 way for user to find out what buttons are in a particular command
-	 way for user to find out what commands are in input system
 ==============================================
 */
 bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, std::string_view controlstr, std::string_view buttonstr ) {
@@ -235,7 +233,6 @@ bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, 
 		//consoleSystem->printMessage( "Input::bindKeyToControl - no key is bound" );
 		return false;
 	}
-	
 
 	//find control
 	Controllable *control = getControl( controlstr );
@@ -276,7 +273,6 @@ Controllable *Input::getControl( std::string_view control ) {
 	return NULL;
 }
 
-
 /*
 ==============================================
 Input::generateControllerBindCommand
@@ -288,7 +284,6 @@ std::string Input::generateControllerBindCommand( const Controllable& controllab
 
 	return "bind " + controllerName + " to " + bindName;
 }
-
 
 /* 
 ==============================================
@@ -305,7 +300,7 @@ void Input::writeBindsToFile( std::string_view filename ) {
 		for( unsigned int b = 0; b < controllables[ c ]->buttons.size(); b++ ) {
 			auto& controllable = controllables[ c ];
 			auto& button = controllable->buttons[ b ];
-			auto bindCommand = generateControllerBindCommand( *controllable, *button );
+			std::string bindCommand = generateControllerBindCommand( *controllable, *button );
 			file << bindCommand << std::endl;
 		}
 	}
@@ -346,6 +341,7 @@ bool Input::getButtonState( std::string_view deviceName, std::string_view bindNa
 	//loop to find controller
 	for ( auto& joystick : joysticks ) {
 		if ( deviceName == joystick.name ) {
+			//handle axis
 			if ( bindName.length() >= 4 && bindName.substr( 0, 4 ) == "axis" ) {
 				int axisNum = bindName[ 4 ] - '0';
 				bool min = bindName.substr( 5, 4 ) == "min";
@@ -362,7 +358,7 @@ bool Input::getButtonState( std::string_view deviceName, std::string_view bindNa
 				return false;
 			}
 
-			//for now convert bindName to a int
+			//handle button bind
 			int bindNum = std::stoi( bindName.data() );
 			bool buttonState = joystick.buttonState[ bindNum ];
 			if ( buttonState ) {
