@@ -12,10 +12,10 @@ using namespace FrontEnd::InputSystem;
 
 /* 
 ==============================================
-Controllable::Controllable( char *name ) : name( name )
+Controllable::Controllable()
 ==============================================
 */
-Controllable::Controllable( char *name ) : name( name ) {
+Controllable::Controllable( string_view name ) : name( name ) {
 
 }
 
@@ -44,10 +44,10 @@ ControllableButton *Controllable::getButton( std::string name ) {
 
 /* 
 ==============================================
-ControllableButton::ControllableButton( char *name, int keyid )
+ControllableButton::ControllableButton()
 ==============================================
 */
-ControllableButton::ControllableButton( char *name, int keyid ) {
+ControllableButton::ControllableButton( string_view name, int keyid ) {
 	this->name = name;
 	this->keyid = keyid;
 	keystate = NOT_PRESSED;
@@ -187,13 +187,13 @@ void Input::addControl( Controllable *control ) {
 
 /* 
 ==============================================
-bool Input::bindKeyToControl( std::string key, string control, string button )
+bool Input::bindKeyToControl
 TODO way for user to find out what key a control's button is bound to
 	 way for user to find out what buttons are in a particular command
 	 way for user to find out what commands are in input system
 ==============================================
 */
-bool Input::bindKeyToControl( std::string keystr, std::string controlstr, std::string buttonstr ) {
+bool Input::bindKeyToControl( std::string_view keystr, std::string_view controlstr, std::string_view buttonstr ) {
 	//validation
 	//TODO Exception handler
 	if( keystr == "NULL" ) {
@@ -232,10 +232,10 @@ bool Input::bindKeyToControl( std::string keystr, std::string controlstr, std::s
 
 /* 
 ==============================================
-Controllable *Input::getControl( std::string control )
+Controllable *Input::getControl
 ==============================================
 */
-Controllable *Input::getControl( std::string control ) {
+Controllable *Input::getControl( std::string_view control ) {
 	//find control
 	for( unsigned int x = 0 ; x < controllables.size(); x++ ) {
 		if( controllables[ x ]->name == control ) {
@@ -247,10 +247,10 @@ Controllable *Input::getControl( std::string control ) {
 
 /* 
 ==============================================
-void Input::writeBindsToFile()
+void Input::writeBindsToFile
 ==============================================
 */
-void Input::writeBindsToFile( const char *filename ) {
+void Input::writeBindsToFile( string_view filename ) {
 	std::ofstream file( filename );
 	file << "//Keybinds file - modify binds only.  Everything else is not preserved \n";
 	
@@ -274,6 +274,11 @@ void Input::writeBindsToFile( const char *filename ) {
 	file.close();
 }
 
+/* 
+==============================================
+Input::keyIdToString
+==============================================
+*/
 std::string Input::keyIdToString( SDL_Keycode keyid ) {
 	std::string retValue( SDL_GetKeyName( keyid ) );
 	return retValue;
