@@ -259,9 +259,9 @@ bool VsyncHandler( SDL_Window* window ) {
 	}
 }
 
-
-
 //last input state - used for button binding
+//FIXME decide where to store these, possibly this state should exist in 
+//		input class?
 std::ostringstream inputLog;
 bool lastKeyWasKeyboard = false;
 int lastButton;
@@ -271,7 +271,6 @@ Joystick* lastJoystick;
 bool buttonBindMode = true;
 int currentController = 0;
 int bindIndex = 0;
-std::vector<std::string> controllerButtons;
 //bind controller1.b to USB_Gamepad.2
 
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
@@ -322,6 +321,7 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 	}
 		
 	//take input events and pass them to input system
+	//FIXME: move these functions to Input class?
 	while ( SDL_PollEvent( &event ) ) {
 		ImGui_ImplSDL2_ProcessEvent( &event );
 		switch ( event.type ) {
@@ -450,10 +450,6 @@ void initializeEmulator( ) {
 	consoleSystem = &systemMain->consoleSystem;
 	systemMain->initialize( );
 	systemMain->renderer.setRes( SCREEN_WIDTH, SCREEN_HEIGHT );
-
-	//assign soundsystem
-	// TODO
-	//systemMain->soundSystem = &winSoundSystem;
 
 	systemMain->start( );
 
