@@ -276,6 +276,20 @@ Controllable *Input::getControl( std::string_view control ) {
 	return NULL;
 }
 
+
+/*
+==============================================
+Input::generateControllerBindCommand
+==============================================
+*/
+std::string Input::generateControllerBindCommand( const Controllable& controllable, const ControllableButton& button ) {
+	std::string controllerName = controllable.name + "." + button.name;
+	std::string bindName = button.deviceName + "." + button.bindName;
+
+	return "bind " + controllerName + " to " + bindName;
+}
+
+
 /* 
 ==============================================
 void Input::writeBindsToFile
@@ -291,16 +305,8 @@ void Input::writeBindsToFile( std::string_view filename ) {
 		for( unsigned int b = 0; b < controllables[ c ]->buttons.size(); b++ ) {
 			auto& controllable = controllables[ c ];
 			auto& button = controllable->buttons[ b ];
-			file << "bind " << controllables[ c ]->name.c_str() << ".";
-			file << button->name.c_str() << " to ";
-			
-			file << button->deviceName << ".";
-			
-			//dont output if keybind = 0
-			if ( button->bindName.empty() == false ) {
-				file << button->bindName;
-			}
-			file << """\n";
+			auto bindCommand = generateControllerBindCommand( *controllable, *button );
+			file << bindCommand << std::endl;
 		}
 	}
 	file << std::endl;

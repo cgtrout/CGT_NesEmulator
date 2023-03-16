@@ -83,6 +83,8 @@ namespace FrontEnd {
 
 			//call once per frame to clear all button states
 			void clearStates();
+
+			const auto& getButtons( ) { return buttons; }
 		  private:
 			std::vector< ControllableButton* > buttons;
 		};
@@ -203,6 +205,11 @@ namespace FrontEnd {
 			//get control from list of controls
 			Controllable *getControl( std::string_view control );
 
+			
+
+			//generate string command for binding one button to a controller
+			std::string generateControllerBindCommand( const Controllable& controllable, const ControllableButton& button );
+
 			//writes all binds to a file
 			void writeBindsToFile( std::string_view filename );
 
@@ -217,6 +224,8 @@ namespace FrontEnd {
 
 			bool getButtonState( std::string_view deviceName, std::string_view bindName );
 			
+			const std::vector< Controllable* >& getControllables( ) { return controllables; }
+
 		private:
 
 			InputSystemStates inputState;

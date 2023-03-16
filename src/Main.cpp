@@ -262,8 +262,60 @@ bool VsyncHandler( SDL_Window* window ) {
 }
 
 std::ostringstream inputLog;
+
+//last input state - used for button binding
+int lastButton;
+int lastAxis;
+int lastAxisValue;
+Joystick* lastJoystick;
+bool buttonBindMode = true;
+int currentController = 0;
+int bindIndex = 0;
+std::vector<std::string> controllerButtons;
+//bind controller1.b to USB_Gamepad.2
+
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
-	ImGui::Begin( "Input log" );
+	//FIXME - should not at this location
+	if ( buttonBindMode ) {
+		ImGui::Begin( "Input", &buttonBindMode );
+		auto& controller = input->getControllables( )[ currentController ];
+		ImGui::Text( "Current controller is %s", controller->name.c_str());
+		
+		auto& button = controller->getButtons( )[ bindIndex ];
+		ImGui::Text( "Button bindName %s", button->bindName.c_str() );
+		ImGui::Text( "Button deviceName %s", button->deviceName.c_str( ) );
+		
+		//TODO decide if last input was a keyboard key or joystick key
+
+		//deviceName is name of device (keyboard or name of gamepad)
+		//TODO - create string
+		
+		//bindName is name of controller or keyboard bind (button, axis, or keyboard key)
+		//TODO - create string
+		
+		//TODO create bind command to send to input system
+		//input->bindKeyToControl( NEWbutton->deviceName, NEWbutton->bindName, controller->name, button->name );
+
+		ImGui::Text( "Nes button %s", button->name.c_str( ) );
+
+		ImGui::Text( "Press keyboard key or gamepad key to bind this key" );
+
+		if ( ImGui::Button( "Next button" ) ) {
+			bindIndex++;
+			if ( bindIndex == controller->getButtons( ).size( ) ) {
+				bindIndex = 0;
+				currentController++;
+				if ( currentController == 2 ) currentController = 0;
+			}
+		}
+
+		//const std::string& tmp = inputLog.str( );
+		//const char* cstr = tmp.c_str( );
+		//ImGui::Text( "%s", cstr );
+		
+		
+		ImGui::End( );
+	}
 	
 	
 	//take input events and pass them to input system
@@ -303,7 +355,8 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				inputLog	<< "buttonDOWN=" << std::to_string( button ) << " " 
 							<< "device=" << deviceName
 							<< std::endl;
-
+				lastButton = button;
+				lastJoystick = &joystick;
 				joystick.buttonState[ button ] = true;
 				
 				break; }
@@ -323,8 +376,14 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 					inputLog	<< "axis =" << std::to_string(event.jaxis.axis) << " "
 								<< "value=" << std::to_string( event.jaxis.value ) << std::endl;
 				}
+				//set axis state in input system
 				auto& joystick = input->getJoysticks( )[ event.jbutton.which ];
 				joystick.axisState[ event.jaxis.axis ] = event.jaxis.value;
+
+				//assign last values
+				lastJoystick = &joystick;
+				lastAxis = event.jaxis.axis;
+				lastAxisValue = event.jaxis.value;
 				break; 
 			}
 			case SDL_TEXTINPUT:
@@ -358,11 +417,6 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				break;
 		}
 	}
-
-	const std::string& tmp = inputLog.str( );
-	const char* cstr = tmp.c_str( );
-	ImGui::Text( "%s", cstr );
-	ImGui::End( );
 }
 
 void switchFullscreen( ) {
