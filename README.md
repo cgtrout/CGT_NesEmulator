@@ -25,6 +25,7 @@ Features a full hex viewer and step debugger:
 
 It has limited support for all the "mappers" available, so many games will not even load.  The sound is partially implemented and has some issues in its current state.
 
-#### Build instructions
+#### Build instructions (Visual Studio)
 Place SDL2 library files (win32) in CGT_NesEmulator\SDL2
-Place imgui files in /src/imgui 
+Place imgui files in /src/imgui directory
+Place implot files in /src/implot directory
