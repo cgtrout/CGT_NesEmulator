@@ -1,7 +1,7 @@
 #if !defined( NesPalette_INCLUDED )
 #define NesPalette_INCLUDED
 
-#include < string >
+#include <string>
 #include "CGTSingleton.h"
 
 typedef unsigned char ubyte;
