@@ -178,18 +178,19 @@ void NesDebugger::draw( ) {
 			static bool cpuSet = true;
 			static bool ppuSet = false;
 
-			ImGui::BeginListBox( "Memory Selection", ImVec2(100, 40) );
-				if ( ImGui::Selectable( "CPU Memory", &cpuSet ) ) {
+			if( ImGui::BeginListBox( "Memory Selection", ImVec2( 100, 40 ) ) ) {
+				if( ImGui::Selectable( "CPU Memory", &cpuSet ) ) {
 					memDumpType = MemoryDumper::MEMDUMPTYPE_MAIN;
 					cpuSet = true;
 					ppuSet = false;
 				}
-				if ( ImGui::Selectable( "PPU Memory", &ppuSet ) ) {
+				if( ImGui::Selectable( "PPU Memory", &ppuSet ) ) {
 					memDumpType = MemoryDumper::MEMDUMPTYPE_PPU;
 					ppuSet = true;
 					cpuSet = false;
 				}
-			ImGui::EndListBox( );
+				ImGui::EndListBox( );
+			}
 
 			ImGui::PopItemWidth( );
 
