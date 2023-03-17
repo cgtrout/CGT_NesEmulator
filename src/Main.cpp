@@ -263,7 +263,7 @@ bool VsyncHandler( SDL_Window* window ) {
 //FIXME decide where to store these, possibly this state should exist in 
 //		input class?
 std::ostringstream inputLog;
-bool lastKeyWasKeyboard = false;
+bool lastKeyWasKeyboard = true;
 int lastButton;
 int lastAxis;
 int lastAxisValue;
@@ -283,7 +283,7 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 		auto& button = controller->getButtons( )[ bindIndex ];
 		ImGui::Text( "Button bindName %s", button->bindName.c_str() );
 		ImGui::Text( "Button deviceName %s", button->deviceName.c_str( ) );
-		
+
 		std::string newDeviceName;
 
 		//was last key a keyboard key or joystick key?
@@ -300,9 +300,9 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 		//TODO create bind command to send to input system
 		//input->bindKeyToControl( newDeviceName, NEWbutton->bindName, controller->name, button->name );
 
-		ImGui::Text( "Nes button %s", button->name.c_str( ) );
+		//ImGui::Text( "Nes button %s", button->name.c_str( ) );
 
-		ImGui::Text( "Press keyboard key or gamepad key to bind this key" );
+		//ImGui::Text( "Press keyboard key or gamepad key to bind this key" );
 
 		if ( ImGui::Button( "Next button" ) ) {
 			bindIndex++;
