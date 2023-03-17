@@ -89,7 +89,9 @@ void SystemMain::start() {
 	if ( std::filesystem::exists( "binds.cfg" ) ) {
 		consoleSystem.loadCommandFile( "binds.cfg" );
 	} else {
-		consoleSystem.loadCommandFile( "default-binds.cfg" );
+		if( std::filesystem::exists( "default-binds.cfg" ) ) {
+			consoleSystem.loadCommandFile( "default-binds.cfg" );
+		}
 	}
 
 	renderer.initialize();
