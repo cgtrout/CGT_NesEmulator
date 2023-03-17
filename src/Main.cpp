@@ -8,6 +8,8 @@
 #include "imgui/imgui_impl_opengl2.h"
 #include "implot/implot.h"
 
+#include "CgtDataStructures.h"
+
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
 	/*name*/		"capFrameRate",
@@ -76,9 +78,9 @@ int main( int argc, char* args[] )
 	std::string profilerReport{};
 
 	static const int FRAME_TIME_SIZE = 100;
-	std::array<double, 1000> frameTime{};
+	CircularBuffer<double> frameTimeBuffer( 1000 );
+
 	int frameTimeIndex = 0;
-	frameTime.fill( 0.0f );
 
 	//ensure SDL isn't initialized to take text input rather than raw presses
 	SDL_StopTextInput( );
@@ -112,10 +114,10 @@ int main( int argc, char* args[] )
 			ImGui::Begin( "Time Profiler", drawTimeProfiler.getPointer( ), 0 );
 			ImGui::Text( profilerReport.c_str( ) );
 
-			double max = *std::max_element( frameTime.begin( ), frameTime.end() ) * 1.3f;
+			double max = *std::max_element( frameTimeBuffer.begin( ), frameTimeBuffer.end() ) * 1.3f;
 			if ( ImPlot::BeginPlot( "Frame time", ImVec2(-1,0)) ) {
 				ImPlot::SetupAxisLimits( ImAxis_Y1, 0, max, ImPlotCond_Always );
-				ImPlot::PlotBars( "Frame", frameTime.data(), FRAME_TIME_SIZE );
+				ImPlot::PlotBars( "Frame", frameTimeBuffer.getBufferPtr(), FRAME_TIME_SIZE );
 				ImPlot::EndPlot( );
 			}
 			ImGui::End( );
@@ -145,10 +147,7 @@ int main( int argc, char* args[] )
 		profilerReport = systemMain->timeProfiler.getSectionReport( );
 		
 		//handle frame time buffer
-		frameTime[ frameTimeIndex++ ] = elapsedTime.count( );
-		if ( frameTimeIndex == FRAME_TIME_SIZE ) {
-			frameTimeIndex = 0;
-		}
+		frameTimeBuffer.add( elapsedTime.count( ) );
 
 		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );		
 	}
