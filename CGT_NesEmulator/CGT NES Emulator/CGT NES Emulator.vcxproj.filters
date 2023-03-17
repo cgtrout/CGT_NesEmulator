@@ -117,12 +117,6 @@
     <ClCompile Include="..\..\src\TimeProfiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\winDebugger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\WinMain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -183,9 +177,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GLRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Graph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\GUI.h">
@@ -284,12 +275,6 @@
     <ClInclude Include="..\..\src\typedefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\winDebugger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\WinMain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\imgui\imgui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -323,10 +308,6 @@
     <ClInclude Include="..\..\src\CgtDataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\src\Graph.imp" />
-    <None Include="..\..\src\GUI.h~" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\nesEmResourse.rc">

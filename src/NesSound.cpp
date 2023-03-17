@@ -11,10 +11,6 @@ using namespace NesApu;
 //precise value is 7,457.386363636422
 static const int clocksPer240Hz = 7457;
 
-#include "graph.h"
-
-GraphGen<uword> graph;
-//uword data[22050];
 
 //TODO set fracComp properly 
 NesSoundBuffer::NesSoundBuffer( int bufLength ):  
@@ -138,10 +134,6 @@ void NesSound::runTo( PpuClockCycles desPpucc ) {
 
 void NesSound::resetCC() {
 	cc = 0;
-}
-
-Image *NesSound::getGraph() {
-	return graph.getImage();
 }
 
 #include <cstdint> // for int16_t type

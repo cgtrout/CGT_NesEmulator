@@ -21,7 +21,6 @@ using namespace NesEmulator;
 #include "NesMain.h"
 
 #include "ImageTools.H"
-#include "Graph.h"
 
 #ifndef LIGHT_BUILD
   extern NesDebugger *nesDebugger;
