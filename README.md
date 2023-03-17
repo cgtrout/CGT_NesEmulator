@@ -4,7 +4,7 @@
 ---
 
 ## Basic NES Emulator 
-#### A learning project not designed to be feature competitive with other emulators.  Written in C++ for Windows.
+#### A learning project not designed to be feature competitive with other emulators.  Written in C++ for Windows.  Recently just ported to SDL, so eventually a cross platform version will be released.
 
 Much of the code was written several years ago, and does not conform to the latest C++ standards in all cases.  However, recently I have spent some time updating the project to be more conformant in several areas.
 
