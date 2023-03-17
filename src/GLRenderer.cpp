@@ -15,6 +15,7 @@
 #include "GLGeneral.h"
 
 #include "ImGui/imgui.h"
+#include "imgui/imgui_impl_opengl2.h"
 
 extern FrontEnd::CLog *_log;
 
@@ -150,6 +151,18 @@ void Renderer::render2D() {
 	//render nes output
 	systemMain->timeProfiler.startSection( "drawPPU_main" );
 	ppuDraw.drawOutput( systemMain->nesMain.nesPpu.vidoutBuffer );
+
+	systemMain->nesMain.nesDebugger.draw( );
+
+	systemMain->timeProfiler.startSection( "ImGui render" );
+	ImGui::Render( );
+
+	systemMain->timeProfiler.startSection( "ImGui drawdata" );
+	ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
+
+	//renderer.drawImage( nesMain.nesApu.getGraph(), &Vec2d( 0, 20 ),true, 1, 0.5f );
+	systemMain->timeProfiler.startSection( "RenGUI" );
+	systemMain->gui.render( );
 }
 
 void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte color ) {
