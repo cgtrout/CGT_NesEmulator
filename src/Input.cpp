@@ -184,7 +184,6 @@ void Input::updateControllables()
 */
 std::ostringstream controlLog;
 void Input::updateControllables() {
-	ImGui::Begin( "Control Log" );
 	for( unsigned int c = 0 ; c < controllables.size(); c++ ) {
 		for( unsigned int b = 0 ; b < controllables[ c ]->buttons.size(); b++ ) {
 			auto& button = controllables[ c ]->buttons[ b ];
@@ -214,10 +213,6 @@ void Input::updateControllables() {
 			}
 		}
 	}
-	const std::string& tmp = controlLog.str( );
-	const char* cstr = tmp.c_str( );
-	ImGui::Text( "%s", cstr );
-	ImGui::End( );
 }
 
 /* 
