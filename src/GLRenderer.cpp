@@ -136,6 +136,7 @@ Renderer::render2D()
 void Renderer::render2D() {
 	if( systemMain->nesMain.getState() == Emulating ) {
 		if( drawDebugPPU ) {
+			systemMain->timeProfiler.startSection( "drawPPUDebug" );
 			Image& patternImage = ppuDraw.drawPatternTableF();   
 			Image& paletteImage = ppuDraw.drawPaletteTableF(&systemMain->nesMain.nesPpu.nesPalette);
 			
@@ -147,7 +148,7 @@ void Renderer::render2D() {
 	}
 
 	//render nes output
-	systemMain->timeProfiler.startSection( "RenPPU" );
+	systemMain->timeProfiler.startSection( "drawPPU_main" );
 	ppuDraw.drawOutput( systemMain->nesMain.nesPpu.vidoutBuffer );
 }
 

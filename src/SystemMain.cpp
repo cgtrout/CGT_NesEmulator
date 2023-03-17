@@ -268,7 +268,10 @@ void SystemMain::graphicUpdate() {
 	renderer.renderFrame();
 	nesDebugger->draw( );
 
+	timeProfiler.startSection( "ImGui render" );
 	ImGui::Render( );
+
+	timeProfiler.startSection( "ImGui drawdata" );
 	ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
 
 	//renderer.drawImage( nesMain.nesApu.getGraph(), &Vec2d( 0, 20 ),true, 1, 0.5f );
