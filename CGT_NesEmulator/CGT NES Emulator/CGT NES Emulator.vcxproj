@@ -178,7 +178,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\Console.cpp" />
     <ClCompile Include="..\..\src\ConsoleCommands.cpp" />
-    <ClCompile Include="..\..\src\FpsTimer.cpp" />
     <ClCompile Include="..\..\src\GLGeneral.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -187,7 +186,6 @@
     <ClCompile Include="..\..\src\GLRenderer.cpp" />
     <ClCompile Include="..\..\src\GUI.cpp" />
     <ClCompile Include="..\..\src\GUIConsole.cpp" />
-    <ClCompile Include="..\..\src\GUIFPSCounter.cpp" />
     <ClCompile Include="..\..\src\Image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -260,7 +258,6 @@
     <ClCompile Include="..\..\src\StringToNumber.cpp" />
     <ClCompile Include="..\..\src\SystemMain.cpp" />
     <ClCompile Include="..\..\src\TimeProfiler.cpp" />
-    <ClCompile Include="..\..\src\Timer.cpp" />
     <ClCompile Include="..\..\src\winDebugger.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -279,14 +276,12 @@
     <ClInclude Include="..\..\src\CGTSingleton.h" />
     <ClInclude Include="..\..\src\Console.h" />
     <ClInclude Include="..\..\src\ConsoleCommands.h" />
-    <ClInclude Include="..\..\src\FpsTimer.h" />
     <ClInclude Include="..\..\src\FractionAdder.h" />
     <ClInclude Include="..\..\src\GLGeneral.h" />
     <ClInclude Include="..\..\src\GLRenderer.h" />
     <ClInclude Include="..\..\src\Graph.h" />
     <ClInclude Include="..\..\src\GUI.h" />
     <ClInclude Include="..\..\src\GUIConsole.h" />
-    <ClInclude Include="..\..\src\GUIFPSCounter.h" />
     <ClInclude Include="..\..\src\Image.h" />
     <ClInclude Include="..\..\src\ImageTools.h" />
     <ClInclude Include="..\..\src\imgui\imconfig.h" />
@@ -326,7 +321,6 @@
     <ClInclude Include="..\..\src\SystemMain.h" />
     <ClInclude Include="..\..\src\TFreeList.h" />
     <ClInclude Include="..\..\src\TimeProfiler.h" />
-    <ClInclude Include="..\..\src\Timer.h" />
     <ClInclude Include="..\..\src\typedefs.h" />
     <ClInclude Include="..\..\src\winDebugger.h" />
     <ClInclude Include="..\..\src\WinMain.h">

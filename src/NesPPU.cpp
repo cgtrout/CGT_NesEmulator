@@ -84,7 +84,6 @@ void NesPPU::renderBuffer( PpuClockCycles desiredcc UpdateFlag flag = UF_Specifi
 */
 void NesPPU::renderBuffer( PpuClockCycles desiredcc, PpuUpdateType updateType ) {
 	//262 scanlines total
-	timeProfiler->stopSection( "Cpu" );
 	timeProfiler->startSection( "Ppu" );
 
 	//get sprite data
@@ -217,7 +216,6 @@ void NesPPU::renderBuffer( PpuClockCycles desiredcc, PpuUpdateType updateType ) 
 	//	_ASSERT( currentCC == desiredcc );
 	//}
 
-	timeProfiler->stopSection( "Ppu" );
 	timeProfiler->startSection( "Cpu" );
 }
 

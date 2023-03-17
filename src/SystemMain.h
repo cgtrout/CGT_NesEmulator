@@ -18,9 +18,7 @@
 #include "NesMain.h"
 
 #include "GUIConsole.h"
-#include "GUIFPSCounter.h"
 
-#include "FPSTimer.h"
 #include "TimeProfiler.h"
 
 #include "CGTSingleton.h"
@@ -76,9 +74,6 @@ namespace FrontEnd {
 		NesEmulator::NesMain	nesMain;
 		
 		Render::Renderer		renderer;
-		
-		GUISystem::GUIFPSCounter frameCounter;
-		FPSTimer fpsTimer;
 		
 		TimeProfiler timeProfiler;
 		

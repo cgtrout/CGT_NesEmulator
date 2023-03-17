@@ -19,7 +19,7 @@ class CircularBuffer {
     
     //iterators
     T* begin() { return &buffer[0]; }
-    T* end() { return &buffer[size()]; }
+    T* end() { return &buffer[size()-1]; }
     
     //get pointer to buffer
     T* getBufferPtr() { return buffer.data(); }

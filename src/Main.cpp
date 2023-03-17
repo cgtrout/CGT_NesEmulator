@@ -148,8 +148,6 @@ int main( int argc, char* args[] )
 		
 		//handle frame time buffer
 		frameTimeBuffer.add( elapsedTime.count( ) );
-
-		systemMain->fpsTimer.updateTimer( elapsedTime.count( ) );		
 	}
 
 	ImGui::DestroyContext( );
@@ -555,12 +553,8 @@ void initializeEmulator( ) {
 	systemMain->start( );
 
 	//set frame rate counter pos based on screen size
-	systemMain->frameCounter.setX( SCREEN_WIDTH - 87 );
-	systemMain->frameCounter.setY( SCREEN_HEIGHT - 20 );
 
 	input = FrontEnd::InputSystem::Input::getInstance( );
-
-	systemMain->fpsTimer.clearTimer( );
 
 	const double FRAME_TIME = 1.0f / 60.0f;
 

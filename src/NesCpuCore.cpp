@@ -106,7 +106,6 @@ void NesCpu::initialize( ) {
 	nesMemory = &m->nesMemory;
 	ppu = &m->nesPpu;
 
-	timer = Timer::getInstance( );
 	flagSystem = &m->emulatorFlags;
 
 	consoleSystem->variables.addIntVariable( &traceSize );

@@ -7,7 +7,6 @@
 
 using namespace CGTSingleton;
 
-#include "Timer.h"
 #include "Log.h"
 
 //turn off unsafe string function warnings
@@ -28,8 +27,6 @@ extern FrontEnd::SystemMain	*systemMain;
 extern FrontEnd::InputSystem::Input *input;
 
 extern FrontEnd::CLog *_log;
-extern FrontEnd::Timer *timer;
-
 extern Console::ConsoleSystem *consoleSystem;
 
 //extract bit "bit" from value

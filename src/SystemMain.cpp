@@ -178,23 +178,12 @@ void SystemMain::start() {
 		exit( 0 );
 	}
 	
-	//start timer
-	timer->init();
 	renderer.initialize();
 
 	if( nesMain.getState() == Emulating ) {
 		//nesMain.nesDebugger.initialize();
 		//nesMain.nesDebugger.setToSingleStepMode( nesMain.nesCpu.getPC() );
 	}
-
-	//setup timeProfiler
-	timeProfiler.addSection( "Apu" );
-	timeProfiler.addSection( "Cpu" );
-	timeProfiler.addSection( "Ppu" );
-	timeProfiler.addSection( "Gui" );
-	timeProfiler.addSection( "RenGUI" );
-	timeProfiler.addSection( "RenFrame" );
-	timeProfiler.addSection( "RenPPU" );
 
 	gui.addElement( &guiConsole );
 	//gui.addElement( &frameCounter );
@@ -265,6 +254,8 @@ void SystemMain::runFrame() {
 	gui.runFrame();
 	nesMain.update();
 	graphicUpdate();
+
+	timeProfiler.stopActive( );
 }
 
 /*
@@ -275,8 +266,6 @@ SystemMain::graphicUpdate()
 void SystemMain::graphicUpdate() {
 	timeProfiler.startSection( "RenFrame" );
 	renderer.renderFrame();
-	timeProfiler.stopSection( "RenFrame" );
-
 	nesDebugger->draw( );
 
 	ImGui::Render( );
@@ -293,6 +282,6 @@ void SystemMain::graphicUpdate() {
 		exit( 0 );
 	}
 
-	timeProfiler.stopSection( "RenGUI" );
+	timeProfiler.stopActive( );
 }
 

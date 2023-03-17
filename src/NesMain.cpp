@@ -1,6 +1,5 @@
 #include "precompiled.h"
 
-#include "Timer.h"
 //#include "CgtException.h"
 #include "Console.h"
 
@@ -66,13 +65,11 @@ void NesMain::update() {
 			}
 
 			if( nesApu.getCC() < vintTime ) {
-				systemMain->timeProfiler.stopSection( "Cpu" );
 				systemMain->timeProfiler.startSection( "Apu" );
 				
 				//_log->Write( "Updating APU" );
 				nesApu.runTo( vintTime );
 				
-				systemMain->timeProfiler.stopSection( "Apu" );
 				systemMain->timeProfiler.startSection( "Cpu" );
 			}
 
@@ -98,8 +95,6 @@ void NesMain::update() {
 	}
 
 	frameNum++;
-
-	systemMain->timeProfiler.stopSection( "Cpu" );
 }
 
 void NesMain::reset() {
@@ -114,14 +109,6 @@ void NesMain::reset() {
 }
 
 NesMain::NesMain() {
-	try {
-		timer = Timer::getInstance();
-	}
-	catch ( CgtException e ) {
-		_log->Write( "%s: %s", e.getHeader(), e.getMessage() );
-		exit( 0 );
-	}
-	
 	CyclesPerFrame = 89342;//89342;
 	state = WaitingForFile;
 }

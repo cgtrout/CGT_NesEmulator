@@ -97,8 +97,6 @@ void GUI::runFrame() {
 	sendActiveToFront();
 	//input->setState( Input::NORMAL_MODE );
 	updateElementsList( elements );
-
-	systemMain->timeProfiler.stopSection( "Gui" );
 }
 
 /*
@@ -607,7 +605,8 @@ EditBox::~EditBox() {
 
 void EditBox::onLeftMouseDown() {
 	input->setUseDelay( true );
-	blinkTimeLast = timer->getCurrTime();
+	//FIXME blink timer
+	//blinkTimeLast = timer->getCurrTime();
 	GUIElement::onLeftMouseDown();		
 }
 
@@ -680,7 +679,8 @@ void EditBox::onRender() {
 
 	//control blinking of position cursor
 	if( activeElement ) {
-		elapsedTime += timer->getCurrTime();
+		//FIXME
+		//elapsedTime += timer->getCurrTime();
 
 		if( elapsedTime > blinkTimeWait ) {
 			showCursor = !showCursor;
