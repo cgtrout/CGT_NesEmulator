@@ -103,6 +103,7 @@ namespace FrontEnd {
 		{
 			_SDL_Joystick* handle;
 			std::string name;
+			Sint32 id;
 
 			//clear all button and axis states
 			void clearState( );
@@ -220,7 +221,7 @@ namespace FrontEnd {
 			SDL_Keycode keyStringToNumber( std::string_view key );
 
 			//get SDL joysticks
-			std::vector<Joystick>& getJoysticks( ) { return joysticks; }
+			std::map<int, Joystick>& getJoystickMap( ) { return joysticks; }
 
 			bool getButtonState( std::string_view deviceName, std::string_view bindName );
 			
@@ -254,7 +255,7 @@ namespace FrontEnd {
 			//list of all controllable classes
 			std::vector< Controllable* > controllables;
 
-			std::vector<Joystick> joysticks{ };
+			std::map<Sint32, Joystick> joysticks{ };
 		};
 	}
 }

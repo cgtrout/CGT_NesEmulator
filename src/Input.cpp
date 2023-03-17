@@ -7,6 +7,7 @@
 #include "Console.h"
 
 #include <exception>
+#include "imgui/imgui.h"
 
 using namespace FrontEnd::InputSystem;
 
@@ -156,13 +157,10 @@ void Input::setState( InputSystemStates s ) {
 void Input::clearInputState()
 ==============================================
 */
-void Input::clearInputState() {
+void Input::clearInputState( ) {
 	keystate.clear( );
-
-	for ( auto& j : joysticks ) {
-		j.clearState( );
-	}
 }
+
 
 /*
 ==============================================
@@ -184,14 +182,16 @@ void Input::updateControllables()
   updates their key press states
 ==============================================
 */
+std::ostringstream controlLog;
 void Input::updateControllables() {
+	ImGui::Begin( "Control Log" );
 	for( unsigned int c = 0 ; c < controllables.size(); c++ ) {
 		for( unsigned int b = 0 ; b < controllables[ c ]->buttons.size(); b++ ) {
 			auto& button = controllables[ c ]->buttons[ b ];
 			//handle keyboard
 			if ( button->deviceName == "keyboard" ) {
 				if ( inputState == Input::InputSystemStates::TYPE_MODE ) {
-					return;
+					break;
 				}
 				//get key id from string
 				auto keyid = keyStringToNumber( button->bindName );
@@ -201,15 +201,23 @@ void Input::updateControllables() {
 				auto& deviceName = button->deviceName;	//USB_Gamepad
 				
 				if ( deviceName.empty( ) ) {
-					return;
+					break;
 				}
 				auto& bindName = button->bindName;		//1
 
 				//get information from input datastructure
 				button->keystate = ( KeyPressState )input->getButtonState( deviceName, bindName );
+				if( button->keystate ) {
+					controlLog << "setting:" << button->keystate << " deviceName: " << deviceName << " to " << " bind name: " << bindName
+						<< std::endl;
+				}
 			}
 		}
 	}
+	const std::string& tmp = controlLog.str( );
+	const char* cstr = tmp.c_str( );
+	ImGui::Text( "%s", cstr );
+	ImGui::End( );
 }
 
 /* 
@@ -339,7 +347,8 @@ Input::getButtonState
 */
 bool Input::getButtonState( std::string_view deviceName, std::string_view bindName ) {
 	//loop to find controller
-	for ( auto& joystick : joysticks ) {
+	for ( auto& j : joysticks ) {
+		auto& joystick = j.second;
 		if ( deviceName == joystick.name ) {
 			//handle axis
 			if ( bindName.length() >= 4 && bindName.substr( 0, 4 ) == "axis" ) {
@@ -348,10 +357,10 @@ bool Input::getButtonState( std::string_view deviceName, std::string_view bindNa
 				bool max = bindName.substr( 5, 4 ) == "max";
 				int axisValue = joystick.axisState[ axisNum ];
 				
-				if ( min && axisValue < -256 ) {
+				if( min && axisValue < -10000 ) {
 					return true;
-
-				} else if ( max && axisValue > 256 ) {
+				}
+				if ( max && axisValue > 10000 ) {
 					return true;
 				}
 
@@ -361,9 +370,6 @@ bool Input::getButtonState( std::string_view deviceName, std::string_view bindNa
 			//handle button bind
 			int bindNum = std::stoi( bindName.data() );
 			bool buttonState = joystick.buttonState[ bindNum ];
-			if ( buttonState ) {
-				int i = 0;
-			}
 			
 			return buttonState;
 		}
