@@ -50,3 +50,5 @@ CGT_NesEmulator/Win32/Debug/SDL2.dll
 *.vsidx
 CGT_NesEmulator/.vs/CGT_NesEmulator/v17/.suo
 .vs/VSWorkspaceState.json
+CGT NES Emulator.exe
+SDL2.dll
