@@ -78,7 +78,7 @@ int main( int argc, char* args[] )
 	std::string profilerReport{};
 
 	static const int FRAME_TIME_SIZE = 100;
-	CircularBuffer<double> frameTimeBuffer( 1000 );
+	CircularBuffer<double> frameTimeBuffer( 100 );
 
 	int frameTimeIndex = 0;
 

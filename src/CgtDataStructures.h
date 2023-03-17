@@ -18,8 +18,8 @@ class CircularBuffer {
     size_t size() { return buffer.size(); }
     
     //iterators
-    T* begin() { return &buffer[0]; }
-    T* end() { return &buffer[size()-1]; }
+    typename std::vector<T>::iterator begin( ) { return buffer.begin( ); }
+    typename std::vector<T>::iterator end( ) { return buffer.end( ); }
     
     //get pointer to buffer
     T* getBufferPtr() { return buffer.data(); }
