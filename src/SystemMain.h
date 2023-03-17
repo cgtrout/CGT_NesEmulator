@@ -32,7 +32,7 @@ namespace FrontEnd {
 	================================================================
 	SystemMain
 
-	  Front end class - responsible for updating appropriate classes
+	  Front end class - responsible for updating all other objects
 						each frame
 
 						this system coordinates the actions between

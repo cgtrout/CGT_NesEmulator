@@ -7,11 +7,10 @@
 using namespace NesEmulator;
 using namespace FrontEnd;
 using namespace Console;
-using namespace PpuSystem;
 
 extern NesEmulator::NesMemory  *nesMemory;
 NesEmulator::PPUMemory  *ppuMemory;
-PpuSystem::NesPalette *palette;
+NesEmulator::NesPalette *palette;
 NesEmulator::NesEmulatorFlagSystem *flagSystem;
 
 FrontEnd::TimeProfiler *timeProfiler;

@@ -82,7 +82,7 @@ NesEmulator::NesMain			*m;
 
 NesMemory	*nesMemory;
 
-PpuSystem::NesPPU		*ppu;
+NesPPU		*ppu;
 
 /*
 ==============================================

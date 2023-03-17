@@ -11,7 +11,7 @@ typedef unsigned char ubyte;
 typedef unsigned short uword;
 typedef short word;
 
-namespace PpuSystem {
+namespace NesEmulator {
 	struct SpriteData {
 	  public:
 		ubyte x, y;

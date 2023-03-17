@@ -318,7 +318,7 @@ void PPUDraw::drawOutput( ubyte* data ) {
 PpuDraw::drawPalletteTableF
 ==============================================
 */
-Image& PPUDraw::drawPaletteTableF( PpuSystem::NesPalette *pal ) {
+Image& PPUDraw::drawPaletteTableF( NesEmulator::NesPalette *pal ) {
 	static Image img;
 
 	paletteGen.genPalettePixelData( pal );

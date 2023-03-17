@@ -3,7 +3,7 @@
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
 
 NesEmulator::NesControllerSystem *controllerSystem;
-PpuSystem::NesPPU				 *nesPpu;
+NesPPU				 *nesPpu;
 NesApu::NesSound				 *nesApu;
 NesEmulator::NesMemory			 *memorySys;
 NesEmulator::NesCpu				 *nesCpu;

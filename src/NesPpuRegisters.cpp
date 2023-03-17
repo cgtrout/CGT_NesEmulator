@@ -1,7 +1,7 @@
 #include "Precompiled.h"
 #include "NesPpuScanline.h"
 
-using namespace PpuSystem;
+using namespace NesEmulator;
 
 /* 
 ==============================================

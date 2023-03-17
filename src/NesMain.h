@@ -54,7 +54,7 @@ namespace NesEmulator {
 		NesEmulator::NesControllerSystem	controllerSystem;
 		NesEmulator::NesMemory				nesMemory;
 		
-		PpuSystem::NesPPU					nesPpu;
+		NesEmulator::NesPPU					nesPpu;
 		NesEmulator::NesEmulatorFlagSystem  emulatorFlags;
 
 		NesApu::NesSound					nesApu;

@@ -1,7 +1,7 @@
 #if !defined( NesPpuScanline_INCLUDED )
 #define NesPpuScanline_INCLUDED
 
-namespace PpuSystem {
+namespace NesEmulator {
 	static const int PIXELS_PER_SCANLINE = 256; 
 	static const int CLOCKS_PER_SCANLINE = 341;
 	static const int CLOCKS_PER_HBLANK = 85;

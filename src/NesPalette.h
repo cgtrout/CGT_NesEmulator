@@ -10,7 +10,7 @@ typedef unsigned char ubyte;
 
 using namespace CGTSingleton;
 
-namespace PpuSystem {
+namespace NesEmulator {
 	/*
 	=================================================================
 	=================================================================

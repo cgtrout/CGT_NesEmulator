@@ -1,7 +1,7 @@
 #include "Precompiled.h"
 #include "NesPpuTools.h"
 
-using namespace PpuSystem;
+using namespace NesEmulator;
 /* 
 ==============================================
 void NesPPUPixelGen::genPatternTablePixelData() {  

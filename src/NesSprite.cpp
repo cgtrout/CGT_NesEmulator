@@ -2,7 +2,7 @@
 
 #include "NesSprite.h"
 
-using namespace PpuSystem;
+using namespace NesEmulator;
 
 NesSprite::NesSprite() {
 
@@ -63,7 +63,7 @@ SpriteData *NesSprite::getSprite( ubyte spriteToGet ) {
 	return &sprites[ spriteToGet ];
 }
 
-void NesSpriteScanlineResults::addSprite( PpuSystem::SpriteData *sprite ) {
+void NesSpriteScanlineResults::addSprite( SpriteData *sprite ) {
 	sprites.push_back( sprite );
 	count++;
 }

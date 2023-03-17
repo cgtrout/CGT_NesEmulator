@@ -1,7 +1,7 @@
 #if !defined( NesPpuRegisters_INCLUDED )
 #define NesPpuRegisters_INCLUDED
 
-namespace PpuSystem {
+namespace NesEmulator {
 	enum {
 		BGPRI_TYPE_FOREGROUND,
 		BGPRI_TYPE_BACKGROUND,

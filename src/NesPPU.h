@@ -20,7 +20,7 @@ using namespace CGTSingleton;
 #include "NesPpuRegisters.h"
 #include "NesPpuScanline.h"
 
-namespace PpuSystem {
+namespace NesEmulator {
 	
 	/*
 	=====================================================

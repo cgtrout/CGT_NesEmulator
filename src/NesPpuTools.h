@@ -1,7 +1,7 @@
 #if !defined( NesPpuTools_INCLUDED )
 #define NesPpuTools_INCLUDED
 
-namespace PpuSystem {
+namespace NesEmulator {
 	/*
 	=====================================================
 	NesPPUPixelGen class

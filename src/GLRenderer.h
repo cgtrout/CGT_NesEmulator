@@ -61,10 +61,10 @@ namespace Render {
 		//F added to end to aviod name collision with console vars
 		void drawOutput( ubyte *data );
 
-		Image& drawPaletteTableF( PpuSystem::NesPalette *p );
+		Image& drawPaletteTableF( NesEmulator::NesPalette *p );
 	private:
-		PpuSystem::NesPPUPixelGen ppuPixelGen;
-		PpuSystem::NesPPUPaletteGen paletteGen;
+		NesEmulator::NesPPUPixelGen ppuPixelGen;
+		NesEmulator::NesPPUPaletteGen paletteGen;
 	};
 	/*
 	=================================================================
