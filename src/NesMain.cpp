@@ -10,7 +10,7 @@ using namespace NesEmulator;
 		
 #endif
 		
-void NesMain::update() {
+void NesMain::runFrame() {
 	if( state != Emulating ) {
 		return;
 	}

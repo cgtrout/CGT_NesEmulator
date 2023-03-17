@@ -252,7 +252,7 @@ void SystemMain::runFrame() {
 #endif 
 	
 	gui.runFrame();
-	nesMain.update();
+	nesMain.runFrame();
 	graphicUpdate();
 
 	timeProfiler.stopActive( );

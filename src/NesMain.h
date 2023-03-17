@@ -41,7 +41,7 @@ namespace NesEmulator {
 		~NesMain() { }
 		
 		//update emulator for this frame
-		void update();
+		void runFrame();
 		
 		//reset variables in this class
 		void reset();
