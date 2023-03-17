@@ -30,3 +30,22 @@ imgui.ini
 .vs/slnx.sqlite
 .vscode/c_cpp_properties.json
 .vscode/settings.json
+CGT_NesEmulator/.vs/CGT_NesEmulator/FileContentIndex/read.lock
+*.obj
+*.pch
+*.log
+CGT_NesEmulator/CGT NES Emulator/Win32/Debug/nesEmResourse.res
+*.idb
+*.pdb
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+*.ilk
+CGT_NesEmulator/CGT NES Emulator/Win32/Debug/CGT NES Emulator.vcxproj.FileListAbsolute.txt
+CGT_NesEmulator/Release/CGT NES Emulator.exe
+CGT_NesEmulator/Release/SDL2.dll
+CGT_NesEmulator/Win32/Debug/CGT NES Emulator.exe
+CGT_NesEmulator/Win32/Debug/SDL2.dll
+*.vsidx
+CGT_NesEmulator/.vs/CGT_NesEmulator/v17/.suo
