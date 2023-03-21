@@ -183,7 +183,7 @@ Sint16 floatTo16Bit( float value ) {
 	}
 
 	// convert float to integer in range [-32768, 32767]
-	Sint16 result = ( Sint16 )( ( value - 0.5f ) * 2 * 0x7fff );
+	Sint16 result = ( Sint16 )( (( value * 2 ) -1) * 0x7fff );
 	return result;
 }
 
