@@ -18,11 +18,10 @@ static const int clocksPer240Hz = 7457;
 NesSoundBuffer::NesSoundBuffer( int bufLength ):  
  bufferLength( bufLength),
  fracComp( 0, 77 ),
- buffer( 0 ),
+ buffer( bufferLength ),
  playPos( 0 ),
- testBuffer(44100){
-	buffer.resize( bufferLength, 0 );
-}
+ testBuffer(44100)
+{}
 
 NesSoundBuffer::~NesSoundBuffer() {
 }
