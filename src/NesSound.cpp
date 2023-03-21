@@ -102,7 +102,7 @@ void NesSoundBuffer::renderImGui() {
     ImGui::End();
 }
 
-void NesSoundBuffer::addSample( Uint16 sample ) {
+void NesSoundBuffer::addSample( Sint16 sample ) {
 	sampleTotal += sample;
 	//should calculate 40 as a constexpr for clarity
 	if( ++sampleNum == 40 ) {

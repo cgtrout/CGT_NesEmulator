@@ -33,7 +33,7 @@ namespace NesApu {
 
 		//adds a sample to buffer - note: will average out a number 
 		//of samples before adding to buffer
-		void addSample( Uint16 sample );
+		void addSample( Sint16 sample );
 
 		int getBufferPos() { return bufferPos; }
 		void resetBufferPos() { bufferPos = 0; }
