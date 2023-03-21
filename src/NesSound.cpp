@@ -100,7 +100,6 @@ void NesSoundBuffer::renderImGui() {
 
     // End the ImGui window
     ImGui::End();
-
 }
 
 void NesSoundBuffer::addSample( Uint16 sample ) {
