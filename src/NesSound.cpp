@@ -3,6 +3,7 @@
 #include "imgui/imgui.h"
 #include "implot/implot.h"
 #include <assert.h>
+#include <limits>
 
 //#include <boost/thread/mutex.hpp>
 
@@ -40,20 +41,21 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 	//may need to do in two steps
 	bool twoStep = ( playPos + samples ) >= bufferLength;
 		
+	/*
 	_log->Write( "\n\nfilling external buffer" );
 	_log->Write( "sample count request = %d", samples );
 	_log->Write( "apu buffer length = %d ", bufferLength);
 	_log->Write( "playPos at start = %d ", playPos );
 	_log->Write( "bufferPos = %d", bufferPos  );
-	
+	*/
 
 	try {
 		if( !twoStep ) {
 			//copy in one step
 			memcpy( ptr, &buffer[ playPos ], samples * 2 );
 			playPos += samples;
-			_log->Write( "one step copy" );
-			_log->Write( "playPos at end = %d ", playPos );
+			//_log->Write( "one step copy" );
+			//_log->Write( "playPos at end = %d ", playPos );
 			
 			return;
 		} else {
@@ -63,16 +65,16 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 			int chunk1Size = bufferLength - playPos;
 			memcpy( ptr, &buffer[ playPos ], chunk1Size * 2 );
 
-			_log->Write( "copying chunk 1 - chunk1Size = %d", chunk1Size );
+			//_log->Write( "copying chunk 1 - chunk1Size = %d", chunk1Size );
 			//playPos = 0;
 			
 			//second chunk
 			int chunk2Size = samples - chunk1Size;
 			memcpy( &ptr[ chunk1Size ] , &buffer[0], chunk2Size * 2 );
-			_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
+			//_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
 			playPos = chunk2Size;
 			
-			_log->Write( "playPos at end = %d ", playPos );			
+			//_log->Write( "playPos at end = %d ", playPos );			
 		}
 
 		assert( playPos >= 0 && playPos < bufferLength );
@@ -88,20 +90,21 @@ void NesSoundBuffer::renderImGui() {
     ImGui::Begin("Audio Buffer Visualization");
 
 	using namespace ImPlot;
-	/*
+	
 	if( ImPlot::BeginPlot( "Audio buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) { 
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );           
 		SetupAxis( ImAxis_Y1, "My Y-Axis" );
 		PlotLine( "Buffer data", buffer.data(), bufferLength );
 		EndPlot( );
-	}*/
+	}
 
+	/*
 	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
 		SetupAxis( ImAxis_Y1, "My Y-Axis" );
 		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
 		EndPlot( );
-	}
+	}*/
 
     // Display additional information if needed
     ImGui::Text("Play position: %d", playPos);
@@ -198,11 +201,13 @@ void NesSound::makeSample() {
 	}
 	float output = squareOut;
 	
-	buffer.testBuffer.add( output );
+	//uncomment to add raw test data for implot output
+	//buffer.testBuffer.add( output );
 
-	//convert and scale to uword
-	auto bitval = floatTo16Bit( output );
-	//_log->Write( "audio 16bit out=%d", bitval);
+	//convert and scale to signed 16bit int
+	Sint16 bitval = floatTo16Bit( output );
+
+	//_log->Write( "float=%f  16bit=%d", output, bitval);
 	buffer.addSample( bitval );
 }
 
