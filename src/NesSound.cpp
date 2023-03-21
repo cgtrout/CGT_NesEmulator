@@ -27,7 +27,7 @@ NesSoundBuffer::~NesSoundBuffer() {
 //boost::mutex mutex;
 //samples is number of samples, and not actual byte size  of copy
 void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
-	_ASSERTE( samples <= bufferLength );
+	assert( samples <= bufferLength );
 	if( this == NULL ) { 
 		return;
 	}
@@ -48,7 +48,7 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 	try {
 		if( !twoStep ) {
 			//copy in one step
-			memcpy( ptr, &buffer[ playPos ], samples );
+			memcpy( ptr, &buffer[ playPos ], samples * 2 );
 			playPos += samples;
 			_log->Write( "one step copy" );
 			_log->Write( "playPos at end = %d ", playPos );
