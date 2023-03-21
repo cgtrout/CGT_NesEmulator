@@ -18,7 +18,8 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  bufferLength( bufLength),
  fracComp( 0, 77 ),
  buffer( 0 ),
- playPos( 0 ) {
+ playPos( 0 ),
+ testBuffer(44100){
 	buffer.resize( bufferLength, 0 );
 }
 
@@ -87,10 +88,18 @@ void NesSoundBuffer::renderImGui() {
     ImGui::Begin("Audio Buffer Visualization");
 
 	using namespace ImPlot;
+	/*
 	if( ImPlot::BeginPlot( "Audio buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) { 
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );           
 		SetupAxis( ImAxis_Y1, "My Y-Axis" );
 		PlotLine( "Buffer data", buffer.data(), bufferLength );
+		EndPlot( );
+	}*/
+
+	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
 		EndPlot( );
 	}
 
@@ -189,6 +198,8 @@ void NesSound::makeSample() {
 	}
 	float output = squareOut;
 	
+	buffer.testBuffer.add( output );
+
 	//convert and scale to uword
 	auto bitval = floatTo16Bit( output );
 	//_log->Write( "audio 16bit out=%d", bitval);

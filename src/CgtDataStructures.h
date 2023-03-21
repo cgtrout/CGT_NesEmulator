@@ -1,3 +1,5 @@
+#pragma once
+
 //CircularBuffer class
 //
 //For when we want to gather data in a circular buffer, but don't care

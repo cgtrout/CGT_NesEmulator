@@ -3,6 +3,7 @@
 
 #include "FractionAdder.h"
 #include "NesSoundChannel.h"
+#include "CgtDataStructures.h"
 
 namespace NesApu {
 	/*
@@ -39,6 +40,9 @@ namespace NesApu {
 		void resetBufferPos() { bufferPos = 0; }
 
 		std::vector<Sint16>* getBuffer( ) { return &buffer; }
+
+		//test buffer for viewing raw sample data (imgui)
+		CircularBuffer<float> testBuffer;
 
 	  private:
 		//these are used for calculating average sample value
