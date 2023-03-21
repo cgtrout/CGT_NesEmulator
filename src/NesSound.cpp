@@ -1,6 +1,7 @@
 #include "Precompiled.h"
 #include "NesSound.h"
-
+#include "imgui/imgui.h"
+#include "implot/implot.h"
 #include <assert.h>
 
 //#include <boost/thread/mutex.hpp>
@@ -79,6 +80,27 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 		//TODO handle this better
 		_log->Write( "Exception generated in NesSoundBuffer::fillExternalBuffer" );
 	}
+}
+
+void NesSoundBuffer::renderImGui() {
+    // Create a custom ImGui window for the circular buffer visualization
+    ImGui::Begin("Audio Buffer Visualization");
+
+	using namespace ImPlot;
+	if( ImPlot::BeginPlot( "Audio buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) { 
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );           
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		PlotLine( "Buffer data", buffer.data(), bufferLength );
+		EndPlot( );
+	}
+
+    // Display additional information if needed
+    ImGui::Text("Play position: %d", playPos);
+    ImGui::Text("Buffer length: %d", bufferLength);
+
+    // End the ImGui window
+    ImGui::End();
+
 }
 
 void NesSoundBuffer::addSample( Uint16 sample ) {

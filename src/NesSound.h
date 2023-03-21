@@ -28,6 +28,9 @@ namespace NesApu {
 		//internal buffer
 		void fillExternalBuffer( Sint16* rawPointer, int size );
 
+		//generate imgui visualization of sound buffers
+		void renderImGui();
+
 		//adds a sample to buffer - note: will average out a number 
 		//of samples before adding to buffer
 		void addSample( Uint16 sample );

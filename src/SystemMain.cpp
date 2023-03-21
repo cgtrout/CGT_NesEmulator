@@ -162,6 +162,10 @@ void SystemMain::runFrame() {
 	
 	gui.runFrame();
 	nesMain.runFrame();
+	
+	if( nesMain.nesApu.isInitialized( ) ) {
+		nesMain.nesApu.getNesSoundBuffer( )->renderImGui( );
+	}
 	graphicUpdate();
 
 	timeProfiler.stopActive( );
