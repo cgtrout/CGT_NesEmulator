@@ -162,7 +162,7 @@ void NesSound::resetCC() {
 
 //convert float value to 16bit value
 //assumes that float is a sample between 0.0 and 1.0
-Uint16 floatTo16Bit( float value ) {
+Sint16 floatTo16Bit( float value ) {
 	// clamp value to [0.0, 1.0] range
 	if ( value < 0.0f ) {
 		value = 0.0f;
@@ -171,7 +171,7 @@ Uint16 floatTo16Bit( float value ) {
 	}
 
 	// convert float to integer in range [-32768, 32767]
-	Uint16 result = ( Uint16 )( ( value - 0.5f ) * 2 * 0x7fff );
+	Sint16 result = ( Sint16 )( ( value - 0.5f ) * 2 * 0x7fff );
 	return result;
 }
 
