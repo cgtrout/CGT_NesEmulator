@@ -280,7 +280,9 @@ double waitTime = 0;			//if greater than 0 wait
 auto startTime = std::chrono::steady_clock::now( );
 enum class LastInputType { LASTINPUT_NONE, LASTINPUT_KEYBOARD, LASTINPUT_JOYBUTTON, LASTINPUT_JOYAXIS };
 LastInputType lastInputType = LastInputType::LASTINPUT_NONE;
-//bind controller1.b to USB_Gamepad.2
+
+// Constants for axis threshold values
+const int AXIS_BIND_THRESHOLD = 20000;
 
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 	//FIXME - should not at this location
@@ -458,39 +460,33 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 				joystick.buttonState[ button ] = false;
 
 				break; }
-			case SDL_JOYAXISMOTION: {
-				//if( ( event.jaxis.value < -256 ) || ( event.jaxis.value > 256 ) ) {
-					
-					//set axis state in input system
-					Joystick& joystick = input->getJoystickMap( )[ event.jbutton.which ];
+			case SDL_JOYAXISMOTION:
+			{
+				Joystick& joystick = input->getJoystickMap()[event.jbutton.which];
 
-					inputLog << "startJoystick=" << std::to_string( (int)joystick.handle );
-					inputLog << " axis =" << std::to_string( event.jaxis.axis ) << " "
-						<< " value=" << std::to_string( event.jaxis.value ) << std::endl;
+				inputLog << "startJoystick=" << std::to_string((int)joystick.handle);
+				inputLog << " axis =" << std::to_string(event.jaxis.axis) << " "
+						<< " value=" << std::to_string(event.jaxis.value) << std::endl;
 
-					//if( joystick.axisState[ event.jaxis.axis ] != event.jaxis.value ) {
-						joystick.axisState[ event.jaxis.axis ] = event.jaxis.value;
+				joystick.axisState[event.jaxis.axis] = event.jaxis.value;
 
-						if( buttonBindMode && abs( event.jaxis.value ) > 20000 ) {
-							if( ( lastAxisValue > 20000 && event.jaxis.value < 20000 )
-								|| (lastAxisValue < 20000 && event.jaxis.value > 20000)
-								|| lastAxisValue == 0 ) {
+				if (buttonBindMode && abs(event.jaxis.value) > AXIS_BIND_THRESHOLD) {
+					if ((lastAxisValue > AXIS_BIND_THRESHOLD && event.jaxis.value < AXIS_BIND_THRESHOLD)
+						|| (lastAxisValue < AXIS_BIND_THRESHOLD && event.jaxis.value > AXIS_BIND_THRESHOLD)
+						|| lastAxisValue == 0)
+					{
+						lastJoystick = &joystick;
+						lastAxis = event.jaxis.axis;
+						lastAxisValue = event.jaxis.value;
 
-								//assign last values
-								lastJoystick = &joystick;
-								lastAxis = event.jaxis.axis;
-								lastAxisValue = event.jaxis.value;
+						inputLog << "Setting last: " << std::to_string((int)joystick.handle);
+						inputLog << " axis: " << std::to_string(lastAxis);
+						inputLog << std::endl;
 
-								inputLog << "Setting last: " << std::to_string( (int)joystick.handle );
-								inputLog << " axis: " << std::to_string( lastAxis );
-								inputLog << std::endl;
-
-								lastInputType = LastInputType::LASTINPUT_JOYAXIS;
-							}
-						}
-					//}
-				//}
-				break; 
+						lastInputType = LastInputType::LASTINPUT_JOYAXIS;
+					}
+				}
+				break;
 			}
 			case SDL_TEXTINPUT:
 				input->addTextInput( event.text.text );
