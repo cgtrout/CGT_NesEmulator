@@ -3,14 +3,14 @@
 //#include "CGString.h"
 #include <string>
 
-using namespace CgtString;
+using namespace CgtLib;
 
 /* 
 ==============================================
-CgtString::strtolower
+CgtLib::strtolower
 ==============================================
 */
-std::string CgtString::strtolower( std::string_view str) {
+std::string CgtLib::strtolower( std::string_view str) {
 	int length = str.length();
 	int x = 0;
 	std::string retStr;
@@ -25,21 +25,21 @@ std::string CgtString::strtolower( std::string_view str) {
 
 /* 
 ==============================================
-bool CgtString::stringCaseCmp
+bool CgtLib::stringCaseCmp
 ==============================================
 */
-bool CgtString::stringCaseCmp( std::string_view str1, std::string_view str2 ) {
-	std::string cstr1 = CgtString::strtolower( str1 );
-	std::string cstr2 = CgtString::strtolower( str2 );
+bool CgtLib::stringCaseCmp( std::string_view str1, std::string_view str2 ) {
+	std::string cstr1 = CgtLib::strtolower( str1 );
+	std::string cstr2 = CgtLib::strtolower( str2 );
 	return cstr1 == cstr2;
 }
 
 /* 
 ==============================================
-std::string CgtString::toLower( const std::string &s )
+std::string CgtLib::toLower( const std::string &s )
 ==============================================
 */
-std::string CgtString::toLower( std::string_view s ) {
+std::string CgtLib::toLower( std::string_view s ) {
 	std::string retString;
 	retString.resize( s.length( ) );
 	for( unsigned int i = 0 ; i < s.length(); i++ ) 
