@@ -1,7 +1,7 @@
 #pragma once
 
 //Filter Classes
-//ChatGPT generated
+//ChatGPT generated audio filters
 //
 #include <iostream>
 #include <vector>
@@ -41,7 +41,7 @@ private:
 /*
 ================================================================
 ================================================================
-Class ButterworthHighPassFilter
+Class ButterworthLowPassFilter
 ================================================================
 ================================================================
 */
