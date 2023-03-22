@@ -5,6 +5,8 @@
 #include "NesSoundChannel.h"
 #include "CgtDataStructures.h"
 
+#include "CgtFilter.h"
+
 namespace NesApu {
 	/*
 	================================================================
@@ -42,7 +44,12 @@ namespace NesApu {
 		std::vector<Sint16>* getBuffer( ) { return &buffer; }
 
 		//test buffer for viewing raw sample data (imgui)
-		CircularBuffer<float> testBuffer;
+		CgtLib::CircularBuffer<float> testBuffer;
+
+		//filters
+		CgtLib::ButterworthHighPassFilter highPassFilter90hz;
+		CgtLib::ButterworthHighPassFilter highPassFilter440hz;
+		CgtLib::ButterworthHighPassFilter lowPassFilter14hz;
 
 	  private:
 		//these are used for calculating average sample value
@@ -65,6 +72,8 @@ namespace NesApu {
 
 		//actual sound buffer
 		std::vector<Sint16> buffer;
+
+		
 	};
 
 	/*

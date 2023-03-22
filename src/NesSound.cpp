@@ -20,7 +20,10 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  fracComp( 0, 77 ),
  buffer( bufferLength ),
  playPos( 0 ),
- testBuffer(44100)
+ testBuffer(44100),
+ highPassFilter440hz(440, 44100),
+ highPassFilter90hz(90, 44100),
+ lowPassFilter14hz(14, 44100)
 {}
 
 NesSoundBuffer::~NesSoundBuffer() {
@@ -186,7 +189,6 @@ Sint16 floatTo16Bit( float value ) {
 	return result;
 }
 
-
 void NesSound::makeSample() {
 	float squareOut = 0;
 	if( square0.getDacValue() == 0 && square1.getDacValue() == 0 ) {
@@ -199,6 +201,15 @@ void NesSound::makeSample() {
 		//else squareOut = (float)95.88 / ( ( 8128 / ( square1.getDacValue() ) ) + 100 );
 	}
 	float output = squareOut;
+
+	//highpass filter 90hz
+	output = buffer.highPassFilter90hz.process(output);
+
+	//highpass filter 440hz
+	output = buffer.highPassFilter440hz.process(output);
+
+	//lowpass filter 14hz
+	output = buffer.lowPassFilter14hz.process(output);
 	
 	//uncomment to add raw test data for implot output
 	//buffer.testBuffer.add( output );
