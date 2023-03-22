@@ -41,7 +41,7 @@ namespace NesApu {
 		int getBufferPos() { return bufferPos; }
 		void resetBufferPos() { bufferPos = 0; }
 
-		std::vector<Sint16>* getBuffer( ) { return &buffer; }
+		//std::vector<Sint16>* getBuffer( ) { return &buffer; }
 
 		//test buffer for viewing raw sample data (imgui)
 		CgtLib::CircularBuffer<float> testBuffer;
@@ -65,13 +65,12 @@ namespace NesApu {
 		//added they will be averaged and put into buffer
 		int desiredSampleLength;
 
-		//current pos in circular buffer
-		int bufferPos;
-		int bufferLength;
-		int playPos;
-
 		//actual sound buffer
-		std::vector<Sint16> buffer;
+		std::vector<Sint16> buffer1;
+		std::vector<Sint16> buffer2;
+		int activeBuffer = 1;
+		int bufferPos = 0;
+
 		CgtLib::CircularBuffer<Sint16> movingAverage;	
 	};
 

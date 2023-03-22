@@ -17,10 +17,9 @@ static const int clocksPer240Hz = 7457;
 
 //TODO set fracComp properly 
 NesSoundBuffer::NesSoundBuffer( int bufLength ):  
- bufferLength( bufLength),
  fracComp( 0, 77 ),
- buffer( bufferLength ),
- playPos( 0 ),
+ buffer1( bufLength ),
+ buffer2( bufLength ),
  testBuffer(44100),
  highPassFilter440hz(440, 44100),
  highPassFilter90hz(90, 44100),
@@ -34,58 +33,26 @@ NesSoundBuffer::~NesSoundBuffer() {
 //boost::mutex mutex;
 //samples is number of samples, and not actual byte size  of copy
 void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
-	assert( samples <= bufferLength );
-	if( this == NULL ) { 
-		return;
+	if( samples > buffer1.size( ) || samples > buffer2.size( ) ) {
+		throw CgtException( "fillExternalBUffer", "samples too large", true );
 	}
 	
-	//needed??
-	//boost::mutex::scoped_lock lock(mutex);
-
-	//may need to do in two steps
-	bool twoStep = ( playPos + samples ) >= bufferLength;
-		
-	/*
-	_log->Write( "\n\nfilling external buffer" );
-	_log->Write( "sample count request = %d", samples );
-	_log->Write( "apu buffer length = %d ", bufferLength);
-	_log->Write( "playPos at start = %d ", playPos );
-	_log->Write( "bufferPos = %d", bufferPos  );
-	*/
-
-	try {
-		if( !twoStep ) {
-			//copy in one step
-			memcpy( ptr, &buffer[ playPos ], samples * 2 );
-			playPos += samples;
-			//_log->Write( "one step copy" );
-			//_log->Write( "playPos at end = %d ", playPos );
-			
-			return;
-		} else {
-			_log->Write( "two step copy" );
-
-			//first chunck
-			int chunk1Size = bufferLength - playPos;
-			memcpy( ptr, &buffer[ playPos ], chunk1Size * 2 );
-
-			//_log->Write( "copying chunk 1 - chunk1Size = %d", chunk1Size );
-			//playPos = 0;
-			
-			//second chunk
-			int chunk2Size = samples - chunk1Size;
-			memcpy( &ptr[ chunk1Size ] , &buffer[0], chunk2Size * 2 );
-			//_log->Write( "copying chunk 2 - chunk2Size = %d", chunk2Size );
-			playPos = chunk2Size;
-			
-			//_log->Write( "playPos at end = %d ", playPos );			
-		}
-
-		assert( playPos >= 0 && playPos < bufferLength );
+	//alternate between two buffers
+	//copy to given array, and then clear from buffer 
+	if( activeBuffer == 1 ) {
+		std::copy( buffer1.begin( ), buffer1.begin( ) + samples, ptr );
+		std::fill( buffer1.begin( ), buffer1.end(), 0 );
 	}
-	catch( std::exception ) {
-		//TODO handle this better
-		_log->Write( "Exception generated in NesSoundBuffer::fillExternalBuffer" );
+	else {
+		std::copy( buffer2.begin( ), buffer2.begin( ) + samples, ptr );
+		std::fill( buffer2.begin( ), buffer2.end(), 0 );
+	}
+
+	bufferPos = 0;
+	activeBuffer++;
+
+	if( activeBuffer == 3 ) {
+		activeBuffer = 1;
 	}
 }
 
@@ -95,11 +62,19 @@ void NesSoundBuffer::renderImGui() {
 
 	using namespace ImPlot;
 	
-	if( ImPlot::BeginPlot( "Audio buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) { 
+	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250), ImPlotFlags_Crosshairs ) ) { 
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );           
 		SetupAxis( ImAxis_Y1, "My Y-Axis" );
 		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
-		PlotLine( "Buffer data", buffer.data(), bufferLength );
+		PlotLine( "Buffer data", buffer1.data(), buffer1.size());
+		EndPlot( );
+	}
+
+	if( ImPlot::BeginPlot( "Buffer 2", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
+		PlotLine( "Buffer data", buffer2.data( ), buffer2.size( ) );
 		EndPlot( );
 	}
 
@@ -110,10 +85,6 @@ void NesSoundBuffer::renderImGui() {
 		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
 		EndPlot( );
 	}*/
-
-    // Display additional information if needed
-    ImGui::Text("Play position: %d", playPos);
-    ImGui::Text("Buffer length: %d", bufferLength);
 
     // End the ImGui window
     ImGui::End();
@@ -132,10 +103,15 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 		
 		//use average value of last number of samples to create sample value	
 		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
-		buffer[ bufferPos++ ] = (Sint16)std::round((float)total / (float)movingAverage.size());
-		if( bufferPos == bufferLength ) {
-			bufferPos = 0;
+		auto avg = (Sint16)std::round((float)total / (float)movingAverage.size());
+
+		if( activeBuffer == 1 ) {
+			buffer1[ bufferPos++ ] = avg;
 		}
+		else {
+			buffer2[ bufferPos++ ] = avg;
+		}
+		
 	}
 }
 
