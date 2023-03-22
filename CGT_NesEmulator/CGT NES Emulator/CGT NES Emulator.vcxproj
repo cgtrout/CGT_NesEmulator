@@ -263,6 +263,7 @@
     <ClInclude Include="..\..\src\CGString.h" />
     <ClInclude Include="..\..\src\CgtDataStructures.h" />
     <ClInclude Include="..\..\src\CgtException.h" />
+    <ClInclude Include="..\..\src\CgtFilter.h" />
     <ClInclude Include="..\..\src\CGTSingleton.h" />
     <ClInclude Include="..\..\src\Console.h" />
     <ClInclude Include="..\..\src\ConsoleCommands.h" />
