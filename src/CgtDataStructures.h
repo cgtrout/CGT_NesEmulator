@@ -1,5 +1,7 @@
 #pragma once
 
+namespace CgtLib {
+
 //CircularBuffer class
 //
 //For when we want to gather data in a circular buffer, but don't care
@@ -51,5 +53,6 @@ void CircularBuffer<T>::increaseIndex() {
     }
 }
 
+}//namespace
 
 
