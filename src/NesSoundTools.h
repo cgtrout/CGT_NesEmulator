@@ -220,10 +220,15 @@ namespace NesApu {
 	}
 
 	__forceinline ubyte Timer::clock() {
-		if( halfTimer && currClock++ == 1 ) {
-			ubyte dividerOut = divider.clock();
-			currClock = 0;
-			return dividerOut;
+		if( halfTimer ) {
+			if( currClock++ == 1 ) {
+				ubyte dividerOut = divider.clock( );
+				currClock = 0;
+				return dividerOut;
+			}
+			else {
+				return 0;
+			}
 		} else {
 			return divider.clock();
 		}
