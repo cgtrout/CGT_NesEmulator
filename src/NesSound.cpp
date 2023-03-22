@@ -25,7 +25,7 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  highPassFilter440hz(440, 44100),
  highPassFilter90hz(90, 44100),
  lowPassFilter14hz(100, 44100),
- movingAverage( 40 )
+ movingAverage( 20 )
 {}
 
 NesSoundBuffer::~NesSoundBuffer() {
