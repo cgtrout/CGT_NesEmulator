@@ -105,6 +105,12 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
 		auto avg = (Sint16)std::round((float)total / (float)movingAverage.size());
 
+		//if we are running too fast skip a sample to avoid issues
+		//question is why is there more samples being produced than there should be?
+		if( bufferPos >= buffer1.size( ) ) {
+			return;
+		}
+
 		if( activeBuffer == 1 ) {
 			buffer1[ bufferPos++ ] = avg;
 		}
