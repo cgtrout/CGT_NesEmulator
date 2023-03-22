@@ -1,4 +1,5 @@
 #include "precompiled.h"
+#include <cassert>
 
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
 
@@ -114,9 +115,9 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address )
 ==============================================
 */
 FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
-	if( address < 0x2000 ) return false;
+	if( address < 0x2000 ) return nullptr;
 
-	if( entries.empty() ) return false;
+	if( entries.empty() ) return nullptr;
 
 	//first and last pos of sublist
 	int firstpos	= 0;
