@@ -96,6 +96,7 @@ void NesSoundBuffer::renderImGui() {
 	if( ImPlot::BeginPlot( "Audio buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) { 
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );           
 		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
 		PlotLine( "Buffer data", buffer.data(), bufferLength );
 		EndPlot( );
 	}
@@ -185,7 +186,7 @@ Sint16 floatTo16Bit( float value ) {
 	}
 
 	// convert float to integer in range [-32768, 32767]
-	Sint16 result = ( Sint16 )( (( value * 2 ) -1) * 0x7fff );
+	Sint16 result = ( Sint16 )( value * 30000 );
 	return result;
 }
 
@@ -203,13 +204,13 @@ void NesSound::makeSample() {
 	float output = squareOut;
 
 	//highpass filter 90hz
-	output = buffer.highPassFilter90hz.process(output);
+	//output = buffer.highPassFilter90hz.process(output);
 
 	//highpass filter 440hz
-	output = buffer.highPassFilter440hz.process(output);
+	//output = buffer.highPassFilter440hz.process(output);
 
 	//lowpass filter 14hz
-	output = buffer.lowPassFilter14hz.process(output);
+	//output = buffer.lowPassFilter14hz.process(output);
 	
 	//uncomment to add raw test data for implot output
 	//buffer.testBuffer.add( output );
