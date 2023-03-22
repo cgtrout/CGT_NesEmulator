@@ -19,15 +19,23 @@ class ButterworthHighPassFilter {
 public:
     ButterworthHighPassFilter(double cutoff_frequency, double sample_rate)
     : previous_input_(0), previous_output_(0) {
+         // Calculate RC (resistor-capacitor) value using the cutoff frequency
         double RC = 1.0 / (2.0 * M_PI * cutoff_frequency);
+        
+        // Calculate the time step (dt) using the sample rate
         double dt = 1.0 / sample_rate;
+        
+        // Calculate the alpha (filter coefficient) using RC and dt
         alpha_ = RC / (RC + dt);
     }
 
     double process(double input) {
+        // Calculate the output using the filter coefficient (alpha), previous input, and previous output
         double output = alpha_ * previous_output_ + alpha_ * (input - previous_input_);
+        
         previous_input_ = input;
         previous_output_ = output;
+        
         return output;
     }
 
@@ -36,7 +44,6 @@ private:
     double previous_input_;
     double previous_output_;
 };
-
 
 /*
 ================================================================
