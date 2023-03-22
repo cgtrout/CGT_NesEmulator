@@ -2,7 +2,7 @@
 #include "NesSound.h"
 #include "imgui/imgui.h"
 #include "implot/implot.h"
-#include <assert.h>
+#include <cassert>
 #include <limits>
 
 //#include <boost/thread/mutex.hpp>
@@ -149,7 +149,7 @@ void NesSound::runTo( PpuClockCycles desPpucc ) {
 	CpuClockCycles descc = PpuToCpu( desPpucc );
 	
 	//descc must be greater than cc
-	_ASSERTE( descc > cc );
+	assert( descc > cc );
 
 	//currc = descc;
 	

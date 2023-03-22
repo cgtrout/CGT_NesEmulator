@@ -1,8 +1,9 @@
 #include "image.h"
 #include <fstream>
-#include <assert.h>
 #include <Windows.h>
 #include <gl/GL.h>
+
+#include <cassert>
 
 /*
 ==============================================
@@ -69,7 +70,7 @@ void Image::plotPixel( const Vec2d *pos, const Pixel3Byte *color, const ubyte al
 void Image::plotPixel( const Vec2d *pos, const Pixel3Byte *color, const ubyte alpha ) {
 	int bpos = ( pos->y * sizeX * channels ) + ( pos->x * channels );
 	int imgSize = this->getSize();
-	_ASSERT( bpos < imgSize );
+	assert( bpos < imgSize );
 
 	data[ bpos++ ] = color->color[ 0 ];
 	data[ bpos++ ] = color->color[ 1 ];
@@ -262,7 +263,7 @@ Image convertToAlpha( int aR, int aG, int aB, const Image& image ) {
 //helper function for LoadBMP - loads an 'L.S.Byte first' format int from file
 //file must be loaded
 unsigned int readLSBFirstInt( std::ifstream *is ) {
-    _ASSERT( is != NULL );
+    assert( is != NULL );
 
 	ubyte tempbyte[4];
 	unsigned int value;

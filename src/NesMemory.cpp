@@ -535,8 +535,8 @@ void NesMemory::fastSetMemory( uword loc, ubyte val ) {
 
 	uword dataoff = ::calcCpuBankPos( loc, bank );
 
-	_ASSERTE( bank < 0x10000 / CPU_BANKSIZE );
-	_ASSERTE( dataoff < CPU_BANKSIZE );
+	assert( bank < 0x10000 / CPU_BANKSIZE );
+	assert( dataoff < CPU_BANKSIZE );
 
 	memBanks[ bank ]->data[ dataoff ] = val;
 }
