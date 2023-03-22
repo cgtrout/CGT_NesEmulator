@@ -1511,7 +1511,7 @@ void MultiLineTextLabel::setY( GuiDim val ) {
 
 bool MultiLineTextLabel::fillLines( const std::string &in ) {
 	//tokenize input string
-	CgtString::StringTokenizer st;
+	CgtLib::StringTokenizer st;
 	st.setMinTokens( getNumLines() );
 	st.setDelims( "\n" );
 	auto tokens = st.tokenize( in );

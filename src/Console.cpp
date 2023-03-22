@@ -1,7 +1,5 @@
 #include "precompiled.h"
 
-using namespace CgtString;
-
 #include "ConsoleCommands.h"
 using namespace Console;
 
@@ -150,13 +148,11 @@ Variables::getVariable
 */
 template< class T >
 ConsoleVariable< T > *Variables::getVariable( std::string_view name, std::list< ConsoleVariable< T >* > *varList ) {
-	using namespace CgtString;
-
 	//go through entire varList
 	typename std::list < ConsoleVariable< T >* >::iterator i;
 	for( i = varList->begin(); i != varList->end(); i++ ) {
 		ConsoleVariable< T > *t = *i;
-		if( toLower( name ) == toLower( *t->getName() ) ) {
+		if( CgtLib::toLower( name ) == CgtLib::toLower( *t->getName() ) ) {
 			return t;
 		}
 	}
@@ -314,7 +310,7 @@ void ConsoleSystem::executeRequest( std::string_view str, bool echo = true )
 */
 void ConsoleSystem::executeRequest( std::string_view str, bool echo = true ) {
 	//tokenize strings
-	CgtString::StringTokenizer st;
+	CgtLib::StringTokenizer st;
 	st.setMaxTokens( 2 );
 	st.setMinTokens( 2 );
 	auto strings = st.tokenize( str );
@@ -412,7 +408,7 @@ bool ConsoleSystem::findAndRunCommand( std::string_view commandName, std::string
 	for( iter = commands.begin(); iter != commands.end(); iter++ ) {
 		curr = ( ConsoleCommand* )( *iter );
 
-		if( CgtString::stringCaseCmp( curr->name.c_str(), commandName ) ) {
+		if( CgtLib::stringCaseCmp( curr->name.c_str(), commandName ) ) {
 			if( run ) {
 				runCommand( curr, param );
 			}
@@ -442,7 +438,7 @@ std::string ConsoleSystem::getCommandDescription( std::string_view commandName )
 	std::list< ConsoleCommand* >::iterator i;
 	for( i = commands.begin(); i != commands.end(); i++ ) {
 		ConsoleCommand *c = ( ConsoleCommand* )( *i );
-		if( toLower( commandName ) == toLower( c->name ) ) {
+		if( CgtLib::toLower( commandName ) ==  CgtLib::toLower( c->name ) ) {
 			return c->description;
 		}
 	}
@@ -615,11 +611,11 @@ std::string ConsoleSystem::printMatches( std::string_view partial ) {
 	}
 
 	//convert to lowercase
-	std::string plcase = CgtString::strtolower( partial );
+	std::string plcase = CgtLib::strtolower( partial );
 	
 	//loop through all commands
 	for( auto &ccur : commands ) {
-		std::string compstr = CgtString::strtolower( ccur->name );
+		std::string compstr = CgtLib::strtolower( ccur->name );
 		
 		//if current command's name == partial
 		if( compstr.compare( 0, partialLength, plcase ) == 0 ) {
@@ -640,7 +636,7 @@ std::string ConsoleSystem::printMatches( std::string_view partial ) {
 	std::string* cvar;
 	for( viter = nameList.begin(); viter != nameList.end(); viter++ ) {
 		cvar = ( std::string* )( *viter );
-		std::string compstr = CgtString::strtolower( cvar->c_str() );
+		std::string compstr = CgtLib::strtolower( cvar->c_str() );
 		
 		//if current variables name == partial
 		if( strncmp( compstr.c_str(), plcase.c_str(), partialLength ) == 0 ) {

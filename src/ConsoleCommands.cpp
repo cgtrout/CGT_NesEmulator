@@ -94,7 +94,6 @@ void CommandHandlerSystem::stopTrace( const char *param ) {
 #endif
 
 //	bind controller01 to VK_A
-using namespace CgtString;
 void CommandHandlerSystem::bindKey( const char *param ) {
 	if( param == NULL ) {
 		printBindKeyUsage( "No params entered." );
@@ -104,7 +103,7 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	std::string p = param;
 		
 	//get tokens
-	StringTokenizer st;
+	CgtLib::StringTokenizer st;
 	st.setDelims( " " );
 	auto tokens = st.tokenize( p );
 	
@@ -176,7 +175,7 @@ void CommandHandlerSystem::reset( const char *param ) {
 //help syntax: help [ command / param ]
 void CommandHandlerSystem::help( const char *param ) {
 	std::string params( param );
-	StringTokenizer st;
+	CgtLib::StringTokenizer st;
 	st.setDelims( " " );
 	auto tokens = st.tokenize( params );
 
