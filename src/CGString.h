@@ -3,7 +3,7 @@
 #include <vector>
 //basic string routines
 
-namespace CgtString {
+namespace CgtLib {
 	//convert string str to lowercase; converted string will be returned through returnString
 	std::string strtolower( std::string_view str );
 
