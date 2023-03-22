@@ -51,6 +51,8 @@ namespace NesApu {
 		CgtLib::HighPassFilter highPassFilter440hz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter14hz;
 
+		
+
 	  private:
 		//these are used for calculating average sample value
 		int sampleNum;
@@ -72,7 +74,7 @@ namespace NesApu {
 
 		//actual sound buffer
 		std::vector<Sint16> buffer;
-
+		CgtLib::CircularBuffer<Sint16> movingAverage;
 		
 	};
 

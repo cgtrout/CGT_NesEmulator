@@ -4,6 +4,7 @@
 #include "implot/implot.h"
 #include <cassert>
 #include <limits>
+#include <numeric>
 
 //#include <boost/thread/mutex.hpp>
 
@@ -23,7 +24,8 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  testBuffer(44100),
  highPassFilter440hz(440, 44100),
  highPassFilter90hz(90, 44100),
- lowPassFilter14hz(100, 44100)
+ lowPassFilter14hz(100, 44100),
+ movingAverage( 40 )
 {}
 
 NesSoundBuffer::~NesSoundBuffer() {
@@ -118,7 +120,8 @@ void NesSoundBuffer::renderImGui() {
 }
 
 void NesSoundBuffer::addSample( Sint16 sample ) {
-	sampleTotal += sample;
+
+	movingAverage.add( sample );
 	//should calculate 40 as a constexpr for clarity
 	if( ++sampleNum == 40 ) {
 		sampleNum = 0;
@@ -127,12 +130,12 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 		int whole = fracComp.add( 45 );
 		sampleNum += whole;
 		
-		//add sample to buffer	
-		buffer[ bufferPos++ ] = sampleTotal / ( 40 + whole );
+		//use average value of last number of samples to create sample value	
+		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
+		buffer[ bufferPos++ ] = (Sint16)std::round((float)total / (float)movingAverage.size());
 		if( bufferPos == bufferLength ) {
 			bufferPos = 0;
 		}
-		sampleTotal = 0;
 	}
 }
 
@@ -204,13 +207,13 @@ void NesSound::makeSample() {
 	float output = squareOut;
 
 	//highpass filter 90hz
-	output = buffer.highPassFilter90hz.process(output);
+	//output = buffer.highPassFilter90hz.process(output);
 
 	//highpass filter 440hz
-	output = buffer.highPassFilter440hz.process(output);
+	//output = buffer.highPassFilter440hz.process(output);
 
 	//lowpass filter 14hz
-	output = buffer.lowPassFilter14hz.process(output);
+	//output = buffer.lowPassFilter14hz.process(output);
 	
 	//uncomment to add raw test data for implot output
 	//buffer.testBuffer.add( output );
