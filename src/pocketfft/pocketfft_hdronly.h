@@ -162,7 +162,7 @@ inline void aligned_dealloc(void *ptr)
 #else // portable emulation
 inline void *aligned_alloc(size_t align, size_t size)
   {
-  align = std::max(align, alignof(max_align_t));
+  align = (std::max)(align, alignof(max_align_t));
   void *ptr = malloc(size+align);
   if (!ptr) throw std::bad_alloc();
   void *res = reinterpret_cast<void *>
@@ -506,7 +506,7 @@ struct util // hack to avoid duplicate symbols
       parallel /= 4;
     size_t max_threads = nthreads == 0 ?
       std::thread::hardware_concurrency() : nthreads;
-    return std::max(size_t(1), std::min(parallel, max_threads));
+    return (std::max)(size_t(1), (std::min)(parallel, max_threads));
     }
 #endif
   };
@@ -534,7 +534,7 @@ inline size_t &num_threads()
   static thread_local size_t num_threads_=1;
   return num_threads_;
   }
-static const size_t max_threads = std::max(1u, std::thread::hardware_concurrency());
+static const size_t max_threads = (std::max)(1u, std::thread::hardware_concurrency());
 
 class latch
   {
