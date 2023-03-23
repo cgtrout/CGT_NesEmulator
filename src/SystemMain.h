@@ -86,5 +86,4 @@ namespace FrontEnd {
 	};
 }
 
-
 #endif // !defined( AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_ )
