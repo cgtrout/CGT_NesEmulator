@@ -59,8 +59,9 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 void NesSoundBuffer::addSample( Sint16 sample ) {
 
 	movingAverage.add( sample );
-	//should calculate 40 as a constexpr for clarity
-	if( ++sampleNum == 40 ) {
+	
+	//This is fudged down to 37 - this sounds better, but need to investigate to see why this is
+	if( sampleNum++ == 36 ) {
 		sampleNum = 0;
 		
 		//was a whole number generated?
