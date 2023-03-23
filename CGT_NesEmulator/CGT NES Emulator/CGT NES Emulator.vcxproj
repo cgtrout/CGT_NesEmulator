@@ -305,6 +305,7 @@
     <ClInclude Include="..\..\src\NesSoundChannel.h" />
     <ClInclude Include="..\..\src\NesSoundTools.h" />
     <ClInclude Include="..\..\src\NesSprite.h" />
+    <ClInclude Include="..\..\src\pocketfft\pocketfft_hdronly.h" />
     <ClInclude Include="..\..\src\precompiled.h" />
     <ClInclude Include="..\..\src\resource1.h" />
     <ClInclude Include="..\..\src\StringToNumber.h" />

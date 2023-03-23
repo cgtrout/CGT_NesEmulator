@@ -311,6 +311,9 @@
     <ClInclude Include="..\..\src\CgtFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\pocketfft\pocketfft_hdronly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\nesEmResourse.rc">
