@@ -3,6 +3,8 @@
 
 #include "NesSoundTools.h"
 
+#include <cassert>
+
 namespace NesApu {	
 	/*
 	================================================================
@@ -95,7 +97,7 @@ namespace NesApu {
 	
 
 	inline void SquareChannel::setChannel( ubyte c ) {
-		_ASSERT( c == 0 || c == 1 );
+		assert( c == 0 || c == 1 );
 		channel = c;
 		sweep.setSquareChannel( c );
 	}

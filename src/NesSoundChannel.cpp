@@ -1,5 +1,7 @@
 #include "Precompiled.h"
 
+#include <cassert>
+
 using namespace NesApu;
 SquareChannel::SquareChannel( ubyte c ) :
   duty(0), seqPos(0), volSetting(0) {
@@ -47,8 +49,8 @@ uword SquareChannel::getDacValue() {
 		return 0;
 	}
 
-	_ASSERT( duty < 4 );
-	_ASSERT( seqPos < 8 );
+	assert( duty < 4 );
+	assert( seqPos < 8 );
 
 	//handle sequencer
 	if( dutyTable[ duty ][ seqPos ] == 0) {
@@ -65,8 +67,6 @@ uword SquareChannel::getDacValue() {
 
 void SquareChannel::regWrite0( ubyte mem ) {
 	duty = ( mem & 0xc0 ) >> 6;
-	//duty = 0;
-	//duty = 100;
 	
 	ubyte envDisable = BIT( 4, mem );
 	ubyte haltFlagSet = BIT( 5, mem );
@@ -77,7 +77,6 @@ void SquareChannel::regWrite0( ubyte mem ) {
 		env.setLoop( haltFlagSet );
 	}
 	volSetting = mem & 0x0f;
-	//volSetting = 15;
 	env.setPeriod( mem & 0x0f );
 	
 }
@@ -96,8 +95,4 @@ void SquareChannel::regWrite2( ubyte mem ) {
 void SquareChannel::regWrite3( ubyte mem ) {
 	setPeriodHigh( mem & 0x07 );
 	lengthCounter.setLength( ( mem & 0xf8 ) >> 3 );
-
-	//setPeriodHigh( mem );
-	//setPeriodHigh( 0 );
-
 }
