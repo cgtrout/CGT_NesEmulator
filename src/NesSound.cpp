@@ -227,16 +227,16 @@ void NesSound::makeSample() {
 	float output = squareOut;
 
 	//random noise - remove comment to test filters with noise
-	//output = static_cast<float>( rand( ) ) / RAND_MAX;
+	output = static_cast<float>( rand( ) ) / RAND_MAX;
 
 	//low pass 20000
 	output = buffer.lowPassFilter20khz.process( output );
 
 	//highpass filter 90hz
-	output = buffer.highPassFilter90hz.process(output);
+	//output = buffer.highPassFilter90hz.process(output);
 
 	//highpass filter 440hz
-	output = buffer.highPassFilter440hz.process(output);
+	//output = buffer.highPassFilter440hz.process(output);
 
 	//lowpass filter 14hz
 	output = buffer.lowPassFilter14khz.process(output);
