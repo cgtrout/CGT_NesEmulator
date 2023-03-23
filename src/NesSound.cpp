@@ -185,7 +185,7 @@ void NesSound::runTo( PpuClockCycles desPpucc ) {
 		makeSample();
 	}
 
-	//_log->Write( "nesSound::runTo() bufferPos @ end = %d", buffer.getBufferPos() );
+	_log->Write( "nesSound::runTo() descc=%d bufferPos @ end = %d", descc, buffer.getBufferPos() );
 }
 
 void NesSound::resetCC() {
@@ -206,6 +206,7 @@ Sint16 floatTo16Bit( float value ) {
 	}
 
 	// convert float to integer in range [-32768, 32767]
+	//Sint16 result = (Sint16)( (value - 0.5) * 2 * 32000 );
 	Sint16 result = ( Sint16 )( value * 30000 );
 	return result;
 }
