@@ -60,13 +60,13 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 
 	movingAverage.add( sample );
 	
-	//This is fudged down to 37 - this sounds better, but need to investigate to see why this is
-	if( sampleNum++ == 36 ) {
+	//This is fudged down to 35 - this sounds better, but need to investigate to see why this is
+	if( sampleNum++ == 35 ) {
 		sampleNum = 0;
 		
 		//was a whole number generated?
 		int whole = fracComp.add( 45 );
-		sampleNum += whole;
+		//sampleNum += whole;
 		
 		//use average value of last number of samples to create sample value	
 		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
@@ -228,7 +228,7 @@ void NesSound::makeSample() {
 	float output = squareOut;
 
 	//random noise - remove comment to test filters with noise
-	output = static_cast<float>( rand( ) ) / RAND_MAX;
+	//output = static_cast<float>( rand( ) ) / RAND_MAX;
 
 	//low pass 20000
 	output = buffer.lowPassFilter20khz.process( output );
