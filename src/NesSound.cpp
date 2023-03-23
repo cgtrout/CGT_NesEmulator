@@ -56,17 +56,47 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 	}
 }
 
-void NesSoundBuffer::renderImGui() {
-    // Create a custom ImGui window for the circular buffer visualization
-    ImGui::Begin("Audio Buffer Visualization");
+void NesSoundBuffer::addSample( Sint16 sample ) {
+
+	movingAverage.add( sample );
+	//should calculate 40 as a constexpr for clarity
+	if( ++sampleNum == 40 ) {
+		sampleNum = 0;
+		
+		//was a whole number generated?
+		int whole = fracComp.add( 45 );
+		sampleNum += whole;
+		
+		//use average value of last number of samples to create sample value	
+		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
+		auto avg = (Sint16)std::round((float)total / (float)movingAverage.size());
+
+		//if we are running too fast skip a sample to avoid issues
+		//question is why is there more samples being produced than there should be?
+		if( bufferPos >= buffer1.size( ) ) {
+			return;
+		}
+
+		if( activeBuffer == 1 ) {
+			buffer1[ bufferPos++ ] = avg;
+		}
+		else {
+			buffer2[ bufferPos++ ] = avg;
+		}		
+	}
+}
+
+void NesSoundBuffer::renderImGui( ) {
+	// Create a custom ImGui window for the circular buffer visualization
+	ImGui::Begin( "Audio Buffer Visualization" );
 
 	using namespace ImPlot;
-	
-	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250), ImPlotFlags_Crosshairs ) ) { 
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );           
+
+	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
 		SetupAxis( ImAxis_Y1, "My Y-Axis" );
 		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
-		PlotLine( "Buffer data", buffer1.data(), buffer1.size());
+		PlotLine( "Buffer data", buffer1.data( ), buffer1.size( ) );
 		EndPlot( );
 	}
 
@@ -85,12 +115,12 @@ void NesSoundBuffer::renderImGui() {
 		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
 		EndPlot( );
 	}*/
-	
-	
-	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs) ) {
+
+
+	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
 		//prepare dft data
 		auto n = testBuffer.size( );
-		std::vector<std::complex<float>> fftBuffer (n/2 + 1);
+		std::vector<std::complex<float>> fftBuffer( n / 2 + 1 );
 		pocketfft::shape_t shape = { testBuffer.size( ) };
 		pocketfft::stride_t stride_in = { sizeof( float ) };
 		pocketfft::stride_t stride_out = { 2 * sizeof( float ) };
@@ -122,38 +152,8 @@ void NesSoundBuffer::renderImGui() {
 		EndPlot( );
 	}
 
-    // End the ImGui window
-    ImGui::End();
-}
-
-void NesSoundBuffer::addSample( Sint16 sample ) {
-
-	movingAverage.add( sample );
-	//should calculate 40 as a constexpr for clarity
-	if( ++sampleNum == 40 ) {
-		sampleNum = 0;
-		
-		//was a whole number generated?
-		int whole = fracComp.add( 45 );
-		sampleNum += whole;
-		
-		//use average value of last number of samples to create sample value	
-		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
-		auto avg = (Sint16)std::round((float)total / (float)movingAverage.size());
-
-		//if we are running too fast skip a sample to avoid issues
-		//question is why is there more samples being produced than there should be?
-		if( bufferPos >= buffer1.size( ) ) {
-			return;
-		}
-
-		if( activeBuffer == 1 ) {
-			buffer1[ bufferPos++ ] = avg;
-		}
-		else {
-			buffer2[ bufferPos++ ] = avg;
-		}		
-	}
+	// End the ImGui window
+	ImGui::End( );
 }
 
 NesSound::NesSound( ) :
