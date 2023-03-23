@@ -6,7 +6,7 @@
 #include <limits>
 #include <numeric>
 
-//#include <boost/thread/mutex.hpp>
+#include "pocketfft/pocketfft_hdronly.h"
 
 using namespace NesApu;
 
@@ -14,16 +14,16 @@ using namespace NesApu;
 //precise value is 7,457.386363636422
 static const int clocksPer240Hz = 7457;
 
-
 //TODO set fracComp properly 
 NesSoundBuffer::NesSoundBuffer( int bufLength ):  
  fracComp( 0, 77 ),
  buffer1( bufLength ),
  buffer2( bufLength ),
- testBuffer(44100),
+ testBuffer(2048),
  highPassFilter440hz(440, 44100),
  highPassFilter90hz(90, 44100),
- lowPassFilter14hz(100, 44100),
+ lowPassFilter14khz(14000, 44100),
+ lowPassFilter20khz(20000, 44100 ),
  movingAverage( 20 )
 {}
 
@@ -85,6 +85,42 @@ void NesSoundBuffer::renderImGui() {
 		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
 		EndPlot( );
 	}*/
+	
+	
+	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs) ) {
+		//prepare dft data
+		auto n = testBuffer.size( );
+		std::vector<std::complex<float>> fftBuffer (n/2 + 1);
+		pocketfft::shape_t shape = { testBuffer.size( ) };
+		pocketfft::stride_t stride_in = { sizeof( float ) };
+		pocketfft::stride_t stride_out = { 2 * sizeof( float ) };
+		size_t axis = 0;
+		bool forward = true; // Forward FFT
+		float fct = 1.0f; // Scaling factor
+		size_t nthreads = 4; // Number of threads to use
+
+		//do the fft
+		pocketfft::r2c<float>( shape, stride_in, stride_out, axis, forward, testBuffer.getBufferPtr( ), fftBuffer.data( ), fct, nthreads );
+
+		//calculate magnitudes
+		std::vector<float> magnitudes( n / 2 + 1 );
+		for( size_t i = 0; i < n / 2 + 1; ++i ) {
+			magnitudes[ i ] = std::abs( fftBuffer[ i ] );
+		}
+
+		//calculate x axis freq data
+		std::vector<float> frequencies( n / 2 + 1 );
+		for( size_t i = 0; i < n / 2 + 1; ++i ) {
+			frequencies[ i ] = ( i * 44100 ) / static_cast<float>( n );
+		}
+
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, 0, 40, 2 );
+		SetupAxisScale( ImAxis_X1, ImPlotScale_Log10 );
+		PlotLine( "DFT", frequencies.data( ), magnitudes.data( ), magnitudes.size( ) );
+		EndPlot( );
+	}
 
     // End the ImGui window
     ImGui::End();
@@ -116,8 +152,7 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 		}
 		else {
 			buffer2[ bufferPos++ ] = avg;
-		}
-		
+		}		
 	}
 }
 
@@ -177,28 +212,36 @@ Sint16 floatTo16Bit( float value ) {
 
 void NesSound::makeSample() {
 	float squareOut = 0;
+	
 	if( square0.getDacValue() == 0 && square1.getDacValue() == 0 ) {
 		squareOut = 0;
 	} else {
 		//TODO slow - use tables
 		squareOut = (float)95.88 / ( ( 8128 / ( square0.getDacValue() + square1.getDacValue() ) ) + 100 );
+		
 		//_log->Write( "squareOut=%f", squareOut );
 		//if( square1.getDacValue() == 0 ) squareOut = 0;
 		//else squareOut = (float)95.88 / ( ( 8128 / ( square1.getDacValue() ) ) + 100 );
 	}
 	float output = squareOut;
 
+	//random noise - remove comment to test filters with noise
+	//output = static_cast<float>( rand( ) ) / RAND_MAX;
+
+	//low pass 20000
+	output = buffer.lowPassFilter20khz.process( output );
+
 	//highpass filter 90hz
-	//output = buffer.highPassFilter90hz.process(output);
+	output = buffer.highPassFilter90hz.process(output);
 
 	//highpass filter 440hz
-	//output = buffer.highPassFilter440hz.process(output);
+	output = buffer.highPassFilter440hz.process(output);
 
 	//lowpass filter 14hz
-	//output = buffer.lowPassFilter14hz.process(output);
+	output = buffer.lowPassFilter14khz.process(output);
 	
 	//uncomment to add raw test data for implot output
-	//buffer.testBuffer.add( output );
+	buffer.testBuffer.add( output );
 
 	//convert and scale to signed 16bit int
 	Sint16 bitval = floatTo16Bit( output );

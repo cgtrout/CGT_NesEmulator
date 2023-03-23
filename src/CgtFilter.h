@@ -3,11 +3,16 @@
 //Filter Classes
 //ChatGPT generated audio filters
 //
+
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <complex>
+#include <bitset>
+#include <iterator>
 
 namespace CgtLib {
+
 /*
 ================================================================
 ================================================================
@@ -54,16 +59,19 @@ Class HighPassFilter
 */
 class HighPassFilter {
 public:
-    HighPassFilter( float cutoff_frequency, float sample_rate ) : 
-        cutoff_frequency_( cutoff_frequency ), sample_rate_( sample_rate ),
-        RC_( 1.0f / ( cutoff_frequency_ * 2 * (float)M_PI) ), 
+    HighPassFilter( float cutoff_frequency, float sample_rate )
+        : cutoff_frequency_( cutoff_frequency ),
+        sample_rate_( sample_rate ),
+        RC_( 1.0f / ( cutoff_frequency_ * 2 * static_cast<float>( M_PI ) ) ),
         dt_( 1.0f / sample_rate_ ),
-        alpha_( RC_ / ( RC_ + dt_ ) ), 
-        x_previous_( 0 ), y_previous_( 0 ) {}
+        alpha_( RC_ / ( RC_ + dt_ ) ),
+        x_previous_( 0 ),
+        y_previous_( 0 ) {}
 
     float process( float x_current ) {
-        //y[n] = α * (y[n-1] + x[n] - x[n-1])
-        float y_current = alpha_ * (y_previous_ + x_current - x_previous_);
+        //y[n] = α * y[n-1] + α * (x[n] - x[n-1])
+        alpha_ = 0.99f;
+        float y_current = alpha_ * y_previous_ +  alpha_ * (x_current - x_previous_);
         x_previous_ = x_current;
         y_previous_ = y_current;
         return y_current;
