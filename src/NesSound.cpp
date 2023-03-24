@@ -67,6 +67,10 @@ Sint16 floatTo16Bit( float value ) {
 }
 
 void NesSoundBuffer::addSample( float sample ) {
+	//this is for the initial sample rate of 1.78Mhz
+	//this is done to avoid aliasing
+	sample = lowPassFilter1mhzTo20khz.process( sample );
+	
 	//This is fudged down to 35 - this sounds better, but need to investigate to see why this is
 	//29,828.88 cycles per frame / 735 samples per frame = 40.58
 	//1789772.7272 / 44100 = 40.58
@@ -82,10 +86,6 @@ void NesSoundBuffer::addSample( float sample ) {
 		
 		//random noise - remove comment to test filters with noise
 		//output = static_cast<float>( rand( ) ) / RAND_MAX;
-
-		//filter the initial sample first
-		//this is for the initial sample rate of 1.78Mhz
-		output = lowPassFilter1mhzTo20khz.process( output );
 		
 		//now do filtering
 		//highpass filter 90hz
