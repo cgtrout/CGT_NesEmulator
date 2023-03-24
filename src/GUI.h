@@ -455,6 +455,7 @@ namespace GUISystem {
 		std::string text;
 		
 		class EditBoxText : public TextLabel {
+		public:
 			void onLeftMouseDown() {parent->onLeftMouseDown();}
 		}boxtext;
 		

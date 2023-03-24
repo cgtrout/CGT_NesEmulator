@@ -582,6 +582,7 @@ void EditBox::initialize( std::string guitextures ) {
 	boxtext.loadFont( &font );
 	boxtext.setString( text.c_str() );
 
+
 	addChild( &boxtext );
 
 	try	 {
@@ -1414,8 +1415,8 @@ void DialogTitle::onLeftMouseDown() {
 TextLabel::TextLabel() :
 	font( nullptr ),
 	str()
-
 {
+	type = GE_FONT;
 }
 
 TextLabel::~TextLabel() {
@@ -1564,7 +1565,6 @@ Font::Font( ) {
 	fontWidth = 0;
 	fontHeight = 0;
 	currChar = 0;
-	
 }
 
 Font::~Font() {
