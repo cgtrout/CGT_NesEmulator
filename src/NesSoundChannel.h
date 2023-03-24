@@ -94,15 +94,11 @@ namespace NesApu {
 		void setPeriodHigh( ubyte );
 	};
 
-	
-
 	inline void SquareChannel::setChannel( ubyte c ) {
 		assert( c == 0 || c == 1 );
 		channel = c;
 		sweep.setSquareChannel( c );
 	}
-
-	
 	
 	static ubyte dutyTable [4][8] = {
 	  /* 0 */	{ 0, 1, 0, 0, 0, 0, 0, 0 },
