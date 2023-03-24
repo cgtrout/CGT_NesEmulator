@@ -27,11 +27,11 @@ using namespace CGTSingleton;
 
 //TODO why so many instances of classes instantiated with new?
 namespace GUISystem {
-	typedef float GuiDim ;
+	typedef float GuiDim;
 	/*
 	=================================================================
 	=================================================================
-	GEDrawElement   
+	GEDrawElement
 
 	  a draw element is used to tell the gui how to draw a particular
 	  image
@@ -41,43 +41,38 @@ namespace GUISystem {
 	=================================================================
 	*/
 	//stretch types
-	enum StretchType {	
+	enum StretchType {
 		ST_X,		//stretch image in the x direction
 		ST_Y,		//stretch image in the y direction
 		ST_XY,		//stretch in x and y direction
 		ST_NONE		//draw image unaltered
 	};
-	
+
 	class GEDrawElement {
-	public:	
-		GEDrawElement() {
-			opacity = 1.0;
+	public:
+		GEDrawElement( ) :
+			image( ),
+			x( 0 ),
+			y( 0 ),
+			stretchFactorx( 1.0f ),
+			stretchFactory( 1.0f ),
+			stretchType( ST_XY ),
+			opacity( 1.0f ) {
 		}
 
-		virtual ~GEDrawElement() {
-		
+		virtual ~GEDrawElement( ) {
 		}
 
-		//copy constructor
+		// Copy constructor
 		GEDrawElement( const GEDrawElement& de ) = delete;
-		/*
-		{
-			image = de.image;
-			x = de.x;
-			y = de.y;
-			stretchFactorx = de.stretchFactorx;
-			stretchFactory = de.stretchFactory;
-			stretchType = de.stretchType;
-			opacity = de.opacity;
-		}*/
 
 		Image image;
-		GuiDim x, y, 
-			stretchFactorx, //how much to stretch if not ST_NONE
+		GuiDim x, y,
+			stretchFactorx, // How much to stretch if not ST_NONE
 			stretchFactory;
 		StretchType stretchType;
 
-		float opacity;	//tranparency of draw
+		float opacity; // Transparency of draw
 	};
 
 	/*
@@ -85,64 +80,57 @@ namespace GUISystem {
 	=================================================================
 	GUITextures Class
 
-	simple class used to get filename strings linearly from a file 
+	simple class used to get filename strings linearly from a file
 	=================================================================
 	=================================================================
 	*/
 	class GUITextures {
 	public:
-		GUITextures( std::string fileName ) { }
+		GUITextures( std::string fileName )
+			: fileName( fileName ), currLine( 0 ) {}
 
-		GUITextures ( ) {}
-		virtual ~GUITextures() {}
+		GUITextures( )
+			: fileName( "" ), currLine( 0 ) {}
 
-		void loadFile( std::string fileName) {
+		virtual ~GUITextures( ) {}
+
+		void loadFile( std::string fileName ) {
 			loadFromFile( fileName );
-			iter = fileList.begin();
+			iter = fileList.begin( );
 
-			if( fileList.size() == 0 ) {
+			if( fileList.size( ) == 0 ) {
 				throw GUITexturesLoadException( "GUITextures::loadFile", "No textures in list" );
 			}
 		}
 
-		//TODO validation to make sure there is another texture to output
-		//TODO rewrite using c++ stuff
-		const char *getNextTexture() {
-			const char *returnStr;
-			std::string str;
-			str = ( ( std::string )*iter++ );
-			returnStr = str.c_str();
-			
-			#if _MSC_VER > 1000
-				strncpy_s( buffer, str.c_str(), str.size() );
-			#else 
-				strncpy( buffer, str.c_str(), str.size() );
-			#endif
-			
-			return buffer;
+		// TODO validation to make sure there is another texture to output
+		std::string getNextTexture( ) {
+			if( iter != fileList.end( ) ) {
+				return *iter++;
+			}
+			else {
+				throw GUITexturesLoadException( "GUITextures::getNextTexture", "No more textures in list" );
+			}
 		}
 
-		//initialize exception class
-		class GUITexturesLoadException {
-		  public:
-			GUITexturesLoadException( std::string header, std::string m, bool s = true ) {
-				::CgtException( header, m, s );
+		// Initialize exception class
+		class GUITexturesLoadException : CgtException {
+		public:
+			GUITexturesLoadException( std::string header, std::string m, bool s = true )
+				: CgtException( header, m, s ) {
 			}
 		};
-		
-		
-	private:
-		std::vector< std::string > fileList;
-		std::vector< std::string >::iterator iter;
-		std::string fileName;
-		void loadFromFile( const std::string &fileName );
-		void parseLine( const std::string &line );
 
-		char buffer[ 255 ];
+	private:
+		std::vector<std::string> fileList;
+		std::vector<std::string>::iterator iter;
+		std::string fileName;
+		void loadFromFile( std::string_view fileName );
+		void parseLine( std::string_view line );
 
 		int currLine;
-		
 	};
+
 
 	/*
 	=================================================================
@@ -242,9 +230,9 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIElementInitializeException : public CgtException {
 		public:
-			GUIElementInitializeException( std::string_view header, std::string_view message, bool show = true ) {
-				::CgtException( header, message, show );
-			}
+			GUIElementInitializeException( std::string_view header, std::string_view message, bool show = true ) :
+				CgtException( header, message, show ) 
+			{}
 		};
 
 		friend class GUI;
@@ -604,7 +592,7 @@ namespace GUISystem {
 		//								or left and right
 		Slider( int type );
 		Slider( std::string guitextures, int type );
-		Slider( ) {}
+		Slider( );
 		~Slider();
 
 		void onLeftMouseDown();
@@ -652,7 +640,7 @@ namespace GUISystem {
 		public:	
 			SliderBar( int type );
 			SliderBar( std::string guitextures, int type );
-			SliderBar( ) {};
+			SliderBar( );
 			~SliderBar();
 
 			void onLeftMouseDown();
@@ -702,9 +690,9 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIRunException : public CgtException {
 		public:
-			GUIRunException( std::string header, std::string m, bool s = true ) {
-				::CgtException( header, m, s );
-			}
+			GUIRunException( std::string header, std::string m, bool s = true ) :
+				CgtException( header, m, s )
+			{}
 		};
 		GUI();
 		virtual ~GUI();

@@ -17,7 +17,7 @@ namespace NesApu {
 	*/
 	class NesChannel {
 	  public:
-		NesChannel( ) {}
+		NesChannel( ) : dacSize(0), dacValue(0) {}
 
 		//1.79Mhz clock
 		ubyte clock();
@@ -88,7 +88,7 @@ namespace NesApu {
 		EnvelopeGenerator env;
 
 		//force channel to be set
-		SquareChannel() {}
+		SquareChannel( );
 
 		void setPeriodLow( ubyte );
 		void setPeriodHigh( ubyte );

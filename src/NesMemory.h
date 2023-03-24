@@ -56,7 +56,9 @@ namespace NesEmulator {
 			low( l ), high( h ), funcObj( f ), readable( true ), writeable( true ) { }
 		
 		FunctionTableEntry( const FunctionTableEntry& );
-		FunctionTableEntry(): low( 0 ), high( 0),  funcObj(0) { }
+		FunctionTableEntry():
+			FunctionTableEntry( 0, 0, nullptr )				
+		{ }
 		
 		uword low, high;
 		FunctionObjectBase *funcObj;
@@ -292,11 +294,16 @@ namespace NesEmulator {
 	};
 
 	class NesMemoryException : public CgtException {
-	  public:
-		NesMemoryException( std::string_view header, std::string_view m, unsigned short loc, bool s = true ) {
-			std::stringstream ss( m.data() );
-			ss << m.data() << " at " << std::setbase(16) << loc;
-			::CgtException( header, ss.str(), s );
+	public:
+		NesMemoryException( std::string_view header, std::string_view m, unsigned short loc, bool s = true )
+			: CgtException( header, createMessage( m, loc ), s ) {
+		}
+
+	private:
+		static std::string createMessage( std::string_view m, unsigned short loc ) {
+			std::stringstream ss;
+			ss << m << " at " << std::setbase( 16 ) << loc;
+			return ss.str( );
 		}
 	};
 }

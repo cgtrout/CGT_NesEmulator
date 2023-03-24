@@ -352,7 +352,7 @@ Image LoadBMP( std::string_view strFileName ) {
     
 imageError:
 	error += strFileName;
-	throw ImageException( "LoadBMP()", "error.c_str()" );
+	throw ImageException( "LoadBMP()", error.c_str() );
 }
 
 void saveLSB_int( std::ofstream &os, unsigned int val ) {

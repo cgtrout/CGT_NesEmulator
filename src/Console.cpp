@@ -483,11 +483,11 @@ void ConsoleSystem::printMessage( const char *message, ... ) {
 
 /* 
 ==============================================
-char *ConsoleSystem::getHistoryLines( int numLinesToGet, int pos )
+std::string ConsoleSystem::getHistoryLines( int numLinesToGet, int pos )
   get the last 'numLines' number of lines printed to console hi
 ==============================================
 */
-char *ConsoleSystem::getHistoryLines( int numLinesToGet, int pos ) {
+std::string ConsoleSystem::getHistoryLines( int numLinesToGet, int pos ) {
     static int lastPos = 0;
 
 	if( history.numLines < numLinesToGet - pos ) {
@@ -495,56 +495,37 @@ char *ConsoleSystem::getHistoryLines( int numLinesToGet, int pos ) {
 	}
 	if( history.numLines == 0 )
 	 {
-		return NULL;
+		return "";
 	}
 	int startLine = history.numLines - numLinesToGet - pos;
 	return history.getBuffer( startLine, startLine + numLinesToGet );
 }
 
-
 /* 
 ==============================================
-char *ConsoleSystem::History::getBuffer( int startline, int endline )
+ConsoleSystem::History::getBuffer( int startline, int endline )
 ==============================================
 */
-char *ConsoleSystem::History::getBuffer( int startline, int endline ) {
-    char linebuf[ MaxLineSize ];
-    int pos = 0;
+std::string ConsoleSystem::History::getBuffer( int startline, int endline ) {
+	std::string returnBuffer;
 	int lineLength = 0;
     
-	//incase we're shutting down
-	if(returnBuffer == NULL) {
-		return NULL;
-	}
-
-    //clear buffer
-    for( int x = 0; x < MaxReturnBufferSize; x++ ) {
-        returnBuffer[ x ] = 0;
-    }
-    for( ; startline < endline; startline++ ) {
-        if( lineLength >= MaxReturnBufferSize ) {
-            //TODO print message
-            return NULL;
-        }
-        strcpy( &linebuf[ 0 ], getLine( startline ) );
-		
-        lineLength = strlen( linebuf );
-        strcat( returnBuffer, linebuf );
-		strcat( returnBuffer, "\n" );
-        pos += lineLength;
+    for( auto i = startline; i < endline && i < numLines; i++ ) {
+        auto line = getLine( i );
+		returnBuffer += getLine( i );
+		returnBuffer += "\n";
     }
 	return returnBuffer;
 }
 
 /* 
 ==============================================
-void ConsoleSystem::History::writeLine( char *string )
+void ConsoleSystem::History::writeLine(  )
 ==============================================
 */
-void ConsoleSystem::History::writeLine( char *string ) {
+void ConsoleSystem::History::writeLine( std::string_view string ) {
     //write to current line
-    strcpy( lines[ currentLine ].text, string );
-    int length = strlen( string );
+	lines[ currentLine ].text = string;
     currentLine++;
         
 	if( numLines < MaxLines ) {
@@ -559,14 +540,14 @@ void ConsoleSystem::History::writeLine( char *string ) {
 
 /* 
 ==============================================
-char *ConsoleSystem::History::getLine( int lineToGet )
+ConsoleSystem::History::getLine( int lineToGet )
 ==============================================
 */
-char *ConsoleSystem::History::getLine( int lineToGet ) {
+std::string ConsoleSystem::History::getLine( int lineToGet ) {
     int firstLinePos, offset, pos;
     
     if( lineToGet >= numLines ) {
-        return NULL;
+		return "";
     }
     
     //calculate where first line is
@@ -591,7 +572,7 @@ char *ConsoleSystem::History::getLine( int lineToGet ) {
 
 /* 
 ==============================================
-char *ConsoleSystem::printMatches( const char *partial )
+ConsoleSystem::printMatches(  )
   used to show possible commands for user when they hit tab with a partial command
   returns match if only one found
   otherwise it returns NULL
@@ -710,109 +691,87 @@ std::string ConsoleSystem::getNextRequest() {
 ==============================================
 void ConsoleSystem::loadCommandFile
 
-  TODO return exception?
-  TODO test
 ==============================================
 */
 void ConsoleSystem::loadCommandFile( std::string_view filename ) {
-	std::ifstream file( filename.data() );
+	std::ifstream file( filename.data( ) );
+	std::string line;
 
-	char line[ 256 ];
-	char *ptr;
-
-	if ( !file ) {
+	if( !file ) {
 		return;
 	}
-	
-	while( !file.eof() ) {
-		ptr = &line[0];
-		file.getline( ptr, 256 );
-				
-		//comment line ignore
-		if( strncmp( ptr, "//", 2 ) == 0 ) {
-			
+
+	while( std::getline( file, line ) ) {
+		// Comment line ignore
+		if( line.substr( 0, 2 ) == "//" ) {
 			continue;
 		}
-		//pass command to system
-		executeRequest( ptr, false );
+		// Pass command to system
+		executeRequest( line.c_str(), false );
 	}
 }
 
 /* 
 ==============================================
-void VariableFile::loadFile( const char *filename )
+void VariableFile::loadFile(  )
 
   TODO change this to use C++ strings/streams?
 ==============================================
 */
-void VariableFile::loadFile( const char *filename ) {
-	std::ifstream file( filename );
-	char line[ CMAXNAMESIZE ];
-	char valBuf[ 12 ];
-	char *ptr;
+void VariableFile::loadFile( std::string_view filename ) {
+	std::ifstream file( filename.data( ) );
+	std::string line;
+	std::string valBuf;
 
-	//check for error.  If file not here, most likely first run of program
-	if ( !file ) {
+	// Check for error. If file not here, most likely first run of program
+	if( !file ) {
 		return;
 	}
 
-	while( !file.eof() ) {
-		file.getline( line, CMAXNAMESIZE );
-		ptr = line;
-
+	while( std::getline( file, line ) ) {
 		DefinitionLine def;
-	
-		if( *ptr == 0 || *ptr == ' ' ) {
+
+		if( line.empty( ) || line.front( ) == ' ' ) {
 			def.blank = true;
 		}
-		
+
 		if( !def.blank ) {
-			//if a comment
-			if( ptr[ 0 ] == '/' && ptr[ 1 ] == '/' ) {
-				ptr = &ptr[ 2 ];
+			// If a comment
+			if( line.substr( 0, 2 ) == "//" ) {
 				def.comment = true;
 
-				//parse whole line and put in name
+				// Parse whole line and put in name
 				def.name = line;
 			}
 
-			//see if we have reached end of file
-			if( strncmp( ptr, "EOF", 3 ) == 0 ) {
+			// See if we have reached the end of file
+			if( line.substr( 0, 3 ) == "EOF" ) {
 				break;
 			}
 
 			if( !def.comment ) {
-				//find space position 
+				// Find space position
 				int spacePos = 0;
-				while( true ) {
-					if( ptr == NULL ) {
+				for( char c : line ) {
+					if( c == ' ' ) {
 						break;
 					}
-					if( *ptr == ' ' ) {
-						ptr++;
-						break;
-					}
-					ptr++;
 					spacePos++;
 				}
-				
-				//parse var name
-				//strncpy( def.name, line, spacePos );
-				def.name = line;
-				def.name = def.name.substr( 0, spacePos );
-				def.name[ spacePos ] = '\0';
 
-				//parse float value
-				//ptr = &ptr[ spacePos + 1 ];
-				strcpy( valBuf, ptr );
+				// Parse var name
+				def.name = line.substr( 0, spacePos );
+
+				// Parse float value
+				valBuf = line.substr( spacePos + 1 );
 			}
 
 			def.valstr = valBuf;
 		}
-		//put in new definition
+		// Put in new definition
 		vars.push_back( def );
 	}
-	file.close();
+	file.close( );
 }
 
 /* 
@@ -838,13 +797,13 @@ VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varn
 
 /* 
 ==============================================
-void VariableFile::saveFile( const char *filename, list< ConsoleVariable* > *vars )
+void VariableFile::saveFile
 
   TODO check to see that definition lines are memory managed properly
 ==============================================
 */
-void VariableFile::saveFile( const char *filename, Variables *vars ) {
-	std::ofstream file( filename );
+void VariableFile::saveFile( std::string_view filename, Variables *vars ) {
+	std::ofstream file( filename.data() );
 		
 	//get master name list
 	std::list< std::string* > masterNameList;

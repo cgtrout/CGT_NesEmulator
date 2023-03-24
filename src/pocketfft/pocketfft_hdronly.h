@@ -36,6 +36,11 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 26495)
+#endif  
+
 #ifndef POCKETFFT_HDRONLY_H
 #define POCKETFFT_HDRONLY_H
 
@@ -3574,5 +3579,9 @@ using detail::dst;
 
 #undef POCKETFFT_NOINLINE
 #undef POCKETFFT_RESTRICT
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif // POCKETFFT_HDRONLY_H

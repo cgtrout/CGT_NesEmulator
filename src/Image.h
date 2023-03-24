@@ -23,7 +23,8 @@ struct Pixel3Byte {
 		color[ COLOR_GREEN ]	= g;
 		color[ COLOR_BLUE ]		= b;
 	}
-	Pixel3Byte() { } 
+	Pixel3Byte() :
+		Pixel3Byte (0, 0, 0) { } 
 };
 
 /*
@@ -72,9 +73,9 @@ class Image {
 
 class ImageException : public CgtException {
 public:	
-	ImageException( std::string_view h, std::string_view m, bool show = true) {
-		::CgtException(h, m, show);
-	}
+	ImageException( std::string_view h, std::string_view m, bool show = true) : 
+		CgtException(h, m, show)
+	{}
 }; 
 
 void copyImage( Image *source, int sx, int sy, int width, int height, Image *destination, int dx, int dy );

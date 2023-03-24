@@ -56,6 +56,10 @@ ControllableButton::ControllableButton( std::string_view name, std::string_view 
 {
 }
 
+ControllableButton::ControllableButton() :
+	ControllableButton("NOT_SET", "NOT_SET", "NOT_SET" )
+{}
+
 /*
 ==============================================
 Input::Input()
@@ -68,8 +72,13 @@ Input::Input():
 	mouseRightUp( false ),
 	mouseLeftDownLastFrame( false ),
 	mouseRightDownLastFrame( false ),
+	mousex(0),
+	mousey(0),
+	screenx(0),
+	screeny(0),
 	useDelay( false ),
 	lastKeyPressed( 0 ),
+	kbpos( 0 ),
 	inputState( InputSystemStates::NORMAL_MODE ) { 
 }
 

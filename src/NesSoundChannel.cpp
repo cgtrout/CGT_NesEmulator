@@ -4,10 +4,14 @@
 
 using namespace NesApu;
 SquareChannel::SquareChannel( ubyte c ) :
-  duty(0), seqPos(0), volSetting(0) {
+  duty(0), seqPos(0), volSetting(0), channel(0) {
 	setDacSize( 4 );
 	setChannel( c );
 	timer.setHalfTimer( true );
+}
+
+SquareChannel::SquareChannel( ) :
+	SquareChannel( 3 ) {
 }
 
 void SquareChannel::clock() {

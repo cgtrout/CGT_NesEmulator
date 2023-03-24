@@ -29,7 +29,7 @@ namespace NesApu {
 		
 		//fills an external buffer with "size" number of bytes from 
 		//internal buffer
-		void fillExternalBuffer( Sint16* rawPointer, int size );
+		void fillExternalBuffer( Sint16* rawPointer, size_t size );
 
 		//generate imgui visualization of sound buffers
 		void renderImGui();
@@ -64,15 +64,11 @@ namespace NesApu {
 		//total value of all subsamples for current sample
 		int sampleTotal;
 
-		//length of each sample - once this many samples have been
-		//added they will be averaged and put into buffer
-		int desiredSampleLength;
-
 		//actual sound buffer
 		std::vector<Sint16> buffer1;
 		std::vector<Sint16> buffer2;
 		int activeBuffer = 1;
-		int bufferPos = 0;
+		size_t bufferPos = 0;
 	};
 
 	/*

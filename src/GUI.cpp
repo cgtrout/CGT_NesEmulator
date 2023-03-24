@@ -31,7 +31,6 @@ ConsoleVariable< float > guiOpacity(
 /*description*/	"sets global opacity for gui system",
 /*save?*/		SAVE_TO_FILE );
 
-
 ConsoleVariable< float > fontOpacity( 
 /*start val*/	1.0f, 
 /*name*/		"fontOpacity", 
@@ -42,12 +41,15 @@ ConsoleVariable< float > fontOpacity(
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-GUI::GUI() {
+GUI::GUI( ) :
+	zdrawpos( 1.0f ),
+	drawGUI( true ),
+	usingMouse( true )
+{
 	usingMouse = true;
 	//usingKeyboard = false;
 	
 	//drawDebugLines = false;
-	drawGUI = true;
 
 
 	//ConsoleVariable< float > &opacity = guiOpacity;
@@ -367,10 +369,8 @@ GUITextures Class
 =================================================================
 =================================================================
 */
-void GUITextures::loadFromFile( const std::string &fileName ) {
-	//char buf[ 1000 ];
-	//std::string line;
-	std::ifstream is( fileName );
+void GUITextures::loadFromFile( std::string_view fileName ) {
+	std::ifstream is( fileName.data() );
 	std::string error;
 	this->fileName = fileName;
 
@@ -388,7 +388,7 @@ void GUITextures::loadFromFile( const std::string &fileName ) {
 	is.close();
 }
 
-void GUITextures::parseLine( const std::string &line ) {
+void GUITextures::parseLine( std::string_view line ) {
 	unsigned int x = 0;	//position in line
 	int firstq = -1;	//first quote
 	int secq = -1;		//second quote
@@ -424,7 +424,8 @@ void GUITextures::parseLine( const std::string &line ) {
 				<< "file name contained within quotes/n";
 		throw GUITexturesLoadException( "GuiTextures::parseLine", error.str() );
 	}
-	fileList.push_back( line.substr( firstq+1, secq-firstq-1 ) );
+	std::string newLine( line.substr( firstq + 1, secq - firstq - 1 ) );
+	fileList.push_back( newLine );
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1113,9 +1114,16 @@ Slider::SliderBar::SliderBar( int type ) {
 		initialize( "gui/SliderX/sliderbarx.gt" );
 }
 
-Slider::SliderBar::SliderBar( std::string guitextures, int type ) {
-	this->type = type;
+Slider::SliderBar::SliderBar( std::string guitextures, int type ) :
+	type( type )
+{
 	initialize( guitextures );	
+}
+
+Slider::SliderBar::SliderBar( ) :
+	Slider::SliderBar::SliderBar("", SLIDER_X )
+{
+
 }
 
 Slider::SliderBar::~SliderBar() {
@@ -1193,17 +1201,29 @@ void Slider::SliderBar::update() {
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-Slider::Slider( int type ) {
-	this->type = type;
+Slider::Slider( int type ) :
+	Slider("", type )
+{
+		this->type = type;
 	if( type == SLIDER_Y )
 		initialize( "gui/SliderY/slidery.gt" );
 	else
 		initialize( "gui/SliderX/sliderx.gt" );
 }
 
-Slider::Slider( std::string guitextures, int type ) {
-	this->type = type;
+Slider::Slider( std::string guitextures, int type ):
+	type( type ),
+	drawValueLabel( true ),
+	mouseX( 0 ),
+	mouseY( 0 )
+{
 	initialize( guitextures );
+}
+
+Slider::Slider( ) :
+	Slider( "", SLIDER_X )
+{
+
 }
 
 Slider::~Slider() {
@@ -1391,8 +1411,11 @@ void DialogTitle::onLeftMouseDown() {
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-TextLabel::TextLabel() {
-	type = GE_FONT;
+TextLabel::TextLabel() :
+	font( nullptr ),
+	str()
+
+{
 }
 
 TextLabel::~TextLabel() {

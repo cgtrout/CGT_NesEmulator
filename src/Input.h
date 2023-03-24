@@ -39,7 +39,7 @@ namespace FrontEnd {
 		class ControllableButton {
 		 friend class Input;
 		 public:
-			ControllableButton() { }
+			ControllableButton( );
 			ControllableButton( std::string_view name,
 								std::string_view deviceName,
 								std::string_view bindName );

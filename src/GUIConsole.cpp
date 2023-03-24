@@ -94,9 +94,9 @@ void GUIConsole::onRender() {
 	//if the output can not have changed then their
 	//is no reason to go through all these lines again
 	if( changed ) {
-		char *temp = consoleSystem->getHistoryLines( CONSOLE_LINES, offset );
+		std::string temp = consoleSystem->getHistoryLines( CONSOLE_LINES, offset );
 		
-		if( temp != NULL ) {
+		if( !temp.empty() ) {
 			history = temp;
 
 			//go through history string 

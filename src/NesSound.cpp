@@ -17,9 +17,12 @@ static const int clocksPer240Hz = 7457;
 
 //TODO set fracComp properly 
 NesSoundBuffer::NesSoundBuffer( int bufLength ):  
+ 
  fracComp( 0, 77 ),
  buffer1( bufLength ),
  buffer2( bufLength ),
+ sampleNum(0),
+ sampleTotal(0),
  testBuffer(2048),
  highPassFilter440hz(440, 44100),
  highPassFilter90hz(90, 44100),
@@ -33,7 +36,7 @@ NesSoundBuffer::~NesSoundBuffer() {
 
 //boost::mutex mutex;
 //samples is number of samples, and not actual byte size  of copy
-void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
+void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, size_t samples ) {
 	if( samples > buffer1.size( ) || samples > buffer2.size( ) ) {
 		throw CgtException( "fillExternalBUffer", "samples too large", true );
 	}
@@ -189,7 +192,9 @@ void NesSoundBuffer::renderImGui( ) {
 }
 
 NesSound::NesSound( ) :
+	cc(0),
 	curr240Clock( 0 ),
+	curr240ClockCycle(0),
 	fracCC( 0, 3 ),
 	frac240Clock( 0, 2 ),
 	square0( 0 ),

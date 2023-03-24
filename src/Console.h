@@ -102,10 +102,10 @@ namespace Console {
 		  };
 	  
 		  //load all file definitions from a file
-		  void loadFile( const char * );			
+		  void loadFile( std::string_view );			
 		  
 		  //save all file defintions to file
-		  void saveFile( const char *, Variables *vars );
+		  void saveFile( std::string_view, Variables *vars );
 		  
 		  //returns a definition, if it was in the file 
 		  //other wise returns null if varname was not found
@@ -214,7 +214,7 @@ namespace Console {
 		void executeRequest( const std::string &command, const std::string &value, bool echo = true );		
 	    
 		//get the last 'numLines' number of lines printed to console history starting at 'pos'
-		char *getHistoryLines( int numLines, int pos );
+		std::string getHistoryLines( int numLines, int pos );
 		
 		//returns the number of lines in the history buffer
 		int sizeOfHistory() {return history.numLines;}
@@ -273,8 +273,9 @@ namespace Console {
 		class History {
 		public:
 			//TODO use std structure for htis
+			//TODO use strings rather than text
 			struct Line {
-				char text[ MaxLineSize ];
+				std::string text;
 			}lines[ MaxLines ];   //cyclic array of lines
 	        
 			//number of lines in buffer
@@ -283,17 +284,19 @@ namespace Console {
 			int firstLinePos;
 	        
 			//writes a line to console history
-			void writeLine( char *string );
+			void writeLine( std::string_view string );
 	        
 			//gets a line from lines array
-			char *getLine( int lineToGet );
+			std::string getLine( int lineToGet );
 	        
 			//gets a string with lines starting at 'startline', ending at 'endline'
-			char *getBuffer( int startline, int endline );
+			std::string getBuffer( int startline, int endline );
 	        
-			char returnBuffer[ MaxReturnBufferSize ];
-  
-			History():numLines( 0 ), currentLine( 0 ) {}
+			History():	numLines( 0 ), 
+						currentLine( 0 ),
+						firstLinePos(0)
+			{
+			}
 		} history;
 		
 		//main system used for handling console commands
@@ -303,7 +306,8 @@ namespace Console {
 
 	class ConsoleSystemException : public CgtException {
 	public:
-		ConsoleSystemException( std::string_view h, std::string_view m, bool s = true) { ::CgtException( h, m, s );	}
+		ConsoleSystemException( std::string_view h, std::string_view m, bool s = true) :CgtException( h, m, s )	
+		{}
 	private:
 		ConsoleSystemException();
 	};

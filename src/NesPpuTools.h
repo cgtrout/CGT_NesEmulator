@@ -12,7 +12,7 @@ namespace NesEmulator {
 	*/
 	class NesPPUPixelGen {
 	public:
-		NesPPUPixelGen() {}
+		NesPPUPixelGen() : pixelData{ 0 }, pixelData24Bit{ 0 } {}
 		void genPatternTablePixelData();
 		void genPatternTablePixelData24Bit( Pixel3Byte *colors );
 	    
@@ -28,7 +28,10 @@ namespace NesEmulator {
 	//this class generates palette output for debugging purposes
 	class NesPPUPaletteGen {
 	public:
-		NesPPUPaletteGen() { }
+		NesPPUPaletteGen() :
+			palette(nullptr),
+			pixelData{}
+		{ }
 		void genPalettePixelData( NesPalette *p );
 
 		ubyte *getPixelData() { return pixelData; }
