@@ -25,7 +25,7 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  highPassFilter90hz(90, 44100),
  lowPassFilter14khz(14000, 44100),
  lowPassFilter20khz(20000, 44100 ),
- movingAverage( 20 )
+ lowPassFilter1mhzTo20khz( 22050, 1789773)
 {}
 
 NesSoundBuffer::~NesSoundBuffer() {
@@ -67,28 +67,27 @@ Sint16 floatTo16Bit( float value ) {
 }
 
 void NesSoundBuffer::addSample( float sample ) {
-	movingAverage.add( sample );
-	
 	//This is fudged down to 35 - this sounds better, but need to investigate to see why this is
 	//29,828.88 cycles per frame / 735 samples per frame = 40.58
+	//1789772.7272 / 44100 = 40.58
 	if( sampleNum++ == 35 ) {
 		sampleNum = 0;
+		
+		//just take this sample as our sample for this interval
+		float output = sample;
 		
 		//was a whole number generated?
 		int whole = fracComp.add( 45 );
 		//sampleNum += whole;
 		
-		//use average value of last number of samples to create sample value "output"	
-		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0.0f );
-		float output = total / movingAverage.size();
-
 		//random noise - remove comment to test filters with noise
 		//output = static_cast<float>( rand( ) ) / RAND_MAX;
 
-		//do filtering HERE
-		//low pass 20000
-		output = lowPassFilter20khz.process( output );
-
+		//filter the initial sample first
+		//this is for the initial sample rate of 1.78Mhz
+		output = lowPassFilter1mhzTo20khz.process( output );
+		
+		//now do filtering
 		//highpass filter 90hz
 		//output = highPassFilter90hz.process(output);
 
