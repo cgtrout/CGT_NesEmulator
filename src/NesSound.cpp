@@ -19,11 +19,12 @@ static const int clocksPer240Hz = 7457;
 NesSoundBuffer::NesSoundBuffer( int bufLength ):  
  
  fracComp( 0, 77 ),
- buffer1( bufLength ),
- buffer2( bufLength ),
+ buffer1( bufLength*45 ),
+ buffer2( bufLength*45 ),
  sampleNum(0),
  sampleTotal(0),
  testBuffer(2048),
+ averageSampleIntervalBuffer(1),
  highPassFilter440hz(440, 44100),
  highPassFilter90hz(90, 44100),
  lowPassFilter14khz(14000, 44100),
@@ -34,90 +35,93 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
 NesSoundBuffer::~NesSoundBuffer() {
 }
 
+//convert float value to 16bit value
+Sint16 floatTo16Bit( float value ) {
+	value = std::clamp( value, -1.0f, 1.0f );
+
+	// convert float to integer in range [-32768, 32767]
+	Sint16 result = (Sint16)( value * 32000 );
+	return result;
+}
+
 //boost::mutex mutex;
 //samples is number of samples, and not actual byte size  of copy
 void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, size_t samples ) {
-	if( samples > buffer1.size( ) || samples > buffer2.size( ) ) {
-		throw CgtException( "fillExternalBUffer", "samples too large", true );
-	}
-	
-	//alternate between two buffers
-	//copy to given array, and then clear from buffer 
-	if( activeBuffer == 1 ) {
-		std::copy( buffer1.begin( ), buffer1.begin( ) + samples, ptr );
-		std::fill( buffer1.begin( ), buffer1.end(), 0 );
-	}
-	else {
-		std::copy( buffer2.begin( ), buffer2.begin( ) + samples, ptr );
-		std::fill( buffer2.begin( ), buffer2.end(), 0 );
-	}
+	//how many samples do we need - calculate from moving average
+	float desiredIntervalFloat = bufferPos / (float)samples;
+	averageSampleIntervalBuffer.add( desiredIntervalFloat );
+	auto total = std::accumulate( averageSampleIntervalBuffer.begin( ), averageSampleIntervalBuffer.end( ), 0 );
+	size_t desiredInterval = total / averageSampleIntervalBuffer.size( );
+
+	size_t startBufferPos = bufferPos;
 
 	bufferPos = 0;
+	auto selectedBuffer = activeBuffer;
+	
+	//immediately set this so that emulation continues on other buffer
 	activeBuffer++;
 
 	if( activeBuffer == 3 ) {
 		activeBuffer = 1;
 	}
-}
-
-//convert float value to 16bit value
-Sint16 floatTo16Bit( float value ) {
-	value = std::clamp(value, -1.0f, 1.0f);
 	
-	// convert float to integer in range [-32768, 32767]
-	Sint16 result = ( Sint16 )( value * 30000 );
-	return result;
+	//create pointer to the active buffer
+	std::vector<float>* bufferPtr = selectedBuffer == 1 ? &buffer1 : &buffer2;
+
+	//initialize export 16 bit buffer
+	std::vector<Sint16> newBuffer( samples, 0 );
+	auto i = 0u, n = 0u;
+	if( desiredInterval > 0 ) {
+		
+		for( ; i < bufferPtr->size( ) && n < samples; i += desiredInterval, n++ ) {
+			float output = ( *bufferPtr )[ i ];
+
+			//was a whole number generated?
+			//int whole = fracComp.add( 45 );
+			//sampleNum += whole;
+
+			//random noise - remove comment to test filters with noise
+			//output = static_cast<float>( rand( ) ) / RAND_MAX;
+
+			//now do filtering
+			//highpass filter 90hz
+			output = highPassFilter90hz.process( output );
+
+			//highpass filter 440hz
+			output = highPassFilter440hz.process( output );
+
+			//low pass 14000 hz
+			output = lowPassFilter14khz.process( output );
+
+			//now convert to 16 bit value
+			Sint16 convertedValue = floatTo16Bit( output );
+
+			//add raw test data for implot output
+			testBuffer.add( output );
+
+			newBuffer[ n ] = convertedValue;
+		}
+	}
+
+	_log->Write( "bufferPos:%d / samples:%d =  Desired interval:%d   Actual done=%d", startBufferPos, samples, desiredInterval, n );
+
+	//copy new buffer data
+	std::copy( newBuffer.begin( ), newBuffer.begin( ) + samples, ptr );
+	
+	//clear old float buffer
+	std::fill( bufferPtr->begin( ), bufferPtr->end( ), 0.0f );
 }
 
 void NesSoundBuffer::addSample( float sample ) {
 	//this is for the initial sample rate of 1.78Mhz
 	//this is done to avoid aliasing
-	sample = lowPassFilter1mhzTo20khz.process( sample );
-	
-	//This is fudged down to 35 - this sounds better, but need to investigate to see why this is
-	//29,828.88 cycles per frame / 735 samples per frame = 40.58
-	//1789772.7272 / 44100 = 40.58
-	if( sampleNum++ == 36 ) {
-		sampleNum = 0;
-		
-		//just take this sample as our sample for this interval
-		float output = sample;
-		
-		//was a whole number generated?
-		int whole = fracComp.add( 45 );
-		//sampleNum += whole;
-		
-		//random noise - remove comment to test filters with noise
-		//output = static_cast<float>( rand( ) ) / RAND_MAX;
-		
-		//now do filtering
-		//highpass filter 90hz
-		output = highPassFilter90hz.process(output);
+	//sample = lowPassFilter1mhzTo20khz.process( sample );
 
-		//highpass filter 440hz
-		output = highPassFilter440hz.process(output);
-
-		//low pass 14000 hz
-		output = lowPassFilter14khz.process ( output );
-
-		//now convert to 16 bit value
-		auto convertedValue = floatTo16Bit( output );
-
-		//add raw test data for implot output
-		testBuffer.add( output );
-
-		//if we are running too fast skip a sample to avoid issues
-		//question is why is there more samples being produced than there should be?
-		if( bufferPos >= buffer1.size( ) ) {
-			return;
-		}
-
-		if( activeBuffer == 1 ) {
-			buffer1[ bufferPos++ ] = convertedValue;
-		}
-		else {
-			buffer2[ bufferPos++ ] = convertedValue;
-		}		
+	if( activeBuffer == 1 ) {
+		buffer1[ bufferPos++ ] = sample;
+	}
+	else {
+		buffer2[ bufferPos++ ] = sample;
 	}
 }
 
@@ -127,6 +131,7 @@ void NesSoundBuffer::renderImGui( ) {
 
 	using namespace ImPlot;
 
+	/*
 	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
 		SetupAxis( ImAxis_Y1, "My Y-Axis" );
@@ -142,7 +147,7 @@ void NesSoundBuffer::renderImGui( ) {
 		PlotLine( "Buffer data", buffer2.data( ), buffer2.size( ) );
 		EndPlot( );
 	}
-
+	*/
 	/*
 	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
@@ -222,7 +227,7 @@ void NesSound::runTo( PpuClockCycles desPpucc ) {
 		makeSample();
 	}
 
-	_log->Write( "nesSound::runTo() descc=%d bufferPos @ end = %d", descc, buffer.getBufferPos() );
+	//_log->Write( "nesSound::runTo() descc=%d bufferPos @ end = %d", descc, buffer.getBufferPos() );
 }
 
 void NesSound::resetCC() {

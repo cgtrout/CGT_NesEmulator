@@ -70,7 +70,7 @@ public:
 
     float process( float x_current ) {
         //y[n] = α * y[n-1] + α * (x[n] - x[n-1])
-        alpha_ = 0.99f;
+        //alpha_ = 0.99f;
         float y_current = alpha_ * y_previous_ +  alpha_ * (x_current - x_previous_);
         x_previous_ = x_current;
         y_previous_ = y_current;

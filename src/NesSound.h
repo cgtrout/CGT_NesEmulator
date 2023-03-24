@@ -46,9 +46,11 @@ namespace NesApu {
 		//test buffer for viewing raw sample data (imgui)
 		CgtLib::CircularBuffer<float> testBuffer;
 
+		CgtLib::CircularBuffer<float> averageSampleIntervalBuffer;
+
 		//filters
-		CgtLib::ButterworthHighPassFilter highPassFilter90hz;
-		CgtLib::ButterworthHighPassFilter highPassFilter440hz;
+		CgtLib::HighPassFilter highPassFilter90hz;
+		CgtLib::HighPassFilter highPassFilter440hz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter14khz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter20khz;
 
@@ -65,8 +67,8 @@ namespace NesApu {
 		int sampleTotal;
 
 		//actual sound buffer
-		std::vector<Sint16> buffer1;
-		std::vector<Sint16> buffer2;
+		std::vector<float> buffer1;
+		std::vector<float> buffer2;
 		int activeBuffer = 1;
 		size_t bufferPos = 0;
 	};
