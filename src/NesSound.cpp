@@ -59,7 +59,7 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 
 //convert float value to 16bit value
 Sint16 floatTo16Bit( float value ) {
-	std::clamp(value, -1.0f, 1.0f);
+	value = std::clamp(value, -1.0f, 1.0f);
 	
 	// convert float to integer in range [-32768, 32767]
 	Sint16 result = ( Sint16 )( value * 30000 );
@@ -117,7 +117,6 @@ void NesSoundBuffer::addSample( float sample ) {
 		}		
 	}
 }
-
 
 void NesSoundBuffer::renderImGui( ) {
 	// Create a custom ImGui window for the circular buffer visualization
