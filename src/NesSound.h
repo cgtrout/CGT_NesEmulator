@@ -52,7 +52,7 @@ namespace NesApu {
 		CgtLib::ButterworthLowPassFilter lowPassFilter14khz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter20khz;
 
-		CgtLib::ButterworthLowPassFilter lowPassFilter22mhzTo20khz;
+		CgtLib::ButterworthLowPassFilter lowPassFilter1mhzTo20khz;
 
 	  private:
 		//these are used for calculating average sample value

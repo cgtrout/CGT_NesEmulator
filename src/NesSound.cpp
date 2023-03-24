@@ -118,144 +118,6 @@ void NesSoundBuffer::addSample( float sample ) {
 	}
 }
 
-void NesSoundBuffer::renderImGui( ) {
-	// Create a custom ImGui window for the circular buffer visualization
-	ImGui::Begin( "Audio Buffer Visualization" );
-
-	using namespace ImPlot;
-
-	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
-		PlotLine( "Buffer data", buffer1.data( ), buffer1.size( ) );
-		EndPlot( );
-	}
-
-	if( ImPlot::BeginPlot( "Buffer 2", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
-		PlotLine( "Buffer data", buffer2.data( ), buffer2.size( ) );
-		EndPlot( );
-	}
-
-	/*
-	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
-		EndPlot( );
-	}*/
-
-	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
-		//prepare dft data
-		auto n = testBuffer.size( );
-		std::vector<std::complex<float>> fftBuffer( n / 2 + 1 );
-		pocketfft::shape_t shape = { testBuffer.size( ) };
-		pocketfft::stride_t stride_in = { sizeof( float ) };
-		pocketfft::stride_t stride_out = { 2 * sizeof( float ) };
-		size_t axis = 0;
-		bool forward = true; // Forward FFT
-		float fct = 1.0f; // Scaling factor
-		size_t nthreads = 4; // Number of threads to use
-
-		//do the fft
-		pocketfft::r2c<float>( shape, stride_in, stride_out, axis, forward, testBuffer.getBufferPtr( ), fftBuffer.data( ), fct, nthreads );
-
-		//calculate magnitudes
-		std::vector<float> magnitudes( n / 2 + 1 );
-		for( size_t i = 0; i < n / 2 + 1; ++i ) {
-			magnitudes[ i ] = std::abs( fftBuffer[ i ] );
-		}
-
-		//calculate x axis freq data
-		std::vector<float> frequencies( n / 2 + 1 );
-		for( size_t i = 0; i < n / 2 + 1; ++i ) {
-			frequencies[ i ] = ( i * 44100 ) / static_cast<float>( n );
-		}
-
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		SetupAxisLimits( ImAxis_Y1, 0, 40, 2 );
-		SetupAxisScale( ImAxis_X1, ImPlotScale_Log10 );
-		PlotLine( "DFT", frequencies.data( ), magnitudes.data( ), magnitudes.size( ) );
-		EndPlot( );
-	}
-
-	// End the ImGui window
-	ImGui::End( );
-}
-
-void NesSoundBuffer::renderImGui( ) {
-	// Create a custom ImGui window for the circular buffer visualization
-	ImGui::Begin( "Audio Buffer Visualization" );
-
-	using namespace ImPlot;
-
-	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
-		PlotLine( "Buffer data", buffer1.data( ), buffer1.size( ) );
-		EndPlot( );
-	}
-
-	if( ImPlot::BeginPlot( "Buffer 2", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
-		PlotLine( "Buffer data", buffer2.data( ), buffer2.size( ) );
-		EndPlot( );
-	}
-
-	/*
-	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
-		EndPlot( );
-	}*/
-
-
-	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
-		//prepare dft data
-		auto n = testBuffer.size( );
-		std::vector<std::complex<float>> fftBuffer( n / 2 + 1 );
-		pocketfft::shape_t shape = { testBuffer.size( ) };
-		pocketfft::stride_t stride_in = { sizeof( float ) };
-		pocketfft::stride_t stride_out = { 2 * sizeof( float ) };
-		size_t axis = 0;
-		bool forward = true; // Forward FFT
-		float fct = 1.0f; // Scaling factor
-		size_t nthreads = 4; // Number of threads to use
-
-		//do the fft
-		pocketfft::r2c<float>( shape, stride_in, stride_out, axis, forward, testBuffer.getBufferPtr( ), fftBuffer.data( ), fct, nthreads );
-
-		//calculate magnitudes
-		std::vector<float> magnitudes( n / 2 + 1 );
-		for( size_t i = 0; i < n / 2 + 1; ++i ) {
-			magnitudes[ i ] = std::abs( fftBuffer[ i ] );
-		}
-
-		//calculate x axis freq data
-		std::vector<float> frequencies( n / 2 + 1 );
-		for( size_t i = 0; i < n / 2 + 1; ++i ) {
-			frequencies[ i ] = ( i * 44100 ) / static_cast<float>( n );
-		}
-
-		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
-		SetupAxisLimits( ImAxis_Y1, 0, 40, 2 );
-		SetupAxisScale( ImAxis_X1, ImPlotScale_Log10 );
-		PlotLine( "DFT", frequencies.data( ), magnitudes.data( ), magnitudes.size( ) );
-		EndPlot( );
-	}
-
-	// End the ImGui window
-	ImGui::End( );
-}
 
 void NesSoundBuffer::renderImGui( ) {
 	// Create a custom ImGui window for the circular buffer visualization
@@ -363,25 +225,6 @@ void NesSound::resetCC() {
 	cc = 0;
 }
 
-#include <cstdint> // for int16_t type
-
-
-//convert float value to 16bit value
-//assumes that float is a sample between 0.0 and 1.0
-Sint16 floatTo16Bit( float value ) {
-	// clamp value to [0.0, 1.0] range
-	if ( value < 0.0f ) {
-		value = 0.0f;
-	} else if ( value > 1.0f ) {
-		value = 1.0f;
-	}
-
-	// convert float to integer in range [-32768, 32767]
-	//Sint16 result = (Sint16)( (value - 0.5) * 2 * 32000 );
-	Sint16 result = ( Sint16 )( value * 30000 );
-	return result;
-}
-
 void NesSound::makeSample() {
 	float squareOut = 0;
 	
@@ -397,21 +240,6 @@ void NesSound::makeSample() {
 	}
 	float output = squareOut;
 
-	//random noise - remove comment to test filters with noise
-	output = static_cast<float>( rand( ) ) / RAND_MAX;
-
-	//low pass 20000
-	output = buffer.lowPassFilter20khz.process( output );
-
-	//highpass filter 90hz
-	//output = buffer.highPassFilter90hz.process(output);
-
-	//highpass filter 440hz
-	//output = buffer.highPassFilter440hz.process(output);
-
-	//lowpass filter 14hz
-	output = buffer.lowPassFilter14khz.process(output);
-	
 	//uncomment to add raw test data for implot output
 	buffer.testBuffer.add( output );
 
