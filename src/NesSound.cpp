@@ -74,7 +74,7 @@ void NesSoundBuffer::addSample( float sample ) {
 	//This is fudged down to 35 - this sounds better, but need to investigate to see why this is
 	//29,828.88 cycles per frame / 735 samples per frame = 40.58
 	//1789772.7272 / 44100 = 40.58
-	if( sampleNum++ == 35 ) {
+	if( sampleNum++ == 36 ) {
 		sampleNum = 0;
 		
 		//just take this sample as our sample for this interval
@@ -89,10 +89,10 @@ void NesSoundBuffer::addSample( float sample ) {
 		
 		//now do filtering
 		//highpass filter 90hz
-		//output = highPassFilter90hz.process(output);
+		output = highPassFilter90hz.process(output);
 
 		//highpass filter 440hz
-		//output = highPassFilter440hz.process(output);
+		output = highPassFilter440hz.process(output);
 
 		//low pass 14000 hz
 		output = lowPassFilter14khz.process ( output );
@@ -240,13 +240,6 @@ void NesSound::makeSample() {
 	}
 	float output = squareOut;
 
-	//uncomment to add raw test data for implot output
-	buffer.testBuffer.add( output );
-
-	//convert and scale to signed 16bit int
-	Sint16 bitval = floatTo16Bit( output );
-
-	//_log->Write( "float=%f  16bit=%d", output, bitval);
 	buffer.addSample( output );
 }
 

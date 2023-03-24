@@ -47,8 +47,8 @@ namespace NesApu {
 		CgtLib::CircularBuffer<float> testBuffer;
 
 		//filters
-		CgtLib::HighPassFilter highPassFilter90hz;
-		CgtLib::HighPassFilter highPassFilter440hz;
+		CgtLib::ButterworthHighPassFilter highPassFilter90hz;
+		CgtLib::ButterworthHighPassFilter highPassFilter440hz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter14khz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter20khz;
 
