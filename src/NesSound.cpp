@@ -5,6 +5,7 @@
 #include <cassert>
 #include <limits>
 #include <numeric>
+#include <algorithm>
 
 #include "pocketfft/pocketfft_hdronly.h"
 
@@ -24,7 +25,7 @@ NesSoundBuffer::NesSoundBuffer( int bufLength ):
  highPassFilter90hz(90, 44100),
  lowPassFilter14khz(14000, 44100),
  lowPassFilter20khz(20000, 44100 ),
- movingAverage( 20 )
+ lowPassFilter1mhzTo20khz( 22050, 1789773)
 {}
 
 NesSoundBuffer::~NesSoundBuffer() {
@@ -56,20 +57,51 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 	}
 }
 
-void NesSoundBuffer::addSample( Sint16 sample ) {
+//convert float value to 16bit value
+Sint16 floatTo16Bit( float value ) {
+	std::clamp(value, -1.0f, 1.0f);
+	
+	// convert float to integer in range [-32768, 32767]
+	Sint16 result = ( Sint16 )( value * 30000 );
+	return result;
+}
 
-	movingAverage.add( sample );
-	//should calculate 40 as a constexpr for clarity
-	if( ++sampleNum == 40 ) {
+void NesSoundBuffer::addSample( float sample ) {
+	//this is for the initial sample rate of 1.78Mhz
+	//this is done to avoid aliasing
+	sample = lowPassFilter1mhzTo20khz.process( sample );
+	
+	//This is fudged down to 35 - this sounds better, but need to investigate to see why this is
+	//29,828.88 cycles per frame / 735 samples per frame = 40.58
+	//1789772.7272 / 44100 = 40.58
+	if( sampleNum++ == 35 ) {
 		sampleNum = 0;
+		
+		//just take this sample as our sample for this interval
+		float output = sample;
 		
 		//was a whole number generated?
 		int whole = fracComp.add( 45 );
-		sampleNum += whole;
+		//sampleNum += whole;
 		
-		//use average value of last number of samples to create sample value	
-		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
-		auto avg = (Sint16)std::round((float)total / (float)movingAverage.size());
+		//random noise - remove comment to test filters with noise
+		//output = static_cast<float>( rand( ) ) / RAND_MAX;
+		
+		//now do filtering
+		//highpass filter 90hz
+		//output = highPassFilter90hz.process(output);
+
+		//highpass filter 440hz
+		//output = highPassFilter440hz.process(output);
+
+		//low pass 14000 hz
+		output = lowPassFilter14khz.process ( output );
+
+		//now convert to 16 bit value
+		auto convertedValue = floatTo16Bit( output );
+
+		//add raw test data for implot output
+		testBuffer.add( output );
 
 		//if we are running too fast skip a sample to avoid issues
 		//question is why is there more samples being produced than there should be?
@@ -78,12 +110,151 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 		}
 
 		if( activeBuffer == 1 ) {
-			buffer1[ bufferPos++ ] = avg;
+			buffer1[ bufferPos++ ] = convertedValue;
 		}
 		else {
-			buffer2[ bufferPos++ ] = avg;
+			buffer2[ bufferPos++ ] = convertedValue;
 		}		
 	}
+}
+
+void NesSoundBuffer::renderImGui( ) {
+	// Create a custom ImGui window for the circular buffer visualization
+	ImGui::Begin( "Audio Buffer Visualization" );
+
+	using namespace ImPlot;
+
+	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
+		PlotLine( "Buffer data", buffer1.data( ), buffer1.size( ) );
+		EndPlot( );
+	}
+
+	if( ImPlot::BeginPlot( "Buffer 2", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
+		PlotLine( "Buffer data", buffer2.data( ), buffer2.size( ) );
+		EndPlot( );
+	}
+
+	/*
+	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
+		EndPlot( );
+	}*/
+
+	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		//prepare dft data
+		auto n = testBuffer.size( );
+		std::vector<std::complex<float>> fftBuffer( n / 2 + 1 );
+		pocketfft::shape_t shape = { testBuffer.size( ) };
+		pocketfft::stride_t stride_in = { sizeof( float ) };
+		pocketfft::stride_t stride_out = { 2 * sizeof( float ) };
+		size_t axis = 0;
+		bool forward = true; // Forward FFT
+		float fct = 1.0f; // Scaling factor
+		size_t nthreads = 4; // Number of threads to use
+
+		//do the fft
+		pocketfft::r2c<float>( shape, stride_in, stride_out, axis, forward, testBuffer.getBufferPtr( ), fftBuffer.data( ), fct, nthreads );
+
+		//calculate magnitudes
+		std::vector<float> magnitudes( n / 2 + 1 );
+		for( size_t i = 0; i < n / 2 + 1; ++i ) {
+			magnitudes[ i ] = std::abs( fftBuffer[ i ] );
+		}
+
+		//calculate x axis freq data
+		std::vector<float> frequencies( n / 2 + 1 );
+		for( size_t i = 0; i < n / 2 + 1; ++i ) {
+			frequencies[ i ] = ( i * 44100 ) / static_cast<float>( n );
+		}
+
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, 0, 40, 2 );
+		SetupAxisScale( ImAxis_X1, ImPlotScale_Log10 );
+		PlotLine( "DFT", frequencies.data( ), magnitudes.data( ), magnitudes.size( ) );
+		EndPlot( );
+	}
+
+	// End the ImGui window
+	ImGui::End( );
+}
+
+void NesSoundBuffer::renderImGui( ) {
+	// Create a custom ImGui window for the circular buffer visualization
+	ImGui::Begin( "Audio Buffer Visualization" );
+
+	using namespace ImPlot;
+
+	if( ImPlot::BeginPlot( "Buffer1", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
+		PlotLine( "Buffer data", buffer1.data( ), buffer1.size( ) );
+		EndPlot( );
+	}
+
+	if( ImPlot::BeginPlot( "Buffer 2", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, -30000, 30000, 2 );
+		PlotLine( "Buffer data", buffer2.data( ), buffer2.size( ) );
+		EndPlot( );
+	}
+
+	/*
+	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
+		EndPlot( );
+	}*/
+
+
+	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		//prepare dft data
+		auto n = testBuffer.size( );
+		std::vector<std::complex<float>> fftBuffer( n / 2 + 1 );
+		pocketfft::shape_t shape = { testBuffer.size( ) };
+		pocketfft::stride_t stride_in = { sizeof( float ) };
+		pocketfft::stride_t stride_out = { 2 * sizeof( float ) };
+		size_t axis = 0;
+		bool forward = true; // Forward FFT
+		float fct = 1.0f; // Scaling factor
+		size_t nthreads = 4; // Number of threads to use
+
+		//do the fft
+		pocketfft::r2c<float>( shape, stride_in, stride_out, axis, forward, testBuffer.getBufferPtr( ), fftBuffer.data( ), fct, nthreads );
+
+		//calculate magnitudes
+		std::vector<float> magnitudes( n / 2 + 1 );
+		for( size_t i = 0; i < n / 2 + 1; ++i ) {
+			magnitudes[ i ] = std::abs( fftBuffer[ i ] );
+		}
+
+		//calculate x axis freq data
+		std::vector<float> frequencies( n / 2 + 1 );
+		for( size_t i = 0; i < n / 2 + 1; ++i ) {
+			frequencies[ i ] = ( i * 44100 ) / static_cast<float>( n );
+		}
+
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, 0, 40, 2 );
+		SetupAxisScale( ImAxis_X1, ImPlotScale_Log10 );
+		PlotLine( "DFT", frequencies.data( ), magnitudes.data( ), magnitudes.size( ) );
+		EndPlot( );
+	}
+
+	// End the ImGui window
+	ImGui::End( );
 }
 
 void NesSoundBuffer::renderImGui( ) {
@@ -248,7 +419,7 @@ void NesSound::makeSample() {
 	Sint16 bitval = floatTo16Bit( output );
 
 	//_log->Write( "float=%f  16bit=%d", output, bitval);
-	buffer.addSample( bitval );
+	buffer.addSample( output );
 }
 
 inline void NesSound::clock() {
