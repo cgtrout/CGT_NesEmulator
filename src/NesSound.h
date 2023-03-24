@@ -36,7 +36,7 @@ namespace NesApu {
 
 		//adds a sample to buffer - note: will average out a number 
 		//of samples before adding to buffer
-		void addSample( Sint16 sample );
+		void addSample( float sample );
 
 		int getBufferPos() { return bufferPos; }
 		void resetBufferPos() { bufferPos = 0; }
@@ -72,7 +72,7 @@ namespace NesApu {
 		int activeBuffer = 1;
 		int bufferPos = 0;
 
-		CgtLib::CircularBuffer<Sint16> movingAverage;	
+		CgtLib::CircularBuffer<float> movingAverage;	
 	};
 
 	/*

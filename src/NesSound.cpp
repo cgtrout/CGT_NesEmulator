@@ -5,6 +5,7 @@
 #include <cassert>
 #include <limits>
 #include <numeric>
+#include <algorithm>
 
 #include "pocketfft/pocketfft_hdronly.h"
 
@@ -56,11 +57,20 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, int samples ) {
 	}
 }
 
-void NesSoundBuffer::addSample( Sint16 sample ) {
+//convert float value to 16bit value
+Sint16 floatTo16Bit( float value ) {
+	std::clamp(value, -1.0f, 1.0f);
+	
+	// convert float to integer in range [-32768, 32767]
+	Sint16 result = ( Sint16 )( value * 30000 );
+	return result;
+}
 
+void NesSoundBuffer::addSample( float sample ) {
 	movingAverage.add( sample );
 	
 	//This is fudged down to 35 - this sounds better, but need to investigate to see why this is
+	//29,828.88 cycles per frame / 735 samples per frame = 40.58
 	if( sampleNum++ == 35 ) {
 		sampleNum = 0;
 		
@@ -68,9 +78,31 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 		int whole = fracComp.add( 45 );
 		//sampleNum += whole;
 		
-		//use average value of last number of samples to create sample value	
-		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0 );
-		auto avg = (Sint16)std::round((float)total / (float)movingAverage.size());
+		//use average value of last number of samples to create sample value "output"	
+		auto total = std::accumulate( movingAverage.begin( ), movingAverage.end( ), 0.0f );
+		float output = total / movingAverage.size();
+
+		//random noise - remove comment to test filters with noise
+		//output = static_cast<float>( rand( ) ) / RAND_MAX;
+
+		//do filtering HERE
+		//low pass 20000
+		output = lowPassFilter20khz.process( output );
+
+		//highpass filter 90hz
+		//output = highPassFilter90hz.process(output);
+
+		//highpass filter 440hz
+		//output = highPassFilter440hz.process(output);
+
+		//low pass 14000 hz
+		output = lowPassFilter14khz.process ( output );
+
+		//now convert to 16 bit value
+		auto convertedValue = floatTo16Bit( output );
+
+		//add raw test data for implot output
+		testBuffer.add( output );
 
 		//if we are running too fast skip a sample to avoid issues
 		//question is why is there more samples being produced than there should be?
@@ -79,10 +111,10 @@ void NesSoundBuffer::addSample( Sint16 sample ) {
 		}
 
 		if( activeBuffer == 1 ) {
-			buffer1[ bufferPos++ ] = avg;
+			buffer1[ bufferPos++ ] = convertedValue;
 		}
 		else {
-			buffer2[ bufferPos++ ] = avg;
+			buffer2[ bufferPos++ ] = convertedValue;
 		}		
 	}
 }
@@ -116,7 +148,6 @@ void NesSoundBuffer::renderImGui( ) {
 		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
 		EndPlot( );
 	}*/
-
 
 	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
 		//prepare dft data
@@ -193,25 +224,6 @@ void NesSound::resetCC() {
 	cc = 0;
 }
 
-#include <cstdint> // for int16_t type
-
-
-//convert float value to 16bit value
-//assumes that float is a sample between 0.0 and 1.0
-Sint16 floatTo16Bit( float value ) {
-	// clamp value to [0.0, 1.0] range
-	if ( value < 0.0f ) {
-		value = 0.0f;
-	} else if ( value > 1.0f ) {
-		value = 1.0f;
-	}
-
-	// convert float to integer in range [-32768, 32767]
-	//Sint16 result = (Sint16)( (value - 0.5) * 2 * 32000 );
-	Sint16 result = ( Sint16 )( value * 30000 );
-	return result;
-}
-
 void NesSound::makeSample() {
 	float squareOut = 0;
 	
@@ -227,29 +239,8 @@ void NesSound::makeSample() {
 	}
 	float output = squareOut;
 
-	//random noise - remove comment to test filters with noise
-	//output = static_cast<float>( rand( ) ) / RAND_MAX;
-
-	//low pass 20000
-	output = buffer.lowPassFilter20khz.process( output );
-
-	//highpass filter 90hz
-	//output = buffer.highPassFilter90hz.process(output);
-
-	//highpass filter 440hz
-	//output = buffer.highPassFilter440hz.process(output);
-
-	//lowpass filter 14hz
-	output = buffer.lowPassFilter14khz.process(output);
-	
-	//uncomment to add raw test data for implot output
-	buffer.testBuffer.add( output );
-
-	//convert and scale to signed 16bit int
-	Sint16 bitval = floatTo16Bit( output );
-
 	//_log->Write( "float=%f  16bit=%d", output, bitval);
-	buffer.addSample( bitval );
+	buffer.addSample( output );
 }
 
 inline void NesSound::clock() {
