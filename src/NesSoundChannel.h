@@ -20,10 +20,10 @@ namespace NesApu {
 		NesChannel( ) : dacSize(0), dacValue(0) {}
 
 		//1.79Mhz clock
-		ubyte clock();
+		virtual void clock() = 0;
 
 		//240hz clock
-		ubyte clock240Hz( int count );  //count must be between 0-4
+		virtual void clock240Hz( int count ) = 0;  //count must be between 0-4
 
 		//get current value in DAC
 		int getDacValue();
@@ -128,13 +128,29 @@ namespace NesApu {
 
 	class TriangleChannel : public NesChannel {
 
+		//1.79Mhz clock
+		void clock( ) {}
+
+		//240hz clock
+		void clock240Hz( int count ) {}  //count must be between 0-4
+
 	};
 
 	class NoiseChannel : public NesChannel {
+		//1.79Mhz clock
+		void clock( ) {}
+
+		//240hz clock
+		void clock240Hz( int count ) {}  //count must be between 0-4
 
 	};
 
 	class DmcChannel : public NesChannel {
+		//1.79Mhz clock
+		void clock( ) {}
+
+		//240hz clock
+		void clock240Hz( int count ) {}  //count must be between 0-4
 
 	};
 };//namespace

@@ -105,8 +105,6 @@ namespace NesApu {
 
 		NesSoundBuffer *getNesSoundBuffer() { return &buffer; }
 
-		Image *getGraph();
-
 		//nes channels
 		SquareChannel	square0;
 		SquareChannel	square1;
@@ -139,12 +137,8 @@ namespace NesApu {
 		FractionAdder<int> frac240Clock;		
 	};
 
-
 	inline PpuClockCycles NesSound::getCC() {
 		return CpuToPpu( cc );
-	}
-
-	
-	
+	}	
 };
 #endif //NesSound_INCLUDED
