@@ -2,6 +2,7 @@
 
 //#include "CgtException.h"
 #include "Console.h"
+#include <SDL_audio.h>
 
 using namespace FrontEnd;
 using namespace NesEmulator;
@@ -93,6 +94,9 @@ void NesMain::runFrame() {
 		//clear flags
 		emulatorFlags.clearFlags();
 	}
+
+	//queue sound to sdl buffer
+	nesApu.queueSound( );
 
 	frameNum++;
 }

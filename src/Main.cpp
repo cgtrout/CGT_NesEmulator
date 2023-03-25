@@ -58,6 +58,9 @@ int main( int argc, char* args[] )
 	//initialize emulation systems
 	initializeEmulator( );
 
+	//assign sound device to nesSound
+	systemMain->nesMain.nesApu.assignSoundDevice( soundDeviceId );
+
 	//initialize SDL joysticks
 	initializeJoysticks( );
 
@@ -209,8 +212,8 @@ SDL_AudioDeviceID initializeSound( SDL_Window* window, SDL_AudioSpec* outAudioSp
 	want.freq = AUDIO_SAMPLE_RATE;
 	want.format = AUDIO_S16;
 	want.samples = AUDIO_SAMPLES;
-	want.callback = audioCallbackFunction;
 	want.userdata = nullptr;
+	want.callback = nullptr;
 	want.channels = 1;
 	auto deviceId = SDL_OpenAudioDevice( nullptr, 0, &want, outAudioSpec, 0 );
 	if ( deviceId < 0 ) {
@@ -526,15 +529,29 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 }
 
 void switchFullscreen( ) {
-	//switch to full screen sdl
-	if ( isWindowMode ) {
-		if ( SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP ) < 0 ) {
+	// Switch to fullscreen SDL
+	if( isWindowMode ) {
+		// Get the desktop display mode
+		SDL_DisplayMode desktopDisplayMode;
+		if( SDL_GetDesktopDisplayMode( 0, &desktopDisplayMode ) != 0 ) {
+			SDL_Log( "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError( ) );
+			return;
+		}
+
+		// Set the display mode to the desktop display mode
+		if( SDL_SetWindowDisplayMode( window, &desktopDisplayMode ) != 0 ) {
+			SDL_Log( "SDL_SetWindowDisplayMode failed: %s", SDL_GetError( ) );
+			return;
+		}
+
+		if( SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP ) < 0 ) {
 			const char* error = SDL_GetError( );
 			SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Full screen Switch Error", error, window );
 			SDL_Quit( );
 		}
-	} else {
-		if ( SDL_SetWindowFullscreen( window, 0 ) < 0 ) {
+	}
+	else {
+		if( SDL_SetWindowFullscreen( window, 0 ) < 0 ) {
 			const char* error = SDL_GetError( );
 			SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Window Mode Switch Error", error, window );
 			SDL_Quit( );
@@ -559,68 +576,4 @@ void initializeEmulator( ) {
 	const double FRAME_TIME = 1.0f / 60.0f;
 
 	bool freshFrame = true;
-}
-
-//sine wave audio functions - to generate test 'tone'
-double timeToRadian( double intime, double hertz ) {
-	return 2.0f * intime * hertz * M_PI;
-}
-double waveFormSine( double intime, double hertz ) {
-	return sin( timeToRadian( intime, hertz ) );
-}
-
-//get seconds per sample
-double getTimePerSample( int samplerate ) {
-	return 1.0f / ( double )samplerate;
-}
-
-//convert a double float to 16bit sample
-//fixme: convert to signed int
-Uint16 doubleTo16bit( double f ) {
-	return (Uint16)(f * 0x7FFF);
-}
-
-//audio callback function
-void audioCallbackFunction( void* unused, Uint8* stream, int len ) {
-	//sinewaveTest( stream, len );
-
-	nesAudio( stream, len );
-}
-
-void nesAudio( Uint8* stream, int len )
-{
-	//we are using 16 bit samples rather than eight, so cast 8bit pointer to a 16 bit pointer
-	//fixme: convert to signed int
-	Sint16* pointer16 = ( Sint16* )&stream[ 0 ];
-
-	auto* apu = &systemMain->nesMain.nesApu;
-
-	if ( apu->isInitialized( ) ) {
-		auto* buffer = apu->getNesSoundBuffer( );
-		buffer->fillExternalBuffer( pointer16, len / 2 );
-	}
-	
-	//TODO - need to verify that entire buffer is filled (verify this)
-}
-
-//run stream through here to generate 440hz test tone (sine wave)
-void sinewaveTest( Uint8* stream, int len ) {
-	double timePerSample = getTimePerSample( AUDIO_SAMPLE_RATE );
-	static double accumulatedTime = 0.0f;
-	float hzTone = 440.f;
-
-	//we are using 16 bit samples rather than eight, so cast 8bit pointer to a 16 bit pointer
-	//fixme: convert to signed int
-	Uint16* pointer16 = ( Uint16* )&stream[ 0 ];
-
-	for ( int i = 0; i < len / 2; i++ ) {
-		pointer16[ i ] = doubleTo16bit( waveFormSine( accumulatedTime + ( double )i * timePerSample, hzTone ) );
-	}
-
-	//ensure accumulated time doesn't grow forever
-	//it will always wrap every (1/hz)
-	accumulatedTime += ( len / 2.0f ) * timePerSample;
-	while ( accumulatedTime >( 1 / hzTone ) ) {
-		accumulatedTime -= ( 1 / hzTone );
-	}
 }

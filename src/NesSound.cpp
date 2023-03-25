@@ -44,15 +44,26 @@ Sint16 floatTo16Bit( float value ) {
 	return result;
 }
 
-//boost::mutex mutex;
-//samples is number of samples, and not actual byte size  of copy
-void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, size_t samples ) {
+auto lastTime = std::chrono::high_resolution_clock::now();
+
+std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( ) {
+	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::high_resolution_clock::now( ) - lastTime );
+	lastTime = std::chrono::high_resolution_clock::now( );
+	_log->Write( "Elapsed time=%lld milliseconds", elapsedTime.count( ) );
+
+	
 	//how many samples do we need - calculate from moving average
+	/*
 	float desiredIntervalFloat = bufferPos / (float)samples;
 	averageSampleIntervalBuffer.add( desiredIntervalFloat );
-	auto total = std::accumulate( averageSampleIntervalBuffer.begin( ), averageSampleIntervalBuffer.end( ), 0 );
-	size_t desiredInterval = total / averageSampleIntervalBuffer.size( );
+	float total = std::accumulate( averageSampleIntervalBuffer.begin( ), averageSampleIntervalBuffer.end( ), 0 );
+	size_t desiredInterval = 0;
+	if( averageSampleIntervalBuffer.size( ) > 0 ) {
+		desiredInterval = total / averageSampleIntervalBuffer.size( );
+	}*/
 
+	size_t desiredInterval = 40;
+	
 	size_t startBufferPos = bufferPos;
 
 	bufferPos = 0;
@@ -69,11 +80,15 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, size_t samples ) {
 	std::vector<float>* bufferPtr = selectedBuffer == 1 ? &buffer1 : &buffer2;
 
 	//initialize export 16 bit buffer
-	std::vector<Sint16> newBuffer( samples, 0 );
+
+	//newbuffer size half of float buffer
+	//TODO should be calculated on actual data sizes
+	size_t newBufferSize = startBufferPos / desiredInterval;
+	std::vector<Sint16> newBuffer( newBufferSize );
 	auto i = 0u, n = 0u;
 	if( desiredInterval > 0 ) {
 		
-		for( ; i < bufferPtr->size( ) && n < samples; i += desiredInterval, n++ ) {
+		for( ; i < bufferPtr->size( ) && n < newBufferSize; i += desiredInterval, n++ ) {
 			float output = ( *bufferPtr )[ i ];
 
 			//was a whole number generated?
@@ -103,13 +118,12 @@ void NesSoundBuffer::fillExternalBuffer( Sint16* ptr, size_t samples ) {
 		}
 	}
 
-	_log->Write( "bufferPos:%d / samples:%d =  Desired interval:%d   Actual done=%d", startBufferPos, samples, desiredInterval, n );
-
-	//copy new buffer data
-	std::copy( newBuffer.begin( ), newBuffer.begin( ) + samples, ptr );
+	//_log->Write( "bufferPos:%d / samples:%d =  Desired interval:%d   Actual done=%d", startBufferPos, samples, desiredInterval, n );
 	
 	//clear old float buffer
 	std::fill( bufferPtr->begin( ), bufferPtr->end( ), 0.0f );
+
+	return newBuffer;
 }
 
 void NesSoundBuffer::addSample( float sample ) {
@@ -250,6 +264,14 @@ void NesSound::makeSample() {
 	float output = squareOut;
 
 	buffer.addSample( output );
+}
+
+void NesSound::queueSound( ) {
+	if( isInitialized( ) ) {
+		auto newBuffer = buffer.generateAudioBuffer( );
+		auto byteLength = sizeof( Sint16 ) * newBuffer.size();
+		auto returnValue = SDL_QueueAudio( SDL_SoundDeviceId, newBuffer.data(), byteLength );
+	}
 }
 
 inline void NesSound::clock() {

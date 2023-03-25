@@ -7,6 +7,8 @@
 
 #include "CgtFilter.h"
 
+#include <SDL_audio.h>
+
 namespace NesApu {
 	/*
 	================================================================
@@ -29,7 +31,7 @@ namespace NesApu {
 		
 		//fills an external buffer with "size" number of bytes from 
 		//internal buffer
-		void fillExternalBuffer( Sint16* rawPointer, size_t size );
+		std::vector<Sint16> generateAudioBuffer( );
 
 		//generate imgui visualization of sound buffers
 		void renderImGui();
@@ -98,6 +100,9 @@ namespace NesApu {
 		//create a mixed sample
 		void makeSample();
 
+		//queue sound to audio buffer
+		void queueSound( );
+
 		//generate and return the status byte
 		ubyte getStatusByte();
 
@@ -106,6 +111,8 @@ namespace NesApu {
 		void resetCC();
 
 		NesSoundBuffer *getNesSoundBuffer() { return &buffer; }
+
+		void assignSoundDevice( SDL_AudioDeviceID device ) { SDL_SoundDeviceId = device; }
 
 		//nes channels
 		SquareChannel	square0;
@@ -136,7 +143,10 @@ namespace NesApu {
 		
 		//current stage in 4 step (mode 0)
 		int curr240ClockCycle;
-		FractionAdder<int> frac240Clock;		
+		FractionAdder<int> frac240Clock;	
+
+		//handle to audio device
+		SDL_AudioDeviceID SDL_SoundDeviceId = 0;
 	};
 
 	inline PpuClockCycles NesSound::getCC() {
