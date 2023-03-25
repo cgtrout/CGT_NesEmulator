@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <algorithm>
+#include <thread>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl2.h"
@@ -134,8 +135,11 @@ int main( int argc, char* args[] )
 
 		SDL_GL_SwapWindow( window );
 
-		if ( capFrameRate.getValue() == true ) {
-			while ( elapsedTime.count( ) < FRAME_TIME ) {
+		if( capFrameRate.getValue( ) == true ) {
+			elapsedTime = std::chrono::steady_clock::now( ) - start_time;
+
+			while( elapsedTime < FRAME_TIME ) {
+				//std::this_thread::yield( ); 
 				elapsedTime = std::chrono::steady_clock::now( ) - start_time;
 			}
 		}

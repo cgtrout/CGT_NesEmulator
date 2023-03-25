@@ -41,7 +41,8 @@ extern Console::ConsoleSystem *consoleSystem;
 
 constexpr auto SCREEN_WIDTH = 1280;
 constexpr auto SCREEN_HEIGHT = 764;
-constexpr double FRAME_TIME = 1.0f / 60.0f;
+constexpr auto TARGET_FPS = 60.0f;
+constexpr auto FRAME_TIME = std::chrono::duration<double>( 1.0 / TARGET_FPS );
 constexpr auto AUDIO_SAMPLE_RATE = 44100;
 constexpr auto AUDIO_SAMPLES = 4096;
 
