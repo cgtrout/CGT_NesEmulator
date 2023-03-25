@@ -40,12 +40,36 @@ namespace CgtLib {
 
     template<typename T>
     float calculateAverageFloat( const std::vector<T>& buffer_data ) {
-        return calculateAverage<T, float>( buffer_data );
+        return calculateAverage<typename T, float>( buffer_data );
+    }
+
+    template<typename T>
+    float calculateAverageFloat( const CgtLib::CircularBuffer<T>& buffer_data ) {
+        return calculateAverage<typename T, float>( buffer_data.getVector( ) );
     }
 
     template<typename T>
     double calculateAverageDouble( const std::vector<T>& buffer_data ) {
         return calculateAverage<T, double>( buffer_data );
+    }
+
+    template<typename T>
+    float calculateAverageDouble( const CgtLib::CircularBuffer<T>& buffer_data ) {
+        return calculateAverage<typename T, double>( buffer_data.getVector( ) );
+    }
+
+    //function to increment and wrap an index
+    size_t incrementAndWrap( size_t index, size_t limit ) {
+        index++;
+        if( index == limit ) {
+            index = 0;
+        }
+        return index;
+    }
+
+    template<typename T>
+    T remap( T value, T fromLow, T fromHigh, T toLow, T toHigh ) {
+        return toLow + ( value - fromLow ) * ( toHigh - toLow ) / ( fromHigh - fromLow );
     }
 
 }
