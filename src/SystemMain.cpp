@@ -93,6 +93,9 @@ void SystemMain::start() {
 			consoleSystem.loadCommandFile( "default-binds.cfg" );
 		}
 	}
+	if( std::filesystem::exists( "autoexec.cfg" ) ) {
+		consoleSystem.loadCommandFile( "autoexec.cfg" );
+	}
 
 	renderer.initialize();
 
