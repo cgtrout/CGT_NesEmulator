@@ -75,29 +75,15 @@ FunctionTable::FunctionTable() {
 
 /* 
 ==============================================
-void FunctionTable::addEntry( NesEmulator::FunctionTableEntry *e )
+void FunctionTable::addEntry( NesEmulator::FunctionTableEntry e )
 
 TODO not properly tested
 ==============================================
 */
-void FunctionTable::addEntry( NesEmulator::FunctionTableEntry *e ) {
-	if( entries.size() == 0 ) {
-		//entries.reserve( 20 );
-		entries.push_back( FunctionTableEntry( *e ) );
-		return;
+void FunctionTable::addEntry( NesEmulator::FunctionTableEntry e ) {
+	for( int i = e.low; i < e.high; ++i ) {
+		entries[ i ] = e;
 	}
-	
-	//add to correct place so list is sorted
-	std::vector< FunctionTableEntry >::iterator i = entries.begin();
-	while( i != entries.end() ) {
-		if( e->low < (*i).low ) {
-			entries.insert( i, *e );	//slow, but should only be run at loadtime
-			return;
-		}
-		i++;
-	}
-	//made it to the end of the list so add at the here
-	entries.insert( entries.end(), *e );
 }
 
 /* 
@@ -117,36 +103,12 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address )
 FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
 	if( address < 0x2000 ) return nullptr;
 
-	if( entries.empty() ) return nullptr;
-
-	//first and last pos of sublist
-	int firstpos	= 0;
-	int lastpos		= entries.size() - 1;
-
-	//do basic binary search
-	//the assumption here is that there will be no overlap between
-	//the low and high variables of each entry and that list is already
-	//sorted
-	//TODO precheck for this at loadtime?
-	for( ; ; ) {
-		int midpos = ( ( lastpos - firstpos ) / 2 ) + firstpos;
-		
-		//look at entry at mid pos
-		if( address >= entries[ midpos ].low && address <= entries[ midpos ].high ) {
-			return &entries[ midpos ];
-		}
-		else if( firstpos == lastpos ) {
-			return NULL;
-		}
-		else if( address > entries[ midpos ].high ) {
-			firstpos = midpos + 1;
-		}
-		else if( address < entries[ midpos ].low ) {
-			if( midpos == 0 ) {
-				return NULL;
-			}
-			lastpos = midpos - 1;
-		}
+	auto it = entries.find( address );
+	if( it != entries.end( ) ) {
+		return &entries[ address ];
+	}
+	else {
+		return nullptr;
 	}
 }
 
@@ -460,8 +422,8 @@ void NesMemory::initializeMemoryMap( NesMapHandler *handler ) {
 	FunctionTableEntry f2000( 0x2000, 0x3fff, &funcObjRegisters2000 );
 	FunctionTableEntry f4000( 0x4000, 0x4020, &funcObjRegisters4000 );
 
-	funcTable.addEntry( &f2000 );
-	funcTable.addEntry( &f4000 );
+	funcTable.addEntry( f2000 );
+	funcTable.addEntry( f4000 );
 	
 	ppuMemory.initializeMemoryMap();
 	handler->initializeMap( );
@@ -494,8 +456,8 @@ ubyte NesMemory::fastGetMemory( uword loc )
 ==============================================
 */
 ubyte NesMemory::fastGetMemory( uword loc ) {
-	uword bank = ::calcCpuBank( loc );
-	uword bankpos = ::calcCpuBankPos( loc, bank );
+	uword bank = calcCpuBank( loc );
+	uword bankpos = calcCpuBankPos( loc, bank );
 	return memBanks[ bank ]->data[ bankpos ];
 }
 
