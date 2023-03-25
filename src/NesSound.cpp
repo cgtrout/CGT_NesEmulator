@@ -85,7 +85,7 @@ std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( Uint32 queuedAudioSize,
 
 	//if queuedAudioSize too high adjust sample rate
 	//only need to adjust it by a very tiny amount - this keeps pitch change imperceptable
-	if( averageQueuedAudioSize < 10000 && fps < 60 ) {
+	if( averageQueuedAudioSize > 0 && averageQueuedAudioSize < 10000 && fps < 60 ) {
 		// 0.0982976 + 0.000189248 * x - 9.9078 * 10^-9 * x^2
 		auto polynomial = []( double x ) {
 			double term1 = 0.0982976;
@@ -98,7 +98,7 @@ std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( Uint32 queuedAudioSize,
 		double remappedValue = polynomial( averageQueuedAudioSize );
 		newResampleRatio *= remappedValue;
 
-		_log->Write( "fps:%d   averageQueuedAudioSize: %d  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
+		_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
 	}
 
 	remappedValuesHistory.add( newResampleRatio );
