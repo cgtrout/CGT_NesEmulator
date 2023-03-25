@@ -31,9 +31,21 @@ namespace CgtLib {
         return slope;
     }
 
-    template<typename T>
-    double calculateAverage( const std::vector<T>& buffer_data ) {
-        auto total = std::accumulate( buffer_data.begin( ), buffer_data.end( ), 0 );
-        return (double)total / (double)buffer_data.size( );
+    template<typename T, typename ReturnType = T>
+    ReturnType calculateAverage( const std::vector<T>& buffer_data ) {
+        using R = std::common_type_t<T, decltype( buffer_data.size( ) )>;
+        R total = std::accumulate( buffer_data.begin( ), buffer_data.end( ), R{} );
+        return static_cast<ReturnType>( total / static_cast<R>( buffer_data.size( ) ) );
     }
+
+    template<typename T>
+    float calculateAverageFloat( const std::vector<T>& buffer_data ) {
+        return calculateAverage<T, float>( buffer_data );
+    }
+
+    template<typename T>
+    double calculateAverageDouble( const std::vector<T>& buffer_data ) {
+        return calculateAverage<T, double>( buffer_data );
+    }
+
 }
