@@ -7,6 +7,8 @@
 
 #include "CgtFilter.h"
 
+#include <SDL_audio.h>
+
 namespace NesApu {
 	/*
 	================================================================
@@ -29,7 +31,8 @@ namespace NesApu {
 		
 		//fills an external buffer with "size" number of bytes from 
 		//internal buffer
-		void fillExternalBuffer( Sint16* rawPointer, size_t size );
+		//input: queuedAudioSize - how much audio has SDL already buffered up
+		std::vector<Sint16> generateAudioBuffer( Uint32 queuedAudioSize, float fps );
 
 		//generate imgui visualization of sound buffers
 		void renderImGui();
@@ -45,10 +48,13 @@ namespace NesApu {
 
 		//test buffer for viewing raw sample data (imgui)
 		CgtLib::CircularBuffer<float> testBuffer;
+		CgtLib::CircularBuffer<Uint32> queuedAudioSizeBuffer;
+		CgtLib::CircularBuffer<float> averageSampleIntervalBuffer;
+		CgtLib::CircularBuffer<double> remappedValuesHistory;
 
 		//filters
-		CgtLib::ButterworthHighPassFilter highPassFilter90hz;
-		CgtLib::ButterworthHighPassFilter highPassFilter440hz;
+		CgtLib::HighPassFilter highPassFilter90hz;
+		CgtLib::HighPassFilter highPassFilter440hz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter14khz;
 		CgtLib::ButterworthLowPassFilter lowPassFilter20khz;
 
@@ -65,8 +71,8 @@ namespace NesApu {
 		int sampleTotal;
 
 		//actual sound buffer
-		std::vector<Sint16> buffer1;
-		std::vector<Sint16> buffer2;
+		std::vector<float> buffer1;
+		std::vector<float> buffer2;
 		int activeBuffer = 1;
 		size_t bufferPos = 0;
 	};
@@ -96,6 +102,9 @@ namespace NesApu {
 		//create a mixed sample
 		void makeSample();
 
+		//queue sound to audio buffer
+		void queueSound( );
+
 		//generate and return the status byte
 		ubyte getStatusByte();
 
@@ -104,6 +113,8 @@ namespace NesApu {
 		void resetCC();
 
 		NesSoundBuffer *getNesSoundBuffer() { return &buffer; }
+
+		void assignSoundDevice( SDL_AudioDeviceID device ) { SDL_SoundDeviceId = device; }
 
 		//nes channels
 		SquareChannel	square0;
@@ -134,7 +145,12 @@ namespace NesApu {
 		
 		//current stage in 4 step (mode 0)
 		int curr240ClockCycle;
-		FractionAdder<int> frac240Clock;		
+		FractionAdder<int> frac240Clock;	
+
+		//handle to audio device
+		SDL_AudioDeviceID SDL_SoundDeviceId = 0;
+
+		Uint32 queuedAudioSize;
 	};
 
 	inline PpuClockCycles NesSound::getCC() {

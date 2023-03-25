@@ -16,7 +16,7 @@ class CircularBuffer {
     void add(T elem);
     
     //simply gets the value at given index
-    T operator[](int i) { return buffer[i]; }
+    T operator[](size_t i) { return buffer[i]; }
     
     //get size of underlying buffer
     size_t size() { return buffer.size(); }
@@ -29,7 +29,7 @@ class CircularBuffer {
     T* getBufferPtr() { return buffer.data(); }
     
     //get underlying vector
-    const std::vector<T>& getVector() { return buffer; }
+    const std::vector<T>& getVector() const { return buffer; }
     
     private:
     
