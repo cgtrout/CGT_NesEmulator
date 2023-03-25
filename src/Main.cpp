@@ -529,21 +529,8 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 }
 
 void switchFullscreen( ) {
-	// Switch to fullscreen SDL
+	//switch to full screen sdl
 	if( isWindowMode ) {
-		// Get the desktop display mode
-		SDL_DisplayMode desktopDisplayMode;
-		if( SDL_GetDesktopDisplayMode( 0, &desktopDisplayMode ) != 0 ) {
-			SDL_Log( "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError( ) );
-			return;
-		}
-
-		// Set the display mode to the desktop display mode
-		if( SDL_SetWindowDisplayMode( window, &desktopDisplayMode ) != 0 ) {
-			SDL_Log( "SDL_SetWindowDisplayMode failed: %s", SDL_GetError( ) );
-			return;
-		}
-
 		if( SDL_SetWindowFullscreen( window, SDL_WINDOW_FULLSCREEN_DESKTOP ) < 0 ) {
 			const char* error = SDL_GetError( );
 			SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Full screen Switch Error", error, window );
@@ -557,7 +544,7 @@ void switchFullscreen( ) {
 			SDL_Quit( );
 		}
 	}
-
+	VsyncHandler( window );
 	isWindowMode = !isWindowMode;
 }
 
