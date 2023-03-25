@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "pocketfft/pocketfft_hdronly.h"
+#include "CgtGenericFunctions.h"
 
 using namespace NesApu;
 
@@ -16,23 +17,25 @@ using namespace NesApu;
 static const int clocksPer240Hz = 7457;
 
 //TODO set fracComp properly 
-NesSoundBuffer::NesSoundBuffer( int bufLength ):  
- 
- fracComp( 0, 77 ),
- buffer1( bufLength*45 ),
- buffer2( bufLength*45 ),
- sampleNum(0),
- sampleTotal(0),
- testBuffer(2048),
- averageSampleIntervalBuffer(1),
- highPassFilter440hz(440, 44100),
- highPassFilter90hz(90, 44100),
- lowPassFilter14khz(14000, 44100),
- lowPassFilter20khz(20000, 44100 ),
- lowPassFilter1mhzTo20khz( 22050, 1789773)
+NesSoundBuffer::NesSoundBuffer( int bufLength ) :
+
+	fracComp( 0, 77 ),
+	buffer1( bufLength * 45 ),
+	buffer2( bufLength * 45 ),
+	sampleNum( 0 ),
+	sampleTotal( 0 ),
+	testBuffer( 2048 ),
+	queuedAudioSizeBuffer( 50 ),
+	remappedValuesHistory( 50 ),
+	averageSampleIntervalBuffer( 1 ),
+	highPassFilter440hz( 440, 44100 ),
+	highPassFilter90hz( 90, 44100 ),
+	lowPassFilter14khz( 14000, 44100 ),
+	lowPassFilter20khz( 20000, 44100 ),
+	lowPassFilter1mhzTo20khz( 22050, 1789773 )
 {}
 
-NesSoundBuffer::~NesSoundBuffer() {
+NesSoundBuffer::~NesSoundBuffer( ) {
 }
 
 //convert float value to 16bit value
@@ -44,81 +47,104 @@ Sint16 floatTo16Bit( float value ) {
 	return result;
 }
 
-auto lastTime = std::chrono::high_resolution_clock::now();
+auto lastTime = std::chrono::high_resolution_clock::now( );
+float lastAverageQueuedBufferSize = 0;
+bool lastWasShrink = false;
+//cycle index - what cycle are we in
+auto cycleIndex = 0u;
+auto cycleTotal = 100u;
+auto growPercent = 0.65f;
+auto growPercentFudge = 0.0f;	//fudge up or down
 
-std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( ) {
+double nes_clock_frequency = 1789773.2727272f;
+double resampling_ratio = nes_clock_frequency / 44100;
+
+auto soundStartTime = std::chrono::steady_clock::now( );
+CgtLib::CircularBuffer<double> fpsHistory( 30 );
+
+std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( Uint32 queuedAudioSize, float fps ) {
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::high_resolution_clock::now( ) - lastTime );
 	lastTime = std::chrono::high_resolution_clock::now( );
-	_log->Write( "Elapsed time=%lld milliseconds", elapsedTime.count( ) );
-
 	
-	//how many samples do we need - calculate from moving average
-	/*
-	float desiredIntervalFloat = bufferPos / (float)samples;
-	averageSampleIntervalBuffer.add( desiredIntervalFloat );
-	float total = std::accumulate( averageSampleIntervalBuffer.begin( ), averageSampleIntervalBuffer.end( ), 0 );
-	size_t desiredInterval = 0;
-	if( averageSampleIntervalBuffer.size( ) > 0 ) {
-		desiredInterval = total / averageSampleIntervalBuffer.size( );
-	}*/
+	queuedAudioSizeBuffer.add( queuedAudioSize );
+	//size_t desiredInterval = 41;
 
-	size_t desiredInterval = 40;
-	
-	size_t startBufferPos = bufferPos;
-
+	//immediately set this so that emulation continues on other buffer
+	size_t inputBufferPos = bufferPos;
 	bufferPos = 0;
 	auto selectedBuffer = activeBuffer;
-	
-	//immediately set this so that emulation continues on other buffer
 	activeBuffer++;
-
 	if( activeBuffer == 3 ) {
 		activeBuffer = 1;
 	}
-	
+
 	//create pointer to the active buffer
 	std::vector<float>* bufferPtr = selectedBuffer == 1 ? &buffer1 : &buffer2;
+	auto newResampleRatio = resampling_ratio;
+	float averageQueuedAudioSize = CgtLib::calculateAverageFloat( queuedAudioSizeBuffer );
 
-	//initialize export 16 bit buffer
+	//if queuedAudioSize too high adjust sample rate
+	//only need to adjust it by a very tiny amount - this keeps pitch change imperceptable
+	if( averageQueuedAudioSize < 10000 && fps < 60 ) {
+		// 0.0982976 + 0.000189248 * x - 9.9078 * 10^-9 * x^2
+		auto polynomial = []( double x ) {
+			double term1 = 0.0982976;
+			double term2 = 0.000189248 * x;
+			double term3 = -9.9078 * pow( 10, -9 ) * pow( x, 2 );
 
-	//newbuffer size half of float buffer
-	//TODO should be calculated on actual data sizes
-	size_t newBufferSize = startBufferPos / desiredInterval;
-	std::vector<Sint16> newBuffer( newBufferSize );
-	auto i = 0u, n = 0u;
-	if( desiredInterval > 0 ) {
-		
-		for( ; i < bufferPtr->size( ) && n < newBufferSize; i += desiredInterval, n++ ) {
-			float output = ( *bufferPtr )[ i ];
+			return term1 + term2 + term3;
+		};
 
-			//was a whole number generated?
-			//int whole = fracComp.add( 45 );
-			//sampleNum += whole;
+		double remappedValue = polynomial( averageQueuedAudioSize );
+		newResampleRatio *= remappedValue;
 
-			//random noise - remove comment to test filters with noise
-			//output = static_cast<float>( rand( ) ) / RAND_MAX;
-
-			//now do filtering
-			//highpass filter 90hz
-			output = highPassFilter90hz.process( output );
-
-			//highpass filter 440hz
-			output = highPassFilter440hz.process( output );
-
-			//low pass 14000 hz
-			output = lowPassFilter14khz.process( output );
-
-			//now convert to 16 bit value
-			Sint16 convertedValue = floatTo16Bit( output );
-
-			//add raw test data for implot output
-			testBuffer.add( output );
-
-			newBuffer[ n ] = convertedValue;
-		}
+		_log->Write( "fps:%d   averageQueuedAudioSize: %d  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
 	}
 
-	//_log->Write( "bufferPos:%d / samples:%d =  Desired interval:%d   Actual done=%d", startBufferPos, samples, desiredInterval, n );
+	remappedValuesHistory.add( newResampleRatio );
+
+	size_t newBufferSize = static_cast<size_t>( static_cast<double>( inputBufferPos ) / ( newResampleRatio ) );
+	std::vector<Sint16> newBuffer( newBufferSize );
+
+	// Initialize the current input position
+	double inputPosition = 0.0;
+
+	// Loop through the output samples
+	for( size_t i = 0; i < newBufferSize; i++ ) {
+		// Calculate the integer part of the input position
+		size_t index1 = static_cast<size_t>( inputPosition );
+
+		// Calculate the next input index, ensuring it is within bounds
+		size_t index2 = (std::min)( index1 + 1, bufferPtr->size( ) - 1 );
+
+		// Calculate the fractional part of the input position
+		double t = inputPosition - index1;
+		//double t = 0;
+
+		// Perform linear interpolation for the current output sample
+		auto val1 = ( *bufferPtr )[ index1 ];
+		auto val2 = ( *bufferPtr )[ index2 ];
+		float output = static_cast<float>( ( 1.0 - t ) * val1 + t * val2 );
+		//float output = val2;
+
+		// Perform filtering
+		output = highPassFilter90hz.process( output );
+		output = highPassFilter440hz.process( output );
+		output = lowPassFilter14khz.process( output );
+
+		// Convert the output to a 16-bit value
+		Sint16 convertedValue = floatTo16Bit( output );
+
+		// Add the raw test data for ImPlot output
+		testBuffer.add( output );
+
+		// Store the converted value in the newBuffer
+		newBuffer[ i ] = convertedValue;
+
+		// Update the input position based on the resampling ratio
+		inputPosition += newResampleRatio;
+		//input_position += desiredInterval;
+	}
 	
 	//clear old float buffer
 	std::fill( bufferPtr->begin( ), bufferPtr->end( ), 0.0f );
@@ -129,7 +155,7 @@ std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( ) {
 void NesSoundBuffer::addSample( float sample ) {
 	//this is for the initial sample rate of 1.78Mhz
 	//this is done to avoid aliasing
-	//sample = lowPassFilter1mhzTo20khz.process( sample );
+	sample = lowPassFilter1mhzTo20khz.process( sample );
 
 	if( activeBuffer == 1 ) {
 		buffer1[ bufferPos++ ] = sample;
@@ -162,15 +188,32 @@ void NesSoundBuffer::renderImGui( ) {
 		EndPlot( );
 	}
 	*/
-	/*
-	if( ImPlot::BeginPlot( "NES Raw Buffer Plot", ImVec2( -1, -1 ), ImPlotFlags_Crosshairs ) ) {
+	
+	if( ImPlot::BeginPlot( "remappedValuesHistory", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
 		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
-		SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		//SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, 0, 50, 2 );
+		PlotLine( "Buffer data", remappedValuesHistory.getBufferPtr( ), remappedValuesHistory.size( ) );
+		EndPlot( );
+	}
+
+	if( ImPlot::BeginPlot( "queuedAudio", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		//SetupAxis( ImAxis_Y1, "My Y-Axis" );
+		SetupAxisLimits( ImAxis_Y1, 0, 60000, 2 );
+		PlotLine( "Buffer data", queuedAudioSizeBuffer.getBufferPtr( ), queuedAudioSizeBuffer.size( ) );
+		EndPlot( );
+	}
+
+
+	if( ImPlot::BeginPlot( "NES Raw Sound Buffer Plot", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
+		SetupAxis( ImAxis_X1, "Time", ImPlotAxisFlags_NoLabel );
+		SetupAxisLimits( ImAxis_Y1, -1, 1, 2 );
 		PlotLine( "NES", testBuffer.getBufferPtr(), testBuffer.size());
 		EndPlot( );
-	}*/
-
-
+	}
+	
+	
 	if( ImPlot::BeginPlot( "DFT Graph", ImVec2( 600, 250 ), ImPlotFlags_Crosshairs ) ) {
 		//prepare dft data
 		auto n = testBuffer.size( );
@@ -219,9 +262,11 @@ NesSound::NesSound( ) :
 	square0( 0 ),
 	square1( 1 ),
 	initialized( false ),
-	
+	queuedAudioSize( 0 ),
 	buffer( AUDIO_SAMPLES * 2 ) //2 bytes per sample with enough room to hold two full buffers in the circular buffer
 {
+	//init fpsHistory to 60 to avoid averaging issues
+	std::fill( fpsHistory.begin( ), fpsHistory.end( ), 60 );
 }
 
 //descc desired clock cycle
@@ -266,9 +311,22 @@ void NesSound::makeSample() {
 	buffer.addSample( output );
 }
 
+
 void NesSound::queueSound( ) {
 	if( isInitialized( ) ) {
-		auto newBuffer = buffer.generateAudioBuffer( );
+		//calculate FPS average - used by sound to fudge the sample rate
+		//TODO need a better way to obtain this information rather than recalculating it here
+		std::chrono::duration<double> elapsedTime = std::chrono::steady_clock::now( ) - soundStartTime;
+		auto fps = (float)1 / elapsedTime.count();
+		fpsHistory.add( fps );
+		soundStartTime = std::chrono::steady_clock::now( );
+		auto averageFPS = CgtLib::calculateAverageFloat( fpsHistory );
+
+		//how much audio is queued up?
+		queuedAudioSize = SDL_GetQueuedAudioSize( SDL_SoundDeviceId );
+
+		//generate resampled audio and send to SDL
+		auto newBuffer = buffer.generateAudioBuffer( queuedAudioSize, averageFPS );
 		auto byteLength = sizeof( Sint16 ) * newBuffer.size();
 		auto returnValue = SDL_QueueAudio( SDL_SoundDeviceId, newBuffer.data(), byteLength );
 	}

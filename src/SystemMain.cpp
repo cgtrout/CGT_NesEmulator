@@ -166,9 +166,7 @@ void SystemMain::runFrame() {
 	gui.runFrame();
 	nesMain.runFrame();
 	
-	if( nesMain.nesApu.isInitialized( ) ) {
-		nesMain.nesApu.getNesSoundBuffer( )->renderImGui( );
-	}
+	
 	graphicUpdate();
 
 	timeProfiler.stopActive( );
@@ -180,10 +178,14 @@ SystemMain::graphicUpdate()
 ==============================================
 */
 void SystemMain::graphicUpdate() {
+	timeProfiler.startSection( "APU Visualization" );
+	if( nesMain.nesApu.isInitialized( ) ) {
+		nesMain.nesApu.getNesSoundBuffer( )->renderImGui( );
+	}
+
 	timeProfiler.startSection( "RenFrame" );
 	renderer.renderFrame();
 	
-
 	timeProfiler.stopActive( );
 }
 

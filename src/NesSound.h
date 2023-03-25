@@ -31,7 +31,8 @@ namespace NesApu {
 		
 		//fills an external buffer with "size" number of bytes from 
 		//internal buffer
-		std::vector<Sint16> generateAudioBuffer( );
+		//input: queuedAudioSize - how much audio has SDL already buffered up
+		std::vector<Sint16> generateAudioBuffer( Uint32 queuedAudioSize, float fps );
 
 		//generate imgui visualization of sound buffers
 		void renderImGui();
@@ -47,8 +48,9 @@ namespace NesApu {
 
 		//test buffer for viewing raw sample data (imgui)
 		CgtLib::CircularBuffer<float> testBuffer;
-
+		CgtLib::CircularBuffer<Uint32> queuedAudioSizeBuffer;
 		CgtLib::CircularBuffer<float> averageSampleIntervalBuffer;
+		CgtLib::CircularBuffer<double> remappedValuesHistory;
 
 		//filters
 		CgtLib::HighPassFilter highPassFilter90hz;
@@ -147,6 +149,8 @@ namespace NesApu {
 
 		//handle to audio device
 		SDL_AudioDeviceID SDL_SoundDeviceId = 0;
+
+		Uint32 queuedAudioSize;
 	};
 
 	inline PpuClockCycles NesSound::getCC() {
