@@ -103,11 +103,15 @@ void NesFile::loadFile( std::string filename ) {
 	nesMemory->ppuMemory.loadChrRomPages( chrRomPageCount, chrRomPages );
 	
 	//TODO load appropriate mapper
-	if( mapperNum == 0 ) {
-		nesMemory->initializeMemoryMap( new NesMapper0() );
-	} else if( mapperNum == 2 ) {
-		nesMemory->initializeMemoryMap( new NesMapperUnRom() );
-	} else {
+	switch( mapperNum ) {
+	case 0:
+		nesMemory->initializeMemoryMap( new NesMapper0( ) );
+		break;
+	case 2:
+		nesMemory->initializeMemoryMap( new NesMapper1( ) );
+		break;
+	default:
 		throw new NesFileException( "NesFile::loadFile error", "Mapper not yet supported" );
 	}
+
 }
