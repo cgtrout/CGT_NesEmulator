@@ -72,8 +72,8 @@ void FunctionTable::addEntry( NesEmulator::FunctionTableEntry e )
 TODO not properly tested
 ==============================================
 */
-void FunctionTable::addEntry( NesEmulator::FunctionTableEntry e ) {
-	for( int i = e.low; i < e.high; ++i ) {
+void FunctionTable::addEntry( NesEmulator::FunctionTableEntry *e ) {
+	for( int i = e->low; i < e->high; ++i ) {
 		entries[ i ] = e;
 	}
 }
@@ -325,8 +325,6 @@ void NesMemory::initializeMemoryMap( NesMapHandler *handler ) {
 		}
 		return (ubyte)address;
 	};
-
-
 
 	funcTable.addEntry( new FunctionTableEntry(
 		0x2000,	//low

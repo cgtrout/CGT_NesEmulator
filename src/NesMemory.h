@@ -12,6 +12,7 @@
 #include <vector>
 #include <array>
 #include <unordered_map>
+#include <functional>
 
 namespace NesEmulator {
 	class NesMemory;
@@ -75,7 +76,7 @@ namespace NesEmulator {
 	//lookup table for function handlers for memory calls
 	class FunctionTable {
 	  public:
-		void addEntry( FunctionTableEntry e );
+		void addEntry( FunctionTableEntry *e );
 		void clearAllEntries();
 
 		//is there a function at this address?
@@ -84,7 +85,7 @@ namespace NesEmulator {
 
 		FunctionTable();
 	  private:
-		std::unordered_map< uword, FunctionTableEntry > entries;
+		std::unordered_map< uword, FunctionTableEntry* > entries;
 
 	};
 
@@ -248,7 +249,7 @@ namespace NesEmulator {
 
 		NesMapHandler *getMapper() { return mapHandler; }
 
-		void addFunction( FunctionTableEntry e ) { funcTable.addEntry( e ); }
+		void addFunction( FunctionTableEntry *e ) { funcTable.addEntry( e ); }
 
 		//main memory getters / setters
 		ubyte getMemory( uword loc );
