@@ -3,8 +3,6 @@
 
 #include "NesCpuCore.h"
 
-extern NesEmulator::NesCpu *nesCpu;
-
 #include "ConsoleCommands.h"
 
 #include "CGTSingleton.h"

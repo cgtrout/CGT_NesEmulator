@@ -11,6 +11,7 @@ using namespace Console;
 #if _MSC_VER > 1000
 #pragma warning ( disable : 4996 )
 #endif
+#include <cstdarg>
 
 /* 
 ==============================================

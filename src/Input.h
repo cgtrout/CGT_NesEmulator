@@ -120,15 +120,14 @@ namespace FrontEnd {
 		/*
 		================================================================
 		================================================================
-		Class Input : public Singleton< Input >
+		Class Input 
 
 		  main input class - handles all keyboard and mouse input
 		================================================================
 		================================================================
 		*/
-		class Input : public Singleton< Input > {
+		class Input  {
 		public:
-			friend Singleton< Input >;
 			
 			enum class InputSystemStates { 
 				TYPE_MODE,		// user is in type control
@@ -168,9 +167,6 @@ namespace FrontEnd {
 
 			void setScreenX( int val ) {screenx = val;}
 			void setScreenY( int val ) {screeny = val;}
-
-			//moves mouse cursor to coordinates set by setMouseX and setMouseY
-			void moveMouseToNewCoordinates() {SetCursorPos( mousex + screenx, mousey + screeny );}
 
 			void clearInputState();
 

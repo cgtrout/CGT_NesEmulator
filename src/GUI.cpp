@@ -7,7 +7,6 @@ using namespace GUISystem;
 //using namespace Render;
 
 using namespace FrontEnd;
-using namespace InputSystem;
 //#include "CgString.h"
 #include <algorithm>
 #include <functional>
@@ -41,18 +40,12 @@ ConsoleVariable< float > fontOpacity(
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-GUI::GUI( ) :
+GUI::GUI( FrontEnd::InputSystem::Input *inputSystem ) :
+	inputSystem( inputSystem ),
 	zdrawpos( 1.0f ),
 	drawGUI( true ),
 	usingMouse( true )
 {
-	usingMouse = true;
-	//usingKeyboard = false;
-	
-	//drawDebugLines = false;
-
-
-	//ConsoleVariable< float > &opacity = guiOpacity;
 }
 
 GUI::~GUI() {
@@ -62,8 +55,6 @@ void GUI::initialize( ) {
 	consoleSystem->variables.addBoolVariable( &drawDebugLines );
 	consoleSystem->variables.addFloatVariable( &guiOpacity );
 	consoleSystem->variables.addFloatVariable( &fontOpacity );
-
-	input = Input::getInstance( );
 }
 
 /*
@@ -74,30 +65,28 @@ GUI::runFrame()
 ==============================================
 */
 void GUI::runFrame() {
-	systemMain->timeProfiler.startSection( "Gui" );
-	
 	GUIElement *activeElem = findElementCursorOver();
 	
 	if( activeElem != NULL && usingMouse ) {
 		activeElem->onMouseOver();
-		if( input->isMouseLeftDown() ) {
+		if( inputSystem->isMouseLeftDown() ) {
 			unactivateAllElements();
 			activeElem->onLeftMouseDown();
 		}
-		if( input->isMouseLeftUp() )
+		if( inputSystem->isMouseLeftUp() )
 			activeElem->onLeftMouseRelease();
-		if( input->isMouseRightDown() )
+		if( inputSystem->isMouseRightDown() )
 			activeElem->onRightMouseDown();
-		if( input->isMouseRightUp() )
+		if( inputSystem->isMouseRightUp() )
 			activeElem->onRightMouseRelease();
 	}
 	else {
-		if( input->isMouseLeftDown() ) 
+		if( inputSystem->isMouseLeftDown() ) 
 			unactivateAllElements();
 	}
 	
 	sendActiveToFront();
-	//input->setState( Input::NORMAL_MODE );
+	//inputSystem->setState( Input::NORMAL_MODE );
 	updateElementsList( elements );
 }
 
@@ -110,6 +99,7 @@ GUI::updateElementsList()
 ==============================================
 */
 void GUI::updateElementsList(std::vector< GUIElement* > elems ) {
+	using namespace FrontEnd::InputSystem;
 	GUIElement *curr;
 	std::vector< GUIElement* >::iterator iter;
 	for( iter = elems.begin(); iter != elems.end(); iter++ ) {
@@ -117,16 +107,16 @@ void GUI::updateElementsList(std::vector< GUIElement* > elems ) {
 		if( !curr->isOpen() ) {
 			continue;
 		}
-		if( input->getLastKeyPressed() != 0 && curr->isActiveElement() ) {
-			curr->onKeyDown( input->getLastKeyPressed() );
+		if( inputSystem->getLastKeyPressed() != 0 && curr->isActiveElement() ) {
+			curr->onKeyDown( inputSystem->getLastKeyPressed() );
 		}
 		if( curr->getType() == GE_EDITBOX ) {
 			if( curr->isActiveElement() && usingMouse ) {
-				input->setState( Input::InputSystemStates::TYPE_MODE );
+				inputSystem->setState( Input::InputSystemStates::TYPE_MODE );
 				curr->update();
 			}
 			else {
-				input->setState( Input::InputSystemStates::NORMAL_MODE );
+				inputSystem->setState( Input::InputSystemStates::NORMAL_MODE );
 				curr->update();
 			}
 		}
@@ -180,8 +170,8 @@ GUIElement *GUI::findElementCursorOver() {
 	GUIElement *currelem = NULL;
 	GUIElement *retelem = NULL;
 
-	int mousex = input->getMouseX();
-	int mousey = input->getMouseY();
+	int mousex = inputSystem->getMouseX();
+	int mousey = inputSystem->getMouseY();
 
 	currlist = elements;
 			
@@ -428,122 +418,6 @@ void GUITextures::parseLine( std::string_view line ) {
 	fileList.push_back( newLine );
 }
 
-//////////////////////////////////////////////////////////////////////
-// DialogBox Class
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-DialogBox::DialogBox() {
-	initialize( "gui/dialogbox/dialogbox.gt" );
-
-}
-
-DialogBox::DialogBox( std::string guitextures ) {
-	initialize( guitextures );
-}
-
-void DialogBox::initialize( std::string guitextures ) {
-	name = "DialogBox";
-	GUIElement::initialize( guitextures );
-	type = GE_DIALOGBOX;
-	
-	font.loadFont( "fonts/8x16.bmp" );
-	
-	title.setString( "Dialog" );
-	title.loadFont( &font );
-		
-	titleBar.setX( x ); 
-	titleBar.setY( y ); 
-	titleBar.setWidth( width );
-	titleBar.setDialogTitle( &title );
-
-	try {
-		lborder.image = ((loadImage( gt.getNextTexture() )));
-		rborder.image = (loadImage( gt.getNextTexture() ));
-		blcorner.image = (loadImage( gt.getNextTexture() ));
-		brcorner.image = (loadImage( gt.getNextTexture() ));
-		bborder.image = (loadImage( gt.getNextTexture() ));
-		background.image = (loadImage( gt.getNextTexture() ));
-
-	}
-	catch( ImageException ) {
-		throw GUIElementInitializeException( "DialogBox: ", "error loading image" );
-	}
-	
-	addChild( &titleBar );	
-}
-
-DialogBox::~DialogBox() {
-	//delete lborder.image;
-	//delete rborder.image;
-	//delete blcorner.image;
-	//delete brcorner.image;
-	//delete bborder.image;
-}
-
-void DialogBox::onLeftMouseDown() {
-	GUIElement::onLeftMouseDown();	
-}
-
-void DialogBox::onLeftMouseRelease() {
-	GUIElement::onLeftMouseRelease();	
-}
-
-void DialogBox::onMouseOver() {
-
-}
-
-void DialogBox::onRender() {
-	drawList.clear();
-
-	lborder.x = x;
-	lborder.y = y + titleBar.left.image.sizeY;
-	lborder.stretchFactory = height - ( blcorner.image.sizeY+1 ) - titleBar.left.image.sizeY;
-	lborder.stretchType = ST_Y;
-
-	rborder.x = x + ( width - rborder.image.sizeX );
-	rborder.y = y + titleBar.right.image.sizeY;
-	rborder.stretchFactory = height - ( brcorner.image.sizeY+1 ) - titleBar.right.image.sizeY;
-	rborder.stretchType = ST_Y;
-
-	blcorner.x = x;
-	blcorner.y = y + ( height - blcorner.image.sizeY );
-	blcorner.stretchType = ST_NONE;
-
-	brcorner.x = x + ( width - brcorner.image.sizeX );
-	brcorner.y = y + ( height - blcorner.image.sizeY );
-	brcorner.stretchType = ST_NONE;
-
-	bborder.x = x + ( blcorner.image.sizeX );
-	bborder.y = y + ( height - blcorner.image.sizeY );
-	bborder.stretchFactorx = width - ( 2 * brcorner.image.sizeX );
-	bborder.stretchType = ST_X;
-
-	background.x = x + lborder.image.sizeX;
-	background.y = y + titleBar.left.image.sizeY;
-	background.stretchType = ST_XY;
-	background.stretchFactorx = width - rborder.image.sizeX;
-	background.stretchFactory = height - ( titleBar.middle.image.sizeY + bborder.image.sizeY );
-
-	drawList.push_back( &lborder );
-	drawList.push_back( &rborder );
-	drawList.push_back( &brcorner );
-	drawList.push_back( &blcorner );
-	drawList.push_back( &bborder );
-	drawList.push_back( &background );
-}
-
-void DialogBox::onRightMouseDown() {
-
-}
-
-void DialogBox::onRightMouseRelease() {
-
-}
-
 /*
 =================================================================
 =================================================================
@@ -582,7 +456,6 @@ void EditBox::initialize( std::string guitextures ) {
 	boxtext.loadFont( &font );
 	boxtext.setString( text.c_str() );
 
-
 	addChild( &boxtext );
 
 	try	 {
@@ -606,7 +479,7 @@ EditBox::~EditBox() {
 }
 
 void EditBox::onLeftMouseDown() {
-	input->setUseDelay( true );
+	inputSystem->setUseDelay( true );
 	//FIXME blink timer
 	//blinkTimeLast = timer->getCurrTime();
 	GUIElement::onLeftMouseDown();		
@@ -711,15 +584,15 @@ void EditBox::update() {
 		//max chars that can be fit in editbox at a time
 		unsigned int maxSize = ( (int)width - 10 ) / (int)font.getFontWidth();
 
-		if( input->isKeyDown( SDLK_RETURN ) ) {
+		if( inputSystem->isKeyDown( SDLK_RETURN ) ) {
 			onEnterKey();
 		}
 
-		if( input->isKeyDown( SDLK_HOME ) ) {
+		if( inputSystem->isKeyDown( SDLK_HOME ) ) {
 			cursorPos = 0;
 			viewPos = 0;
 		}
-		if( input->isKeyDown( SDLK_END ) ) {
+		if( inputSystem->isKeyDown( SDLK_END ) ) {
 			if( text.length() < maxSize ) {
 				cursorPos = text.length();
 				viewPos = 0;
@@ -729,15 +602,15 @@ void EditBox::update() {
 				viewPos = text.length() - maxSize;
 			}			                             
 		}
-		if( input->isKeyDown( SDLK_LEFT ) ) {
+		if( inputSystem->isKeyDown( SDLK_LEFT ) ) {
 			if( viewPos + cursorPos > 0 )
 				--cursorPos;
 		}
-		if( input->isKeyDown( SDLK_RIGHT ) ) {
+		if( inputSystem->isKeyDown( SDLK_RIGHT ) ) {
 			if( viewPos + cursorPos < text.length() )
 				++cursorPos;
 		}
-		if( input->isKeyDown( SDLK_BACKSPACE ) ) {
+		if( inputSystem->isKeyDown( SDLK_BACKSPACE ) ) {
 			if( text.length() > 0 && viewPos + cursorPos != 0 ) {
 				text.erase( viewPos + ( cursorPos-1 ), 1 );
 				--cursorPos;
@@ -753,7 +626,7 @@ void EditBox::update() {
 				}	
 			}
 		}
-		if( input->isKeyDown( SDLK_DELETE ) ) {
+		if( inputSystem->isKeyDown( SDLK_DELETE ) ) {
 			if( text.length() > 0 ) {
 				text.erase( viewPos + cursorPos, 1 );
 			}
@@ -762,8 +635,8 @@ void EditBox::update() {
 		int x = 0;
 		
 		//TODO get text input from stl
-		strIns = input->getTextInput();
-		input->clearTextInput( );
+		strIns = inputSystem->getTextInput();
+		inputSystem->clearTextInput( );
 
 		unsigned int availSize = maxSize - text.length();
 		unsigned int sizeToUse;
@@ -808,601 +681,6 @@ void EditBox::setText( std::string text ) {
 	this->text = text;
 	setCursorPos( text.size() );
 }
-
-
-/*
-=================================================================
-=================================================================
-Button Class
-=================================================================
-=================================================================
-*/
-Button::Button() {
-	initialize( "gui/button/button.gt" );
-}
-
-Button::Button( std::string guitextures ) {
-	initialize( guitextures );
-}
-
-Button::~Button() {
-}
-
-void Button::initialize( std::string guitextures ) {
-	name = "Button";
-	GUIElement::initialize( guitextures );
-	buttonDown = false;
-	
-	try {
-		l.image = (loadImage( gt.getNextTexture() ));
-		r.image = (loadImage( gt.getNextTexture() ));
-		b.image = (loadImage( gt.getNextTexture() ));
-		t.image = (loadImage( gt.getNextTexture() ));
-		bl.image = (loadImage( gt.getNextTexture() ));
-		br.image = (loadImage( gt.getNextTexture() ));
-		tl.image = (loadImage( gt.getNextTexture() ));
-		tr.image = (loadImage( gt.getNextTexture() ));
-		
-		dl.image = (loadImage( gt.getNextTexture() ));
-		dr.image = (loadImage( gt.getNextTexture() ));
-		db.image = (loadImage( gt.getNextTexture() ));
-		dt.image = (loadImage( gt.getNextTexture() ));
-		dbl.image = (loadImage( gt.getNextTexture() ));
-		dbr.image = (loadImage( gt.getNextTexture() ));
-		dtl.image = (loadImage( gt.getNextTexture() ));
-		dtr.image = (loadImage( gt.getNextTexture() ));
-	}
-	catch( ImageException ) {
-		throw GUIElementInitializeException( "Button: error", "loading image" );
-	}
-}
-
-void Button::onLeftMouseDown() {
-	GUIElement::onLeftMouseDown();	
-	buttonDown = true;
-}
-
-void Button::onLeftMouseRelease() {
-	GUIElement::onLeftMouseRelease();
-
-	buttonDown = false;
-	onButtonPress();
-}
-
-void Button::onMouseOver() {
-
-}
-
-void Button::onRightMouseDown() {
-}
-
-void Button::onRightMouseRelease() {
-}
-
-void Button::onRender() {
-	drawList.clear();
-
-	if( !buttonDown ) {
-		l.x = x;
-		l.y = y + t.image.sizeY;
-		l.stretchFactory = height - ( 2 * b.image.sizeY );
-		l.stretchType = ST_Y;
-
-		r.x = x + ( width - ( r.image.sizeX ) );
-		r.y = y + t.image.sizeY;
-		r.stretchFactory = height - ( 2 * b.image.sizeY );
-		r.stretchType = ST_Y;
-
-		bl.x = x;
-		bl.y = y + ( height - bl.image.sizeY );
-		bl.stretchType = ST_NONE;
-
-		br.x = x + ( width - br.image.sizeX );
-		br.y = y + ( height - bl.image.sizeY );
-		br.stretchType = ST_NONE;
-
-		b.x = x + ( bl.image.sizeX );
-		b.y = y + ( height - bl.image.sizeY );
-		b.stretchFactorx = width - ( 2 * br.image.sizeX );
-		b.stretchType = ST_X;
-		
-		tl.x = x;
-		tl.y = y;
-		tl.stretchType = ST_NONE;
-		
-		t.x = x + tl.image.sizeX;
-		t.y = y;
-		t.stretchFactorx = width - ( 2 * tr.image.sizeX );
-		t.stretchType = ST_X;
-
-		tr.x = x + ( width - tr.image.sizeX );
-		tr.y = y;
-		tr.stretchType = ST_NONE;
-	
-		drawList.push_back( &l );
-		drawList.push_back( &r );
-		drawList.push_back( &bl );
-		drawList.push_back( &br );
-		drawList.push_back( &b );
-		drawList.push_back( &tl );
-		drawList.push_back( &t );
-		drawList.push_back( &tr );
-	}
-	else {
-		dl.x = x;
-		dl.y = y + t.image.sizeY;
-		dl.stretchFactory = height - ( 2 * b.image.sizeY );
-		dl.stretchType = ST_Y;
-
-		dr.x = x + ( width - ( r.image.sizeX ) );
-		dr.y = y + t.image.sizeY;
-		dr.stretchFactory = height - ( 2 * b.image.sizeY );
-		dr.stretchType = ST_Y;
-
-		dbl.x = x;
-		dbl.y = y + ( height - bl.image.sizeY );
-		dbl.stretchType = ST_NONE;
-
-		dbr.x = x + ( width - br.image.sizeX );
-		dbr.y = y + ( height - bl.image.sizeY );
-		dbr.stretchType = ST_NONE;
-
-		db.x = x + ( bl.image.sizeX );
-		db.y = y + ( height - bl.image.sizeY );
-		db.stretchFactorx = width - ( 2 * br.image.sizeX );
-		db.stretchType = ST_X;
-		
-		dtl.x = x;
-		dtl.y = y;
-		dtl.stretchType = ST_NONE;
-		
-		dt.x = x + tl.image.sizeX;
-		dt.y = y;
-		dt.stretchFactorx = width - ( 2 * tr.image.sizeX );
-		dt.stretchType = ST_X;
-
-		dtr.x = x + ( width - tr.image.sizeX );
-		dtr.y = y;
-		dtr.stretchType = ST_NONE;
-
-		drawList.push_back( &dl );
-		drawList.push_back( &dr );
-		drawList.push_back( &dbl );
-		drawList.push_back( &dbr );
-		drawList.push_back( &db );
-		drawList.push_back( &dtl );
-		drawList.push_back( &dt );
-		drawList.push_back( &dtr );
-	}
-}
-
-void Button::update() {
-	if( buttonDown ) {
-		if( input->isMouseLeftUp() )
-			buttonDown = false;
-	}
-}
-
-void Button::onButtonPress() {
-
-}
-
-void CloseButton::onButtonPress() {
-	getRootParent()->close();
-}
-
-//////////////////////////////////////////////////////////////////////
-// TitleBar Class
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-TitleBar::TitleBar() {
-	initialize( "gui/titlebar/titlebar.gt" );
-}
-
-TitleBar::TitleBar( std::string guitextures ) {
-	initialize( guitextures );
-}
-
-TitleBar::~TitleBar() {
-}
-
-void TitleBar::initialize( std::string guitextures ) {
-	name = "TitleBar";
-	GUIElement::initialize( guitextures );
-	movement = false;
-
-	closeButton.setX( x + width - 5 );
-	closeButton.setY( y + ( height / 2 ) );
-	closeButton.setWidth( 16 );
-	closeButton.setHeight( 16 );
-	
-	try {
-		left.image = (loadImage( gt.getNextTexture() ));
-		right.image = (loadImage( gt.getNextTexture() ));
-		middle.image = (loadImage( gt.getNextTexture() ));
-	}
-	catch( ImageException ) {
-		throw GUIElementInitializeException( "TitleBar: error", "loading image" );
-	}
-
-	height = (GuiDim)middle.image.sizeY;
-
-	addChild( &closeButton );
-}
-
-void TitleBar::onLeftMouseDown() {
-	lastx = input->getMouseX();
-	lasty = input->getMouseY();	
-	movement = true;
-
-	parent->onLeftMouseDown();
-}
-
-void TitleBar::onLeftMouseRelease() {
-	movement = false;
-	parent->onLeftMouseRelease();
-}
-
-void TitleBar::onMouseOver() {
-
-}
-
-void TitleBar::onRender() {
-	drawList.clear();
-
-	x = parent->getX();
-	y = parent->getY();
-	width = parent->getWidth();
-	height = (GuiDim)middle.image.sizeY;
-
-	left.x = parent->getX();
-	left.y = parent->getY();
-	left.stretchType = ST_NONE;
-	
-	middle.x = parent->getX() + left.image.sizeX;
-	middle.y = parent->getY();
-	middle.stretchFactorx = parent->getWidth() - ( 2 * right.image.sizeX );
-	middle.stretchType = ST_X;
-
-	right.x = parent->getX() + ( parent->getWidth() - right.image.sizeX );
-	right.y = parent->getY();
-	right.stretchType = ST_NONE;
-
-	drawList.push_back( &left );
-	drawList.push_back( &right );
-	drawList.push_back( &middle );
-
-	textLabel->setX( parent->getX()+4 );
-	textLabel->setY( parent->getY()+4 );
-	closeButton.setX( getRootParent()->getX() + getRootParent()->getWidth()-20 );
-	closeButton.setY( getRootParent()->getY() + 5 );
-}
-
-void TitleBar::onRightMouseDown() {
-
-}
-
-void TitleBar::onRightMouseRelease() {
-
-}
-
-void TitleBar::update() {
-	if( movement ) {
-		( getRootParent() )->move( input->getMouseX() - lastx, input->getMouseY() - lasty );
-		
-		lastx = input->getMouseX();
-		lasty = input->getMouseY();	
-	}
-}
-
-//////////////////////////////////////////////////////////////////////
-// SliderBar Class
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-Slider::SliderBar::SliderBar( int type ) {
-	this->type = type;
-	if( type == SLIDER_Y )
-		initialize( "gui/SliderY/sliderbary.gt" );
-	else
-		initialize( "gui/SliderX/sliderbarx.gt" );
-}
-
-Slider::SliderBar::SliderBar( std::string guitextures, int type ) :
-	type( type )
-{
-	initialize( guitextures );	
-}
-
-Slider::SliderBar::SliderBar( ) :
-	Slider::SliderBar::SliderBar("", SLIDER_X )
-{
-
-}
-
-Slider::SliderBar::~SliderBar() {
-}
-
-void Slider::SliderBar::initialize( std::string guitextures ) {
-	name="SliderBar";
-	GUIElement::initialize( guitextures );
-	try {
-		if( type == SLIDER_Y ) {
-			sliderBar.image = (loadImage( gt.getNextTexture() ));
-		}	
-		else if( type == SLIDER_X ) {
-			sliderBar.image = (loadImage( gt.getNextTexture() ));
-		}
-	}
-	catch( ImageException ) {
-		throw GUIElementInitializeException( "SliderBar:", "error loading image" );
-	}
-	
-	width = 20;
-	height = 10;
-}
-
-void Slider::SliderBar::onLeftMouseDown() {
-	parent->onLeftMouseDown();	
-}
-
-void Slider::SliderBar::onLeftMouseRelease() {
-	parent->onLeftMouseRelease();
-}
-
-void Slider::SliderBar::onMouseOver() {
-}
-
-void Slider::SliderBar::onRender() {
-	if( type == SLIDER_Y ) {
-		x = getParent()->getX();
-		y = getParent()->getY()+( ( Slider* )parent )->calcSliderPos();
-
-		drawList.clear();
-		
-		sliderBar.stretchType = ST_NONE;
-		sliderBar.x = parent->getX() + ( parent->getWidth()/2 ) - 10;	//x - ( center point of SliderBar )
-		sliderBar.y = y;
-	}
-	else if( type == SLIDER_X ) {
-		x = getParent()->getX()+( ( Slider* )parent )->calcSliderPos();
-		y = getParent()->getY() ;
-
-		drawList.clear();
-		
-		sliderBar.stretchType = ST_NONE;
-		sliderBar.x = x;
-		sliderBar.y = parent->getY() - ( parent->getHeight()/2 ) + 10;
-	}
-	
-	drawList.push_back( &sliderBar );
-}
-
-void Slider::SliderBar::onRightMouseDown() {
-}
-
-void Slider::SliderBar::onRightMouseRelease() {
-}
-
-void Slider::SliderBar::update() {
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// Slider Class
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-Slider::Slider( int type ) :
-	Slider("", type )
-{
-		this->type = type;
-	if( type == SLIDER_Y )
-		initialize( "gui/SliderY/slidery.gt" );
-	else
-		initialize( "gui/SliderX/sliderx.gt" );
-}
-
-Slider::Slider( std::string guitextures, int type ):
-	type( type ),
-	drawValueLabel( true ),
-	mouseX( 0 ),
-	mouseY( 0 )
-{
-	initialize( guitextures );
-}
-
-Slider::Slider( ) :
-	Slider( "", SLIDER_X )
-{
-
-}
-
-Slider::~Slider() {
-}
-
-void Slider::initialize( std::string guitextures ) {
-	name = "Slider";
-	
-	GUIElement::initialize( guitextures );
-	drawValueLabel = false;
-	this->type = type;
-	if( type != SLIDER_X && type != SLIDER_Y )
-		throw GUIElementInitializeException( "Slider:", "Invalid slider type" );
-	value = 0;
-	
-	if( type == SLIDER_Y )
-		width = 20;	
-	else if( type == SLIDER_X )
-		height = 20;
-
-	velocity = 16000;
-	slideControl = false;
-
-	//sliderBar = SliderBar( type );
-	font.loadFont( "fonts/8x16.bmp" );
-	valueLabel.loadFont( &font );
-	valueLabel.setOpen( false );
-			
-	try {
-		if( type == SLIDER_Y ) {
-			top.image = (loadImage( gt.getNextTexture() ));
-			bottom.image = (loadImage( gt.getNextTexture() ));
-			middle.image = (loadImage( gt.getNextTexture() ));
-		}
-		else if( type == SLIDER_X ) {
-			top.image = (loadImage( gt.getNextTexture() ));
-			bottom.image = (loadImage( gt.getNextTexture() ));
-			middle.image = (loadImage( gt.getNextTexture() ));
-		}
-
-	}
-	catch( ImageException ) {
-		throw GUIElementInitializeException( "Slider:", "Error loading texture" );
-	}
-	
-	addChild( &sliderBar );
-	addChild( &valueLabel );
-}
-
-void Slider::onLeftMouseDown() {
-	if( !slideControl ) {
-		//store mouse vals
-		mouseX = input->getMouseX();
-		mouseY = input->getMouseY();
-	}
-	
-	slideControl = true;
-
-	getParent()->onLeftMouseDown();
-}
-
-void Slider::onLeftMouseRelease() {
-	if( slideControl ) {
-		slideControl = false;
-	}
-}
-
-void Slider::onMouseOver() {
-}
-
-void Slider::onRender() {
-	drawList.clear();
-	
-	if( type == SLIDER_Y ) {
-		top.stretchType = ST_NONE;
-		top.x = x + ( width/2 );
-		top.y = y;
-
-		middle.stretchType = ST_Y;
-		middle.x = x + ( width/2 );
-		middle.y = y + top.image.sizeY;
-		middle.stretchFactory = height - top.image.sizeY - bottom.image.sizeY;
-		
-		bottom.stretchType = ST_NONE;
-		bottom.x = x + ( width/2 );
-		bottom.y = y + height - bottom.image.sizeY;
-	}
-	else if( type == SLIDER_X ) {
-		top.stretchType = ST_NONE;
-		top.x = x + width - top.image.sizeX;
-		top.y = y + ( height/2 );
-
-		middle.stretchType = ST_X;
-		middle.x = x + bottom.image.sizeX;
-		middle.y = y + ( height/2 );
-		middle.stretchFactorx = width - top.image.sizeY - bottom.image.sizeY;
-		
-		bottom.stretchType = ST_NONE;
-		bottom.x = x;
-		bottom.y = y + ( height/2 );
-	}
-
-	if( drawValueLabel ) {
-		valueLabel.setX( x + 20 );
-		valueLabel.setY( y + 20 );
-		static char numbuffer[ 30 ];
-		static std::string strvalue;
-		sprintf( numbuffer, "%x", value );
-		strvalue = numbuffer;
-		valueLabel.setString( strvalue );
-	}
-
-	drawList.push_back( &top );
-	drawList.push_back( &middle );
-	drawList.push_back( &bottom );
-}
-
-void Slider::onRightMouseDown() {
-
-}
-
-void Slider::onRightMouseRelease() {
-
-}
-
-void Slider::update() {
-	if( slideControl ) {
-		//move slider
-		static int delta;
-		if( type == SLIDER_Y )
-			delta = mouseY - input->getMouseY();
-		else if( type == SLIDER_X )
-			//delta = mouseX - input->getMouseX();
-			delta = input->getMouseX() - mouseX;
-		value += delta * velocity;
-		
-        	//enforce constraints
-		//TODO change value constraints to ensure proper functionality
-		if( value < 4294967295l && value > 0xAAAAAA ) {
-			value = 0;
-		}
-		else if( value > maxSliderHeight ) {
-			value = maxSliderHeight;
-		}
-	
-		//reset mouse pos
-		input->setMouseY( mouseY );
-		input->setMouseX( mouseX );
-		input->moveMouseToNewCoordinates();
-	}
-}
-
-GuiDim Slider::calcSliderPos() {
-	if( type == SLIDER_Y )
-		return ( height - 10 ) - ( ( value * ( height - 10 ) ) / ( maxSliderHeight ) );
-	else if( type == SLIDER_X )
-		return ( value * ( width - 10 ) ) / maxSliderHeight;
-	else	
-		return 0;
-}
-
-
-/*
-=================================================================
-=================================================================
-DialogTitle Class
-=================================================================
-=================================================================
-*/
-void DialogTitle::onLeftMouseRelease() {
-	TextLabel::onLeftMouseRelease();
-	parent->onLeftMouseRelease();	
-}
-
-void DialogTitle::onLeftMouseDown() {
-	parent->onLeftMouseDown();
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // TextLabel Class

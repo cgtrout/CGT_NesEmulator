@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <unordered_map>
 
 namespace FrontEnd {
 	
@@ -110,7 +111,7 @@ namespace FrontEnd {
 		std::chrono::steady_clock::time_point frameStopTime;
 		std::chrono::duration<double>  elapsedTime;
 
-		std::map<std::string, TimedSection > timedSections;
+		std::unordered_map<std::string, TimedSection > timedSections;
 
 		//frame buffer - used to calculate average framerate
 		static const int frameTimeBufferSize = 60;

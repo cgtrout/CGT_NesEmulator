@@ -1,6 +1,9 @@
 #if !defined( NesPpuTools_INCLUDED )
 #define NesPpuTools_INCLUDED
 
+#include "Image.h"
+#include "NesPPU.h"
+
 namespace NesEmulator {
 	/*
 	=====================================================
@@ -13,7 +16,7 @@ namespace NesEmulator {
 	class NesPPUPixelGen {
 	public:
 		NesPPUPixelGen() : pixelData{ 0 }, pixelData24Bit{ 0 } {}
-		void genPatternTablePixelData();
+		void genPatternTablePixelData( NesMemory* nesMemory );
 		void genPatternTablePixelData24Bit( Pixel3Byte *colors );
 	    
 		ubyte *getPatternTablePixelData() {return pixelData;}
@@ -32,12 +35,12 @@ namespace NesEmulator {
 			palette(nullptr),
 			pixelData{}
 		{ }
-		void genPalettePixelData( NesPalette *p );
+		void genPalettePixelData( NesEmulator::NesMemory* nesMemory, NesPalette *p );
 
 		ubyte *getPixelData() { return pixelData; }
 
 	private:
-		void buildColorTable();
+		void buildColorTable( NesMemory* nesMemory );
 
 		int getSquareX( int pixel );
 		int getSquareY( int pixel );

@@ -4,13 +4,10 @@
 
 #include "precompiled.h"
 
-//#include "GUIConsole.h"
-#include "GLGeneral.h"
+#include "GUIConsole.h"
+#include "Input.h"
 
 using namespace GUISystem;
-//using namespace Render;
-
-#include "Input.h"
 
 //turns off safe string warning
 #if _MSC_VER > 1000
@@ -18,7 +15,10 @@ using namespace GUISystem;
 #endif
 #include <SDL_scancode.h>
 
-GUIConsole::GUIConsole():offset( 0 ) {
+GUIConsole::GUIConsole(FrontEnd::InputSystem::Input* inputSystem) : 
+	offset( 0 )
+{
+	this->inputSystem = inputSystem;
 	initialize( "gui/console/console.gt" );
 	//initialize( "C:\\Users\\cgtro\\Documents\\2023 Repos\\Nes_Emulator\\gui\\console\\console.gt" );
 }
@@ -48,6 +48,7 @@ void GUIConsole::initialize( std::string guitextures ) {
 	}
 	
 	editLine.setWidth( width );
+	editLine.setInputSystem( inputSystem );
 	
 	addChild( &editLine );	
 	

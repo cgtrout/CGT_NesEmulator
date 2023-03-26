@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "precompiled.h"
+#include <cstdarg>
 
 //#include "engine.h"
 //#include "Log.h"
@@ -47,9 +48,6 @@ bool CLog::Init()
 	//clientLog.open( "clntlog.txt" );
 	//serverLog.open( "srvrlog.txt" );
 	//user errors get logged to client
-
-	//load the strings file
-	if( !LoadStrings() )return false;
 
 	return true;
 }
@@ -111,47 +109,3 @@ void CLog::Write( unsigned long msgID, ... )
 	Write( /*target,*/szBuf );
 	va_end( args );
 }
-
-#ifdef WIN32
-//under Win32, the strings get read in from a string table resource
-/*
-==============================================
-CLog::LoadStrings()
-==============================================
-*/
-bool CLog::LoadStrings()
- {
-	for( unsigned long i=0;i< MAX_LOG_STRINGS;i++ )
-	 {
-		char szBuf[ 1024 ];
-		if( !LoadString( GetModuleHandle( "engine" ),i,szBuf,1024 ) )break; //returning 0 means no more strings
-		logStrings[ i ]=szBuf;
-	}
-	return true;
-}
-
-#else
-//other platforms load the strings in from strings.txt
-/*
-==============================================
-CLog::LoadStrings()
-==============================================
-*/
-bool CLog::LoadStrings()
- {
-	std::ifstream in( "strings.txt" );
-	if( !in.is_open() )return false;
-
-	unsigned long index=0;
-
-	while( !in.eof() )
-	 {
-		char szBuf[ 1024 ];
-		in.getline( szBuf,1024 );
-		logStrings[ index++ ]=szBuf;
-	}
-
-	return true;
-}
-
-#endif

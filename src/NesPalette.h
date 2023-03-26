@@ -3,6 +3,7 @@
 
 #include <string>
 #include "CGTSingleton.h"
+#include "Image.h"
 
 typedef unsigned char ubyte;
 #define NUM_PALETTE_ENTRYS 0x3f

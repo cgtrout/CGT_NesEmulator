@@ -1,4 +1,5 @@
 #include "precompiled.h"
+#include "StringToNumber.h"
 
 #pragma warning ( disable : 4996 )
 

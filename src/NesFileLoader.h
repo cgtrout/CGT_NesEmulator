@@ -9,11 +9,13 @@
 typedef unsigned char ubyte;
 
 namespace NesEmulator {
+	class NesMain;
+
 	class NesFile {
 	public:
-		NesFile();
+		NesFile( NesMain* nesMain );
 		void initialize();
-		void loadFile( std::string filename );
+		void loadFile( std::string_view filename );
 		//std::string getFileName() {return file;}
 
 		ubyte *getPrgRomPages() { return prgRomPages; }
@@ -39,6 +41,8 @@ namespace NesEmulator {
 		};
 		
 	private:
+		NesMain* nesMain;
+
 		ubyte prgRomPageCount;	
 		ubyte chrRomPageCount;
 

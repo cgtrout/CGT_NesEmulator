@@ -1,41 +1,33 @@
 #include "precompiled.h"
 
 #include "Console.h"
-
-#include "NesPalette.h"
+#include "SystemMain.h"
+#include "NesCpuCore.h"
 
 using namespace NesEmulator;
 using namespace FrontEnd;
 using namespace Console;
 
-extern NesEmulator::NesMemory  *nesMemory;
-NesEmulator::PPUMemory  *ppuMemory;
-NesEmulator::NesPalette *palette;
-NesEmulator::NesEmulatorFlagSystem *flagSystem;
-
-FrontEnd::TimeProfiler *timeProfiler;
-
 int CyclesPerFrame;
 
+TimeProfiler* timeProfiler = nullptr;
 
 /* 
 ==============================================
 NesPPU::NesPPU()
 ==============================================
 */
-NesPPU::NesPPU() {
+NesPPU::NesPPU( NesMain* nesMain ) :
+	nesMain( nesMain ),
+	scanlineDrawer( nesMain )
+{
 	
 }
 
 void NesPPU::initialize( ) {
-	nesMemory = &SystemMain::getInstance( )->nesMain.nesMemory;
-	ppuMemory = &SystemMain::getInstance( )->nesMain.nesMemory.ppuMemory;
-	palette = &SystemMain::getInstance( )->nesMain.nesPpu.nesPalette;
-	flagSystem = &SystemMain::getInstance( )->nesMain.emulatorFlags;
-	timeProfiler = &SystemMain::getInstance( )->timeProfiler;
-
 	_log = CLog::getInstance( );
 	consoleSystem = &SystemMain::getInstance( )->consoleSystem;
+	timeProfiler = &SystemMain::getInstance( )->timeProfiler;
 
 	//CyclesPerFrame = 89342;
 	CyclesPerFrame = CYCLES_PER_FRAME;
@@ -84,9 +76,10 @@ void NesPPU::renderBuffer( PpuClockCycles desiredcc UpdateFlag flag = UF_Specifi
 void NesPPU::renderBuffer( PpuClockCycles desiredcc, PpuUpdateType updateType ) {
 	//262 scanlines total
 	timeProfiler->startSection( "Ppu" );
+	auto* nesMemory = &nesMain->nesMemory;
 
 	//get sprite data
-	nesSprite.loadSpriteInformation( nesMemory->spriteRam );
+	nesSprite.loadSpriteInformation(nesMemory->spriteRam );
 	
 	//validation tests
 	//89342 cc's a frame - should be no higher than this
@@ -231,7 +224,7 @@ void NesPPU::checkForVINT( PpuClockCycles c ) {
 	}
 	if( c >= cCycles ) {
 		//create VINT flag
-		flagSystem->setFlag( FT_VINT, cCycles );
+		nesMain->nesCpu.flagSystem->setFlag( FT_VINT, cCycles );
 		
 		//switch odd/even frame
 		frameType += 1;

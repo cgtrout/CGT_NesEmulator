@@ -1,5 +1,5 @@
 #include "Precompiled.h"
-#include "NesPpuScanline.h"
+#include "SystemMain.h"
 
 using namespace NesEmulator;
 using namespace Console;
@@ -21,10 +21,9 @@ ConsoleVariable< int > cvSpriteZeroOffset (
 /*description*/	"Used to experiment with sprite 0 timing.",
 /*save?*/		 NO_SAVE_TO_FILE );
 
-extern NesEmulator::PPUMemory *ppuMemory;
-NesPalette				*pal;
-
-ScanlineDrawer::ScanlineDrawer() {
+ScanlineDrawer::ScanlineDrawer( NesMain* nesMain ) : 
+	nesMain( nesMain )
+{
 	
 }
 
@@ -35,8 +34,6 @@ void ScanlineDrawer::initialize( ) {
 	consoleSystem->variables.addBoolVariable( &cvDrawBackground );
 	consoleSystem->variables.addBoolVariable( &cvDrawSprites );
 	consoleSystem->variables.addIntVariable( &cvSpriteZeroOffset );
-	ppuMemory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory.ppuMemory;
-	pal = &FrontEnd::SystemMain::getInstance( )->nesMain.nesPpu.nesPalette;
 }
 
 /* 
@@ -69,9 +66,9 @@ bool ScanlineDrawer::drawScanline( int sl, PpuClockCycles currcc, int endPos, Pp
 	}
 
 	//draw sprites and background
-	spriteDrawer.drawSprites( BGPRI_TYPE_BACKGROUND, registers, this );
-	backgroundDrawer.drawBackground( registers, this );
-	spriteDrawer.drawSprites( BGPRI_TYPE_FOREGROUND, registers, this );
+	spriteDrawer.drawSprites( &nesMain->nesMemory.ppuMemory, BGPRI_TYPE_BACKGROUND, registers, this );
+	backgroundDrawer.drawBackground( &nesMain->nesMemory.ppuMemory, registers, this );
+	spriteDrawer.drawSprites( &nesMain->nesMemory.ppuMemory, BGPRI_TYPE_FOREGROUND, registers, this );
 	
 	//build final color lookup table
 	generateFinalPixelData();
@@ -105,7 +102,7 @@ void ScanlineDrawer::BackgroundDrawer::drawBackground( NesPPU::Registers *r, Sca
 this is pretty slow, since it only outputs one pixel at a time
 ==============================================
 */
-void BackgroundDrawer::drawBackground( Registers *r, ScanlineDrawer *sd ) {
+void BackgroundDrawer::drawBackground( PPUMemory *ppuMemory, Registers *r, ScanlineDrawer *sd ) {
 	if( !r->backgroundVisible || !cvDrawBackground ) {
 		return;
 	}
@@ -274,6 +271,7 @@ inline void NesPPU::ScanlineDrawer::generateFinalPixelData()
 */
 inline void ScanlineDrawer::generateFinalPixelData() {
 	ubyte finalPixelColor;
+	auto* ppuMemory = &nesMain->nesMemory.ppuMemory;
 
 	int maxPos = endPos;
 	if( maxPos > 256 ) maxPos = 256;
@@ -300,6 +298,8 @@ inline void NesPPU::ScanlineDrawer::fillVidoutBuffer( ubyte *vidoutBuffer )
 ==============================================
 */
 inline void ScanlineDrawer::fillVidoutBuffer( ubyte *vidoutBuffer ) {
+	auto* pal = &nesMain->nesPpu.nesPalette;
+
 	//copy data from scanline buffer to output buffer	
 	//calculate starting offset into pixel output buffer
 	int vidPos = ( scanline ) * ( PIXELS_PER_SCANLINE ) * 3;
@@ -363,6 +363,7 @@ void NesPPU::ScanlineDrawer::SpriteDrawer::drawSprites
 ==============================================
 */
 void SpriteDrawer::drawSprites( 
+	PPUMemory *ppuMemory,
 	ubyte backgroundPri, 
 	Registers *registers, 
 	ScanlineDrawer *scanlineDrawer ) 

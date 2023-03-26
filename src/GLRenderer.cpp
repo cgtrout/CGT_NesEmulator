@@ -44,7 +44,9 @@ ConsoleVariable< bool > drawDebugPPU(
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Renderer::Renderer() {
+Renderer::Renderer( FrontEnd::SystemMain* sysMain ) :
+	systemMain( sysMain )
+{
 	 
 }
 
@@ -135,11 +137,11 @@ Renderer::render2D()
 ==============================================
 */
 void Renderer::render2D() {
-	if( systemMain->nesMain.getState() == Emulating ) {
+	if( systemMain->nesMain.getState() == NesEmulator::States::Emulating ) {
 		if( drawDebugPPU ) {
 			systemMain->timeProfiler.startSection( "drawPPUDebug" );
-			Image& patternImage = ppuDraw.drawPatternTableF();   
-			Image& paletteImage = ppuDraw.drawPaletteTableF(&systemMain->nesMain.nesPpu.nesPalette);
+			Image& patternImage = ppuDraw.drawPatternTableF( &systemMain->nesMain.nesMemory );   
+			Image& paletteImage = ppuDraw.drawPaletteTableF( &systemMain->nesMain.nesMemory, &systemMain->nesMain.nesPpu.nesPalette);
 			
 			ImGui::Begin( "PPU Debug Window", drawDebugPPU.getPointer( ), 0 );
 			ImGui::Image( ( void* )patternImage.handle, ImVec2( patternImage.sizeX, patternImage.sizeY ) );
@@ -239,11 +241,11 @@ void PPUDraw::initialize( ) {
 }
 
 //TODO create generic routine for drawing data buffer to screen
-Image& PPUDraw::drawPatternTableF() {
+Image& PPUDraw::drawPatternTableF( NesEmulator::NesMemory *nesMemory ) {
 	static Image img;
 	
 	//TODO check to see if game is actually loaded
-    ppuPixelGen.genPatternTablePixelData();
+    ppuPixelGen.genPatternTablePixelData( nesMemory );
     
     //TODO - better color implementation ( not hardcoded - based on pallette data )
     Pixel3Byte colors[ 4 ];
@@ -318,10 +320,10 @@ void PPUDraw::drawOutput( ubyte* data ) {
 PpuDraw::drawPalletteTableF
 ==============================================
 */
-Image& PPUDraw::drawPaletteTableF( NesEmulator::NesPalette *pal ) {
+Image& PPUDraw::drawPaletteTableF( NesEmulator::NesMemory* nesMemory, NesEmulator::NesPalette *pal ) {
 	static Image img;
 
-	paletteGen.genPalettePixelData( pal );
+	paletteGen.genPalettePixelData( nesMemory, pal );
 
     img.channels = 3; 
     img.sizeX	 = 128;

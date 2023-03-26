@@ -12,12 +12,11 @@ void NesPPUPixelGen::genPatternTablePixelData() {
 
 ==============================================
 */
-void NesPPUPixelGen::genPatternTablePixelData() {    
+void NesPPUPixelGen::genPatternTablePixelData( NesMemory *nesMemory ) {    
     int address, startAddress;
     ubyte value, bit1, bit2;
 	ubyte byte1, byte2;
 	int pixelLocation;
-	NesEmulator::NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
     
     //for every row
 	for( int tiley = 0; tiley <= 0x0f; tiley++ ) {
@@ -77,9 +76,9 @@ void NesPPUPixelGen::genPatternTablePixelData24Bit( Pixel3Byte *colors ) {
 void NesPPUPaletteGen::genPalettePixelData()
 ==============================================
 */
-void NesPPUPaletteGen::genPalettePixelData( NesPalette *pal ) {
+void NesPPUPaletteGen::genPalettePixelData( NesEmulator::NesMemory* nesMemory, NesPalette *pal ) {
 	palette = pal;
-	buildColorTable();
+	buildColorTable( nesMemory );
 
 	int pixel = 0;
 	int x, y;
@@ -125,8 +124,7 @@ inline int NesPPUPaletteGen::getSquareY( int pixel ) {
 void NesPPUPaletteGen::buildColorTable( )
 ==============================================
 */
-void NesPPUPaletteGen::buildColorTable( ) {
-	NesEmulator::NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
+void NesPPUPaletteGen::buildColorTable( NesMemory *nesMemory ) {
 	for( int x = 0; x < 16; x++ ) {
 		for( int y = 0; y < 2; y++ ) {
 			//y = 0 -> image palette

@@ -12,16 +12,12 @@
 #pragma warning( disable : 4503 ) 
 #endif // _MSC_VER > 1000
 
-#include "Console.h"
-#include "GLRenderer.h"
-#include "Input.h"
-#include "NesMain.h"
-
-#include "GUIConsole.h"
-
-#include "TimeProfiler.h"
-
 #include "CGTSingleton.h"
+#include "GUI.h"
+#include "GUIConsole.h"
+#include "TimeProfiler.h"
+#include "NesMain.h"
+#include "GLRenderer.h"
 
 using namespace CGTSingleton;
 
@@ -48,6 +44,8 @@ namespace FrontEnd {
 		
 		void initialize( );
 
+		void loadNesFile( std::string_view fileName );
+
 		//sets up and starts the class
 		void start();
 		
@@ -65,6 +63,8 @@ namespace FrontEnd {
 
 		//updates all graphics objects
 		void graphicUpdate();
+
+		Input					input;
 
 		Console::ConsoleSystem	consoleSystem;
 		

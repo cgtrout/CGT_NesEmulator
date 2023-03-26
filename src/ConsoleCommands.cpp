@@ -1,12 +1,12 @@
 #include "precompiled.h"
 
-using namespace Console; 
-using namespace FrontEnd;
-using namespace NesEmulator;
+#include "ConsoleCommands.h"
+#include "SystemMain.h"
 
 #if _MSC_VER > 1000
 #pragma warning ( disable : 4996 )
 #endif
+using namespace Console;
 
 //Console Commands
 //###formatignore	
@@ -38,10 +38,12 @@ ConsoleCommand *CommandHandlerSystem::getCommands() {
 }
 
 void CommandHandlerSystem::quit( const char *param ) {
-	systemMain->quitRequest();
+	FrontEnd::SystemMain::getInstance( )->quitRequest();
 }
 
 void CommandHandlerSystem::loadNesFile( const char *param ) {
+	using namespace FrontEnd;
+
 	//late binding to avoid singleton initialization hell
 	if ( consoleSystem == nullptr ) {
 		consoleSystem = &SystemMain::getInstance( )->consoleSystem;
@@ -53,25 +55,16 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 	}
 
 	try {
-		//TODO move to seperate function in nesmain
-		systemMain->nesMain.nesApu.setUninitialized( );
-		systemMain->nesMain.setState( WaitingForFile );
-		systemMain->nesMain.nesFile.loadFile( param );
-		consoleSystem->printMessage( "NES file load successful" );
-        
-		systemMain->nesMain.nesPpu.reset();
-		systemMain->nesMain.reset();
-		systemMain->nesMain.nesCpu.reset();
-		//systemMain->nesMain.nesCpu.setOnStatus( true );
-		systemMain->nesMain.nesApu.setInitialized( );
-
-		systemMain->nesMain.setState( Emulating );
+		//call loadNesFile function to load
+		SystemMain::getInstance( )->loadNesFile( param );
 		return;
 	}
-	catch( NesFile::NesFileException e ) {
+	catch( NesEmulator::NesFile::NesFileException e ) {
 		consoleSystem->printMessage( "Error loading nes file: %s", e.getMessage() );
 	}
 }
+
+
 
 #ifndef LIGHT_BUILD
 /*
@@ -154,7 +147,8 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	}
 
 	//tokens are parsed, now interpret key and command
-	bool result = Input::getInstance()->bindKeyToControl( device, key, control, button );
+	auto* inputSystem = &FrontEnd::SystemMain::getInstance( )->input;
+	bool result = inputSystem->bindKeyToControl( device, key, control, button );
 	if( result ) {
 		consoleSystem->printMessage( "Key successfully bound" );
 	}
@@ -167,7 +161,10 @@ void CommandHandlerSystem::printBindKeyUsage( const char *errorMsg ) {
 }
 
 void CommandHandlerSystem::reset( const char *param ) {
+	using namespace FrontEnd;
+
 	consoleSystem->printMessage( "Resetting cpu..." );
+	auto* systemMain = SystemMain::getInstance( );
 	systemMain->nesMain.nesCpu.reset();
 	systemMain->nesMain.reset();
 }

@@ -8,6 +8,7 @@
 #include "GLGeneral.h"
 #include "Console.h"
 #include "GLRenderer.h"
+#include "SystemMain.h"
 using namespace GUISystem;
 //using namespace Render;
 
@@ -17,8 +18,6 @@ using namespace GUISystem;
 #pragma warning( disable : 4244 )
 #endif
 
-Console::ConsoleSystem *console;
-Render::Renderer *renderSystem;
 using namespace Console;
 
 ConsoleVariable< float > *opacity;
@@ -32,15 +31,26 @@ GUI::render()
 void GUI::render() {
 	zdrawpos = 0.0001f;
 	
-	console = &FrontEnd::SystemMain::getInstance()->consoleSystem;
 	renderSystem = &FrontEnd::SystemMain::getInstance()->renderer;
 	
 	if( opacity == NULL ) {
-		opacity = console->variables.getFloatVariable( "guiOpacity" );
+		opacity = consoleSystem->variables.getFloatVariable( "guiOpacity" );
 	}
 
 	//render gui elements
 	renderElements( elements );
+}
+
+/*
+==============================================
+GUI::render()
+
+  renders ui
+==============================================
+*/
+void GUI::addElement( GUIElement* ge ) {
+	ge->setInputSystem( inputSystem );
+	elements.push_back( ge ); 
 }
 
 
@@ -144,7 +154,7 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 	font->getImage( ).bindGLTexture( );
 
 	//get console opacity value
-	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( "fontOpacity")));
+	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*consoleSystem->variables.getFloatVariable( "fontOpacity")));
 	
 	unsigned int length = fs->getString().length();
 	

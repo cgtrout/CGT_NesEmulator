@@ -214,7 +214,7 @@ void Input::updateControllables() {
 				auto& bindName = button->bindName;		//1
 
 				//get information from input datastructure
-				button->keystate = ( KeyPressState )input->getButtonState( deviceName, bindName );
+				button->keystate = ( KeyPressState )getButtonState( deviceName, bindName );
 				if( button->keystate ) {
 					controlLog << "setting:" << button->keystate << " deviceName: " << deviceName << " to " << " bind name: " << bindName
 						<< std::endl;

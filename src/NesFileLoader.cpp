@@ -1,12 +1,16 @@
 #include "precompiled.h"
 using namespace NesEmulator;
 
+#include "SystemMain.h"
+
 /* 
 ==============================================
 NesFile::NesFile() 
 ==============================================
 */
-NesFile::NesFile() {	
+NesFile::NesFile( NesMain* nesMain ) :
+	nesMain( nesMain )
+{	
 	prgRomPages = 0;
 	chrRomPages = 0;
 }
@@ -22,14 +26,13 @@ void NesFile::initialize() {}
 ==============================================
 void NesFile::loadFile( std::string filename )
 
-
 TODO delete old mapper if present
 TODO allocated memory not being deleted after exception??
 ==============================================
 */
-void NesFile::loadFile( std::string filename ) {
+void NesFile::loadFile( std::string_view filename ) {
 	char nesStr[ 4 ];		//checks for initial string header
-	std::string file = filename;	//local copy of filename
+	std::string file = filename.data();	//local copy of filename
 	ubyte numcheck, controlbyte1, controlbyte2;		//temp vars
 	NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
 		
@@ -104,7 +107,7 @@ void NesFile::loadFile( std::string filename ) {
 	
 	//TODO load appropriate mapper
 	if( mapperNum == 0 ) {
-		nesMemory->initializeMemoryMap( new NesMapper0() );
+		nesMemory->initializeMemoryMap( new NesMapper0( ) );
 	} else if( mapperNum == 2 ) {
 		nesMemory->initializeMemoryMap( new NesMapperUnRom() );
 	} else {

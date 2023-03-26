@@ -4,6 +4,7 @@
 #include "StringToNumber.h"
 
 #include <algorithm>
+#include "NesMain.h"
 
 using namespace NesEmulator;
 
@@ -74,39 +75,30 @@ private:
 }cpuTrace;
 */
 #endif 
-NesEmulator::NesMain			*m;
 
 #ifndef LIGHT_BUILD
-  NesDebugger *nesDebugger;
+  
 #endif
-
-NesMemory	*nesMemory;
-
-NesPPU		*ppu;
 
 /*
 ==============================================
 NesCpu()
 ==============================================
 */
-NesCpu::NesCpu() {
+NesCpu::NesCpu( NesMain *nesMain ) :
+	nesMain( nesMain )
+{
 	
 }
 
 NesCpu::~NesCpu() {}
 
 void NesCpu::initialize( ) {
-	//onStatus = false;
-	m = &SystemMain::getInstance( )->nesMain;
+	nesDebugger = &nesMain->nesDebugger;
+	nesMemory = &nesMain->nesMemory;
+	nesPpu = &nesMain->nesPpu;
 
-#ifndef LIGHT_BUILD
-	nesDebugger = &m->nesDebugger;
-#endif
-
-	nesMemory = &m->nesMemory;
-	ppu = &m->nesPpu;
-
-	flagSystem = &m->emulatorFlags;
+	flagSystem = &nesMain->emulatorFlags;
 
 	consoleSystem->variables.addIntVariable( &traceSize );
 	consoleSystem->variables.addBoolVariable( &traceAlreadyRun );
@@ -123,13 +115,12 @@ CpuClockCycles NesCpu::runInstructions( )
 void NesCpu::runInstructions( ) {	
 	for( ; ; ) {
 #ifndef LIGHT_BUILD
-		
 		//debugger handling
 		if( nesDebugger->inSingleStepMode() ) {
 			if( nesDebugger->isSingleStepPending() ) {
 				runInstruction();
-				if( getCC() >= m->CyclesPerFrame ) {
-					ppu->checkForVINT( getCC() );
+				if( getCC() >= nesMain->CyclesPerFrame ) {
+					nesPpu->checkForVINT( getCC() );
 				}
 				nesDebugger->clearSingleStepRequest();
 				//VBlankHandler();
@@ -148,12 +139,12 @@ void NesCpu::runInstructions( ) {
 		runInstruction();
 #endif
 		//if we have ran more than the number of cycles for this frame
-		if( cpuTimer >= m->CyclesPerFrame ) {
+		if( cpuTimer >= nesMain->CyclesPerFrame ) {
 			//get ppu to check if we have passed the vint point
-			ppu->checkForVINT( getCC() );
+			nesPpu->checkForVINT( getCC() );
 			
 			//if vblank set and execute nmi on vblank set then goto interrupt
-			if( flagSystem->isFlagSet( FT_VINT ) && ppu->registers.executeNMIonVBlank == TRUE ) {
+			if( flagSystem->isFlagSet( FT_VINT ) && nesPpu->registers.executeNMIonVBlank == 1 ) {
 				//TODO add getWord function
 				uword add = nesMemory->getMemory( 0xfffa ) + ( nesMemory->getMemory( 0xfffb ) << 8 ); 
 				gotoInterrupt( add );

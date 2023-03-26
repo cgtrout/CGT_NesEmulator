@@ -3,15 +3,16 @@
 
 using namespace NesEmulator;
 
-NesMemory *memory;
-
+#include "NesMain.h"
+#include "StringToNumber.h"
 #ifndef LIGHT_BUILD
 /*
 ==============================================
 NesDebugger::NesDebugger()
 ==============================================
 */
-NesDebugger::NesDebugger( ) :
+NesDebugger::NesDebugger( NesEmulator::NesMain* nesMain ) :
+	nesMain( nesMain ),
 	singleStepMode( false ),
 	doSingleStep( false ),
 	justInSingleStepMode( false ),
@@ -43,7 +44,7 @@ NesDebugger::initialize()
 ==============================================
 */
 void NesDebugger::initialize() {
-	memory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory;
+	memory = &nesMain->nesMemory;
 	singleStepMode = false;
     justInSingleStepMode = false;
 }
@@ -57,6 +58,8 @@ void NesDebugger::draw( ) {
 	if ( showDebugWindow == false ) {
 		return;
 	}
+
+	auto* nesCpu = &nesMain->nesCpu;
 
 	//ImGui::Begin( "Debugger Window", &this->showDebugWindow, ImGuiWindowFlags_MenuBar );
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
@@ -211,7 +214,7 @@ std::string NesDebugger::loadMemoryDump(  ) {
 
 	try {
 		//grab dump
-		md.getMemoryDump( memDumpType, memdumpBuffer.data(), dumpAddress, dumpSize );
+		md.getMemoryDump( &nesMain->nesMemory, memDumpType, memdumpBuffer.data(), dumpAddress, dumpSize );
 	} catch ( NesMemoryException e ) {
 		throw CgtException( "Memory Dump Error", e.getMessage( ), true );
 		return "DUMP_ISSUE";

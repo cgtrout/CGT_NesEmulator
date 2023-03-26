@@ -3,6 +3,7 @@
 //#include "CgtException.h"
 #include "Console.h"
 #include <SDL_audio.h>
+#include "SystemMain.h"
 
 using namespace FrontEnd;
 using namespace NesEmulator;
@@ -10,6 +11,19 @@ using namespace NesEmulator;
 #ifndef LIGHT_BUILD
 		
 #endif
+
+NesMain::NesMain( FrontEnd::SystemMain* systemMain ) :
+	systemMain( systemMain ),
+	nesDebugger( this ),
+	controllerSystem( &systemMain->input ),
+	nesCpu( &systemMain->nesMain ),
+	nesFile( &systemMain->nesMain ),
+	nesMemory( &systemMain->nesMain ),
+	nesPpu( &systemMain->nesMain )
+{
+	CyclesPerFrame = 89342;//89342;
+	state = WaitingForFile;
+}
 		
 void NesMain::runFrame() {
 	if( state != Emulating ) {
@@ -101,6 +115,23 @@ void NesMain::runFrame() {
 	frameNum++;
 }
 
+void NesMain::ApuCpuSync( ) {
+	if( nesApu.getCC( ) < nesCpu.getCC( ) ) {
+		nesApu.runTo( nesCpu.getCC( ) );
+	}
+}
+void NesMain::PpuCpuSync( ) {
+	if( nesPpu.getCC( ) < nesCpu.getCC( ) ) {
+		//specify to update until sprite 0 is found
+		//TODO will this work in all cases??
+		//if( nesPpu.registers.status.sprite0Time == 0 ) {
+		//	nesPpu.renderBuffer( nesCpu.getCC(), PpuSystem::UF_Sprite0 );
+		//} else {
+		nesPpu.renderBuffer( nesCpu.getCC( ) );
+		//}
+	}
+}
+
 void NesMain::reset() {
 	masterClock = 0;
 	cpuOverflow = 0;
@@ -112,7 +143,3 @@ void NesMain::reset() {
 	nesPpu.reset();
 }
 
-NesMain::NesMain() {
-	CyclesPerFrame = 89342;//89342;
-	state = WaitingForFile;
-}
