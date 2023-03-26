@@ -161,6 +161,10 @@ namespace NesEmulator {
 		//initializes and assigns the memory bank
 		void initializeMemoryMap();
 
+		void switchVerticalMirroring( );
+
+		void switchHorizontalMirroring( );
+
 		void zeroMemory();
 
 		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
