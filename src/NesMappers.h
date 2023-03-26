@@ -1,7 +1,7 @@
 #if !defined( NesMappers_INCLUDED )
 #define NesMappers_INCLUDED
 
-//#include "NesMemory.h"
+#include "typedefs.h"
 
 namespace NesEmulator {
 	class NesMain;
@@ -31,8 +31,11 @@ namespace NesEmulator {
 	//mapper 1
 	class NesMapper1: public NesMapHandler {
 	public:
+		NesMapper1( ) : MMC1_SR( 0b10000 ) {}
 		void initializeMap( );
 		void reset( );
+
+		uword MMC1_SR;
 	};
 
 	//mapper 2 - UNRom

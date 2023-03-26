@@ -57,10 +57,10 @@ void NesMapper1::initializeMap( ) {
 			//Writing a value with bit 7 set( $80 through $FF ) to any address in 
 			//$8000 - $FFFF clears the shift register to its initial state
 			if( BIT( 7, param ) ) {
-				//MMC1_SR = 0b10000;
+				MMC1_SR = 0b10000;
 			}
 			else {
-				//MMC1_SR = MMC1_SR >> 1;
+				MMC1_SR = MMC1_SR >> 1;
 			}
 		},
 		
