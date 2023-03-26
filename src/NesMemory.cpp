@@ -1049,18 +1049,28 @@ void PPUMemory::initializeMemoryMap() {
 		throw NesMemoryException( "Not yet supported", "Four screen vram", 0 );
 	}
 	if( nesFile->isHorizontalMirroring() ) {
-		memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
-		memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable0;
-		memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable1;
-		memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks->nameTable1;
+		switchHorizontalMirroring( );
 	}
 	else if( nesFile->isVerticalMirroring() ) {
-		memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
-		memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable1;
-		memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable0;
-		memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks->nameTable1;
+		switchVerticalMirroring( );
 	}
 	//note: palettes and mirroring handled with branch logic
+}
+
+void NesEmulator::PPUMemory::switchVerticalMirroring( )
+{
+	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
+	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable1;
+	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable0;
+	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks->nameTable1;
+}
+
+void NesEmulator::PPUMemory::switchHorizontalMirroring( )
+{
+	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
+	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable0;
+	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable1;
+	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks->nameTable1;
 }
 
 /* 
