@@ -30,7 +30,7 @@ void NesMapper0::reset() {
 Mapper 1 - MMC1
 
 https://www.nesdev.org/wiki/MMC1
-
+https://nerdy-nights.nes.science/#advanced_tutorial-0
 
 - Change register value by writing five times with bit 7 clear and desired value in bit 0 
   (starting with low bit)
@@ -43,7 +43,7 @@ https://www.nesdev.org/wiki/MMC1
 =============================================================================
 */
 void NesMapper1::initializeMap( ) {
-	//map chr rom
+	//TODO do proper memory init
 	nesMain->nesMemory.ppuMemory.fillChrBanks( 0, 0, 0x2000 / PPU_BANKSIZE );
 
 	//add functions
@@ -58,9 +58,20 @@ void NesMapper1::initializeMap( ) {
 			//$8000 - $FFFF clears the shift register to its initial state
 			if( BIT( 7, param ) ) {
 				MMC1_SR = 0b10000;
+				write_count = 0;		//is this correct??  Does this count as the 1st write of 5?
 			}
 			else {
 				MMC1_SR = MMC1_SR >> 1;
+				
+				//on the 5th write
+				if( write_count == 5-1 ) {
+					//TODO add register logic
+					
+					write_count = 0;
+				}
+				else {
+					write_count++;
+				}
 			}
 		},
 		
@@ -74,13 +85,14 @@ void NesMapper1::initializeMap( ) {
 }
 
 void NesMapper1::reset( ) {
+	//TODO - need to verify proper procedure on this
 	int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
-
 	//map first prg rom bank
 	nesMain->nesMemory.fillPrgBanks( 0x8000, 0, 0x4000 / CPU_BANKSIZE );
-
 	//map last prg rom bank
 	nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
+
+	write_count = 0;
 }
 
 /*
