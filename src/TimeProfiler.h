@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
-#include <unordered_map>
+#include <map>
 
 namespace FrontEnd {
 	
@@ -12,7 +12,7 @@ namespace FrontEnd {
 	const int TIMED_SECTION_SAMPLES = 60;
 	
 	//update rate
-	const int TIMED_SECTION_RATE = 15;
+	const int TIMED_SECTION_RATE = 20;
 	
 	/*
 	================================================================
@@ -111,7 +111,7 @@ namespace FrontEnd {
 		std::chrono::steady_clock::time_point frameStopTime;
 		std::chrono::duration<double>  elapsedTime;
 
-		std::unordered_map<std::string, TimedSection > timedSections;
+		std::map<std::string, TimedSection > timedSections;
 
 		//frame buffer - used to calculate average framerate
 		static const int frameTimeBufferSize = 60;
