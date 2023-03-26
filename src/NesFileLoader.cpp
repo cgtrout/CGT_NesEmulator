@@ -110,8 +110,11 @@ void NesFile::loadFile( std::string_view filename ) {
 	case 0:
 		nesMemory->initializeMemoryMap( new NesMapper0( ) );
 		break;
-	case 2:
+	case 1:
 		nesMemory->initializeMemoryMap( new NesMapper1( ) );
+		break;
+	case 2:
+		nesMemory->initializeMemoryMap( new NesMapper2( ) );
 		break;
 	default:
 		throw new NesFileException( "NesFile::loadFile error", "Mapper not yet supported" );
