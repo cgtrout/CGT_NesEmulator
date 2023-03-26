@@ -135,11 +135,8 @@ void Input::clear() {
 	mouseLeftUp = false;
 	mouseRightDown = false;
 	mouseRightUp = false;
-	//clearKeyBuffers();
 	kbpos = 0;
 	lastKeyPressed = 0;
-
-	clearInputState( );
 }
 
 /*
