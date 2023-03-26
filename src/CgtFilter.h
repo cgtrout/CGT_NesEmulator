@@ -6,12 +6,16 @@
 
 #include <iostream>
 #include <vector>
-#include <cmath>
+
 #include <complex>
 #include <bitset>
 #include <iterator>
 
 namespace CgtLib {
+
+//defined here to avoid compile error
+//M_PI is causing issues - not sure why
+const auto PI = 3.14159265358979323846;
 
 /*
 ================================================================
@@ -25,7 +29,7 @@ public:
     ButterworthHighPassFilter(float cutoff_frequency, float sample_rate)
     : previous_input_(0), previous_output_(0) {
          // Calculate RC (resistor-capacitor) value using the cutoff frequency
-        float RC = 1.0f / (2.0f * (float)M_PI * cutoff_frequency);
+        float RC = 1.0f / (2.0f * (float)PI * cutoff_frequency);
         
         // Calculate the time step (dt) using the sample rate
         float dt = 1.0f / sample_rate;
@@ -62,7 +66,7 @@ public:
     HighPassFilter( float cutoff_frequency, float sample_rate )
         : cutoff_frequency_( cutoff_frequency ),
         sample_rate_( sample_rate ),
-        RC_( 1.0f / ( cutoff_frequency_ * 2 * static_cast<float>( M_PI ) ) ),
+        RC_( 1.0f / ( cutoff_frequency_ * 2 * static_cast<float>( PI ) ) ),
         dt_( 1.0f / sample_rate_ ),
         alpha_( RC_ / ( RC_ + dt_ ) ),
         x_previous_( 0 ),
@@ -98,7 +102,7 @@ class ButterworthLowPassFilter {
 public:
     ButterworthLowPassFilter(float cutoff_frequency, float sample_rate)
     : previous_output_(0) {
-        float RC = 1.0f / ( 2.0f * (float)M_PI * cutoff_frequency );
+        float RC = 1.0f / ( 2.0f * (float)PI * cutoff_frequency );
         float dt = 1.0f / sample_rate;
         alpha_ = dt / (RC + dt);
     }

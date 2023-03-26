@@ -17,7 +17,7 @@ namespace NesEmulator {
 	*/
 	class NesController : public Controllable {
 	  public:
-		NesController();
+		NesController( Input* inputSystem );
 
 		//clear all button states
 		void clear();
@@ -38,6 +38,8 @@ namespace NesEmulator {
 		void connect() { connected = true; }
 		
 	  private:
+
+		Input* inputSystem;
 
 		ControllableButton buttons[ NUM_NES_BUTTONS ];
 
@@ -70,10 +72,10 @@ namespace NesEmulator {
 	*/
 	class NesControllerSystem {
 	  public:	
-	    NesControllerSystem() { }
+		NesControllerSystem( Input* inputSystem );
 	    NesController controller[ 2 ];
 
 	  private:
-		
+		Input* inputSystem;
 	};
 }

@@ -1,13 +1,11 @@
-#if !defined( console__H )
-#define console__H
+#pragma	once
 
 #include "NesCpuCore.h"
-
-extern NesEmulator::NesCpu *nesCpu;
 
 #include "ConsoleCommands.h"
 
 #include "CGTSingleton.h"
+
 #include <vector>
 #include <list>
 
@@ -111,7 +109,7 @@ namespace Console {
 		  //other wise returns null if varname was not found
 		  DefinitionLine *getDefinition( std::string_view varName );
 	  private:
-		  std::vector< DefinitionLine > vars;
+		  std::vector< DefinitionLine > definitionLines;
 	};
 
 	/*
@@ -281,7 +279,6 @@ namespace Console {
 			//number of lines in buffer
 			int numLines;
 			int currentLine;
-			int firstLinePos;
 	        
 			//writes a line to console history
 			void writeLine( std::string_view string );
@@ -292,11 +289,7 @@ namespace Console {
 			//gets a string with lines starting at 'startline', ending at 'endline'
 			std::string getBuffer( int startline, int endline );
 	        
-			History():	numLines( 0 ), 
-						currentLine( 0 ),
-						firstLinePos(0)
-			{
-			}
+			History():	numLines( 0 ), currentLine( 0 ) { }
 		} history;
 		
 		//main system used for handling console commands
@@ -313,4 +306,3 @@ namespace Console {
 	};
 }
 
-#endif //console

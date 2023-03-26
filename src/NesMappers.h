@@ -4,11 +4,21 @@
 //#include "NesMemory.h"
 
 namespace NesEmulator {
+	class NesMain;
+
 	//handler class for nes memory maps
 	class NesMapHandler {
-	  public:	
+	public:	
+		//nesMapHandler handles memory binding, so it needs access to the emulator 
+		//itself (NesMain)
+		void setMapHandler( NesMain* nesMain );
+		
 		virtual void initializeMap( ) = 0;
 		virtual void reset() = 0;
+
+	protected:
+
+		NesMain* nesMain;
 	};
 
 	//default mapper

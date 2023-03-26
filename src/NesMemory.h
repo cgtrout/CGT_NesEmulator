@@ -43,39 +43,33 @@ namespace NesEmulator {
 		ubyte data[ PPU_BANKSIZE ];
 	};
 
-	//this is the base for port handlers that can be written to 
-	//or read from
-	class FunctionObjectBase {
-	  public:
-		virtual void write( uword address, ubyte param ) = 0;	
-		virtual ubyte read( uword address ) = 0;	
-	};
-
 	//one entry in the function table
-	struct FunctionTableEntry {		
-		FunctionTableEntry( uword l, uword h, FunctionObjectBase *f ):
-			low( l ), high( h ), funcObj( f ), readable( true ), writeable( true ) { }
-		
+	struct FunctionTableEntry {
+		FunctionTableEntry( uword l, uword h,
+			std::function<void( uword, ubyte )> writeFunc,
+			std::function<ubyte( uword )> readFunc )
+			: low( l ), high( h ), write( writeFunc ), read( readFunc ),
+			readable( true ), writeable( true ) {}
+
 		FunctionTableEntry( const FunctionTableEntry& );
-		FunctionTableEntry():
-			FunctionTableEntry( 0, 0, nullptr )				
-		{ }
-		
+		FunctionTableEntry( ) : FunctionTableEntry( 0, 0, nullptr, nullptr ) {}
+
 		uword low, high;
-		FunctionObjectBase *funcObj;
+		std::function<void( uword, ubyte )> write;		//write function
+		std::function<ubyte( uword )> read;				//read function
 
-		//readable represents whether or not a function can be read to
-		void setNonReadable() { readable = false; }
-		
-		//readable represents whether or not a function can be written  to
-		void setNonWriteable() { writeable = false; }
+		// Readable represents whether or not a function can be read from
+		void setNonReadable( ) { readable = false; }
 
-		bool getReadable() { return readable; }
-		bool getWriteable() { return writeable; }
+		// Writeable represents whether or not a function can be written to
+		void setNonWriteable( ) { writeable = false; }
+
+		bool getReadable( ) { return readable; }
+		bool getWriteable( ) { return writeable; }
 
 	private:
-		bool readable;	//can we read from this function?
-		bool writeable;	//can we write to this function?
+		bool readable;  // Can we read from this function?
+		bool writeable; // Can we write to this function?
 	};
 
 	//lookup table for function handlers for memory calls
@@ -91,6 +85,7 @@ namespace NesEmulator {
 		FunctionTable();
 	  private:
 		std::unordered_map< uword, FunctionTableEntry > entries;
+
 	};
 
 	//physical memory banks for cpu for banksize of 1k
@@ -153,10 +148,14 @@ namespace NesEmulator {
 		//used to handle mirroring for palettes
 		uword resolvePaletteAddress( uword address );
 
+		NesMain* nesMain;
+
 	  public:
+
+		PPUMemory( NesMain* nesMain );
 		
 		//copies data into ppuMemory physical banks
-		void loadChrRomPages( int pages, const ubyte *data );
+		void loadChrRomPages( uword pages, const ubyte *data );
 		
 		//initializes and assigns the memory bank
 		void initializeMemoryMap();
@@ -165,13 +164,13 @@ namespace NesEmulator {
 
 		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
 		//at pos "prgStartPos"
-		void fillChrBanks( int mainStartPos, int chrStartPos, int numBanks );
+		void fillChrBanks( uword mainStartPos, uword chrStartPos, uword numBanks );
 		
 		//memory read/write functions
 		void setMemory( uword loc, ubyte val );		
 		ubyte getMemory( uword loc );
 
-		ubyte *getBankPtr( int bank );
+		ubyte *getBankPtr( uword bank );
 
 		void fastSetMemory( uword loc, ubyte val );		
 		ubyte fastGetMemory( uword loc );
@@ -202,9 +201,11 @@ namespace NesEmulator {
 
 		//last memory value written to NesMemory
 		ubyte lastMemValue;
+		
+		NesMain* nesMain;
 	
 	  public:
-		NesMemory();
+		NesMemory( NesMain *nesMain );
 
 		void initialize( );
 
@@ -280,13 +281,14 @@ namespace NesEmulator {
 		//gets memory dump from PPU or main memory and puts it in 
 		//dest array given by caller
 		//size must not be larger than dest array!
-		void getMemoryDump( int memType, 
+		void getMemoryDump( NesMemory* nesMemory, 
+							int memType,
 							ubyte *dest,
 							uword address, 
 							int size );
 		
 		//TODO comment
-		std::string formatDump( ubyte buffer[ ],
+		std::string formatDump( const ubyte buffer[ ],
 								uword address,
 								int size,
 								ubyte valuesPerLine );

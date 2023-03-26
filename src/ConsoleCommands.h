@@ -1,5 +1,5 @@
-#if !defined( commandhandler__H )
-#define commandhandler__H
+#pragma once
+
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
 namespace Console {
@@ -45,4 +45,3 @@ namespace Console {
 	} ;
 
 }//namespace
-#endif

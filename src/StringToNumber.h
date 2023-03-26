@@ -2,12 +2,7 @@
 /////does same thing as atoi and atof but throws an exception if
 /////string paramater is not in the proper format
 
-#if !defined( StringToNumber__H )
-#define StringToNumber__H
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "typedefs.h"
 #include <string>
@@ -43,5 +38,3 @@ public:
 		//_log->Write( output.c_str() );
 	}
 };
-
-#endif

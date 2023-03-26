@@ -1,5 +1,4 @@
-#include "precompiled.h"
-#include "NesMappers.h"
+#include "precompiled.h"#include "NesMappers.h"
 
 #include <cassert>
 
@@ -7,24 +6,16 @@
 void NesMapper0::initializeMap() {
 	int prgRomPages = systemMain->nesMain.nesMemory.getNumPrgPages();
 	
-	//map prg rom
-	if( prgRomPages == 1 ) {
+	//map prg rom	if( prgRomPages == 1 ) {
 		systemMain->nesMain.nesMemory.fillPrgBanks( 0x8000, 0, 0x4000 / CPU_BANKSIZE );
 		systemMain->nesMain.nesMemory.fillPrgBanks( 0xC000, 0, 0x4000 / CPU_BANKSIZE );
-	} else if( prgRomPages == 2 ) {
-		systemMain->nesMain.nesMemory.fillPrgBanks( 0x8000, 0, 0x8000 / CPU_BANKSIZE );
-	} else {
-		assert(true);
-	}
-	
-	//map chr rom
-	systemMain->nesMain.nesMemory.ppuMemory.fillChrBanks( 0, 0, 0x2000 / PPU_BANKSIZE );
+	} else if( prgRomPages == 2 ) {		systemMain->nesMain.nesMemory.fillPrgBanks( 0x8000, 0, 0x8000 / CPU_BANKSIZE );
+	} else {		assert(true);
+	}	
+	//map chr rom	systemMain->nesMain.nesMemory.ppuMemory.fillChrBanks( 0, 0, 0x2000 / PPU_BANKSIZE );
 }
-
 void NesMapper0::reset() {
-
 }
-
 /*
 =============================================================================
 Mapper 1 - MMC1
@@ -78,20 +69,16 @@ void NesMapper1::initializeMap( ) {
 
 void NesMapper1::reset( ) {
 	int prgRomPages = systemMain->nesMain.nesMemory.getNumPrgPages( );
-
-	//map first prg rom bank
+	//map first prg rom bank
 	systemMain->nesMain.nesMemory.fillPrgBanks( 0x8000, 0, 0x4000 / CPU_BANKSIZE );
-
-	//map last prg rom bank
+	//map last prg rom bank
 	systemMain->nesMain.nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
 }
-
-/*
+/*
 =============================================================================
 Mapper 2 - UnRom
 =============================================================================
 */
-
 class FuncObjMapper2 : public FunctionObjectBase {
 public:
 	void write( uword address, ubyte param ) {

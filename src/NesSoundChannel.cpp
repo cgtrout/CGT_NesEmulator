@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include "NesSound.h"
+
 using namespace NesApu;
 SquareChannel::SquareChannel( ubyte c ) :
   duty(0), seqPos(0), volSetting(0), channel(0) {
