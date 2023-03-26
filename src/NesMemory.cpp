@@ -440,7 +440,9 @@ ubyte NesMemory::fastGetMemory( uword loc )
 ubyte NesMemory::fastGetMemory( uword loc ) {
 	uword bank = calcCpuBank( loc );
 	uword bankpos = calcCpuBankPos( loc, bank );
-	return memBanks[ bank ]->data[ bankpos ];
+	auto *memBank = memBanks[ bank ];
+	auto data = memBank->data[ bankpos ];
+	return data;
 }
 
 //returns a two byte value from loc (msb format)
