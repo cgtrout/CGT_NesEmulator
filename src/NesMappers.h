@@ -31,11 +31,12 @@ namespace NesEmulator {
 	//mapper 1
 	class NesMapper1: public NesMapHandler {
 	public:
-		NesMapper1( ) : MMC1_SR( 0b10000 ), write_count(0) {}
+		NesMapper1( ) : MMC1_SR( 0b10000 ), MMC1_PB( 0), write_count(0) {}
 		void initializeMap( );
 		void reset( );
 
-		uword MMC1_SR;
+		ubyte MMC1_SR;
+		ubyte MMC1_PB;
 		ubyte write_count;
 	};
 
