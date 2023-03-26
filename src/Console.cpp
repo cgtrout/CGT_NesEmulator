@@ -6,11 +6,6 @@ using namespace Console;
 #include "StringToNumber.h"
 
 #include <sstream>
-
-//string warning
-#if _MSC_VER > 1000
-#pragma warning ( disable : 4996 )
-#endif
 #include <cstdarg>
 
 /* 
@@ -287,11 +282,11 @@ void ConsoleSystem::initialize()
 */
 void ConsoleSystem::initialize() {
 	//get commands declared in CommandHandlerSystem.cpp
-	ConsoleCommand *commands = commandHandlerSystem->getCommands();
+	ConsoleCommand* localCommands = commandHandlerSystem->getCommands();
 
 	//add commands to list
-	while( commands->name != "END_OF_LIST" ) {
-		addCommand( commands++ );
+	while( localCommands->name != "END_OF_LIST" ) {
+		addCommand( localCommands++ );
 	}
 }
 
@@ -453,32 +448,34 @@ void ConsoleSystem::printMessage( const char *message, ...
 TODO convert to c++ strings
 ==============================================
 */
-void ConsoleSystem::printMessage( const char *message, ... ) {
-    va_list	argptr;
-    char buf[ MaxLineSize*2 ];
-	char tbuf[ MaxLineSize ];
-	
-	va_start ( argptr,message );
-	vsprintf ( buf,message,argptr );
-	va_end ( argptr );
+void ConsoleSystem::printMessage( const char* message, ... ) {
+	// Create a buffer and format the message
+	const int bufferSize = 1024;
+	std::vector<char> buffer( bufferSize );
+	va_list argptr;
+	va_start( argptr, message );
+	vsnprintf( buffer.data( ), bufferSize, message, argptr );
+	va_end( argptr );
 
-	//chop up line if greater than maximum allowable length
-	int size = strlen( buf );
-	char *ptr;
-	ptr = &buf[ 0 ];
-	while( size > 0 ) {
-		if( size > MaxLineSize ) {
-			strncpy( tbuf, ptr, MaxLineSize-1 );
-			tbuf[ MaxLineSize-1 ] = '\0';
-			ptr = &buf[ MaxLineSize-1 ];
-			size -= MaxLineSize - 1;
+	// Convert the buffer to a std::string
+	std::string formattedMessage( buffer.data( ) );
+
+	// Create a stringstream to hold the formatted message
+	std::stringstream ss( formattedMessage );
+
+	// Split the formatted string into lines and write each line to the history
+	std::string line;
+	while( std::getline( ss, line ) ) {
+		if( line.size( ) > MaxLineSize ) {
+			// Chop up long lines
+			for( size_t i = 0; i < line.size( ); i += MaxLineSize ) {
+				std::string substr = line.substr( i, MaxLineSize );
+				history.writeLine( substr.c_str( ) );
+			}
 		}
 		else {
-			strncpy( tbuf, ptr, size );
-			tbuf[ size ] = '\0';
-			size = 0;
-		}	
-		history.writeLine( tbuf );
+			history.writeLine( line.c_str( ) );
+		}
 	}
 }
 
@@ -509,7 +506,6 @@ ConsoleSystem::History::getBuffer( int startline, int endline )
 */
 std::string ConsoleSystem::History::getBuffer( int startline, int endline ) {
 	std::string returnBuffer;
-	int lineLength = 0;
     
     for( auto i = startline; i < endline && i < numLines; i++ ) {
         auto line = getLine( i );
@@ -770,7 +766,7 @@ void VariableFile::loadFile( std::string_view filename ) {
 			def.valstr = valBuf;
 		}
 		// Put in new definition
-		vars.push_back( def );
+		definitionLines.push_back( def );
 	}
 	file.close( );
 }
@@ -782,7 +778,7 @@ VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varn
 */
 VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varname ) {
 	  //loop through vector
-	  for( auto &v : vars ) {
+	  for( auto &v : definitionLines ) {
 		  //check to see if def line is a comment or a blank
 		  if( v.blank || v.comment ) {
 			  continue;
@@ -829,7 +825,7 @@ void VariableFile::saveFile( std::string_view filename, Variables *vars ) {
 				newdef.valstr = vars->getValueString( *currVarName );
 
 				//add to definition list
-				this->vars.push_back( newdef );
+				this->definitionLines.push_back( newdef );
 			}
 			//def was found simply change it
 			else {
@@ -840,7 +836,7 @@ void VariableFile::saveFile( std::string_view filename, Variables *vars ) {
 	
 	//all vars with saveToFile status have now been added to line list 
 	//now write to file
-	for( auto v : this->vars ) {
+	for( auto v : this->definitionLines ) {
 		if( v.blank ) {
 			file << " \n";
 			continue;

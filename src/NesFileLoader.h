@@ -1,5 +1,4 @@
-#if !defined( NesFile_INCLUDED )
-#define NesFile_INCLUDED
+#pragma once
 
 //nes file loader
 #include <string>
@@ -61,4 +60,3 @@ namespace NesEmulator {
 		//todo write destructor
 	};
 }
-#endif

@@ -22,8 +22,6 @@ using namespace NesEmulator;
 #include "Console.h"
 #include "NesMain.h"
 
-#include "ImageTools.H"
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl2.h"
 

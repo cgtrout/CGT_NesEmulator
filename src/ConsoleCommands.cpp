@@ -3,9 +3,6 @@
 #include "ConsoleCommands.h"
 #include "SystemMain.h"
 
-#if _MSC_VER > 1000
-#pragma warning ( disable : 4996 )
-#endif
 using namespace Console;
 
 //Console Commands
@@ -37,7 +34,7 @@ ConsoleCommand *CommandHandlerSystem::getCommands() {
 	return commands;
 }
 
-void CommandHandlerSystem::quit( const char *param ) {
+void CommandHandlerSystem::quit( const char * ) {
 	FrontEnd::SystemMain::getInstance( )->quitRequest();
 }
 
@@ -63,8 +60,6 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		consoleSystem->printMessage( "Error loading nes file: %s", e.getMessage() );
 	}
 }
-
-
 
 #ifndef LIGHT_BUILD
 /*
@@ -160,7 +155,7 @@ void CommandHandlerSystem::printBindKeyUsage( const char *errorMsg ) {
 	consoleSystem->printMessage( "For example: \"bind controller1.a to keyboard.z\"");
 }
 
-void CommandHandlerSystem::reset( const char *param ) {
+void CommandHandlerSystem::reset( const char* ) {
 	using namespace FrontEnd;
 
 	consoleSystem->printMessage( "Resetting cpu..." );

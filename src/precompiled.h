@@ -1,16 +1,7 @@
 #include "Log.h"
 #include "Console.h"
+
 #include <chrono>
-
-//turn off unsafe string function warnings
-//TODO change these someday...
-#if _MSC_VER > 1000
-#pragma warning( disable : 4996 )
-#endif
-
-#ifdef WIN32 
-#define SYSTEM_PLATFORM = "Win32"
-#endif
 
 //define this to build a light weight version of the emulator
 //no extra debugging systems

@@ -51,8 +51,6 @@ int main( int argc, char* args[] )
 {
 	systemMain = FrontEnd::SystemMain::getInstance( );
 
-	SDL_Surface* screenSurface = nullptr;
-	
 	//audio specification given back by audio system
 	SDL_AudioSpec audioSpecification;
 

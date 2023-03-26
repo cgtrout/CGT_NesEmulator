@@ -9,10 +9,6 @@
 
 using namespace GUISystem;
 
-//turns off safe string warning
-#if _MSC_VER > 1000
-#pragma warning( disable : 4996 )
-#endif
 #include <SDL_scancode.h>
 
 GUIConsole::GUIConsole(FrontEnd::InputSystem::Input* inputSystem) : 

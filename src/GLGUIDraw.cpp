@@ -10,13 +10,6 @@
 #include "GLRenderer.h"
 #include "SystemMain.h"
 using namespace GUISystem;
-//using namespace Render;
-
-//TODO this turns off the conversion ( From int to float ) warning
-//this should be fixed correctly
-#if _MSC_VER > 1000
-#pragma warning( disable : 4244 )
-#endif
 
 using namespace Console;
 
@@ -147,8 +140,8 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 	if( !drawGUI ) return;
 	
 	Font *font = fs->getFont();
-	int x = fs->getX();	//x must move every time a letter is printed
-	int yres = renderSystem->getyRes();
+	float x = fs->getX();	//x must move every time a letter is printed
+	float yres = renderSystem->getyRes();
 
 	font->getImage( ).createGLTexture( );
 	font->getImage( ).bindGLTexture( );

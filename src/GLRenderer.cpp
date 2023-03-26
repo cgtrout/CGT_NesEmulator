@@ -1,8 +1,6 @@
 // Renderer.cpp: implementation of the Renderer class.
 //
 //////////////////////////////////////////////////////////////////////
-#pragma warning( disable : 4786 )
-
 #include "precompiled.h"
 
 #include "GLRenderer.h"
@@ -28,28 +26,17 @@ ConsoleVariable< bool > drawDebugPPU(
 /*description*/	"Sets whether the debug pattern table should be drawn or not",
 /*save?*/		SAVE_TO_FILE );
 
-//TODO this turns off the conversion ( From int to float ) warning
-//this should be fixed correctly
-#if _MSC_VER > 1000
-#pragma warning( disable : 4244 )
-#endif
-
-//turn off unsafe string function warnings
-//TODO change these someday...
-#if _MSC_VER > 1000
-#pragma warning( disable : 4996 )
-#endif
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
 Renderer::Renderer( FrontEnd::SystemMain* sysMain ) :
+	xres(0),
+	yres(0),
 	systemMain( sysMain )
 {
 	 
 }
-
 
 Renderer::~Renderer() {
 }
@@ -57,7 +44,7 @@ Renderer::~Renderer() {
 float zdrawPos	= 0.0f;
 
 void Renderer::initialize() {
-	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+	consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
 	consoleSystem->variables.addBoolVariable( &drawDebugPPU );
 
 	resizeInitialize( );
@@ -144,8 +131,8 @@ void Renderer::render2D() {
 			Image& paletteImage = ppuDraw.drawPaletteTableF( &systemMain->nesMain.nesMemory, &systemMain->nesMain.nesPpu.nesPalette);
 			
 			ImGui::Begin( "PPU Debug Window", drawDebugPPU.getPointer( ), 0 );
-			ImGui::Image( ( void* )patternImage.handle, ImVec2( patternImage.sizeX, patternImage.sizeY ) );
-			ImGui::Image( ( void* )paletteImage.handle, ImVec2( paletteImage.sizeX, paletteImage.sizeY ) );
+			ImGui::Image( ( void* )patternImage.handle, ImVec2( patternImage.getSizeX(), patternImage.getSizeY( ) ) );
+			ImGui::Image( ( void* )paletteImage.handle, ImVec2( paletteImage.getSizeX( ), paletteImage.getSizeY( ) ) );
 			ImGui::End( );
 		}
 	}
@@ -202,11 +189,11 @@ void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, floa
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f( 1.0f, 1.0f, 1.0f, opacity );			
 
-    glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, ystart ); glVertex3f( pos.x, pos.y, zdrawPos );
-		glTexCoord2f( 0.0, yend ); glVertex3f( pos.x, pos.y + ( image.sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, yend ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y + ( image.sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, ystart ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y, zdrawPos );
+	    glBegin( GL_POLYGON );  
+		glTexCoord2f( 0.0, ystart ); glVertex3f( pos.getX(), pos.getY(), zdrawPos );
+		glTexCoord2f( 0.0, yend ); glVertex3f( pos.getX(), pos.getY() + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, yend ); glVertex3f( pos.getX() + ( image.sizeX*scale ), pos.getY() + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, ystart ); glVertex3f( pos.getX() + ( image.sizeX*scale ), pos.getY(), zdrawPos );
 	glEnd();
 
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f);			
@@ -235,7 +222,7 @@ PPUDraw::PPUDraw() {
 }
 
 void PPUDraw::initialize( ) {
-	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+	consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
 
 	consoleSystem->variables.addBoolVariable( &drawForceAspectRatio );
 }
@@ -304,8 +291,8 @@ void PPUDraw::drawOutput( ubyte* data ) {
 	auto height = ImGui::GetWindowHeight( );
 
 	if ( drawForceAspectRatio ) {
-		int widthHighestPower = pow( 2, floor( log2( width ) ) );
-		int heightHighestPower = pow( 2, floor( log2( height ) ) );
+		float widthHighestPower = static_cast<float>(pow( 2, floor( log2( width ) ) ));
+		float  heightHighestPower = static_cast<float>( pow( 2, floor( log2( height ) ) ));
 		auto lowestVal = widthHighestPower < heightHighestPower ? widthHighestPower : heightHighestPower;
 
 		ImGui::Image( ( void* )img.handle, ImVec2( lowestVal, lowestVal ) );
@@ -335,47 +322,6 @@ Image& PPUDraw::drawPaletteTableF( NesEmulator::NesMemory* nesMemory, NesEmulato
 	//glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
 	return img;
-}
-
-/*
-==============================================
-findTextureExtension()
-
-  finds and appends correct file extension
-  for texture files
-==============================================
-*/
-void Renderer::findTextureExtension( char *strFileName ) {
-	char strJPGPath[ MAX_PATH ] = {0};
-	char strTGAPath[ MAX_PATH ]    = {0}; 
-	FILE *fp = NULL;
-
-	// Get the current path we are in
-	GetCurrentDirectory( MAX_PATH, strJPGPath );
-
-	// Add on a '\' and the file name to the end of the current path.
-	// We create 2 seperate strings to test each image extension.
-	strcat( strJPGPath, "\\" );
-	strcat( strJPGPath, strFileName );
-	strcpy( strTGAPath, strJPGPath );
-	
-	// Add the extensions on to the file name and path
-	strcat( strJPGPath, ".jpg" );
-	strcat( strTGAPath, ".tga" );
-
-	// Check if there is a jpeg file with the texture name
-	if( ( fp = fopen( strJPGPath, "rb" ) ) != NULL ) {
-		// If so, then let's add ".jpg" onto the file name and return
-		strcat( strFileName, ".jpg" );
-		return;
-	}
-
-	// Check if there is a targa file with the texture name
-	if( ( fp = fopen( strTGAPath, "rb" ) ) != NULL ) {
-		// If so, then let's add a ".tga" onto the file name and return
-		strcat( strFileName, ".tga" );
-		return;
-	}
 }
 
 /* 

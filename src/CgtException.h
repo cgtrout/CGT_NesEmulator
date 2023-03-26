@@ -1,6 +1,4 @@
-#if !defined( CgtException__H )
-#define CgtException__H
-
+#pragma once
 #include <string>
 
 class CgtException {
@@ -21,5 +19,3 @@ protected:
 	std::string header;
 	bool showMessage;
 };
-
-#endif

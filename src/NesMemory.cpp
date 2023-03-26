@@ -3,9 +3,6 @@
 
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
 
-//disable crt string warnings
-#pragma warning ( disable : 4996 )
-
 #include "Console.h"
 #include "NesMain.h"
 #include "NesPPU.h"
@@ -174,7 +171,6 @@ void CpuMemBanks::copyPrgRom( int numPages, const ubyte *data )
 ==============================================
 */
 void CpuMemBanks::copyPrgRom( int numPages, const ubyte *data ) {
-	int bankb = 0;	//bank byte
 	int bank = 0;	//current bank
 	int b = 0;		//data byte
 	
@@ -221,7 +217,6 @@ void PpuMemBanks::copyChrRom( int numPages, const ubyte *data )
 ==============================================
 */
 void PpuMemBanks::copyChrRom( int numPages, const ubyte *data ) {
-	int bankb = 0;	//bank byte
 	int bank = 0;	//current bank
 	int b = 0;		//data byte
 	
@@ -536,12 +531,12 @@ void NesMemory::zeroMemory()
 ==============================================
 */
 void NesMemory::zeroMemory() {
-	for( int x = 0; x <= 0x1000; x++ ) {
+	for( uword x = 0; x <= 0x1000; x++ ) {
 		fastSetMemory( x, 0 );
 	}
 
 	//clear sprite memory
-	for( int x = 0x6000; x < 0x8000; x++ ) {
+	for( uword x = 0x6000; x < 0x8000; x++ ) {
 		fastSetMemory( x, 0 );
 	}
 
@@ -710,7 +705,7 @@ void NesMemory::ph4014Write( ubyte val ) {
 	nesMain->PpuCpuSync();
 
 	uword address = ( 0x100 * val );
-	int i = getMemory( 0x2003 );
+	uword i = getMemory( 0x2003 );
 	
 	//copy 256 bytes from address location into spr-ram
 	for( int x = 0; x < 256; x++ ) {
@@ -952,7 +947,7 @@ inline uword PPUMemory::resolveAddress( uword address ) {
 void PPUMemory::loadChrRomPages( int chrRomPages, const ubyte *data )
 ==============================================
 */
-void PPUMemory::loadChrRomPages( int chrRomPages, const ubyte *data ) {
+void PPUMemory::loadChrRomPages( uword chrRomPages, const ubyte *data ) {
 	if( physicalMemBanks != 0 ) {
 		delete physicalMemBanks;
 		physicalMemBanks = 0;
@@ -967,7 +962,7 @@ void PPUMemory::fillChrBanks( int mainStartPos, int chrStartPos, int numBanks )
   fill in banks from prg rom storage to main bank positions
 ==============================================
 */
-void PPUMemory::fillChrBanks( int mainStartPos, int chrStartPos, int numBanks ) { 
+void PPUMemory::fillChrBanks( uword mainStartPos, uword chrStartPos, uword numBanks ) { 
 	int mainPos = ::calcPpuBank( mainStartPos );
 	int chrPos = chrStartPos;
 	for( int x = 0; x < numBanks; x++ ) {
@@ -994,16 +989,16 @@ ubyte PPUMemory::getMemory( uword loc ) {
 
 /* 
 ==============================================
-ubyte *PPUMemory::getBankPtr( int bank )
+ubyte *PPUMemory::getBankPtr
 ==============================================
 */
-ubyte *PPUMemory::getBankPtr( int bank ) {
+ubyte *PPUMemory::getBankPtr( uword bank ) {
 	return memBanks[ bank ]->data;
 }
 
 /* 
 ==============================================
-ubyte PPUMemory::fastGetMemory( uword loc )
+ubyte PPUMemory::fastGetMemory
 ==============================================
 */
 ubyte PPUMemory::fastGetMemory( uword loc ) {
@@ -1148,44 +1143,23 @@ std::string MemoryDumper::formatDump( ubyte buffer[ ], uword address, int size, 
   TODO clean this up a bit / use stringstream
 ==============================================
 */
-std::string MemoryDumper::formatDump( ubyte buffer[ ], uword address, int size, ubyte valuesPerLine ) {
-	std::string out( "" );
-	int mempos, linepos, strpos;
-	strpos = 0;
-	mempos = 0;
-
+std::string MemoryDumper::formatDump( const ubyte* buffer, uword address, int size, ubyte valuesPerLine ) {
+	std::ostringstream out;
+	int mempos = 0;
 	while( mempos < size ) {
-		//fill first part of line ( address header )
-		out += "$"; 
-		char addBuf[ 10 ];
-		sprintf( addBuf, "%x", address + mempos );
-		int len = strlen( addBuf );
+		// fill first part of line ( address header )
+		out << '$' << std::setfill( '0' ) << std::hex << std::setw( 4 ) << ( address + mempos ) << ": ";
 
-		std::string addTemp = addBuf;
-		//pad with 0's if length is less than 4
-		for( int i = len; i < 4; i++ ) {
-			addTemp = "0" + addTemp;
-		}
-		out += addTemp;
-		out += ": ";
-		
-		//start filling in values for one line
-		for( linepos = 0; linepos < valuesPerLine; linepos++, mempos++ ) {
-			//make sure we haven't passed our sie
+		// start filling in values for one line
+		for( int linepos = 0; linepos < valuesPerLine; linepos++, mempos++ ) {
+			// make sure we haven't passed our size
 			if( mempos == size ) {
-				return out;
+				break;
 			}
-			//output memvalue 
-			sprintf( addBuf, "%x", buffer[ mempos ] );
-			std::string number = addBuf;
-			if( number.length() == 1 ) {
-				//pad with 0
-				number = "0" + number;
-			}
-			out += number; 
-			out += " ";
+			// output memvalue
+			out << std::setfill( '0' ) << std::hex << std::setw( 2 ) << static_cast<int>( buffer[ mempos ] ) << " ";
 		}
-		out += "\r\n";
+		out << "\n";
 	}
-	return out;
+	return out.str( );
 }

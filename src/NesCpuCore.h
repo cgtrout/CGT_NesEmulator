@@ -1,17 +1,8 @@
 //nes cpu core
-#if !defined( NesCpu_INCLUDED )
-#define NesCpu_INCLUDED
-
-#if _MSC_VER > 1000
 #pragma once
-#pragma warning( disable : 4786 ) 
-#endif // _MSC_VER > 1000
 
 #include "NesMemory.h"
-//#include "NesSound.h"
-
 #include "NesEmulatorFlagSystem.h"
-
 #include "typedefs.h"
 
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
@@ -274,7 +265,5 @@ namespace NesEmulator {
 }
 
 #include "NesOpcodeTable.h"
-
-#endif	//!defined( NesCpu_INCLUDED )
 
 

@@ -13,6 +13,7 @@ NesDebugger::NesDebugger()
 */
 NesDebugger::NesDebugger( NesEmulator::NesMain* nesMain ) :
 	nesMain( nesMain ),
+	memory( nullptr ),		
 	singleStepMode( false ),
 	doSingleStep( false ),
 	justInSingleStepMode( false ),
@@ -25,6 +26,7 @@ NesDebugger::NesDebugger( NesEmulator::NesMain* nesMain ) :
 	dumpAddress(0),
 	dumpSize(368),
 	dumpAddressStr( 5, 0 ), //5 chars long initialized to 0
+	watchStrings{ { { "" }, { "" }, { "" }, { "" } } },
 	memDumpType( MemoryDumper::MEMDUMPTYPE_MAIN )
 {
 }
@@ -205,38 +207,39 @@ void NesDebugger::draw( ) {
 	}
 }
 
-std::string NesDebugger::loadMemoryDump(  ) {
-	MemoryDumper md;
-	std::vector<ubyte> memdumpBuffer(dumpSize) ;
+#include <sstream>
+#include <iomanip>
+#include <vector>
+#include <stdexcept>
 
-	//how many dumps should be on each line of the printout
-	static const int dumpsPerLine = 16;
+std::string NesDebugger::loadMemoryDump( ) {
+	MemoryDumper md;
+	std::vector<ubyte> memdumpBuffer( dumpSize );
+
+	// how many dumps should be on each line of the printout
+	static constexpr int kDumpsPerLine = 16;
 
 	try {
-		//grab dump
-		md.getMemoryDump( &nesMain->nesMemory, memDumpType, memdumpBuffer.data(), dumpAddress, dumpSize );
-	} catch ( NesMemoryException e ) {
+		// grab dump
+		md.getMemoryDump( &nesMain->nesMemory, memDumpType, memdumpBuffer.data( ), dumpAddress, dumpSize );
+	}
+	catch( NesMemoryException& e ) {
 		throw CgtException( "Memory Dump Error", e.getMessage( ), true );
-		return "DUMP_ISSUE";
 	}
 
-	//print header
-	std::string dumpstr;
-	dumpstr = "       ";
-	char t[ 4 ];
-	//loop through to 
-	for ( int i = 0; i < dumpsPerLine; i++ ) {
-		sprintf( t, "0%x ", i );
-		dumpstr += t;
+	// print header
+	std::ostringstream oss;
+	oss << std::right << std::setfill( '0' );
+	for( int i = 0; i < kDumpsPerLine; i++ ) {
+		oss << "0x" << std::setw( 2 ) << std::hex << i << " ";
 	}
-	dumpstr += "\r\n\r\n";
+	oss << "\n\n";
 
-	//get formatted string form of dump
-	dumpstr += md.formatDump( memdumpBuffer.data(), dumpAddress, dumpSize, dumpsPerLine );
+	// get formatted string form of dump
+	oss << md.formatDump( memdumpBuffer.data( ), dumpAddress, dumpSize, kDumpsPerLine );
 
-	return dumpstr;
+	return oss.str( );
 }
-
 
 /*
 ==============================================

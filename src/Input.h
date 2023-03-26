@@ -2,12 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined( AFX_INPUT_H__87C1253D_A468_45F7_B983_6F72433ABB39__INCLUDED_ )
-#define AFX_INPUT_H__87C1253D_A468_45F7_B983_6F72433ABB39__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include <SDL_keyboard.h>
 #include <SDL_joystick.h>
@@ -255,5 +250,3 @@ namespace FrontEnd {
 		};
 	}
 }
-
-#endif // !defined( AFX_INPUT_H__87C1253D_A468_45F7_B983_6F72433ABB39__INCLUDED_ )

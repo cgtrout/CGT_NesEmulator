@@ -58,8 +58,9 @@ namespace CgtLib {
 		std::vector< std::string > strings;
 		std::string delims;
 
-		int minTokens;
-		int maxTokens;
+		std::basic_string<char>::size_type minTokens;
+		std::basic_string<char>::size_type maxTokens;
+		std::basic_string<char>::size_type npos = std::string::npos;
 
 		//clear all strings that are in vector
 		void clearStrings();

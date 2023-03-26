@@ -15,10 +15,6 @@
 #include <cmath>
 #include "image.h"
 
-#if _MSC_VER > 1000
-
-//#pragma warning( disable : 4786 ) 
-#endif // _MSC_VER > 1000
 
 //x and y screen dimensions
 #define NTSC_X 256
@@ -87,13 +83,11 @@ namespace Render {
 		void drawBox( float x, float y, float width, float height, Pixel3Byte color );
 		void drawImage( Image image, Vec2d pos, bool flip_y = false, float scale = 1.0f, float opacity = 1.0f );
 		
-		void findTextureExtension( char *strFileName );
-
 		PPUDraw ppuDraw;
 
 		void setRes( int x, int y ) { xres = x; yres = y; }
-		int getxRes() { return xres; }
-		int getyRes() { return yres; }
+		float getxRes() { return static_cast<float>(xres); }
+		float getyRes() { return static_cast<float>(yres); }
 	
 		void setXYRes( int x, int y ) { xres = x; yres = y; }
 
@@ -103,9 +97,6 @@ namespace Render {
 
 		int xres, yres;
 		char *getGLErrorString( int error );
-
-		//gl error code
-		int glError;
 
 		FrontEnd::SystemMain* systemMain;
 	};

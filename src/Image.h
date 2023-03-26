@@ -10,6 +10,10 @@ typedef unsigned char ubyte;
 struct Vec2d {
 	int x, y;
 
+	//get float value for things that need it
+	float getX( ) { return static_cast<float>( x ); }
+	float getY( ) { return static_cast<float>( y ); }
+
 	Vec2d( int x_, int y_ ) { x = x_; y = y_; }
 };
 
@@ -39,6 +43,10 @@ class Image {
 	int channels = 0;			
 	int sizeX = 0;				
 	int sizeY = 0;	
+
+	float getSizeX( ) { return static_cast<float>( sizeX ); }
+	float getSizeY( ) { return static_cast<float>( sizeY ); }
+
 	unsigned int handle = 0;
 	
 	void plotPixel( const Vec2d *pos, const Pixel3Byte *color, ubyte alpha = 255 );

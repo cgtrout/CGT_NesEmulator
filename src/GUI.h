@@ -3,12 +3,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined( AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_ )
-#define AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include <list>
 #include <string>
@@ -102,8 +97,8 @@ namespace GUISystem {
 
 		virtual ~GUITextures( ) {}
 
-		void loadFile( std::string fileName ) {
-			loadFromFile( fileName );
+		void loadFile( std::string_view fileNameIn ) {
+			loadFromFile( fileNameIn );
 			iter = fileList.begin( );
 
 			if( fileList.size( ) == 0 ) {
@@ -122,7 +117,7 @@ namespace GUISystem {
 		}
 
 		// Initialize exception class
-		class GUITexturesLoadException : CgtException {
+		class GUITexturesLoadException : public CgtException {
 		public:
 			GUITexturesLoadException( std::string header, std::string m, bool s = true )
 				: CgtException( header, m, s ) {
@@ -161,7 +156,7 @@ namespace GUISystem {
 
 	class GUIElement {
 	public:
-		GUIElement() : name("unnamed") {}
+		GUIElement() : name("unnamed"), inputSystem(nullptr) {}
 		GUIElement( std::string guitextures );
 
 		virtual ~GUIElement();
@@ -177,7 +172,7 @@ namespace GUISystem {
 		virtual void onRightMouseRelease() {}
 
 		//called when user presses a key on keyboard while a control is selected
-		virtual void onKeyDown( SDL_Keycode key ) {}
+		virtual void onKeyDown( SDL_Keycode ) {}
 		
 		//called when gui is rendering the guielements
 		virtual void onRender() {}
@@ -347,11 +342,11 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( SDL_Keycode key ) {}
+		void onKeyDown( SDL_Keycode ) {}
 
 		void update() {}
 
-		void loadFont( Font* font ) {this->font = font;}
+		void loadFont( Font* fontIn ) {this->font = fontIn;}
 		
 		std::string &getString() {return str;}
 		
@@ -384,7 +379,7 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( SDL_Keycode key ) {}
+		void onKeyDown( SDL_Keycode ) {}
 
 		void update() {}
 
@@ -434,13 +429,12 @@ namespace GUISystem {
 		void onRightMouseRelease();
 		virtual void onEnterKey();
 
-		virtual void onKeyDown( SDL_Keycode key ) {}
+		virtual void onKeyDown( SDL_Keycode ) {}
 
 		void update();
 
 		std::string getText() {return text;}
-		void setText( const char *text );
-		void setText( std::string text );
+		void setText( std::string_view text );
 		void clearText() {
 			text = "";
 			boxtext.setString( "" );
@@ -449,7 +443,7 @@ namespace GUISystem {
 		}
 
 		void setCursorPos( int pos ) {cursorPos = pos;}
-		void setMaxLength( int l ) { maxLength = l; }
+		void setMaxLength( int len ) { maxLength = len; }
 	protected:
 		GEDrawElement l, r, b, t, bl, br, tl, tr, cursor;	//left , right, bottom, etc..
 		bool multiLine;
@@ -543,4 +537,3 @@ namespace GUISystem {
 	};
 
 }	//namespace gui
-#endif // !defined( AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_ )

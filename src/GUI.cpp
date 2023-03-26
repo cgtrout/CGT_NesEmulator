@@ -1,21 +1,13 @@
 #include "precompiled.h"
-
+#include <algorithm>
+#include <functional>
+#include <SDL_scancode.h>
 #include "GUI.h"
 #include "GLGeneral.h"
 
 using namespace GUISystem;
-//using namespace Render;
-
 using namespace FrontEnd;
-//#include "CgString.h"
-#include <algorithm>
-#include <functional>
 
-//TODO use "safe" string functions
-#if _MSC_VER > 1000
-	#pragma warning( disable : 4996 )
-#endif
-#include <SDL_scancode.h>
 using namespace Console;
 
 ConsoleVariable< bool > drawDebugLines ( 
@@ -42,9 +34,10 @@ ConsoleVariable< float > fontOpacity(
 
 GUI::GUI( FrontEnd::InputSystem::Input *inputSystem ) :
 	inputSystem( inputSystem ),
-	zdrawpos( 1.0f ),
+	zdrawpos( 0.0f ),
 	drawGUI( true ),
-	usingMouse( true )
+	usingMouse( true ),
+	renderSystem()
 {
 }
 
@@ -252,7 +245,9 @@ void GUI::renderElements(std::vector< GUIElement* > elems ) {
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-GUIElement::GUIElement( std::string guitextures ) {
+GUIElement::GUIElement( std::string guitextures ) :
+	inputSystem( nullptr )	//must be passed pointer later
+{
 }
 
 GUIElement::~GUIElement() {
@@ -359,15 +354,16 @@ GUITextures Class
 =================================================================
 =================================================================
 */
-void GUITextures::loadFromFile( std::string_view fileName ) {
-	std::ifstream is( fileName.data() );
+void GUITextures::loadFromFile( std::string_view fileNameIn ) {
+	std::ifstream is( fileNameIn.data() );
 	std::string error;
-	this->fileName = fileName;
+	this->fileName = fileNameIn;
 
-	if( is.fail() != 0 ) {
+	if( is.fail( ) ) {
+		std::error_code ec( errno, std::generic_category( ) );
 		std::stringstream ss;
-		ss << "Error loading file \"" << fileName << "\"" << strerror(is.fail());
-		throw GUITexturesLoadException( "GUITextures::loadFromFile", ss.str() );
+		ss << "Error loading file \"" << fileNameIn << "\": " << ec.message( );
+		throw GUITexturesLoadException( "GUITextures::loadFromFile", ss.str( ) );
 	}
 
 	for ( std::string line; std::getline( is, line ); )
@@ -632,7 +628,6 @@ void EditBox::update() {
 			}
 		}
 		std::string strIns;
-		int x = 0;
 		
 		//TODO get text input from stl
 		strIns = inputSystem->getTextInput();
@@ -670,15 +665,9 @@ void EditBox::update() {
 	}
 }
 
-void EditBox::setText( const char *text ) {
-	if( text != NULL ) {
-		this->text = text;
-	}
-	setCursorPos( this->text.size() );
-}
 
-void EditBox::setText( std::string text ) {
-	this->text = text;
+void EditBox::setText( std::string_view newText ) {
+	this->text = newText;
 	setCursorPos( text.size() );
 }
 

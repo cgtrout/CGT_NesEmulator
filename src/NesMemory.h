@@ -154,7 +154,7 @@ namespace NesEmulator {
 		PPUMemory( NesMain* nesMain );
 		
 		//copies data into ppuMemory physical banks
-		void loadChrRomPages( int pages, const ubyte *data );
+		void loadChrRomPages( uword pages, const ubyte *data );
 		
 		//initializes and assigns the memory bank
 		void initializeMemoryMap();
@@ -163,13 +163,13 @@ namespace NesEmulator {
 
 		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
 		//at pos "prgStartPos"
-		void fillChrBanks( int mainStartPos, int chrStartPos, int numBanks );
+		void fillChrBanks( uword mainStartPos, uword chrStartPos, uword numBanks );
 		
 		//memory read/write functions
 		void setMemory( uword loc, ubyte val );		
 		ubyte getMemory( uword loc );
 
-		ubyte *getBankPtr( int bank );
+		ubyte *getBankPtr( uword bank );
 
 		void fastSetMemory( uword loc, ubyte val );		
 		ubyte fastGetMemory( uword loc );
@@ -287,7 +287,7 @@ namespace NesEmulator {
 							int size );
 		
 		//TODO comment
-		std::string formatDump( ubyte buffer[ ],
+		std::string formatDump( const ubyte buffer[ ],
 								uword address,
 								int size,
 								ubyte valuesPerLine );

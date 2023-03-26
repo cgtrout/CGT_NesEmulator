@@ -1,5 +1,4 @@
-#if !defined( NESDEBUGGER_INC )
-#define NESDEBUGGER_INC
+#pragma once
 
 #include <string>
 
@@ -110,4 +109,3 @@ namespace NesEmulator {
 }
 
 #endif //LIGHT_BUILD
-#endif // !defined( NESDEBUGGER_INC )
