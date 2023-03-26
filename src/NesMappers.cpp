@@ -70,22 +70,22 @@ void NesMapper1::initializeMap( ) {
 				if( write_count == 4 ) {
 					//register logic
 					MMC1_PB = MMC1_SR;
-					
-					//Control( internal, $8000 - $9FFF )
-					// *4bit0
-					//	-----
-					//	CPPMM
-					//	|||||
-					//	|||++- Mirroring( 0: one - screen, lower bank; 1: one - screen, upper bank;
-					//  |||               2: vertical; 3: horizontal )
-					// 	|++---PRG ROM bank mode( 0, 1: switch 32 KB at $8000, ignoring low bit of bank number;
-					//  |				2: fix first bank at $8000 and switch 16 KB bank at $C000;
-					//  |				3: fix last bank at $C000 and switch 16 KB bank at $8000 )
-					//  +----- CHR ROM bank mode( 0: switch 8 KB at a time; 1: switch two separate 4 KB banks )
+					//  43210
+					//  -----
+					//  CPRMM
+					//  |||||
+					//  |||++- Mirroring (0: one-screen, lower bank; 1: one-screen, upper bank;
+					//  |||               2: vertical; 3: horizontal)
+					//  ||+--- PRG swap range (0: switch 16 KB bank at $C000; 1: switch 16 KB bank at $8000;
+					//  ||                            only used when PRG bank mode bit below is set to 1)
+					//  |+---- PRG size (0: switch 32 KB at $8000, ignoring low bit of bank number;
+					//  |                         1: switch 16 KB at address specified by location bit above)
+					//  +----- CHR size (0: switch 8 KB at a time; 1: switch two separate 4 KB banks)
 					if( address >= 0x8000 && address < 0x9FFF ) {
 						ubyte mirror				= 0b00011;
-						ubyte prg_rom_bank_mode		= 0b01100 >> 2;
-						ubyte chr_rom_bank_mode		= 0b10000 >> 4;
+						ubyte prg_swap				= 0b00100 >> 2;
+						ubyte prg_size				= 0b01000 >> 3;
+						ubyte chr_size				= 0b10000 >> 4;
 
 						switch( mirror ) {
 						case 0://one screen lower bank
@@ -102,9 +102,7 @@ void NesMapper1::initializeMap( ) {
 							break;
 						}
 
-						//TODO prg_rom_bank_mode handling
-
-						//TODO chr_rom_bank_mode handling
+						//TODO 
 
 					}
 					//CHR bank 0 ( internal, $A000 - $BFFF )
