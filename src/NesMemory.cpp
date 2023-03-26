@@ -1037,7 +1037,6 @@ void PPUMemory::initializeMemoryMap()
 void PPUMemory::initializeMemoryMap() {
 	NesFile *nesFile = &nesMain->nesFile;
 	int x, y;
-	//TODO account for map type
 	for( x = 0; x < 4; x++ ) {
 		memBanks[ x ] = &physicalMemBanks->patternTable0[ x ];
 	}
@@ -1057,16 +1056,14 @@ void PPUMemory::initializeMemoryMap() {
 	//note: palettes and mirroring handled with branch logic
 }
 
-void NesEmulator::PPUMemory::switchVerticalMirroring( )
-{
+void NesEmulator::PPUMemory::switchVerticalMirroring( ) {
 	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
 	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable1;
 	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable0;
 	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks->nameTable1;
 }
 
-void NesEmulator::PPUMemory::switchHorizontalMirroring( )
-{
+void NesEmulator::PPUMemory::switchHorizontalMirroring( ) {
 	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
 	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable0;
 	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable1;
