@@ -97,7 +97,7 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
 
 	auto it = entries.find( address );
 	if( it != entries.end( ) ) {
-		return &entries[ address ];
+		return entries[ address ];
 	}
 	else {
 		return nullptr;

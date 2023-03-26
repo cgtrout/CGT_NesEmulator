@@ -42,37 +42,34 @@ https://www.nesdev.org/wiki/MMC1
   bit 7 set
 =============================================================================
 */
-class FuncObjMapper1 : public FunctionObjectBase {
-public:
-	void write( uword address, ubyte param ) {
-		//Writing a value with bit 7 set( $80 through $FF ) to any address in 
-		//$8000 - $FFFF clears the shift register to its initial state
-		if( BIT( 7, param ) ) {
-			MMC1_SR = 0b10000;
-		}
-		else {
-			MMC1_SR = MMC1_SR >> 1;
-		}
-	}
-
-	ubyte read( uword address ) {
-		return 0;
-	}
-
-	ubyte MMC1_SR = 0b10000;	//shift register
-	ubyte MMC1_PB = 0;	//program bank selection
-
-
-} funcObjMapper1;
-
 void NesMapper1::initializeMap( ) {
 	//map chr rom
 	nesMain->nesMemory.ppuMemory.fillChrBanks( 0, 0, 0x2000 / PPU_BANKSIZE );
 
 	//add functions
-	FunctionTableEntry entry( 0x8000, 0xffff, &funcObjMapper1 );
-	entry.setNonReadable( );
+	//
+	auto *entry = new FunctionTableEntry(
+		0x8000,	//low
+		0xffff,	//high
+		
+		// Lambda function for write operation
+		[this]( uword address, ubyte param ) {
+			//Writing a value with bit 7 set( $80 through $FF ) to any address in 
+			//$8000 - $FFFF clears the shift register to its initial state
+			if( BIT( 7, param ) ) {
+				//MMC1_SR = 0b10000;
+			}
+			else {
+				//MMC1_SR = MMC1_SR >> 1;
+			}
+		},
+		
+		// Lambda function for read operation
+		[this]( uword address ) -> ubyte {
+			return 0;
+		} );
 
+	entry->setNonReadable( );
 	nesMain->nesMemory.addFunction( entry );
 }
 
@@ -92,29 +89,30 @@ Mapper 2 - UnRom
 =============================================================================
 */
 
-class FuncObjMapper2 : public FunctionObjectBase {
-public:
-	void write( uword address, ubyte param ) {
-		nesMain->nesMemory.fillPrgBanks( 
-			0x8000,						//start pos
-			param * PRG_BANKS_PER_PAGE,	//prg rom page
-			0x4000 / CPU_BANKSIZE );	//size of transfer
-	}
-	
-	ubyte read( uword address ) {
-		return 0;
-	}
-	
-} funcObjMapper2;
-
 void NesMapper2::initializeMap() {
 	//map chr rom
 	nesMain->nesMemory.ppuMemory.fillChrBanks( 0, 0, 0x2000 / PPU_BANKSIZE );
 
 	//add functions
-	FunctionTableEntry entry( 0x8000, 0xffff, &funcObjMapper2 );
-	entry.setNonReadable();
+	//
+	auto *entry = new FunctionTableEntry(
+		0x8000,	//low
+		0xffff,	//high
+		
+		// Lambda function for write operation
+		[this]( uword address, ubyte param ) {
+			nesMain->nesMemory.fillPrgBanks(
+				0x8000,						//start pos
+				param * PRG_BANKS_PER_PAGE,	//prg rom page
+				0x4000 / CPU_BANKSIZE );	//size of transfer
+		},
+		
+		// Lambda function for read operation
+			[this]( uword address ) -> ubyte {
+			return 0;
+		} );
 
+	entry->setNonReadable( );
 	nesMain->nesMemory.addFunction( entry );
 }
 

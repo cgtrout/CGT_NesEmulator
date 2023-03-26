@@ -11,7 +11,7 @@ namespace NesEmulator {
 	public:	
 		//nesMapHandler handles memory binding, so it needs access to the emulator 
 		//itself (NesMain)
-		void setMapHandler( NesMain* nesMain );
+		void setMapHandler( NesMain* nesMain ) { this->nesMain = nesMain; }
 		
 		virtual void initializeMap( ) = 0;
 		virtual void reset() = 0;
