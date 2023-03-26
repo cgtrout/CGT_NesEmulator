@@ -58,7 +58,7 @@ void NesMapper1::initializeMap( ) {
 			//$8000 - $FFFF clears the shift register to its initial state
 			if( BIT( 7, param ) ) {
 				MMC1_SR = 0b10000;
-				write_count = 0;		//is this correct??  Does this count as the 1st write of 5?
+				write_count = 0;		
 			}
 			else {
 				MMC1_SR = MMC1_SR >> 1;
