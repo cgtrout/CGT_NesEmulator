@@ -72,7 +72,39 @@ void NesMapper1::initializeMap( ) {
 					MMC1_PB = MMC1_SR;
 					
 					//Control( internal, $8000 - $9FFF )
+					// *4bit0
+					//	-----
+					//	CPPMM
+					//	|||||
+					//	|||++- Mirroring( 0: one - screen, lower bank; 1: one - screen, upper bank;
+					//  |||               2: vertical; 3: horizontal )
+					// 	|++---PRG ROM bank mode( 0, 1: switch 32 KB at $8000, ignoring low bit of bank number;
+					//  |				2: fix first bank at $8000 and switch 16 KB bank at $C000;
+					//  |				3: fix last bank at $C000 and switch 16 KB bank at $8000 )
+					//  +----- CHR ROM bank mode( 0: switch 8 KB at a time; 1: switch two separate 4 KB banks )
 					if( address >= 0x8000 && address < 0x9FFF ) {
+						ubyte mirror				= 0b00011;
+						ubyte prg_rom_bank_mode		= 0b01100 >> 2;
+						ubyte chr_rom_bank_mode		= 0b10000 >> 4;
+
+						switch( mirror ) {
+						case 0://one screen lower bank
+							//TODO implement
+							break;
+						case 1://one screen upper bank
+							//TODO implement
+							break;
+						case 2://vertical
+							nesMain->nesMemory.ppuMemory.switchVerticalMirroring( );
+							break;
+						case 3://horizontal
+							nesMain->nesMemory.ppuMemory.switchHorizontalMirroring( );
+							break;
+						}
+
+						//TODO prg_rom_bank_mode handling
+
+						//TODO chr_rom_bank_mode handling
 
 					}
 					//CHR bank 0 ( internal, $A000 - $BFFF )
