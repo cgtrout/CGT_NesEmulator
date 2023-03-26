@@ -61,13 +61,15 @@ void NesMapper1::initializeMap( ) {
 				write_count = 0;		
 			}
 			else {
-				auto userVal = (param & 0b00000001) << 4;
-				MMC1_SR += userVal;
-				MMC1_SR = MMC1_SR >> 1 ;
+				ubyte userVal = (param & 0b00000001);
+				
+				MMC1_SR = MMC1_SR >> 1;
+				MMC1_SR += userVal << 4;
 				
 				//on the 5th write
-				if( write_count == 5-1 ) {
-					//TODO add register logic
+				if( write_count == 4 ) {
+					//register logic
+					MMC1_PB = MMC1_SR;
 					
 					//Control( internal, $8000 - $9FFF )
 					if( address >= 0x8000 && address < 0x9FFF ) {
