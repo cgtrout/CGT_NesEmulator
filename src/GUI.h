@@ -514,7 +514,6 @@ namespace GUISystem {
 				CgtException( header, m, s )
 			{}
 		};
-		
 
 		void initialize( );
 

@@ -170,7 +170,6 @@ void Input::clearInputState( ) {
 	keystate.clear( );
 }
 
-
 /*
 ==============================================
 bool Input::isKeyDownUnset

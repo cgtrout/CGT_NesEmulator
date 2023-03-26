@@ -50,7 +50,6 @@ SystemMain::SystemMain() :
 	
 	input.init();
 	input.clear();	
-	input.clearInputState();
 
 	//make sure that nesFile is loaded into memory before we load nes file
 	nesMain.nesFile.initialize();
@@ -188,6 +187,8 @@ void SystemMain::runFrame() {
 	graphicUpdate();
 
 	timeProfiler.stopActive( );
+
+	input.clear( );
 }
 
 /*
