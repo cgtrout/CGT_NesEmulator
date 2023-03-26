@@ -97,10 +97,9 @@ void GUI::renderDrawList( std::vector< GEDrawElement* > &drawList ) {
 		posx = curr->x;
 		posy = curr->y;
 
-		//glBindTexture( GL_TEXTURE_2D, curr->image.handle );
-		//curr->image.createGLTexture( );
-				
+		curr->image.createGLTexture( );
 		curr->image.bindGLTexture( );
+		
 		glColor4f( 1.0f, 1.0f, 1.0f, *opacity * curr->opacity );
 
 		glBegin( GL_POLYGON );
@@ -150,7 +149,7 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 	int x = fs->getX();	//x must move every time a letter is printed
 	int yres = renderSystem->getyRes();
 
-	//font->getImage( ).createGLTexture( );
+	font->getImage( ).createGLTexture( );
 	font->getImage( ).bindGLTexture( );
 
 	//get console opacity value
