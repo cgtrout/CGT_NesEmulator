@@ -1,5 +1,7 @@
 #include "Precompiled.h"
 
+#include "NesSound.h"
+
 using namespace NesApu;
 
 Divider::Divider():

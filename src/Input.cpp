@@ -135,11 +135,8 @@ void Input::clear() {
 	mouseLeftUp = false;
 	mouseRightDown = false;
 	mouseRightUp = false;
-	//clearKeyBuffers();
 	kbpos = 0;
 	lastKeyPressed = 0;
-
-	clearInputState( );
 }
 
 /*
@@ -169,7 +166,6 @@ void Input::clearInputState()
 void Input::clearInputState( ) {
 	keystate.clear( );
 }
-
 
 /*
 ==============================================
@@ -214,7 +210,7 @@ void Input::updateControllables() {
 				auto& bindName = button->bindName;		//1
 
 				//get information from input datastructure
-				button->keystate = ( KeyPressState )input->getButtonState( deviceName, bindName );
+				button->keystate = ( KeyPressState )getButtonState( deviceName, bindName );
 				if( button->keystate ) {
 					controlLog << "setting:" << button->keystate << " deviceName: " << deviceName << " to " << " bind name: " << bindName
 						<< std::endl;

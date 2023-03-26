@@ -1,5 +1,4 @@
-#if !defined( NESDEBUGGER_INC )
-#define NESDEBUGGER_INC
+#pragma once
 
 #include <string>
 
@@ -8,6 +7,8 @@ using namespace CGTSingleton;
 
 typedef unsigned short uword;
 namespace NesEmulator {
+
+	class NesMain;
 	
 #ifndef LIGHT_BUILD 
 	class NesDebugger {
@@ -61,10 +62,13 @@ namespace NesEmulator {
 
 		std::string buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val );
 			
-		NesDebugger();
+		NesDebugger( NesEmulator::NesMain *nesMain );
 		~NesDebugger();
 		
 	private:
+		NesMain* nesMain;
+		NesMemory* memory;
+		
 		void buildDissassemblerLines( uword startAddress, const int length );
 		bool instructionIsPointingTo( uword opAddress, uword knownAddress );
 		bool isAPreviousValidInst( uword opAddress );
@@ -105,4 +109,3 @@ namespace NesEmulator {
 }
 
 #endif //LIGHT_BUILD
-#endif // !defined( NESDEBUGGER_INC )

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <map>
 
 namespace FrontEnd {
 	
@@ -11,7 +12,7 @@ namespace FrontEnd {
 	const int TIMED_SECTION_SAMPLES = 60;
 	
 	//update rate
-	const int TIMED_SECTION_RATE = 15;
+	const int TIMED_SECTION_RATE = 20;
 	
 	/*
 	================================================================

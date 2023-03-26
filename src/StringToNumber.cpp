@@ -1,6 +1,5 @@
 #include "precompiled.h"
-
-#pragma warning ( disable : 4996 )
+#include "StringToNumber.h"
 
 /*
 ==============================================
@@ -131,23 +130,16 @@ std::string ubyteToString( ubyte val, bool leader )
   leader is used to print leading "0x" at the end of the string
 ==============================================
 */
-std::string ubyteToString( ubyte val, bool leader ) {
-	char buf[ 3 ];
-	std::string out( "" );
-	out.clear();
-	if( leader ) {
-		out += "0x";
-	}
 
-	sprintf( buf, "%x", val );
-	if( strlen( buf ) == 1 ) {
-		//pad output
-		buf[ 1 ] = buf[ 0 ];
-		buf[ 0 ] = '0';
-		buf[ 2 ] = '\0';
+std::string ubyteToString( ubyte val, bool leader ) {
+	std::ostringstream oss;
+	if( leader ) {
+		oss << "0x" << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<int>( val );
 	}
-	out += buf;
-	return out;
+	else {
+		oss << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<int>( val );
+	}
+	return oss.str( );
 }
 
 /* 

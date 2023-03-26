@@ -1,6 +1,9 @@
 #if !defined( NesPpuScanline_INCLUDED )
 #define NesPpuScanline_INCLUDED
 
+#include "NesPpuRegisters.h"
+#include "NesSprite.h"
+
 namespace NesEmulator {
 	static const int PIXELS_PER_SCANLINE = 256; 
 	static const int CLOCKS_PER_SCANLINE = 341;
@@ -15,7 +18,7 @@ namespace NesEmulator {
 	class SpriteDrawer {
 	 public:
 		//draws front or back sprites
-		void drawSprites( ubyte backgroundPri, Registers *r, ScanlineDrawer *scanlineDrawer );
+		void drawSprites( PPUMemory* ppuMemory, ubyte backgroundPri, Registers *r, ScanlineDrawer *scanlineDrawer );
 		
 	 private:
 		//y offset from start of sprite
@@ -41,12 +44,12 @@ namespace NesEmulator {
 	
 	class BackgroundDrawer {
 	  public:
-		void drawBackground( Registers*, ScanlineDrawer* );
+		void drawBackground( PPUMemory*, Registers*, ScanlineDrawer* );
 	};
 
 	class ScanlineDrawer {
 	  public:
-		ScanlineDrawer();
+		ScanlineDrawer( NesMain *nesMain );
 
 		void initialize( );
 		  
@@ -80,6 +83,8 @@ namespace NesEmulator {
 		NesSpriteScanlineResults *scanlineTest ;
 
 	  private:
+
+		NesMain* nesMain;
 		
 		PpuClockCycles detectSprite0Hit();
 		  

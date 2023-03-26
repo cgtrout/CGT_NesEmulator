@@ -10,6 +10,7 @@
 #include "implot/implot.h"
 
 #include "CgtDataStructures.h"
+#include "SystemMain.h"
 
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
@@ -32,6 +33,7 @@ Console::ConsoleVariable< bool > drawTimeProfiler(
 //variables
 SDL_Window* window = nullptr;
 bool isWindowMode = true;
+FrontEnd::SystemMain* systemMain;
 
 //function declarations
 void initializeEmulator( );
@@ -47,8 +49,8 @@ void sinewaveTest( Uint8* stream, int len );
 
 int main( int argc, char* args[] )
 {
-	SDL_Surface* screenSurface = nullptr;
-	
+	systemMain = FrontEnd::SystemMain::getInstance( );
+
 	//audio specification given back by audio system
 	SDL_AudioSpec audioSpecification;
 
@@ -245,7 +247,7 @@ void initializeJoysticks( )
 		std::replace( joy.name.begin( ), joy.name.end( ), '.', '_' );
 
 		//fill joystick data structure with joystick info
-		input->getJoystickMap( )[ joy.id ] = joy;
+		systemMain->input.getJoystickMap( )[ joy.id ] = joy;
 	}
 
 	//now sort by id so we get proper ordering
@@ -293,7 +295,8 @@ const int AXIS_BIND_THRESHOLD = 20000;
 
 void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 	//FIXME - should not at this location
-	
+	auto* input = &systemMain->input;
+
 	if ( showButtonBindMenu ) {
 		ImGui::Begin( "Input", &showButtonBindMenu);
 
@@ -314,6 +317,8 @@ void SDL_EventHandler( SDL_Event& event, bool& quit ) {
 
 			ImGui::Text( "In button bind mode" );
 			ImGui::Spacing( );
+
+			auto *input = &systemMain->input;
 
 			auto& controller = input->getControllables( )[ currentController ];
 			ImGui::Text( "Current controller is %s", controller->name.c_str( ) );
@@ -557,9 +562,6 @@ void initializeEmulator( ) {
 	systemMain->start( );
 
 	//set frame rate counter pos based on screen size
-
-	input = FrontEnd::InputSystem::Input::getInstance( );
-
 	const double FRAME_TIME = 1.0f / 60.0f;
 
 	bool freshFrame = true;

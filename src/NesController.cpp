@@ -3,12 +3,28 @@
 using namespace NesEmulator;
 #include <sstream>
 
-/* 
+#include "NesController.h"
+
+
+/*
 ==============================================
-NesController::NesController()
+NesControllerSystem::NesControllerSystem
 ==============================================
 */
-NesController::NesController() {
+NesControllerSystem::NesControllerSystem( Input* inputSystem ) :
+	controller { NesController( inputSystem ), NesController( inputSystem ) }
+{
+	
+}
+
+/* 
+==============================================
+NesController::NesController
+==============================================
+*/
+NesController::NesController( Input* inputSystem ) :
+	inputSystem( inputSystem )
+{
 	static int controllerNum = 0;
 	clear();
 	connected = 1;
@@ -47,7 +63,7 @@ NesController::NesController() {
 	name = "controller" + std::to_string(controllerNum + 1);
 
 	//add this control to input system
-	Input::getInstance()->addControl( dynamic_cast< Controllable* >( this ) );
+	inputSystem->addControl( dynamic_cast< Controllable* >( this ) );
 	controllerNum++;
 }
 /* 

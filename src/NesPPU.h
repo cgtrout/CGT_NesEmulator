@@ -49,7 +49,7 @@ namespace NesEmulator {
 		//this allows nesMain to draw the frame to the buffer
 		void checkForVINT( PpuClockCycles );
 
-		NesPPU();
+		NesPPU( NesMain* nesMain );
 
 		void initialize( );
 
@@ -67,6 +67,8 @@ namespace NesEmulator {
 		ubyte getFrameType() { return frameType; }
 
 	private:
+		NesMain* nesMain;
+
 		//current clock count of ppu
 		//can also be looked at as being the current pixel
 		PpuClockCycles currentCC;

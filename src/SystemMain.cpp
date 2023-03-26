@@ -3,6 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 #include "precompiled.h"
 
+#include "SystemMain.h"
+
 #include <cmath>
 
 #ifndef LIGHT_BUILD
@@ -20,14 +22,10 @@ using namespace NesEmulator;
 #include "Console.h"
 #include "NesMain.h"
 
-#include "ImageTools.H"
-
-#ifndef LIGHT_BUILD
-  extern NesDebugger *nesDebugger;
-#endif
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl2.h"
 
+#include "SystemMain.h"
 using namespace Console;
 using namespace InputSystem;
 
@@ -36,24 +34,27 @@ using namespace InputSystem;
 SystemMain::SystemMain()
 ==============================================
 */
-SystemMain::SystemMain() {
+SystemMain::SystemMain() :
+	nesMain( this ),
+	gui( &input ),
+	renderer( this ),
+	guiConsole{ &input }
+{
 	//initialize systems
 	consoleSystem.initialize();
 
 	_log = CLog::getInstance();
 	_log->Init();
 	
-	input = Input::getInstance();
-	input->init();
-	input->clear();	
-	input->clearInputState();
+	input.init();
+	input.clear();	
 
 	//make sure that nesFile is loaded into memory before we load nes file
 	nesMain.nesFile.initialize();
 
 	wantsQuit = false;
 	
-	input->setUseDelay( true );
+	input.setUseDelay( true );
 }
 
 void SystemMain::initialize( ) {
@@ -65,9 +66,25 @@ void SystemMain::initialize( ) {
 	nesMain.nesPpu.initialize( );
 
 #ifndef LIGHT_BUILD
-	nesDebugger->initialize( );
+	nesMain.nesDebugger.initialize( );
 #endif
 
+}
+
+void SystemMain::loadNesFile( std::string_view fileName ) {
+	//TODO move to seperate function in nesmain
+	nesMain.nesApu.setUninitialized( );
+	nesMain.setState( WaitingForFile );
+	nesMain.nesFile.loadFile( fileName );
+	consoleSystem.printMessage( "NES file load successful" );
+
+	nesMain.nesPpu.reset( );
+	nesMain.reset( );
+	nesMain.nesCpu.reset( );
+	//systemMain->nesMain.nesCpu.setOnStatus( true );
+	nesMain.nesApu.setInitialized( );
+
+	nesMain.setState( Emulating );
 }
 
 /*
@@ -76,7 +93,7 @@ SystemMain::~SystemMain()
 ==============================================
 */
 SystemMain::~SystemMain() {
-	input->writeBindsToFile( "binds.cfg" );
+	input.writeBindsToFile( "binds.cfg" );
 }
 
 /*
@@ -115,30 +132,30 @@ void SystemMain::runFrame() {
 	renderer.initFrame();
 
 	//update all controls linked to input
-	input->updateControllables();
+	input.updateControllables();
 
 	//tilde key
-	if( input->isKeyDownUnset( SDLK_BACKQUOTE ) ) {
+	if( input.isKeyDownUnset( SDLK_BACKQUOTE ) ) {
 		guiConsole.setOpen( !guiConsole.isOpen() );
 		
 		if ( guiConsole.isOpen( ) ) {
 			guiConsole.editLine.setAsActiveElement( );
 		} else {
-			input->setState( Input::InputSystemStates::NORMAL_MODE );
+			input.setState( Input::InputSystemStates::NORMAL_MODE );
 			guiConsole.editLine.unactivateElement( );
 		}
 	}
 	
 #ifndef LIGHT_BUILD
 	//see if escape key is down for quitting
-	if( input->isKeyDown( SDLK_BACKSPACE ) ) {
+	if( input.isKeyDown( SDLK_BACKSPACE ) ) {
 		if( !nesMain.nesDebugger.inSingleStepMode() ) {
 			nesMain.nesDebugger.turnOffSingleStepMode();
 		}
 	}
 	
 	//F5 controls single stepping with the debugger
-	if( input->isKeyDownUnset( SDLK_F5 ) ) {
+	if( input.isKeyDownUnset( SDLK_F5 ) ) {
 		if( !nesMain.nesDebugger.inSingleStepMode() ) {
 			if( nesMain.getState() == Emulating ) {
 				nesMain.nesDebugger.setToSingleStepMode( nesMain.nesCpu.getPC() );
@@ -148,28 +165,28 @@ void SystemMain::runFrame() {
 			nesMain.nesDebugger.turnOffSingleStepMode();
 		}
 	}
-	if( input->isKeyDownUnset( SDLK_F9 ) ) {
+	if( input.isKeyDownUnset( SDLK_F9 ) ) {
 		nesMain.nesDebugger.addBreakPoint( nesMain.nesDebugger.getSelectedAddress() );
 	}
-	if( input->isKeyDownUnset( SDLK_F6 ) ) {
+	if( input.isKeyDownUnset( SDLK_F6 ) ) {
 		if( nesMain.nesDebugger.inSingleStepMode() ) {
 			nesMain.nesDebugger.singleStepRequest();
 		}
 	}
-	if( input->isKeyDown( SDLK_RETURN ) ) {
+	if( input.isKeyDown( SDLK_RETURN ) ) {
 		if( nesMain.nesDebugger.isOpen() ) {
 			nesMain.nesDebugger.onEnter();
 		}
 	}	
 #endif 
-	
+	timeProfiler.startSection( "Gui" );
 	gui.runFrame();
-	nesMain.runFrame();
-	
-	
+	nesMain.runFrame();	
 	graphicUpdate();
 
 	timeProfiler.stopActive( );
+
+	input.clear( );
 }
 
 /*

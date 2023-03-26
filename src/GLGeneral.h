@@ -1,5 +1,4 @@
-#if !defined( GLGENERAL_INC )
-#define GLGENERAL_INC
+#pragma once
 
 #include <windows.h>
 #include <gl\gl.h>			// Header File For The OpenGL32 Library
@@ -10,4 +9,3 @@
 //creates opengl texture
 void _createTexture( Image image, unsigned int *texid, GLenum format = GL_RGBA );
 
-#endif

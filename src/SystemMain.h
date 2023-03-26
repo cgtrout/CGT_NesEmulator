@@ -1,27 +1,14 @@
 // SystemMain.h: interface for the SystemMain class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#if !defined( AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_ )
-#define AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_
-
-//TODO investigate these supressed warnings
-#if _MSC_VER > 1000
 #pragma once
-#pragma warning( disable : 4786 ) 
-#pragma warning( disable : 4503 ) 
-#endif // _MSC_VER > 1000
-
-#include "Console.h"
-#include "GLRenderer.h"
-#include "Input.h"
-#include "NesMain.h"
-
-#include "GUIConsole.h"
-
-#include "TimeProfiler.h"
 
 #include "CGTSingleton.h"
+#include "GUI.h"
+#include "GUIConsole.h"
+#include "TimeProfiler.h"
+#include "NesMain.h"
+#include "GLRenderer.h"
 
 using namespace CGTSingleton;
 
@@ -48,6 +35,8 @@ namespace FrontEnd {
 		
 		void initialize( );
 
+		void loadNesFile( std::string_view fileName );
+
 		//sets up and starts the class
 		void start();
 		
@@ -65,6 +54,8 @@ namespace FrontEnd {
 
 		//updates all graphics objects
 		void graphicUpdate();
+
+		Input					input;
 
 		Console::ConsoleSystem	consoleSystem;
 		
@@ -86,4 +77,3 @@ namespace FrontEnd {
 	};
 }
 
-#endif // !defined( AFX_SystemMain_H__7ABE258F_5B1F_4833_B5F6_0A06D5FBEF42__INCLUDED_ )

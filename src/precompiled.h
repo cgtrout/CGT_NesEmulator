@@ -1,30 +1,11 @@
-#include "SystemMain.h"
-#include "CgtException.h"
-#include "CGTSingleton.h"
-#include "StringToNumber.h"
-#include "Console.h"
-#include "ConsoleCommands.h"
-
-using namespace CGTSingleton;
-
 #include "Log.h"
+#include "Console.h"
 
-//turn off unsafe string function warnings
-//TODO change these someday...
-#if _MSC_VER > 1000
-#pragma warning( disable : 4996 )
-#endif
-
-#ifdef WIN32 
-#define SYSTEM_PLATFORM = "Win32"
-#endif
+#include <chrono>
 
 //define this to build a light weight version of the emulator
 //no extra debugging systems
 //#define LIGHT_BUILD
-
-extern FrontEnd::SystemMain	*systemMain;
-extern FrontEnd::InputSystem::Input *input;
 
 extern FrontEnd::CLog *_log;
 extern Console::ConsoleSystem *consoleSystem;

@@ -1,17 +1,8 @@
 //nes cpu core
-#if !defined( NesCpu_INCLUDED )
-#define NesCpu_INCLUDED
-
-#if _MSC_VER > 1000
 #pragma once
-#pragma warning( disable : 4786 ) 
-#endif // _MSC_VER > 1000
 
 #include "NesMemory.h"
-//#include "NesSound.h"
-
 #include "NesEmulatorFlagSystem.h"
-
 #include "typedefs.h"
 
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
@@ -20,7 +11,12 @@
 #include <vector>
 
 namespace NesEmulator {
-	
+
+	class NesMain;
+	class NesDebugger;
+	class NesMemory;
+	class NesPPU;
+		
 	//opcodes
 	enum CpuOpcode {
 		OP_ADC,	OP_AND,	OP_ASL,	OP_BCC,	OP_BCS,	OP_BEQ,	OP_BIT,	OP_BMI,	OP_BNE,	OP_BPL,	OP_BRK,	OP_BVC,	OP_BVS,
@@ -89,7 +85,7 @@ namespace NesEmulator {
 	*/
 	class NesCpu {
 	  public:
-		NesCpu();
+		NesCpu( NesMain* nesMain );
 		~NesCpu();
 
 		void initialize( );
@@ -138,7 +134,15 @@ namespace NesEmulator {
 		ubyte getYReg() { return reg.y; }
 		uword getSP()   { return sp;    }
 
+		NesEmulatorFlagSystem* flagSystem;
+
 	private:
+
+		NesMain*		nesMain;
+		NesDebugger*	nesDebugger;
+		NesMemory*		nesMemory;
+		NesPPU*			nesPpu;
+
 		//memory read routines
 		ubyte getMemoryZP();		ubyte getIMM();		
 		ubyte getMemoryZPX();		ubyte getZPX();
@@ -186,6 +190,8 @@ namespace NesEmulator {
 					u;  //unused flag
 		} flags, flagsBackup;
 
+		
+
 	private:
 		//bool onStatus;		//is the cpu currently running
 		
@@ -198,8 +204,6 @@ namespace NesEmulator {
 		
 		//run ( 1 ) instruction
 		void runInstruction();
-
-		NesEmulatorFlagSystem *flagSystem;
 		
 	public:
 		//general operation routines
@@ -261,7 +265,5 @@ namespace NesEmulator {
 }
 
 #include "NesOpcodeTable.h"
-
-#endif	//!defined( NesCpu_INCLUDED )
 
 

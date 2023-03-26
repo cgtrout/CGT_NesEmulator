@@ -8,17 +8,9 @@
 #include "GLGeneral.h"
 #include "Console.h"
 #include "GLRenderer.h"
+#include "SystemMain.h"
 using namespace GUISystem;
-//using namespace Render;
 
-//TODO this turns off the conversion ( From int to float ) warning
-//this should be fixed correctly
-#if _MSC_VER > 1000
-#pragma warning( disable : 4244 )
-#endif
-
-Console::ConsoleSystem *console;
-Render::Renderer *renderSystem;
 using namespace Console;
 
 ConsoleVariable< float > *opacity;
@@ -32,17 +24,27 @@ GUI::render()
 void GUI::render() {
 	zdrawpos = 0.0001f;
 	
-	console = &FrontEnd::SystemMain::getInstance()->consoleSystem;
 	renderSystem = &FrontEnd::SystemMain::getInstance()->renderer;
 	
 	if( opacity == NULL ) {
-		opacity = console->variables.getFloatVariable( "guiOpacity" );
+		opacity = consoleSystem->variables.getFloatVariable( "guiOpacity" );
 	}
 
 	//render gui elements
 	renderElements( elements );
 }
 
+/*
+==============================================
+GUI::render()
+
+  renders ui
+==============================================
+*/
+void GUI::addElement( GUIElement* ge ) {
+	ge->setInputSystem( inputSystem );
+	elements.push_back( ge ); 
+}
 
 /*
 ==============================================
@@ -81,16 +83,18 @@ void GUI::renderDrawList( std::vector< GEDrawElement* > &drawList ) {
 	GuiDim posx;
 	GuiDim posy;
 	GuiDim yres = renderSystem->getyRes();
+
+	glEnable( GL_BLEND ); // Enable blending
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	
 	//go through drawList and draw all of the elements contained within
 	for( auto& curr : drawList ) {
 		posx = curr->x;
 		posy = curr->y;
 
-		//glBindTexture( GL_TEXTURE_2D, curr->image.handle );
-		//curr->image.createGLTexture( );
-				
+		curr->image.createGLTexture( );
 		curr->image.bindGLTexture( );
+		
 		glColor4f( 1.0f, 1.0f, 1.0f, *opacity * curr->opacity );
 
 		glBegin( GL_POLYGON );
@@ -119,11 +123,10 @@ void GUI::renderDrawList( std::vector< GEDrawElement* > &drawList ) {
 				glTexCoord2f( 1.0, 1.0 ); glVertex3f( posx + curr->image.sizeX, yres - posy, zdrawpos );
 				glTexCoord2f( 1.0, 0.0 ); glVertex3f( posx + curr->image.sizeX, yres - ( posy + curr->image.sizeY ), zdrawpos );
 		}	
-		glEnd();
-		
-		glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );		
+		glEnd();	
 	}
+
+	glDisable( GL_BLEND );
 }
 
 /*
@@ -137,36 +140,39 @@ void GUI::renderTextLabel( TextLabel *fs ) {
 	if( !drawGUI ) return;
 	
 	Font *font = fs->getFont();
-	int x = fs->getX();	//x must move every time a letter is printed
-	int yres = renderSystem->getyRes();
+	float x = fs->getX();	//x must move every time a letter is printed
+	float yres = renderSystem->getyRes();
 
-	//font->getImage( ).createGLTexture( );
+	font->getImage( ).createGLTexture( );
 	font->getImage( ).bindGLTexture( );
 
+	glEnable( GL_BLEND ); // Enable blending
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
 	//get console opacity value
-	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*console->variables.getFloatVariable( "fontOpacity")));
+	glColor4f( 1.0f, 1.0f, 0.5f, *opacity * (*consoleSystem->variables.getFloatVariable( "fontOpacity")));
 	
 	unsigned int length = fs->getString().length();
 	
-		for( unsigned int i = 0 ; i < length; i++ ) {
-			glBegin( GL_QUADS );
-			TextureCoord *c = font->getCoord( fs->getString()[ i ] );
+	for( unsigned int i = 0 ; i < length; i++ ) {
+		glBegin( GL_QUADS );
+		TextureCoord *c = font->getCoord( fs->getString()[ i ] );
 			
-			glTexCoord2f( c->x0, c->y0 ); 
-			glVertex3f( x, yres - fs->getY() - font->getFontHeight(), zdrawpos );
+		glTexCoord2f( c->x0, c->y0 ); 
+		glVertex3f( x, yres - fs->getY() - font->getFontHeight(), zdrawpos );
 			
-			glTexCoord2f( c->x0, c->y1 );
-			glVertex3f( x, yres - fs->getY(), zdrawpos );
+		glTexCoord2f( c->x0, c->y1 );
+		glVertex3f( x, yres - fs->getY(), zdrawpos );
 			
-			glTexCoord2f( c->x1, c->y1 ); 
-			glVertex3f( x + font->getFontWidth(), yres - fs->getY(), zdrawpos );
+		glTexCoord2f( c->x1, c->y1 ); 
+		glVertex3f( x + font->getFontWidth(), yres - fs->getY(), zdrawpos );
 			
-			glTexCoord2f( c->x1, c->y0 );
-			glVertex3f( x + font->getFontWidth(), yres - fs->getY() - font->getFontHeight(), zdrawpos );
+		glTexCoord2f( c->x1, c->y0 );
+		glVertex3f( x + font->getFontWidth(), yres - fs->getY() - font->getFontHeight(), zdrawpos );
 
-			x += font->getFontWidth();
-			glEnd();
-		}
-		glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );			
+		x += font->getFontWidth();
+		glEnd();
+	}
+
+	glDisable( GL_BLEND );	
 }
