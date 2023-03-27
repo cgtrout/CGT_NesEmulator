@@ -105,8 +105,8 @@ void NesMapper1::initializeMap( ) {
 
 						//bit 1 - toggles between H / V and "one-screen" mirroring
 						//			0 = one - screen mirroring, 1 = H / V mirroring
-						//TODO
-
+						//TODO handle this
+												
 						//bit 2 - toggles between low PRGROM area switching and high
 						//			0 = high PRGROM switching, 1 = low PRGROM switching
 						prgrom_bank_address = ( bit2 == 0 ) ? 0xc000 : 0x8000;
@@ -130,6 +130,7 @@ void NesMapper1::initializeMap( ) {
 					else if( address >= 0xA000 && address <= 0xBFFF ) {
 						ubyte selected_bank = MMC1_PB & 0b11111;
 
+						//todo may need to mask here?
 						switch( char_rom_switch_size ) {
 						case 4:
 							break;
@@ -159,7 +160,7 @@ void NesMapper1::initializeMap( ) {
 						//it isn't this directly, but how it somehow affects something else??
 						nesMain->nesMemory.ppuMemory.fillChrBanks(
 							0x1000,								//start address
-							selected_bank,	//chr rom page
+							selected_bank,						//chr rom page
 							char_rom_switch_size);				//number of banks
 					}
 					//PRG bank( internal, $E000 - $FFFF )
@@ -181,7 +182,7 @@ void NesMapper1::initializeMap( ) {
 						//do prg rom swap
 						nesMain->nesMemory.fillPrgBanks(
 							prgrom_bank_address,				//start address
-							selected_bank,	//prg rom page
+							selected_bank,						//prg rom page
 							prgrom_switch_size );				//number of banks
 					}
 						

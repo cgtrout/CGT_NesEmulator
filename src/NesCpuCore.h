@@ -23,7 +23,8 @@ namespace NesEmulator {
 		OP_CLC,	OP_CLD,	OP_CLI,	OP_CLV,	OP_CMP,	OP_CPX,	OP_CPY,	OP_DEC,	OP_DEX,	OP_DEY,	OP_EOR,	OP_INC,	OP_INX,
 		OP_INY,	OP_JMP,	OP_JSR,	OP_LDA,	OP_LDX,	OP_LDY,	OP_LSR,	OP_NOP,	OP_ORA,	OP_PHA,	OP_PHP,	OP_PLA,	OP_PLP,
 		OP_ROL,	OP_ROR,	OP_RTI,	OP_RTS,	OP_SBC,	OP_SEC,	OP_SED,	OP_SEI,	OP_STA,	OP_STX,	OP_STY,	OP_TAX,	OP_TAY,
-		OP_TSX,	OP_TXA,	OP_TXS,	OP_TYA,	OP_BREAK, OP_BAD
+		OP_TSX,	OP_TXA,	OP_TXS,	OP_TYA,	OP_BREAK, OP_RRA,
+		OP_BAD
 	};
 
 	//addressing modes
@@ -227,6 +228,14 @@ namespace NesEmulator {
 		void opROR_General( short memLocation );
 		void opSBC_General( ubyte memValue );
 
+		/*
+		===================================================================
+		NEW undocumented
+		https://www.pagetable.com/c64ref/6502/?tab=2#RLA
+		===================================================================
+		*/
+		void opRRA_General( short memLocation );
+
 		void followBranch();	//used by branches to follow a branch
 
 		//opcode functions
@@ -261,6 +270,10 @@ namespace NesEmulator {
 		void opTXS_IMP(); void opTSX_IMP(); void opPHA_IMP(); void opPLA_IMP(); void opPHP_IMP();
 		void opPLP_IMP(); void opSTX_ZP(); void opSTX_ZPY(); void opSTX_ABS(); void opSTY_ZP();
 		void opSTY_ZPX(); void opSTY_ABS();
+
+		void opRRA_IMM( );void opRRA_ZP( );void opRRA_ZPX( );void opRRA_ABS( );void opRRA_ABSX( );void opRRA_ABSY( );
+		void opRRA_INDX( );
+		void opRRA_INDY( );
 	};
 }
 

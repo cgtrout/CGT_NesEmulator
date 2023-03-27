@@ -849,6 +849,31 @@ void NesCpu::opPLA_IMP() {
 void NesCpu::opPHP_IMP() { nesMemory->setMemory( (uword)(sp--) + 0x100, createFlagByte()   ); }
 void NesCpu::opPLP_IMP() { setFlagsFromByte( nesMemory->getMemory( ( uword )++sp + 0x100 ) ); }
 
+
+/*
+===================================================================
+NEW undocumented 
+https://www.pagetable.com/c64ref/6502/?tab=2#RLA
+===================================================================
+*/
+
+void NesCpu::opRRA_General( short memLocation ) {
+	ubyte m = nesMemory->getMemory( memLocation );
+	ubyte oldCarry = flags.c;
+	flags.c = m & 0x01;
+	ubyte r = (oldCarry << 7) + (m >> 1);
+	ubyte oldSign = BIT( 7, reg.a );
+	
+	// Cast to uint16_t to avoid wrap around
+	uint16_t carryCheck = static_cast<uint16_t>( reg.a ) + static_cast<uint16_t>( r ) + flags.c; 
+	
+	reg.a += r + flags.c;
+	flags.v = BIT( 7, reg.a ) != oldSign;
+
+	flags.n = BIT( 7, reg.a );
+	flags.z = ( reg.a == 0 );
+}
+
 /* 
 ==============================================
 specific op handlers
@@ -978,6 +1003,16 @@ void NesCpu::opSBC_ABSX() {	opSBC_General( getMemoryABSX()	); }
 void NesCpu::opSBC_ABSY() {	opSBC_General( getMemoryABSY()	); }
 void NesCpu::opSBC_INDX() {	opSBC_General( getMemoryINDX()	); }
 void NesCpu::opSBC_INDY() {	opSBC_General( getMemoryINDY()	); }
+
+//NEW RRA undocumented func
+void NesCpu::opRRA_ZP( )   { opRRA_General( getMemoryZP( ) ); }
+void NesCpu::opRRA_ZPX( )  { opRRA_General( getMemoryZPX( ) ); }
+void NesCpu::opRRA_ABS( )  { opRRA_General( getMemoryABS( ) ); }
+void NesCpu::opRRA_ABSX( ) { opRRA_General( getMemoryABSX( ) ); }
+void NesCpu::opRRA_ABSY( ) { opRRA_General( getMemoryABSY( ) ); }
+void NesCpu::opRRA_INDX( ) { opRRA_General( getMemoryINDX( ) ); }
+void NesCpu::opRRA_INDY( ) { opRRA_General( getMemoryINDY( ) ); }
+
 
 #ifndef LIGHT_BUILD
 
