@@ -109,11 +109,11 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
 CpuMemBanks::CpuMemBanks( int prgRomPages, const ubyte *data )
 ==============================================
 */
-CpuMemBanks::CpuMemBanks( int prgRomPages, const ubyte *data ) {
+CpuMemBanks::CpuMemBanks( int prgRomPages, const std::vector<ubyte> &data ) {
 	this->prgRomPages = prgRomPages;
 	int numBanks = ( PRG_ROM_PAGESIZE * prgRomPages ) / CPU_BANKSIZE;
 
-	prgRom = new CpuMemBank[ numBanks ];
+	prgRom = std::vector<CpuMemBank>( numBanks );
 	copyPrgRom( prgRomPages, data );
 }
 
@@ -123,7 +123,6 @@ CpuMemBanks::~CpuMemBanks()
 ==============================================
 */
 CpuMemBanks::~CpuMemBanks() {
-	delete[] prgRom;
 }
 
 /* 
@@ -131,7 +130,7 @@ CpuMemBanks::~CpuMemBanks() {
 void CpuMemBanks::copyPrgRom( int numPages, const ubyte *data )
 ==============================================
 */
-void CpuMemBanks::copyPrgRom( int numPages, const ubyte *data ) {
+void CpuMemBanks::copyPrgRom( int numPages, const std::vector<ubyte> &data ) {
 	int bank = 0;	//current bank
 	int b = 0;		//data byte
 	
@@ -157,7 +156,7 @@ void CpuMemBanks::copyPrgRom( int numPages, const ubyte *data ) {
 PpuMemBanks::PpuMemBanks( int chrRomPages, const ubyte *data )
 ==============================================
 */
-PpuMemBanks::PpuMemBanks( int chrRomPages, const ubyte *data ) {
+PpuMemBanks::PpuMemBanks( int chrRomPages, const std::vector<ubyte>& data ) {
 	if( chrRomPages == 0 ) {
 		this->chrRomPages = 1;
 	} else {
@@ -165,7 +164,7 @@ PpuMemBanks::PpuMemBanks( int chrRomPages, const ubyte *data ) {
 	}	
 	int numBanks = ( CHR_ROM_PAGESIZE * this->chrRomPages ) / PPU_BANKSIZE;
 
-	chrRom = new PpuMemBank[ numBanks ];
+	chrRom = std::vector<PpuMemBank>( numBanks );
 	
 	if( chrRomPages != 0 ) {
 		copyChrRom( chrRomPages, data );
@@ -174,10 +173,10 @@ PpuMemBanks::PpuMemBanks( int chrRomPages, const ubyte *data ) {
 
 /* 
 ==============================================
-void PpuMemBanks::copyChrRom( int numPages, const ubyte *data )
+void PpuMemBanks::copyChrRom
 ==============================================
 */
-void PpuMemBanks::copyChrRom( int numPages, const ubyte *data ) {
+void PpuMemBanks::copyChrRom( int numPages, const std::vector<ubyte>& data ) {
 	int bank = 0;	//current bank
 	int b = 0;		//data byte
 	
@@ -207,7 +206,6 @@ PpuMemBanks::~PpuMemBanks()
 ==============================================
 */
 PpuMemBanks::~PpuMemBanks() {
-	delete[] chrRom;
 }
 
 /*
@@ -231,7 +229,8 @@ NesMemory::NesMemory()
 */
 NesMemory::NesMemory( NesMain* nesMain ) :
 	nesMain( nesMain ),
-	ppuMemory( nesMain )
+	ppuMemory( nesMain ),
+	memBanks( 0x10000 / CPU_BANKSIZE )
 {
 	
 }
@@ -247,7 +246,6 @@ void NesMemory::initialize( )
 
 	_20056State = LOW;	//2005/2006 flip flop state - share the same state
 	spriteDmaTransferTime = 0;
-	physicalMemBanks = 0;
 	mapHandler = 0;
 }
 
@@ -256,12 +254,8 @@ void NesMemory::initialize( )
 void NesMemory::loadPrgRomPages( int prgRomPages, const ubyte *data )
 ==============================================
 */
-void NesMemory::loadPrgRomPages( int prgRomPages, const ubyte *data ) {
-	if( physicalMemBanks != 0 ) {
-		delete physicalMemBanks;
-		physicalMemBanks = 0;
-	}
-	physicalMemBanks = new CpuMemBanks( prgRomPages, data ); 
+void NesMemory::loadPrgRomPages( int prgRomPages, const std::vector<ubyte> &data ) {
+	physicalMemBanks = CpuMemBanks( prgRomPages, data ); 
 }
 
 /* 
@@ -277,7 +271,7 @@ void NesMemory::fillPrgBanks( uword start_address, int prgStartPos, int numBanks
 	int bankNum = calcCpuBank( start_address );
 	int prgPos = prgStartPos;
 	for( int x = 0; x < numBanks; x++ ) {
-		memBanks[ bankNum++ ]= &physicalMemBanks->prgRom[ prgPos++ ];
+		memBanks[ bankNum++ ]= &physicalMemBanks.prgRom[ prgPos++ ];
 	}
 }
 
@@ -296,18 +290,18 @@ void NesMemory::initializeMemoryMap( NesMapHandler *handler ) {
 	
 	int x, y;
 	for( x = 0; x < 8; ) {
-		memBanks[x++] = &physicalMemBanks->ramBank1;		
-		memBanks[x++] = &physicalMemBanks->ramBank2;
+		memBanks[x++] = &physicalMemBanks.ramBank1;		
+		memBanks[x++] = &physicalMemBanks.ramBank2;
 	}
 	for( x = ::calcCpuBank( 0x2000 ); x < ::calcCpuBank( 0x4000 ); ) {
-		memBanks[ x++ ] = &physicalMemBanks->registers2000;
+		memBanks[ x++ ] = &physicalMemBanks.registers2000;
 	}
-	memBanks[ ::calcCpuBank( 0x4000 ) ] = &physicalMemBanks->registers4000;
+	memBanks[ ::calcCpuBank( 0x4000 ) ] = &physicalMemBanks.registers4000;
 	for( x = ::calcCpuBank( 0x4400 ), y = 0; y < 7; ) {
-		memBanks[ x++ ] = &physicalMemBanks->expansionRom[ y++ ];
+		memBanks[ x++ ] = &physicalMemBanks.expansionRom[ y++ ];
 	}
 	for( x = ::calcCpuBank( 0x6000 ), y = 0; y < 8; ) {
-		memBanks[ x++ ] = &physicalMemBanks->saveRam[ y++ ];
+		memBanks[ x++ ] = &physicalMemBanks.saveRam[ y++ ];
 	}
 	
 	//delete any existing function entries
@@ -886,7 +880,8 @@ PPUMemory
 */
 
 PPUMemory::PPUMemory( NesMain* nesMain ) :
-	nesMain( nesMain )
+	nesMain( nesMain ),
+	memBanks( 0x10000 / PPU_BANKSIZE )
 {
 
 }
@@ -906,12 +901,8 @@ inline uword PPUMemory::resolveAddress( uword address ) {
 void PPUMemory::loadChrRomPages( int chrRomPages, const ubyte *data )
 ==============================================
 */
-void PPUMemory::loadChrRomPages( uword chrRomPages, const ubyte *data ) {
-	if( physicalMemBanks != 0 ) {
-		delete physicalMemBanks;
-		physicalMemBanks = 0;
-	}
-	physicalMemBanks = new PpuMemBanks( chrRomPages, data ); 
+void PPUMemory::loadChrRomPages( uword chrRomPages, const std::vector<ubyte> &data ) {
+	physicalMemBanks = PpuMemBanks( chrRomPages, data ); 
 }
 
 /* 
@@ -925,7 +916,7 @@ void PPUMemory::fillChrBanks( uword start_address, uword chrStartPos, uword numB
 	int mainPos = ::calcPpuBank( start_address );
 	int chrPos = chrStartPos;
 	for( int x = 0; x < numBanks; x++ ) {
-		memBanks[ mainPos++ ] = &physicalMemBanks->chrRom[ chrPos++ ];
+		memBanks[ mainPos++ ] = &physicalMemBanks.chrRom[ chrPos++ ];
 	}
 }
 
@@ -952,7 +943,7 @@ ubyte *PPUMemory::getBankPtr
 ==============================================
 */
 ubyte *PPUMemory::getBankPtr( uword bank ) {
-	return memBanks[ bank ]->data;
+	return memBanks[ bank ]->data.data();
 }
 
 /* 
@@ -1035,10 +1026,10 @@ void PPUMemory::initializeMemoryMap() {
 	NesFile *nesFile = &nesMain->nesFile;
 	int x, y;
 	for( x = 0; x < 4; x++ ) {
-		memBanks[ x ] = &physicalMemBanks->patternTable0[ x ];
+		memBanks[ x ] = &physicalMemBanks.patternTable0[ x ];
 	}
 	for( x = ::calcPpuBank( 0x1000 ), y = 0; y < 4; x++, y++ ) {
-		memBanks[ x ] = &physicalMemBanks->patternTable1[ y ];
+		memBanks[ x ] = &physicalMemBanks.patternTable1[ y ];
 	}
 	if( nesFile->isFourScreenVRam() ) {
 		//TODO
@@ -1054,17 +1045,17 @@ void PPUMemory::initializeMemoryMap() {
 }
 
 void NesEmulator::PPUMemory::switchVerticalMirroring( ) {
-	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
-	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable1;
-	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable0;
-	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks->nameTable1;
+	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable1;
 }
 
 void NesEmulator::PPUMemory::switchHorizontalMirroring( ) {
-	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks->nameTable0;
-	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks->nameTable0;
-	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks->nameTable1;
-	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks->nameTable1;
+	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable1;
 }
 
 /* 

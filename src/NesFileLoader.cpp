@@ -1,7 +1,7 @@
 #include "precompiled.h"
-using namespace NesEmulator;
-
 #include "SystemMain.h"
+
+using namespace NesEmulator;
 
 /* 
 ==============================================
@@ -11,8 +11,6 @@ NesFile::NesFile()
 NesFile::NesFile( NesMain* nesMain ) :
 	nesMain( nesMain )
 {	
-	prgRomPages = 0;
-	chrRomPages = 0;
 }
 
 /* 
@@ -43,13 +41,11 @@ void NesFile::loadFile( std::string_view filename ) {
 	if( !is ) throw NesFileException( "NesFile::loadFile error", "Could not find file" );
 	
 	//if memory has already been allocated delete it first
-	if( prgRomPages != 0 ) {
-		delete[] prgRomPages; 
-		prgRomPages = 0;
+	if( prgRomPages.empty() == false ) {
+		prgRomPages.clear( );
 	}
-	if( chrRomPages != 0 ) {
-		delete[] chrRomPages; 
-		chrRomPages = 0;
+	if( chrRomPages.empty() == false ) {
+		chrRomPages.clear( );
 	}
 	
 	//if first 3 bytes of header are not equal to "NES" throw exception
@@ -85,18 +81,18 @@ void NesFile::loadFile( std::string_view filename ) {
 	if( trainer ) throw NesFileException( "NesFile::loadFile error", "Trainer not supported" );
 
 	//initialize prg-rom
-	prgRomPages = new ubyte[ prgRomPageCount * 0x4000 ];
+	prgRomPages = std::vector<ubyte>( prgRomPageCount * 0x4000 );
 	
 	if( chrRomPageCount != 0 ) {
-		chrRomPages = new ubyte[ chrRomPageCount * 0x2000 ];
+		chrRomPages = std::vector<ubyte>( chrRomPageCount * 0x2000 );
 	}
 	
 	//load prg and chr rom from file
 	is.seekg( 16, std::ios::beg );
-	is.read( reinterpret_cast< char* >( prgRomPages ), prgRomPageCount * 0x4000 );
+	is.read( reinterpret_cast< char* >( prgRomPages.data() ), prgRomPageCount * 0x4000 );
 	
 	if( chrRomPageCount != 0 ) {
-		is.read( reinterpret_cast< char* >( chrRomPages ), chrRomPageCount * 0x2000 );
+		is.read( reinterpret_cast< char* >( chrRomPages.data() ), chrRomPageCount * 0x2000 );
 	}
 
 	is.close();

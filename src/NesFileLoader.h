@@ -2,6 +2,7 @@
 
 //nes file loader
 #include <string>
+#include <vector>
 
 #include "CGTException.h"
 
@@ -17,8 +18,8 @@ namespace NesEmulator {
 		void loadFile( std::string_view filename );
 		//std::string getFileName() {return file;}
 
-		ubyte *getPrgRomPages() { return prgRomPages; }
-		ubyte *getChrRomPages() { return chrRomPages; }
+		std::vector<ubyte> *getPrgRomPages() { return &prgRomPages; }
+		std::vector<ubyte> *getChrRomPages() { return &chrRomPages; }
 
 		ubyte getNumPrgRomPages()  { return prgRomPageCount; }
 		ubyte getChrRomPageCount() { return chrRomPageCount; }
@@ -53,8 +54,8 @@ namespace NesEmulator {
 
 		ubyte mapperNum;
 
-		ubyte *prgRomPages;
-		ubyte *chrRomPages;
+		std::vector<ubyte> prgRomPages;
+		std::vector<ubyte> chrRomPages;
 
 		//std::string file;
 		//todo write destructor

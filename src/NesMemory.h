@@ -35,14 +35,14 @@ namespace NesEmulator {
 	uword calcCpuBankPos( uword loc, uword bank );
 	uword calcPpuBankPos( uword loc, uword bank );
 
-	//one bank of cpu memory
+	// One bank of CPU memory
 	struct CpuMemBank {
-		ubyte data[ CPU_BANKSIZE ];
+		std::array<ubyte, CPU_BANKSIZE> data;
 	};
 
-	//one bank of ppu memory
+	// One bank of PPU memory
 	struct PpuMemBank {
-		ubyte data[ PPU_BANKSIZE ];
+		std::array<ubyte, PPU_BANKSIZE> data;
 	};
 
 	//one entry in the function table
@@ -92,18 +92,20 @@ namespace NesEmulator {
 	//physical memory banks for cpu for banksize of 1k
 	struct CpuMemBanks {
 		CpuMemBank	ramBank1,
-					ramBank2,
-					registers2000,
-					registers4000,	//contains some expansion ram
-					expansionRom[7],
-					saveRam[8],
-					*prgRom;	
+			ramBank2,
+			registers2000,
+			registers4000,	//contains some expansion ram
+			expansionRom[ 7 ],
+			saveRam[ 8 ];
 		
-		CpuMemBanks( int prgRomPages, const ubyte *data );
+		std::vector<CpuMemBank> prgRom;	
+		
+		CpuMemBanks( int prgRomPages, const std::vector<ubyte> &data );
+		CpuMemBanks( ) {}
 		~CpuMemBanks();
 
 		//copies prg rom into membanks
-		void copyPrgRom( int numPages, const ubyte *data );
+		void copyPrgRom( int numPages, const std::vector<ubyte> &data );
 
 		int prgRomPages;
 	};
@@ -116,13 +118,14 @@ namespace NesEmulator {
 					nameTable1,
 					nameTable2,
 					nameTable3;
-		PpuMemBank *chrRom;
+		std::vector<PpuMemBank> chrRom;
 
-		PpuMemBanks( int chrRomPages, const ubyte *data );
+		PpuMemBanks( int chrRomPages, const std::vector<ubyte> &data );
+		PpuMemBanks( ) {}
 		~PpuMemBanks();
 
 		//copies prg rom into membanks
-		void copyChrRom( int numPages, const ubyte *data );
+		void copyChrRom( int numPages, const std::vector<ubyte>& data );
 
 		int chrRomPages;
 	};
@@ -135,8 +138,8 @@ namespace NesEmulator {
 	=================================================================
 	*/
 	class PPUMemory {
-		PpuMemBank *memBanks[ 0x10000 / PPU_BANKSIZE ];
-		PpuMemBanks *physicalMemBanks;
+		std::vector<PpuMemBank*> memBanks;
+		PpuMemBanks physicalMemBanks;
 
 		//palette data for background and sprites
 		std::array<ubyte, 0x10> bgPalette;
@@ -155,7 +158,7 @@ namespace NesEmulator {
 		PPUMemory( NesMain* nesMain );
 		
 		//copies data into ppuMemory physical banks
-		void loadChrRomPages( uword pages, const ubyte *data );
+		void loadChrRomPages( uword pages, const std::vector<ubyte> &data );
 		
 		//initializes and assigns the memory bank
 		void initializeMemoryMap();
@@ -193,8 +196,8 @@ namespace NesEmulator {
 	*/
 	class NesMemory {
 	  private:
-		CpuMemBank *memBanks[ 0x10000 / CPU_BANKSIZE ];
-		CpuMemBanks *physicalMemBanks;
+		std::vector<CpuMemBank*> memBanks;
+		CpuMemBanks physicalMemBanks;
 		NesMapHandler *mapHandler;
 
 		FunctionTable funcTable;
@@ -213,8 +216,8 @@ namespace NesEmulator {
 
 		void initialize( );
 
-		int getNumPrgPages() { return physicalMemBanks->prgRomPages; }
-		void loadPrgRomPages( int prgRomPages, const ubyte *data );
+		int getNumPrgPages( ) { return physicalMemBanks.prgRomPages; }
+		void loadPrgRomPages( int prgRomPages, const std::vector<ubyte> &data );
 
 		//fill in prg banks at "start_address" with data from main prgRom databank 
 		//at pos "prgStartPos" for "NumBanks"
