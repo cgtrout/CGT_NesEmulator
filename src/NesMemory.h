@@ -86,7 +86,6 @@ namespace NesEmulator {
 		FunctionTable();
 	  private:
 		std::unordered_map< uword, FunctionTableEntry* > entries;
-
 	};
 
 	//physical memory banks for cpu for banksize of 1k

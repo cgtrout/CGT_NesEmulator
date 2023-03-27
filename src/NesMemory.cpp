@@ -1109,7 +1109,6 @@ void MemoryDumper::getMemoryDump( NesMemory* nesMemory, int memType, ubyte *dest
 /* 
 ==============================================
 std::string MemoryDumper::formatDump( ubyte buffer[ ], uword address, int size, ubyte valuesPerLine )
-  TODO clean this up a bit / use stringstream
 ==============================================
 */
 std::string MemoryDumper::formatDump( const ubyte* buffer, uword address, int size, ubyte valuesPerLine ) {
