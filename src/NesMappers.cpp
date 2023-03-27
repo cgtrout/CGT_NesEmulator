@@ -70,22 +70,21 @@ void NesMapper1::initializeMap( ) {
 				if( write_count == 4 ) {
 					//register logic
 					MMC1_PB = MMC1_SR;
-					//  43210
-					//  -----
-					//  CPRMM
-					//  |||||
-					//  |||++- Mirroring (0: one-screen, lower bank; 1: one-screen, upper bank;
-					//  |||               2: vertical; 3: horizontal)
-					//  ||+--- PRG swap range (0: switch 16 KB bank at $C000; 1: switch 16 KB bank at $8000;
-					//  ||                            only used when PRG bank mode bit below is set to 1)
-					//  |+---- PRG size (0: switch 32 KB at $8000, ignoring low bit of bank number;
-					//  |                         1: switch 16 KB at address specified by location bit above)
-					//  +----- CHR size (0: switch 8 KB at a time; 1: switch two separate 4 KB banks)
+					//4bit0 
+					//----- 
+					//CPPMM 
+					//||||| 
+					//|||++- Mirroring (0: one-screen, lower bank; 1: one-screen, upper bank; 
+					//|||               2: vertical; 3: horizontal) 
+					//|++--- PRG ROM bank mode (0, 1: switch 32 KB at $8000, ignoring low bit of bank number; 
+					//|                         2: fix first bank at $8000 and switch 16 KB bank at $C000; 
+					//|                         3: fix last bank at $C000 and switch 16 KB bank at $8000) 
+					//+----- CHR ROM bank mode (0: switch 8 KB at a time; 1: switch two separate 4 KB banks) 
+					//https://emudev.de/nes-emulator/about-mappers-mmc1-and-mmc3/
 					if( address >= 0x8000 && address < 0x9FFF ) {
 						ubyte mirror				= 0b00011;
-						ubyte prg_swap				= 0b00100 >> 2;
-						ubyte prg_size				= 0b01000 >> 3;
-						ubyte chr_size				= 0b10000 >> 4;
+						ubyte prg_rom_bankmode		= 0b01100 >> 2;
+						ubyte chr_rom_bankmode		= 0b11000 >> 3;
 
 						switch( mirror ) {
 						case 0://one screen lower bank
@@ -106,14 +105,30 @@ void NesMapper1::initializeMap( ) {
 
 					}
 					//CHR bank 0 ( internal, $A000 - $BFFF )
+					//4bit0 
+					//----- 
+					//CCCCC 
+					//||||| 
+					//+++++- Select 4 KB or 8 KB CHR bank at PPU $0000 (low bit ignored in 8 KB mode) 
 					else if( address >= 0xA000 && address < 0xBFFF ) {
 
 					}
 					//CHR bank 1 ( internal, $C000 - $DFFF )
+					//4bit0 
+					//----- 
+					//CCCCC 
+					//||||| 
+					//+++++- Select 4 KB CHR bank at PPU $1000 (ignored in 8 KB mode) 
 					else if( address >= 0xC000 && address < 0xDFFF ) {
 
 					}
 					//PRG bank( internal, $E000 - $FFFF )
+					//4bit0 
+					//----- 
+					//RPPPP 
+					//||||| 
+					//|++++- Select 16 KB PRG ROM bank (low bit ignored in 32 KB mode) 
+					//+----- PRG RAM chip enable (0: enabled; 1: disabled; ignored on MMC1A) 
 					else if( address >= 0xE000 && address < 0xFFFF ) {
 
 					}
@@ -166,7 +181,7 @@ void NesMapper2::initializeMap() {
 		
 		// Lambda function for write operation
 		[this]( uword address, ubyte param ) {
-			nesMain->nesMemory.fillPrgBanks(
+ 			nesMain->nesMemory.fillPrgBanks(
 				0x8000,						//start pos
 				param * PRG_BANKS_PER_PAGE,	//prg rom page
 				0x4000 / CPU_BANKSIZE );	//size of transfer
