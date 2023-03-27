@@ -31,13 +31,19 @@ namespace NesEmulator {
 	//mapper 1
 	class NesMapper1: public NesMapHandler {
 	public:
-		NesMapper1( ) : MMC1_SR( 0b10000 ), MMC1_PB( 0), write_count(0) {}
+		NesMapper1( ) {}
 		void initializeMap( );
 		void reset( );
 
-		ubyte MMC1_SR;
-		ubyte MMC1_PB;
-		ubyte write_count;
+		ubyte MMC1_SR = 0b10000;	//shift register
+		ubyte MMC1_PB = 0;			//user programmed value (stored after 5 writes)
+		ubyte write_count = 0;		//write count index of 5 writes
+
+		//low / high area address selection
+		uword prgrom_bank_address = 0x8000;	//only boots if set to this value (Tetris)
+				
+		ubyte prgrom_switch_size = 16;	//prg bank switching size (16/32)
+		ubyte char_rom_switch_size = 4;	//chr bank switching size (4/8)
 	};
 
 	//mapper 2 - UNRom

@@ -87,7 +87,6 @@ namespace NesEmulator {
 		FunctionTable();
 	  private:
 		std::unordered_map< uword, FunctionTableEntry* > entries;
-
 	};
 
 	//physical memory banks for cpu for banksize of 1k
@@ -136,7 +135,6 @@ namespace NesEmulator {
 	=================================================================
 	*/
 	class PPUMemory {
-		//TODO comment
 		PpuMemBank *memBanks[ 0x10000 / PPU_BANKSIZE ];
 		PpuMemBanks *physicalMemBanks;
 
@@ -220,7 +218,7 @@ namespace NesEmulator {
 
 		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
 		//at pos "prgStartPos" for "NumBanks"
-		void fillPrgBanks( int mainStartPos, int prgStartPos, int numBanks );
+		void fillPrgBanks( uword start_address, int prgStartPos, int numBanks );
 
 		//port handlers
 

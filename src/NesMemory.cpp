@@ -102,7 +102,6 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
 	else {
 		return nullptr;
 	}
-
 }
 
 /* 
@@ -217,8 +216,6 @@ FunctionObject entries
 ==================================================
 */
 
-
-
 /*
 =================================================================
 =================================================================
@@ -269,14 +266,13 @@ void NesMemory::loadPrgRomPages( int prgRomPages, const ubyte *data ) {
 
 /* 
 ==============================================
-void NesMemory::fillPrgBanks( int mainStartPos, int prgStartPos, int numBanks ) 
+void NesMemory::fillPrgBanks
 
   fill in banks from prg rom storage to main bank positions
 ==============================================
 */
-void NesMemory::fillPrgBanks( int mainStartPos, int prgStartPos, int numBanks ) { 
-	int bankNum = calcCpuBank( mainStartPos );
-	//int mainPos = calcCpuBankPos( mainStartPos, bankNum );
+void NesMemory::fillPrgBanks( uword start_address, int prgStartPos, int numBanks ) { 
+	int bankNum = calcCpuBank( start_address );
 	int prgPos = prgStartPos;
 	for( int x = 0; x < numBanks; x++ ) {
 		memBanks[ bankNum++ ]= &physicalMemBanks->prgRom[ prgPos++ ];
@@ -286,7 +282,6 @@ void NesMemory::fillPrgBanks( int mainStartPos, int prgStartPos, int numBanks ) 
 /*
 ==============================================
 void NesMemory::initializeMemoryMap()
-TODO - initialize according to memory map nes file is using
 ==============================================
 */
 void NesMemory::initializeMemoryMap( NesMapHandler *handler ) {
@@ -1109,7 +1104,6 @@ void MemoryDumper::getMemoryDump( NesMemory* nesMemory, int memType, ubyte *dest
 /* 
 ==============================================
 std::string MemoryDumper::formatDump( ubyte buffer[ ], uword address, int size, ubyte valuesPerLine )
-  TODO clean this up a bit / use stringstream
 ==============================================
 */
 std::string MemoryDumper::formatDump( const ubyte* buffer, uword address, int size, ubyte valuesPerLine ) {
