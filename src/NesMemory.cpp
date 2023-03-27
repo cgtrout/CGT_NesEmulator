@@ -153,12 +153,12 @@ void CpuMemBanks::copyPrgRom( int numPages, const std::vector<ubyte> &data ) {
 
 /* 
 ==============================================
-PpuMemBanks::PpuMemBanks( int chrRomPages, const ubyte *data )
+PpuMemBanks::PpuMemBanks
 ==============================================
 */
 PpuMemBanks::PpuMemBanks( int chrRomPages, const std::vector<ubyte>& data ) {
 	if( chrRomPages == 0 ) {
-		this->chrRomPages = 1;
+		this->chrRomPages = 2;
 	} else {
 		this->chrRomPages = chrRomPages;
 	}	
