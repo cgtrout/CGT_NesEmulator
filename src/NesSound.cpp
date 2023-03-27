@@ -98,7 +98,7 @@ std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( Uint32 queuedAudioSize,
 		double remappedValue = polynomial( averageQueuedAudioSize );
 		newResampleRatio *= remappedValue;
 
-		_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
+		//_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
 	}
 
 	remappedValuesHistory.add( newResampleRatio );
