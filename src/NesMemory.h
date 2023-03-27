@@ -18,14 +18,14 @@ namespace NesEmulator {
 	class NesMemory;
 	class PPUMemory;
 
-	const int CPU_BANKSIZE = 0x400;
+	const int CPU_BANKSIZE = 0x400;//1kb
 	const int PPU_BANKSIZE = 0x400;
 
 	const int PRG_ROM_PAGESIZE = 0x4000;
 	const int CHR_ROM_PAGESIZE = 0x2000;
 
 	const int PRG_BANKS_PER_PAGE = PRG_ROM_PAGESIZE / CPU_BANKSIZE;
-	const int CHR_BANKS_PER_PAGE = CHR_ROM_PAGESIZE / CPU_BANKSIZE;
+	const int CHR_BANKS_PER_PAGE = CHR_ROM_PAGESIZE / PPU_BANKSIZE;
 
 	//calculates bank # that given address is in
 	uword calcCpuBank( uword loc );
@@ -216,7 +216,7 @@ namespace NesEmulator {
 		int getNumPrgPages() { return physicalMemBanks->prgRomPages; }
 		void loadPrgRomPages( int prgRomPages, const ubyte *data );
 
-		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
+		//fill in prg banks at "start_address" with data from main prgRom databank 
 		//at pos "prgStartPos" for "NumBanks"
 		void fillPrgBanks( uword start_address, int prgStartPos, int numBanks );
 

@@ -272,6 +272,8 @@ void NesMemory::fillPrgBanks
 ==============================================
 */
 void NesMemory::fillPrgBanks( uword start_address, int prgStartPos, int numBanks ) { 
+	_log->Write( "fillPrgBanks:   start_address=%04x   prgStartPos=%04x,  numBanks=%02x    pc=%04x ", start_address, prgStartPos, numBanks, nesMain->nesCpu.getPC()  );
+
 	int bankNum = calcCpuBank( start_address );
 	int prgPos = prgStartPos;
 	for( int x = 0; x < numBanks; x++ ) {
