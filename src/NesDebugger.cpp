@@ -84,8 +84,6 @@ void NesDebugger::draw( ) {
 	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
 	ImGui::SameLine( );
 	ImGui::TextColored( ImVec4( 1, 0.2, 0.2, 1 ), userMessage.c_str() );
-
-
 		ImGui::BeginChild( "Scrolling", ImVec2( ImGui::GetContentRegionAvail( ).x * 0.5f, ImGui::GetContentRegionAvail( ).y ), false, window_flags );
 			for ( unsigned int n = 0; n < debugLines.size( ); n++ ) {
 				if ( isBreakPointAt( debugLines[ n ].address ) ) {
