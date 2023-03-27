@@ -82,7 +82,7 @@ void NesFile::loadFile( std::string_view filename ) {
 	mapperNum +=  controlbyte2 & 0x0f;
 
 	//throw exception of trainer setting set - its not supported
-	if( trainer ) throw new NesFileException( "NesFile::loadFile error", "Trainer not supported" );
+	if( trainer ) throw NesFileException( "NesFile::loadFile error", "Trainer not supported" );
 
 	//initialize prg-rom
 	prgRomPages = new ubyte[ prgRomPageCount * 0x4000 ];
