@@ -52,6 +52,10 @@ namespace NesEmulator {
 		
 		//reset variables in this class
 		void reset();
+
+		//enable step debugging for next instruction
+		//use this to call debugger at arbitrary point in codebase
+		void enableStepDebugging( );
 	
 		PpuClockCycles CyclesPerFrame;
 		NesEmulator::NesFile				nesFile;
