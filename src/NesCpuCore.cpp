@@ -428,7 +428,6 @@ void NesCpu::opBreak() {}
 void NesCpu::opBAD() {
 #ifndef LIGHT_BUILD
 	nesDebugger->setToSingleStepMode( pc, "STOP ON BAD OPCODE" );
-	nesDebugger->singleStepRequest();
 #endif
 }	
 

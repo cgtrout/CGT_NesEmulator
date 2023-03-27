@@ -39,7 +39,7 @@ namespace NesEmulator {
 		void clearSingleStepRequest() {doSingleStep = false;}
 
 		//request a single step
-		void singleStepRequest() {doSingleStep = true;}
+		void singleStepRequest( ) { doSingleStep = true; userMessage.clear( ); }
 
 		bool isBreakPointAt( uword address );
 		
