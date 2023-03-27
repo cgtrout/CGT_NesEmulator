@@ -16,11 +16,9 @@ using namespace FrontEnd;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-
 //CMMPointer< CSettingVariable< std::string >> CLog::appLogName=0;
 //CMMPointer< CSettingVariable< std::string >> CLog::clientLogName=0;
 //CMMPointer< CSettingVariable< std::string >> CLog::serverLogName=0;
-
 
 /*
 ==============================================
@@ -28,7 +26,7 @@ CLog()
 ==============================================
 */
 CLog::CLog()
- {
+{
 
 }
 
@@ -65,7 +63,7 @@ void CLog::Write( const char* msg, ... )
 
     if( len >= 0 && static_cast<size_t>( len ) < kMaxBufSize ) {
         appLog << std::string( szBuf, len ) << '\n';
-        //appLog.flush();
+        appLog.flush();
     }
     else {
         // The output was truncated or the formatting failed
