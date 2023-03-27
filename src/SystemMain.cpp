@@ -158,7 +158,7 @@ void SystemMain::runFrame() {
 	if( input.isKeyDownUnset( SDLK_F5 ) ) {
 		if( !nesMain.nesDebugger.inSingleStepMode() ) {
 			if( nesMain.getState() == Emulating ) {
-				nesMain.nesDebugger.setToSingleStepMode( nesMain.nesCpu.getPC() );
+				nesMain.nesDebugger.setToSingleStepMode( nesMain.nesCpu.getPC(), "" );
 			}
 		}
 		else {

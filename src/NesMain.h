@@ -55,7 +55,8 @@ namespace NesEmulator {
 
 		//enable step debugging for next instruction
 		//use this to call debugger at arbitrary point in codebase
-		void enableStepDebugging( );
+		//message: optional message to send to debug window
+		void enableStepDebugging( std::string_view message );
 	
 		PpuClockCycles CyclesPerFrame;
 		NesEmulator::NesFile				nesFile;

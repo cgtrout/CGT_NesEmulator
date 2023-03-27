@@ -22,7 +22,7 @@ namespace NesEmulator {
 		void draw( );
 		
 		//turn on single step mode
-		void setToSingleStepMode( uword address );
+		void setToSingleStepMode( uword address, std::string_view message );
 		
 		//turn off single step mode
 		void turnOffSingleStepMode();
@@ -104,6 +104,8 @@ namespace NesEmulator {
 		int numDebugLines = 20;
 
 		std::array<char[ 5 ], 4> watchStrings;
+
+		std::string userMessage = "";	//allow c++ codebase to pass message to debugger at activation
 	};
 
 }

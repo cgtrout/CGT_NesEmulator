@@ -143,7 +143,7 @@ void NesMain::reset() {
 	nesPpu.reset();
 }
 
-void NesEmulator::NesMain::enableStepDebugging( ) {
-	nesDebugger.setToSingleStepMode( nesCpu.getPC( ) );
+void NesEmulator::NesMain::enableStepDebugging( std::string_view message ) {
+	nesDebugger.setToSingleStepMode( nesCpu.getPC( ), message );
 }
 

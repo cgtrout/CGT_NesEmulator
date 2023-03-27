@@ -156,7 +156,7 @@ void NesCpu::runInstructions( ) {
 		//check for breakpoints
 		if( nesDebugger->isBreakPointAt( pc ) ) {
 			if( !nesDebugger->inSingleStepMode() ) {
-				nesDebugger->setToSingleStepMode( pc );
+				nesDebugger->setToSingleStepMode( pc, "" );
 			}
 			else {
 				nesDebugger->singleStepRequest();
@@ -427,7 +427,7 @@ OPCODE HANDLERS
 void NesCpu::opBreak() {}
 void NesCpu::opBAD() {
 #ifndef LIGHT_BUILD
-	nesDebugger->setToSingleStepMode( pc );
+	nesDebugger->setToSingleStepMode( pc, "STOP ON BAD OPCODE" );
 	nesDebugger->singleStepRequest();
 #endif
 }	
