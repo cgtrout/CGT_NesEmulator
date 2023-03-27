@@ -25,6 +25,7 @@ namespace NesEmulator {
 	const int CHR_ROM_PAGESIZE = 0x2000;
 
 	const int PRG_BANKS_PER_PAGE = PRG_ROM_PAGESIZE / CPU_BANKSIZE;
+	const int CHR_BANKS_PER_PAGE = CHR_ROM_PAGESIZE / CPU_BANKSIZE;
 
 	//calculates bank # that given address is in
 	uword calcCpuBank( uword loc );
@@ -167,9 +168,9 @@ namespace NesEmulator {
 
 		void zeroMemory();
 
-		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
+		//fill in prg banks at "start_address" with data from main prgRom databank 
 		//at pos "prgStartPos"
-		void fillChrBanks( uword mainStartPos, uword chrStartPos, uword numBanks );
+		void fillChrBanks( uword start_address, uword chrStartPos, uword numBanks );
 		
 		//memory read/write functions
 		void setMemory( uword loc, ubyte val );		

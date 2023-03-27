@@ -919,13 +919,13 @@ void PPUMemory::loadChrRomPages( uword chrRomPages, const ubyte *data ) {
 
 /* 
 ==============================================
-void PPUMemory::fillChrBanks( int mainStartPos, int chrStartPos, int numBanks ) 
+void PPUMemory::fillChrBanks
   
   fill in banks from prg rom storage to main bank positions
 ==============================================
 */
-void PPUMemory::fillChrBanks( uword mainStartPos, uword chrStartPos, uword numBanks ) { 
-	int mainPos = ::calcPpuBank( mainStartPos );
+void PPUMemory::fillChrBanks( uword start_address, uword chrStartPos, uword numBanks ) { 
+	int mainPos = ::calcPpuBank( start_address );
 	int chrPos = chrStartPos;
 	for( int x = 0; x < numBanks; x++ ) {
 		memBanks[ mainPos++ ] = &physicalMemBanks->chrRom[ chrPos++ ];
