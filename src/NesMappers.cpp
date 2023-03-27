@@ -139,7 +139,7 @@ void NesMapper1::initializeMap( ) {
 						
 						nesMain->nesMemory.ppuMemory.fillChrBanks(
 							0x0000,								//start address
-							selected_bank * CHR_BANKS_PER_PAGE,	//chr rom page
+							selected_bank,	//chr rom page
 							char_rom_switch_size );				//number of banks
 							
 					}
@@ -159,7 +159,7 @@ void NesMapper1::initializeMap( ) {
 						//it isn't this directly, but how it somehow affects something else??
 						nesMain->nesMemory.ppuMemory.fillChrBanks(
 							0x1000,								//start address
-							selected_bank * CHR_BANKS_PER_PAGE,	//chr rom page
+							selected_bank,	//chr rom page
 							char_rom_switch_size);				//number of banks
 					}
 					//PRG bank( internal, $E000 - $FFFF )
@@ -181,7 +181,7 @@ void NesMapper1::initializeMap( ) {
 						//do prg rom swap
 						nesMain->nesMemory.fillPrgBanks(
 							prgrom_bank_address,				//start address
-							selected_bank * PRG_BANKS_PER_PAGE,	//prg rom page
+							selected_bank,	//prg rom page
 							prgrom_switch_size );				//number of banks
 					}
 						
