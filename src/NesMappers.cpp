@@ -127,7 +127,7 @@ void NesMapper1::initializeMap( ) {
 					//||||| 
 					//+++++- Select 4 KB or 8 KB CHR bank at PPU $0000 (low bit ignored in 8 KB mode) 
 					// REGISTER 01 - Assign CHR bank
-					else if( address >= 0xA000 && address < 0xBFFF ) {
+					else if( address >= 0xA000 && address <= 0xBFFF ) {
 						ubyte selected_bank = MMC1_PB & 0b11111;
 
 						switch( char_rom_switch_size ) {
@@ -136,7 +136,6 @@ void NesMapper1::initializeMap( ) {
 						case 8:
 							break;
 						}
-						
 						
 						nesMain->nesMemory.ppuMemory.fillChrBanks(
 							0x0000,								//start address
@@ -151,16 +150,17 @@ void NesMapper1::initializeMap( ) {
 					//||||| 
 					//+++++- Select 4 KB CHR bank at PPU $1000 (ignored in 8 KB mode) 
 					// REGISTER 02 - Assign CHR bank
-					else if( address >= 0xC000 && address < 0xDFFF && char_rom_switch_size != 8 ) {
-						ubyte selected_bank = MMC1_PB & 0b11111;
+					else if( address >= 0xC000 && address <= 0xDFFF && char_rom_switch_size != 8 ) {
+						ubyte selected_bank = MMC1_PB & 0b01111;
+						//TODO wram
 
-						
 						//incorrect in metroid
+						//when run in metroid causes 1st chr to be changes?
+						//it isn't this directly, but how it somehow affects something else??
 						nesMain->nesMemory.ppuMemory.fillChrBanks(
 							0x1000,								//start address
 							selected_bank * CHR_BANKS_PER_PAGE,	//chr rom page
-							char_rom_switch_size );				//number of banks
-						
+							char_rom_switch_size);				//number of banks
 					}
 					//PRG bank( internal, $E000 - $FFFF )
 					//4horz_vert 
@@ -170,7 +170,7 @@ void NesMapper1::initializeMap( ) {
 					//|++++- Select 16 KB PRG ROM bank (low bit ignored in 32 KB mode) 
 					//+----- PRG RAM chip enable (0: enabled; 1: disabled; ignored on MMC1A) 
 					// REGISTER 03 - Assign PRG bank	
-					else if( address >= 0xE000 && address < 0xFFFF ) {
+					else if( address >= 0xE000 && address <= 0xFFFF ) {
 						ubyte selected_bank = MMC1_PB & 0b1111;
 						ubyte prg_ram_enable = BIT( 4, selected_bank );
 
@@ -188,6 +188,8 @@ void NesMapper1::initializeMap( ) {
 					//reset shift register
 					write_count = 0;
 					MMC1_SR = 0b10000;
+
+					//nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
 				}
 				else {
 					write_count++;
