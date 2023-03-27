@@ -11,32 +11,32 @@ namespace Console {
 		friend Singleton< CommandHandlerSystem >;
 		ConsoleCommand *getCommands();
 
-		void quit( const char *param );
-		void loadNesFile( const char *param );
+		void quit( std::string_view param );
+		void loadNesFile( std::string_view param );
 		
 		//cpu trace stuff
   #ifndef LIGHT_BUILD
-		void printTraceLog( const char *param );
-		void printAsm( const char *param );
-		void startTrace( const char *param );
-		void stopTrace( const char *param );
+		void printTraceLog( std::string_view param );
+		void printAsm( std::string_view param );
+		void startTrace( std::string_view param );
+		void stopTrace( std::string_view param );
   #endif
 		//key bind command
-		void bindKey( const char *param );
+		void bindKey( std::string_view param );
 
 		//resets cpu
-		void reset( const char *param );
+		void reset( std::string_view param );
 
-		void help( const char *param );
+		void help( std::string_view param );
 		
 	private:
 		CommandHandlerSystem();
 		
-		void printBindKeyUsage( const char * );
-		void printHelpUsage ( const char * );
+		void printBindKeyUsage( std::string_view  );
+		void printHelpUsage ( std::string_view  );
 	};
 
-	typedef void ( CommandHandlerSystem::*CCommandFnptr )( const char * );
+	typedef void ( CommandHandlerSystem::*CCommandFnptr )( std::string_view );
 
 	struct ConsoleCommand {
 		std::string name;

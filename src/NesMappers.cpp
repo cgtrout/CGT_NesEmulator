@@ -44,9 +44,6 @@ https://nerdy-nights.nes.science/#advanced_tutorial-0
 =============================================================================
 */
 void NesMapper1::initializeMap( ) {
-	//TODO do proper memory init
-	nesMain->nesMemory.ppuMemory.fillChrBanks( 0, 0, 0x2000 / PPU_BANKSIZE );
-
 	//add functions
 	//
 	auto *entry = new FunctionTableEntry(

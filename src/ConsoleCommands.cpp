@@ -34,11 +34,11 @@ ConsoleCommand *CommandHandlerSystem::getCommands() {
 	return commands;
 }
 
-void CommandHandlerSystem::quit( const char * ) {
+void CommandHandlerSystem::quit( std::string_view  ) {
 	FrontEnd::SystemMain::getInstance( )->quitRequest();
 }
 
-void CommandHandlerSystem::loadNesFile( const char *param ) {
+void CommandHandlerSystem::loadNesFile( std::string_view param ) {
 	using namespace FrontEnd;
 
 	//late binding to avoid singleton initialization hell
@@ -46,10 +46,12 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 		consoleSystem = &SystemMain::getInstance( )->consoleSystem;
 	}
 
-	if( !param ) {
+	if( param.empty() ) {
 		consoleSystem->printMessage( "No filename entered." );
 		return;
 	}
+
+	
 
 	try {
 		//call loadNesFile function to load
@@ -63,32 +65,32 @@ void CommandHandlerSystem::loadNesFile( const char *param ) {
 
 #ifndef LIGHT_BUILD
 /*
-void CommandHandlerSystem::printTraceLog( const char *param ) {
+void CommandHandlerSystem::printTraceLog( std::string_view param ) {
 	systemMain->nesMain.nesCpu.cpuTrace.printTrace( param );
 }
 
-void CommandHandlerSystem::printAsm( const char *param ) {
+void CommandHandlerSystem::printAsm( std::string_view param ) {
 	systemMain->nesMain.nesCpu.cpuTrace.printAsm( param );
 }
 
-void CommandHandlerSystem::startTrace( const char *param ) {
+void CommandHandlerSystem::startTrace( std::string_view param ) {
 	systemMain->nesMain.nesCpu.cpuTrace.startTrace();
 }
 
-void CommandHandlerSystem::stopTrace( const char *param ) {
+void CommandHandlerSystem::stopTrace( std::string_view param ) {
 	systemMain->nesMain.nesCpu.cpuTrace.stopTrace();
 }
 */
 #endif
 
 //	bind controller01 to VK_A
-void CommandHandlerSystem::bindKey( const char *param ) {
-	if( param == NULL ) {
+void CommandHandlerSystem::bindKey( std::string_view param ) {
+	if( param.empty() ) {
 		printBindKeyUsage( "No params entered." );
 		return;
 	}
 
-	std::string p = param;
+	std::string p( param );
 		
 	//get tokens
 	CgtLib::StringTokenizer st;
@@ -149,13 +151,13 @@ void CommandHandlerSystem::bindKey( const char *param ) {
 	}
 }
 
-void CommandHandlerSystem::printBindKeyUsage( const char *errorMsg ) {
+void CommandHandlerSystem::printBindKeyUsage( std::string_view errorMsg ) {
 	consoleSystem->printMessage( "Invalid bind command: %s", errorMsg );
 	consoleSystem->printMessage( "Usage of bind:  \"bind controller.command to device.key\"" );
 	consoleSystem->printMessage( "For example: \"bind controller1.a to keyboard.z\"");
 }
 
-void CommandHandlerSystem::reset( const char* ) {
+void CommandHandlerSystem::reset( std::string_view ) {
 	using namespace FrontEnd;
 
 	consoleSystem->printMessage( "Resetting cpu..." );
@@ -165,7 +167,7 @@ void CommandHandlerSystem::reset( const char* ) {
 }
 
 //help syntax: help [ command / param ]
-void CommandHandlerSystem::help( const char *param ) {
+void CommandHandlerSystem::help( std::string_view param ) {
 	std::string params( param );
 	CgtLib::StringTokenizer st;
 	st.setDelims( " " );
@@ -197,7 +199,7 @@ void CommandHandlerSystem::help( const char *param ) {
 	//if here, then console or variable was not found
 	printHelpUsage( "Variable or command matching given param could not be found" );
 }
-void CommandHandlerSystem::printHelpUsage( const char *errorMsg ) {
+void CommandHandlerSystem::printHelpUsage( std::string_view errorMsg ) {
 	if ( errorMsg != NULL ) {
 		consoleSystem->printMessage( "Invalid help command: %s", errorMsg );
 	}

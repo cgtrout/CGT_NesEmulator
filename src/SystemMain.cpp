@@ -71,6 +71,7 @@ void SystemMain::initialize( ) {
 
 }
 
+
 void SystemMain::loadNesFile( std::string_view fileName ) {
 	//TODO move to seperate function in nesmain
 	nesMain.nesApu.setUninitialized( );

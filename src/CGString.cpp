@@ -5,6 +5,20 @@
 
 using namespace CgtLib;
 
+/*
+==============================================
+trimWhitespace
+==============================================
+*/
+std::string_view CgtLib::trimWhitespace( std::string_view str ) {
+	auto first = str.find_first_not_of( " \t\r\n" );
+	if( first == std::string_view::npos ) {
+		return ""; // string is all whitespace
+	}
+	auto last = str.find_last_not_of( " \t\r\n" );
+	return str.substr( first, last - first + 1 );
+}
+
 /* 
 ==============================================
 CgtLib::strtolower

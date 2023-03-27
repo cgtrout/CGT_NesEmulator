@@ -30,15 +30,19 @@ TODO allocated memory not being deleted after exception??
 */
 void NesFile::loadFile( std::string_view filename ) {
 	char nesStr[ 4 ];		//checks for initial string header
-	std::string file = filename.data();	//local copy of filename
+	std::string file{ filename };//local copy of filename
 	ubyte numcheck, controlbyte1, controlbyte2;		//temp vars
 	NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
 		
 	//TODO make this more generalized (maybe add a console variable)
 	file = "./roms/" + file + ".nes";
 	std::ifstream is( file.c_str(), std::ios::binary );
-		
-	if( !is ) throw NesFileException( "NesFile::loadFile error", "Could not find file" );
+	if( !is.is_open( ) ) {
+		std::error_code ec( errno, std::generic_category( ) );
+		std::string error_msg = ec.message( );
+		std::cerr << "Failed to open file: " << error_msg << std::endl;
+		throw NesFileException( "NesFile::loadFile error", error_msg );
+	}
 	
 	//if memory has already been allocated delete it first
 	if( prgRomPages.empty() == false ) {

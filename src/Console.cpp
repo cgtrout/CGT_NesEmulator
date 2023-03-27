@@ -4,6 +4,7 @@
 using namespace Console;
 
 #include "StringToNumber.h"
+#include "CGString.h"
 
 #include <sstream>
 #include <cstdarg>
@@ -421,8 +422,10 @@ ConsoleSystem::runCommand
 ==============================================
 */
 void ConsoleSystem::runCommand( ConsoleCommand *command, std::string_view param ) {
+	auto trimmed = CgtLib::trimWhitespace( param );
+	
 	//runs handler function using a member function pointer
-	( commandHandlerSystem->*command->handler )( param.data() );
+	( commandHandlerSystem->*command->handler )( trimmed );
 }
 
 /* 
