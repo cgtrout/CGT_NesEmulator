@@ -55,6 +55,8 @@ FunctionTableEntry::FunctionTableEntry( const FunctionTableEntry &e ) {
 	this->high = e.high;
 	this->readable = e.readable;
 	this->writeable = e.writeable;
+	this->read = e.read;
+	this->write = e.write;
 }
 
 /* 
@@ -67,13 +69,11 @@ FunctionTable::FunctionTable() {
 
 /* 
 ==============================================
-void FunctionTable::addEntry( NesEmulator::FunctionTableEntry e )
-
-TODO not properly tested
+FunctionTable::addEntry
 ==============================================
 */
-void FunctionTable::addEntry( NesEmulator::FunctionTableEntry *e ) {
-	for( int i = e->low; i < e->high; ++i ) {
+void FunctionTable::addEntry( NesEmulator::FunctionTableEntry e ) {
+	for( int i = e.low; i < e.high; ++i ) {
 		entries[ i ] = e;
 	}
 }
@@ -97,7 +97,7 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
 
 	auto it = entries.find( address );
 	if( it != entries.end( ) ) {
-		return entries[ address ];
+		return &entries[ address ];
 	}
 	else {
 		return nullptr;
@@ -317,7 +317,7 @@ void NesMemory::initializeMemoryMap( std::unique_ptr<NesMapHandler> handler ) {
 		return (ubyte)address;
 	};
 
-	funcTable.addEntry( new FunctionTableEntry(
+	funcTable.addEntry( FunctionTableEntry(
 		0x2000,	//low
 		0x3fff,	//high
 		// Lambda function for write operation
@@ -355,7 +355,7 @@ void NesMemory::initializeMemoryMap( std::unique_ptr<NesMapHandler> handler ) {
 		return (ubyte)( address - 0x4000 );
 	};
 
-	funcTable.addEntry( new FunctionTableEntry(
+	funcTable.addEntry( FunctionTableEntry(
 		0x4000,	//low
 		0x4020,	//high
 		// Lambda function for write operation

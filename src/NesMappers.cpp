@@ -46,7 +46,7 @@ https://nerdy-nights.nes.science/#advanced_tutorial-0
 void NesMapper1::initializeMap( ) {
 	//add functions
 	//
-	auto *entry = new FunctionTableEntry(
+	auto entry = FunctionTableEntry(
 		0x8000,	//low
 		0xffff,	//high
 		
@@ -200,7 +200,7 @@ void NesMapper1::initializeMap( ) {
 			return 0;
 		} );
 
-	entry->setNonReadable( );
+	entry.setNonReadable( );
 	nesMain->nesMemory.addFunction( entry );
 }
 
@@ -227,7 +227,7 @@ void NesMapper2::initializeMap() {
 
 	//add functions
 	//
-	auto *entry = new FunctionTableEntry(
+	auto entry = FunctionTableEntry(
 		0x8000,	//low
 		0xffff,	//high
 		
@@ -244,7 +244,7 @@ void NesMapper2::initializeMap() {
 			return 0;
 		} );
 
-	entry->setNonReadable( );
+	entry.setNonReadable( );
 	nesMain->nesMemory.addFunction( entry );
 }
 

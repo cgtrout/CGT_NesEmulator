@@ -55,6 +55,19 @@ namespace NesEmulator {
 
 		FunctionTableEntry( const FunctionTableEntry& );
 		FunctionTableEntry( ) : FunctionTableEntry( 0, 0, nullptr, nullptr ) {}
+		
+		// Copy assignment operator
+		FunctionTableEntry& operator=( const FunctionTableEntry& other ) {
+			if( this != &other ) {
+				low = other.low;
+				high = other.high;
+				write = other.write;
+				read = other.read;
+				readable = other.readable;
+				writeable = other.writeable;
+			}
+			return *this;
+		}
 
 		uword low, high;
 		std::function<void( uword, ubyte )> write;		//write function
@@ -77,7 +90,10 @@ namespace NesEmulator {
 	//lookup table for function handlers for memory calls
 	class FunctionTable {
 	  public:
-		void addEntry( FunctionTableEntry *e );
+		// add entry - only done once per load - don't need to worry about load
+		// get automatic memory management this way 
+		// unique ptr won't work here since multiple function entries can be bound to same functions
+		void addEntry( FunctionTableEntry e );
 		void clearAllEntries();
 
 		//is there a function at this address?
@@ -86,7 +102,7 @@ namespace NesEmulator {
 
 		FunctionTable();
 	  private:
-		std::unordered_map< uword, FunctionTableEntry* > entries;
+		std::unordered_map< uword, FunctionTableEntry > entries;
 	};
 
 	//physical memory banks for cpu for banksize of 1k
@@ -255,7 +271,7 @@ namespace NesEmulator {
 
 		NesMapHandler *getMapper() { return mapHandler.get(); }
 
-		void addFunction( FunctionTableEntry *e ) { funcTable.addEntry( e ); }
+		void addFunction( FunctionTableEntry e ) { funcTable.addEntry( e ); }
 
 		//main memory getters / setters
 		ubyte getMemory( uword loc );
