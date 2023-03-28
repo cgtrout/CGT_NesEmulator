@@ -12,12 +12,12 @@ ConsoleCommand commands[] =
 { { "quit",			 &CommandHandlerSystem::quit,			"Closes the program " },
   {	"loadnesfile",	 &CommandHandlerSystem::loadNesFile,    "Loads an nes file: usage \"loadNesFile [filename]\" " }, 
 #ifndef LIGHT_BUILD
- // { "writeTrace",	 &CommandHandlerSystem::printTraceLog,	"Writes a cpu trace log: usage \"printTraceLog [filename]\"" },
- // { "writeAsm",		 &CommandHandlerSystem::printAsm,		"Writes dissasembled sorted trace: usage \"printTraceLog [filename]\"" },
+  { "writeTrace",	 &CommandHandlerSystem::printTraceLog,	"Writes a cpu trace log: usage \"printTraceLog [filename]\"" },
+  { "writeAsm",		 &CommandHandlerSystem::printAsm,		"Writes dissasembled sorted trace: usage \"printTraceLog [filename]\"" },
 
 
- // { "startTrace",	 &CommandHandlerSystem::startTrace,	    "Starts a cpu trace." },
- // { "stopTrace",	 &CommandHandlerSystem::stopTrace,		"Stops a running cpu trace." },
+  { "startTrace",	 &CommandHandlerSystem::startTrace,	    "Starts a cpu trace." },
+  { "stopTrace",	 &CommandHandlerSystem::stopTrace,		"Stops a running cpu trace." },
 #endif 
   { "bind",			 &CommandHandlerSystem::bindKey,		"Binds a key to a controllable element."},
   { "reset",		 &CommandHandlerSystem::reset,			"Resets the nes cpu",					},
@@ -51,8 +51,6 @@ void CommandHandlerSystem::loadNesFile( std::string_view param ) {
 		return;
 	}
 
-	
-
 	try {
 		//call loadNesFile function to load
 		SystemMain::getInstance( )->loadNesFile( param );
@@ -64,23 +62,24 @@ void CommandHandlerSystem::loadNesFile( std::string_view param ) {
 }
 
 #ifndef LIGHT_BUILD
-/*
+using namespace FrontEnd;
+
 void CommandHandlerSystem::printTraceLog( std::string_view param ) {
-	systemMain->nesMain.nesCpu.cpuTrace.printTrace( param );
+	SystemMain::getInstance( )->nesMain.nesCpu.cpuTrace.printTrace( param );
 }
 
 void CommandHandlerSystem::printAsm( std::string_view param ) {
-	systemMain->nesMain.nesCpu.cpuTrace.printAsm( param );
+	SystemMain::getInstance( )->nesMain.nesCpu.cpuTrace.printAsm( param );
 }
 
 void CommandHandlerSystem::startTrace( std::string_view param ) {
-	systemMain->nesMain.nesCpu.cpuTrace.startTrace();
+	SystemMain::getInstance( )->nesMain.nesCpu.cpuTrace.startTrace();
 }
 
 void CommandHandlerSystem::stopTrace( std::string_view param ) {
-	systemMain->nesMain.nesCpu.cpuTrace.stopTrace();
+	SystemMain::getInstance( )->nesMain.nesCpu.cpuTrace.stopTrace();
 }
-*/
+
 #endif
 
 //	bind controller01 to VK_A

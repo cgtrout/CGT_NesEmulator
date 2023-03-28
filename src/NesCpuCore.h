@@ -12,6 +12,7 @@
 
 namespace NesEmulator {
 
+	//forward declarations
 	class NesMain;
 	class NesDebugger;
 	class NesMemory;
@@ -75,6 +76,69 @@ namespace NesEmulator {
 		InstType	type;	 //read/write type of opcode
 	};
 
+	struct Regs { ubyte a, x, y; };
+
+#if !defined ( LIGHT_BUILD )
+
+	struct CPUTraceInstance {
+		uword pc;
+		ubyte opcode;
+		const opcodeLookUpTableEntry* l;
+		ubyte byte1, byte2;
+		ubyte flags;
+		Regs reg;
+		ubyte sp;
+
+		CpuClockCycles cpuTime;
+		PpuClockCycles ppuTime;
+
+		CPUTraceInstance( );
+
+		//used for sorting
+		bool operator <( CPUTraceInstance& );
+	};
+
+	/*
+	=================================================================
+	=================================================================
+	  CPUTrace
+			is processor intensive and very memory intensive to run this
+	=================================================================
+	=================================================================
+	*/
+	class CPUTrace {
+	public:
+		CPUTrace( NesMain* );
+
+		//print 
+		void printTrace( std::string_view filename );
+
+		//print dissassembled view
+		void printAsm( std::string_view filename );
+
+		void addTrace( uword pc, const opcodeLookUpTableEntry* l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime );
+		bool areTracing( );
+
+		void startTrace( );
+		void stopTrace( );
+
+		void clearTraces( );
+
+	private:
+
+		NesMain* nesMain;
+
+		bool trace;
+		std::vector<bool> traceWrittenAt;
+		std::vector< CPUTraceInstance > traceArray;
+		int numTraces;
+
+		void sortTraceArray( );
+
+	};
+
+#endif 
+
 	/*
 	=================================================================
 	=================================================================
@@ -86,6 +150,7 @@ namespace NesEmulator {
 	*/
 	class NesCpu {
 	  public:
+
 		NesCpu( NesMain* nesMain );
 		~NesCpu();
 
@@ -136,6 +201,7 @@ namespace NesEmulator {
 		uword getSP()   { return sp;    }
 
 		NesEmulatorFlagSystem* flagSystem;
+		CPUTrace cpuTrace;
 
 	private:
 
@@ -177,7 +243,7 @@ namespace NesEmulator {
 		const opcodeLookUpTableEntry *lookupEntry;
 
 		//registers
-		struct Regs { ubyte a, x, y; } reg;
+		Regs reg;
 
 		//TODO - perhaps the flags should be stored in one byte form ??
 		struct {
@@ -190,8 +256,6 @@ namespace NesEmulator {
 					n,	//negative/sign
 					u;  //unused flag
 		} flags, flagsBackup;
-
-		
 
 	private:
 		//bool onStatus;		//is the cpu currently running
@@ -275,6 +339,8 @@ namespace NesEmulator {
 		void opRRA_INDX( );
 		void opRRA_INDY( );
 	};
+
+
 }
 
 #include "NesOpcodeTable.h"

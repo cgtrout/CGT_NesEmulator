@@ -22,63 +22,6 @@ ConsoleVariable< bool > traceAlreadyRun(
 /*name*/		"traceAlreadyRun", 
 /*description*/	"record a trace even if the trace has been at a particular PC address",
 /*save?*/		SAVE_TO_FILE );
-#if !defined ( LIGHT_BUILD )
-
-/*
-struct CPUTraceInstance {
-	uword pc;
-	ubyte opcode;
-	const opcodeLookUpTableEntry *l;
-	ubyte byte1, byte2;
-	ubyte flags;
-	Regs  reg;
-	ubyte sp;
-	
-	CpuClockCycles cpuTime;
-	PpuClockCycles ppuTime;
-	
-	CPUTraceInstance();
-
-	//used for sorting
-	bool operator <( CPUTraceInstance& );
-};
-
-//cpu trace history
-//is processor intensive and very memory intensive to run this
-//TODO seperate from this class?
-class CPUTrace {
-public:
-	CPUTrace();
-	
-	//print 
-	void printTrace( const char *filename );
-	
-	//print dissassembled view
-	void printAsm( const char *filename);
-
-	void addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime );
-	bool areTracing();
-
-	void startTrace();
-	void stopTrace();
-
-	void clearTraces(); 
-
-private:
-	bool trace;
-	std::vector<bool> traceWrittenAt;		
-	std::vector< CPUTraceInstance > traceArray;
-	int numTraces;
-
-	void sortTraceArray();
-	
-}cpuTrace;
-*/
-#endif 
-
-#ifndef LIGHT_BUILD
-  
-#endif
 
 /*
 ==============================================
@@ -86,7 +29,8 @@ NesCpu()
 ==============================================
 */
 NesCpu::NesCpu( NesMain *nesMain ) :
-	nesMain( nesMain )
+	nesMain( nesMain ),
+	cpuTrace( nesMain )
 {
 	
 }
@@ -197,9 +141,9 @@ void NesCpu::runInstruction() {
 
 #ifndef LIGHT_BUILD	
 	//handle 'tracing' if enabled
-	//if( cpuTrace.areTracing() ) {
-	//	cpuTrace.addTrace( pc, lookupEntry, currOp, b1, b2, reg, createFlagByte(), sp, getCC(), ppu->getCC() );
-	//}
+	if( cpuTrace.areTracing() ) {
+		cpuTrace.addTrace( pc, lookupEntry, currOp, b1, b2, reg, createFlagByte(), sp, getCC(), nesMain->nesPpu.getCC() );
+	}
 #endif 	
 	//call opcode function
 	CALL_MEMBER_FN( *this, lookupEntry->fnptr )();
@@ -1023,8 +967,10 @@ Class CPUTrace
 ================================================================
 ================================================================
 */
-/*
-CPUTraceInstance::CPUTraceInstance() { 
+
+CPUTraceInstance::CPUTraceInstance( ) 
+{ 
+	
 	pc = 0;
 	flags = 0;
 	reg.a = 0; reg.x = 0; reg.y = 0, sp = 0; ppuTime = 0; cpuTime = 0;
@@ -1034,18 +980,20 @@ bool CPUTraceInstance::operator <( CPUTraceInstance &that) {
 	return this->pc < that.pc;
 }
 
-CPUTrace::CPUTrace(): 
-	traceWrittenAt( 0xffff) {
+CPUTrace::CPUTrace( NesMain *_nesMain ) : 
+	nesMain( _nesMain ),
+	traceWrittenAt( 0xffff) 
+{
 	numTraces = 0;
 	clearTraces();
 }
 
-void CPUTrace::printTrace( const char *filename ) {
+void CPUTrace::printTrace( std::string_view filename ) {
 	std::string		fn;
 	int				scanline;
 	PpuClockCycles	cycleOffset;	//from start of scanline
 
-	if( strlen( filename ) == 0 ) {
+	if( filename.length() == 0 ) {
 		fn = "tracelog.txt";
 	}
 	else {
@@ -1054,7 +1002,7 @@ void CPUTrace::printTrace( const char *filename ) {
 	//TODO use streams
 	consoleSystem->printMessage( "Printing CPU tracelog to %s. traceSize = %d", fn.c_str(), traceSize.getValue() );
 	
-	ofstream f( fn.c_str() );
+	std::ofstream f( fn.c_str() );
 
 	//char regLine[ 80 ];
 	
@@ -1070,20 +1018,20 @@ void CPUTrace::printTrace( const char *filename ) {
 		ubyte b1 = t->byte1;
 		ubyte b2 = t->byte2;
 
-		char  *lt = nesDebugger->buildDebugLine( t->pc, t->l, t->opcode, b1, b2 );
+		std::string lt = nesMain->nesDebugger.buildDebugLine( t->pc, t->l, t->opcode, b1, b2 );
 		
 		//erase delim char
-		int length = strlen( lt );
-		lt[ length - 1 ] = '\0';
+		//int length = strlen( lt );
+		//lt[ length - 1 ] = '\0';
 		
 		//eliminate first char
 		lt = &lt[1];
 		
 		//lines.flush();
 
-		stringstream lines;
+		std::stringstream lines;
 
-		lines.setf( ios_base::left, ios_base::adjustfield );
+		lines.setf( std::ios_base::left, std::ios_base::adjustfield );
 		lines.width( 40 );
 		lines << lt;
 		lines.seekp( 0, std::ios::end );
@@ -1114,22 +1062,22 @@ void CPUTrace::printTrace( const char *filename ) {
 
 		//fill in cycles and scanline counters
 		lines << " CYC: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
+		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
 		lines.width( 3 );
 		lines << cycleOffset;
 		
 		lines << " SL: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
+		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
 		lines.width( 3 );
 		lines << scanline;
 		
 		lines << " CPU: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
+		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
 		lines.width( 5 );
 		lines << t->cpuTime;
 
 		lines << " PPU: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
+		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
 		lines.width( 5 );
 		lines << t->ppuTime 
 			  << "\n";
@@ -1142,27 +1090,25 @@ void CPUTrace::printTrace( const char *filename ) {
 }
 
 
-void CPUTrace::printAsm( const char *filename ) {
+void CPUTrace::printAsm( std::string_view filename ) {
 	std::string		fn;
 	
 	sortTraceArray();
 
-	if( strlen( filename ) == 0 ) {
+	if( filename.length() == 0 ) {
 		fn = "asm_out.txt";
 	}
 	else {
 		fn = filename;
 	}
-	ofstream f( fn.c_str() );
+	std::ofstream f( fn.c_str() );
 	
 	for( unsigned int i = 0; i < traceArray.size(); i++ ) {
 		CPUTraceInstance *t = &traceArray[ i ];
 		
-		char  *lt = nesDebugger->buildDebugLine( t->pc, t->l, t->opcode, t->byte1, t->byte2 );
+		std::string lt = nesMain->nesDebugger.buildDebugLine( t->pc, t->l, t->opcode, t->byte1, t->byte2 );
 		
 		//erase delim char
-		int length = strlen( lt );
-		lt[ length - 1 ] = '\0';
 		
 		//eliminate first char
 		lt = &lt[1];
@@ -1226,5 +1172,5 @@ void CPUTrace::sortTraceArray() {
 	std::sort( traceArray.begin(), traceArray.end() );
 }
 
-*/
+
 #endif //LIGHT_BUILD
