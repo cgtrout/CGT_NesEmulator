@@ -280,12 +280,12 @@ void NesMemory::fillPrgBanks( uword start_address, int prgStartPos, int numBanks
 void NesMemory::initializeMemoryMap()
 ==============================================
 */
-void NesMemory::initializeMemoryMap( NesMapHandler *handler ) {
-	if( mapHandler != 0 ) {
-		delete mapHandler;
+void NesMemory::initializeMemoryMap( std::unique_ptr<NesMapHandler> handler ) {
+	if( mapHandler ) {
+		mapHandler.reset( );
 	}
 	
-	mapHandler = handler;
+	mapHandler = std::move( handler );
 	mapHandler->setMapHandler( nesMain );
 	
 	int x, y;
@@ -399,7 +399,7 @@ void NesMemory::initializeMemoryMap( NesMapHandler *handler ) {
 		) );
 
 	ppuMemory.initializeMemoryMap();
-	handler->initializeMap( );
+	mapHandler->initializeMap( );
 }
 
 /*

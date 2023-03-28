@@ -1,5 +1,6 @@
 #include "precompiled.h"
 #include "SystemMain.h"
+#include <memory>
 
 using namespace NesEmulator;
 
@@ -105,16 +106,16 @@ void NesFile::loadFile( std::string_view filename ) {
 	nesMemory->loadPrgRomPages( prgRomPageCount, prgRomPages );
 	nesMemory->ppuMemory.loadChrRomPages( chrRomPageCount, chrRomPages );
 	
-	//TODO load appropriate mapper
+	//load appropriate mapper
 	switch( mapperNum ) {
 	case 0:
-		nesMemory->initializeMemoryMap( new NesMapper0( ) );
-		break;
-	case 1:
-		nesMemory->initializeMemoryMap( new NesMapper1( ) );
-		break;
-	case 2:
-		nesMemory->initializeMemoryMap( new NesMapper2( ) );
+		nesMemory->initializeMemoryMap( std::make_unique<NesMapper0>() );
+		break;															 			   
+	case 1:																 			   
+		nesMemory->initializeMemoryMap( std::make_unique<NesMapper1>() );
+		break;															 			   
+	case 2:																 			   
+		nesMemory->initializeMemoryMap( std::make_unique<NesMapper2>() );
 		break;
 	default:
 		throw new NesFileException( "NesFile::loadFile error", "Mapper not yet supported" );

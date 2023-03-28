@@ -198,7 +198,7 @@ namespace NesEmulator {
 	  private:
 		std::vector<CpuMemBank*> memBanks;
 		CpuMemBanks physicalMemBanks;
-		NesMapHandler *mapHandler;
+		std::unique_ptr<NesMapHandler> mapHandler;
 
 		FunctionTable funcTable;
 		
@@ -251,9 +251,9 @@ namespace NesEmulator {
 		ubyte ph4016Read();		void ph4016Write( ubyte );
 		ubyte ph4017Read();		void ph4017Write( ubyte );
 		
-		void initializeMemoryMap( NesMapHandler *handler );
+		void initializeMemoryMap( std::unique_ptr<NesMapHandler> handler );
 
-		NesMapHandler *getMapper() { return mapHandler; }
+		NesMapHandler *getMapper() { return mapHandler.get(); }
 
 		void addFunction( FunctionTableEntry *e ) { funcTable.addEntry( e ); }
 
