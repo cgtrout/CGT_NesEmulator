@@ -8,10 +8,6 @@
 using namespace FrontEnd;
 using namespace NesEmulator;
 
-#ifndef LIGHT_BUILD
-		
-#endif
-
 NesMain::NesMain( FrontEnd::SystemMain* systemMain ) :
 	systemMain( systemMain ),
 	nesDebugger( this ),
