@@ -239,7 +239,9 @@ template< class T >
 void Variables::getNameList( std::list< ConsoleVariable< T >* > *genericVarList, std::list< std::string* > *stringVector ) {
 	typename std::list < ConsoleVariable< T >* >::iterator i;
 	for( i = genericVarList->begin(); i != genericVarList->end(); i++ ) {
-		stringVector->push_back( (*i)->getName() );
+		auto& v = *i;
+		auto name = v->getName( );
+		stringVector->push_back( name );
 	}
 }
 
@@ -401,8 +403,8 @@ bool ConsoleSystem::findAndRunCommand( std::string_view commandName, std::string
 	ConsoleCommand *curr;
 	
 	//go through list of console commands to try and find a match
-	std::list< ConsoleCommand * >::iterator iter;
-	for( iter = commands.begin(); iter != commands.end(); iter++ ) {
+	
+	for( auto iter = commands.begin( ); iter != commands.end( ); iter++ ) {
 		curr = ( ConsoleCommand* )( *iter );
 
 		if( CgtLib::stringCaseCmp( curr->name.c_str(), commandName ) ) {
@@ -434,8 +436,7 @@ ConsoleSystem::getCommandDescription
 ==============================================
 */
 std::string ConsoleSystem::getCommandDescription( std::string_view commandName ) {
-	std::list< ConsoleCommand* >::iterator i;
-	for( i = commands.begin(); i != commands.end(); i++ ) {
+	for( auto& i = commands.begin(); i != commands.end(); i++ ) {
 		ConsoleCommand *c = ( ConsoleCommand* )( *i );
 		if( CgtLib::toLower( commandName ) ==  CgtLib::toLower( c->name ) ) {
 			return c->description;

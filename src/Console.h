@@ -193,6 +193,8 @@ namespace Console {
 	*/
 	class ConsoleSystem {
 	public:
+		friend class CommandHandlerSystem;
+		
 		ConsoleSystem();
 		~ConsoleSystem();
 		
@@ -246,7 +248,7 @@ namespace Console {
 		
 	private:
 		//list of console commands
-		std::list< ConsoleCommand* >  commands;
+		std::vector< ConsoleCommand* >  commands;
 
 		//history of commands previously entered
 		std::list< std::string > prevRequests;

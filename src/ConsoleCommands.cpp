@@ -3,25 +3,26 @@
 #include "ConsoleCommands.h"
 #include "SystemMain.h"
 
+#include <algorithm>
+
 using namespace Console;
 
 //Console Commands
 //###formatignore	
 ConsoleCommand commands[] = 
 //	Name			 Handler								Description
-{ { "quit",			 &CommandHandlerSystem::quit,			"Closes the program " },
-  {	"loadnesfile",	 &CommandHandlerSystem::loadNesFile,    "Loads an nes file: usage \"loadNesFile [filename]\" " }, 
+{ { "quit",			 &CommandHandlerSystem::quit,			"Closes the program" },
+  {	"loadnesfile",	 &CommandHandlerSystem::loadNesFile,    "Loads an nes file" }, 
 #ifndef LIGHT_BUILD
-  { "writeTrace",	 &CommandHandlerSystem::printTraceLog,	"Writes a cpu trace log: usage \"printTraceLog [filename]\"" },
-  { "writeAsm",		 &CommandHandlerSystem::printAsm,		"Writes dissasembled sorted trace: usage \"printTraceLog [filename]\"" },
-
+  { "saveTrace",	 &CommandHandlerSystem::printTraceLog,	"Writes a cpu trace log" },
+  { "saveAsm",		 &CommandHandlerSystem::printAsm,		"Writes dissasembled sorted trace" },
 
   { "startTrace",	 &CommandHandlerSystem::startTrace,	    "Starts a cpu trace." },
   { "stopTrace",	 &CommandHandlerSystem::stopTrace,		"Stops a running cpu trace." },
 #endif 
   { "bind",			 &CommandHandlerSystem::bindKey,		"Binds a key to a controllable element."},
   { "reset",		 &CommandHandlerSystem::reset,			"Resets the nes cpu",					},
-  { "help",			 &CommandHandlerSystem::help,			"Allows viewing of console variable and command descriptions"},
+  { "help",			 &CommandHandlerSystem::help,			"This command"},
  
   { "END_OF_LIST",	NULL							    } };
 //###endformatignore
@@ -165,39 +166,54 @@ void CommandHandlerSystem::reset( std::string_view ) {
 	systemMain->nesMain.reset();
 }
 
-//help syntax: help [ command / param ]
+//help syntax: help 
 void CommandHandlerSystem::help( std::string_view param ) {
-	std::string params( param );
-	CgtLib::StringTokenizer st;
-	st.setDelims( " " );
-	auto tokens = st.tokenize( params );
+	consoleSystem->printMessage( "--------------------------------------------------------------" );
+	consoleSystem->printMessage( "VARIABLES LIST" );
+	consoleSystem->printMessage( "--------------------------------------------------------------" );
 
-	if( tokens.size() == 0 ) {
-		printHelpUsage( NULL );
-		return;
-	}
+	std::list<std::string*> variableList;
+	consoleSystem->variables.getNameList( &variableList );
 
-	if( tokens.size() > 1 ) {
-		printHelpUsage( "Too many params entered" );
-		return;
-	}
-
-	//first see if it is a variable
-	std::string desc = consoleSystem->variables.getVariableDescription( ( ( tokens )[ 0 ] ) ) ;
-	if( desc != "NOT_FOUND" ) {
-		consoleSystem->printMessage( "%s: %s", ( tokens )[ 0 ].c_str(), desc.c_str() );
-		return;
+	// Sort the list using a custom comparator for string pointers
+	variableList.sort( []( const std::string* a, const std::string* b ) {
+		return ( *a < *b );
+	});
+	std::ostringstream ss2;
+	for( const auto& v : variableList ) {
+		ss2 << *v << std::endl;
 	}
 	
-	//now see if consoleCommand can be found ( since variable was not found"
-	desc = consoleSystem->getCommandDescription( ( tokens )[ 0 ] );
-	if( desc != "NOT_FOUND" ) {
-		consoleSystem->printMessage( "%s: %s", ( tokens )[ 0 ].c_str(), desc.c_str() );
-		return;
+	consoleSystem->printMessage( ss2.str( ).c_str( ) );
+
+	consoleSystem->printMessage( "--------------------------------------------------------------" );
+	consoleSystem->printMessage( "COMMANDS LIST" );
+	consoleSystem->printMessage( "--------------------------------------------------------------" );
+
+	/// Create a copy of the vector and then sort
+	std::vector<ConsoleCommand*> newVector = consoleSystem->commands;
+
+	// Sort the new vector using a custom comparator
+	std::sort( newVector.begin( ), newVector.end( ),
+		[]( const ConsoleCommand* a, const ConsoleCommand* b ) {
+			return ( a->name < b->name );
+		} );
+
+	std::ostringstream ss;
+	for( const auto& v : newVector ) {
+		ss << std::left << std::setw( 15 ) << v->name << " "
+			<< std::left << std::setw( 20 ) << v->description
+			<< std::endl;
 	}
-	//if here, then console or variable was not found
-	printHelpUsage( "Variable or command matching given param could not be found" );
+
+	consoleSystem->printMessage( ss.str( ).c_str( ) );
+	consoleSystem->printMessage( "" );
+
+
+	consoleSystem->printMessage( "Press PAGEUP to view all of help" );
+	consoleSystem->printMessage( "--------------------------------------------------------------" );
 }
+
 void CommandHandlerSystem::printHelpUsage( std::string_view errorMsg ) {
 	if ( errorMsg != NULL ) {
 		consoleSystem->printMessage( "Invalid help command: %s", errorMsg );
