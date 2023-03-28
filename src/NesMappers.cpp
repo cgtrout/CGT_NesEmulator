@@ -187,7 +187,7 @@ void NesMapper1::initializeMap( ) {
 					write_count = 0;
 					MMC1_SR = 0b10000;
 
-					//nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
+					nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
 				}
 				else {
 					write_count++;
