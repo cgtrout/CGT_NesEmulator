@@ -1,13 +1,13 @@
 #include "precompiled.h"
 
 #include "ConsoleCommands.h"
-using namespace Console;
-
 #include "StringToNumber.h"
 #include "CGString.h"
 
 #include <sstream>
 #include <cstdarg>
+
+using namespace Console;
 
 /* 
 ==============================================
