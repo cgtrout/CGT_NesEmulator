@@ -59,7 +59,7 @@ void NesFile::loadFile( std::string_view filename ) {
 	
 	//if next value is not 0x1a throw an exception
 	is >> numcheck;
-	if( numcheck != 0x1a ) throw new NesFileException( "NesFile::loadFile error", "File not an .nes file" );
+	if( numcheck != 0x1a ) throw NesFileException( "NesFile::loadFile error", "File not an .nes file" );
 	
 	//read prgRom and charRom counts
 	is >> prgRomPageCount;
