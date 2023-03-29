@@ -1,5 +1,4 @@
-#if !defined( NesMemory_INCLUDED )
-#define NesMemory_INCLUDED
+#pragma once
 
 #include "NesFileLoader.h"
 #include "NesMappers.h"
@@ -333,5 +332,3 @@ namespace NesEmulator {
 		}
 	};
 }
-
-#endif //NesMemory_INCLUDED
