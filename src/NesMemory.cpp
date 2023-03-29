@@ -99,6 +99,7 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
 		return &entries[ address ];
 	}
 	else {
+		return nullptr;
 	}
 }
 
@@ -264,7 +265,7 @@ void NesMemory::fillPrgBanks
 ==============================================
 */
 void NesMemory::fillPrgBanks( uword startAddress, uword prgStartAddr, int numBanks ) { 
-	_log->Write( "fillPrgBanks:   start_address=%04x   prgStartPos=%04x,  numBanks=%02x    pc=%04x ", start_address, prgStartPos, numBanks, nesMain->nesCpu.getPC()  );
+	_log->Write( "fillPrgBanks:   startAddress=%04x   prgStartAddr=%04x,  numBanks=%02x    pc=%04x ", startAddress, prgStartAddr, numBanks, nesMain->nesCpu.getPC()  );
 
 	int bankNum = calcCpuBank( startAddress );
 	uword prgPos = prgStartAddr;
@@ -453,10 +454,13 @@ void NesMemory::setMemory( uword loc, ubyte val )
 ==============================================
 */
 void NesMemory::setMemory( uword loc, ubyte val ) {
+	FunctionTableEntry* entry = nullptr;
+	
 	//look for function in table
-	FunctionTableEntry *entry = funcTable.getFunctionAt( loc );
+	entry = funcTable.getFunctionAt( loc );
 
 	//if function was found
+	if( entry != nullptr && entry->getWriteable() ) {
 		//call it
 		entry->write( loc, val );
 	} else {

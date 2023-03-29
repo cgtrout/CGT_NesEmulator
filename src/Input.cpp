@@ -237,6 +237,7 @@ bool Input::bindKeyToControl
 bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, std::string_view controlstr, std::string_view buttonstr ) {
 	//validation
 	//TODO Exception handler
+	if( keystr == "NULL" ) {
 		//consoleSystem->printMessage( "Input::bindKeyToControl - no key is bound" );
 		return false;
 	}

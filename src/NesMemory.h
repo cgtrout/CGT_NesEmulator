@@ -52,6 +52,9 @@ namespace NesEmulator {
 			std::function<ubyte( uword )> readFunc )
 			: low( l ), high( h ), write( writeFunc ), read( readFunc ),
 			readable( true ), writeable( true ) {}
+		
+		FunctionTableEntry( )
+			: low( 0 ), high( 0 ), readable( false ), writeable( false ) {}
 
 		FunctionTableEntry( const FunctionTableEntry& );
 		

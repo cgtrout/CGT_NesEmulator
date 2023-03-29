@@ -246,7 +246,7 @@ void GUI::renderElements(std::vector< GUIElement* > elems ) {
 //////////////////////////////////////////////////////////////////////
 
 GUIElement::GUIElement( std::string guitextures ) :
-	inputSystem( nullptrptr )	//must be passed pointer later
+	inputSystem( nullptr )	//must be passed pointer later
 {
 }
 

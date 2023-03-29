@@ -42,6 +42,7 @@ void CommandHandlerSystem::loadNesFile( std::string_view param ) {
 	using namespace FrontEnd;
 
 	//late binding to avoid singleton initialization hell
+	if(consoleSystem == nullptr ) {
 		consoleSystem = &SystemMain::getInstance( )->consoleSystem;
 	}
 
