@@ -15,7 +15,7 @@ void MessageSystem::runCommand( std::string line, bool echo ) {
 	
 	//find category                                          
 	bool catFound = false;
-	MessageCategory *currCat = NULL;
+	MessageCategory *currCat = nullptr;
 	std::list< MessageCategory* >::iterator catiter;
 	for( catiter = categories.begin( ); catiter != categories.end( ); catiter++ ) {
 		currCat = ( MessageCategory* )( *catiter );
@@ -36,7 +36,7 @@ void MessageSystem::runCommand( std::string line, bool echo ) {
 	bool comFound = false;
 
 	std::list< MessageCommand* > commands = currCat->getCommands( );
-	MessageCommand *currCom = NULL;
+	MessageCommand *currCom = nullptr;
 	std::list< MessageCommand* >::iterator comiter;
 	for( comiter = commands.begin( ); comiter != commands.end( ); comiter++ ) {
 		currCom = ( MessageCommand* )( *comiter );
@@ -184,7 +184,7 @@ void MessageSystem::MCatNes::MComLoad::run( std::string args, bool echo ) {
 }
 
 void MessageSystem::MCatNes::MComDebug::run( std::string args, bool echo ) {
-    if( nesDebugger == NULL ) {
+    if( nesDebugger == nullptr ) {
         nesDebugger = NesDebugger::getInstance( );
     }
     nesDebugger->setToSingleStepMode( nesCpu->getPC( ) );
@@ -194,7 +194,7 @@ void MessageSystem::MCatNes::MComDebug::run( std::string args, bool echo ) {
 void MessageCategory::ListCommand::run( std::string args, bool echo ) {
 	//need to go through commands in list
 	std::list< MessageCommand* > commands = lccommands;
-	MessageCommand *currCom = NULL;
+	MessageCommand *currCom = nullptr;
 	std::list< MessageCommand* >::iterator comiter;
 	for( comiter = commands.begin( ); comiter != commands.end( ); comiter++ ) {
 		currCom = ( MessageCommand* )( *comiter );

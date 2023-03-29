@@ -99,7 +99,7 @@ findTextureExtension( )
 void Renderer::findTextureExtension( char *strFileName ) {
 	char strJPGPath[ MAX_PATH ] = {0};
 	char strTGAPath[ MAX_PATH ]    = {0}; 
-	FILE *fp = NULL;
+	FILE *fp = nullptr;
 
 	// Get the current path we are in
 	GetCurrentDirectory( MAX_PATH, strJPGPath );
@@ -115,14 +115,14 @@ void Renderer::findTextureExtension( char *strFileName ) {
 	strcat( strTGAPath, ".tga" );
 
 	// Check if there is a jpeg file with the texture name
-	if( ( fp = fopen( strJPGPath, "rb" ) ) != NULL ) {
+	if( ( fp = fopen( strJPGPath, "rb" ) ) != nullptr ) {
 		// If so, then let's add ".jpg" onto the file name and return
 		strcat( strFileName, ".jpg" );
 		return;
 	}
 
 	// Check if there is a targa file with the texture name
-	if( ( fp = fopen( strTGAPath, "rb" ) ) != NULL ) {
+	if( ( fp = fopen( strTGAPath, "rb" ) ) != nullptr ) {
 		// If so, then let's add a ".tga" onto the file name and return
 		strcat( strFileName, ".tga" );
 		return;

@@ -24,11 +24,10 @@ ConsoleCommand commands[] =
   { "reset",		 &CommandHandlerSystem::reset,			"Resets the nes cpu",					},
   { "help",			 &CommandHandlerSystem::help,			"This command"},
  
-  { "END_OF_LIST",	NULL							    } };
+  { "END_OF_LIST",	nullptr							    } };
 //###endformatignore
 
 CommandHandlerSystem::CommandHandlerSystem() {
-	consoleSystem = nullptr;
 }
 
 ConsoleCommand *CommandHandlerSystem::getCommands() {
@@ -43,7 +42,6 @@ void CommandHandlerSystem::loadNesFile( std::string_view param ) {
 	using namespace FrontEnd;
 
 	//late binding to avoid singleton initialization hell
-	if ( consoleSystem == nullptr ) {
 		consoleSystem = &SystemMain::getInstance( )->consoleSystem;
 	}
 
@@ -215,7 +213,7 @@ void CommandHandlerSystem::help( std::string_view param ) {
 }
 
 void CommandHandlerSystem::printHelpUsage( std::string_view errorMsg ) {
-	if ( errorMsg != NULL ) {
+	if ( errorMsg != nullptr ) {
 		consoleSystem->printMessage( "Invalid help command: %s", errorMsg );
 	}
 	consoleSystem->printMessage( "Usage of help: \"help [ command/variable ]\".  This will print " );

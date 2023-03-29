@@ -2,6 +2,6 @@
 #include <string>
 
 //global singletons
-FrontEnd::CLog *_log = NULL;
-Console::ConsoleSystem *consoleSystem = NULL;
+FrontEnd::CLog *_log = nullptr;
+Console::ConsoleSystem *consoleSystem = nullptr;
 

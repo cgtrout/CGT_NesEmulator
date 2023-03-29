@@ -40,7 +40,7 @@ ControllableButton *Controllable::getButton( std::string_view name ) {
 			return buttons[ i ];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /* 
@@ -237,7 +237,6 @@ bool Input::bindKeyToControl
 bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, std::string_view controlstr, std::string_view buttonstr ) {
 	//validation
 	//TODO Exception handler
-	if( keystr == "NULL" ) {
 		//consoleSystem->printMessage( "Input::bindKeyToControl - no key is bound" );
 		return false;
 	}
@@ -246,7 +245,7 @@ bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, 
 	Controllable *control = getControl( controlstr );
 
 	//if control not found return error
-	if( control == NULL ) {
+	if( control == nullptr ) {
 		consoleSystem->printMessage( "Input::bindKeyToControl - control not found" );
 		return false;
 	}
@@ -255,7 +254,7 @@ bool Input::bindKeyToControl( std::string_view device, std::string_view keystr, 
 	ControllableButton *button = control->getButton( buttonstr );
 
 	//if button not found return error
-	if( button == NULL ) {
+	if( button == nullptr ) {
 		consoleSystem->printMessage( "Input::bindKeyToControl - button not found" );
 		return false;
 	}
@@ -278,7 +277,7 @@ Controllable *Input::getControl( std::string_view control ) {
 			return controllables[ x ];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*

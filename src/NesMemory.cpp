@@ -93,14 +93,12 @@ FunctionTableEntry *FunctionTable::getFunctionAt( uword address )
 ==============================================
 */
 FunctionTableEntry *FunctionTable::getFunctionAt( uword address ) {
-	if( address < 0x2000 ) return nullptr;
 
 	auto it = entries.find( address );
 	if( it != entries.end( ) ) {
 		return &entries[ address ];
 	}
 	else {
-		return nullptr;
 	}
 }
 
@@ -412,7 +410,7 @@ ubyte NesMemory::getMemory( uword loc ) {
 	FunctionTableEntry *entry = funcTable.getFunctionAt( loc );
 
 	//if function was found
-	if( entry != NULL && entry->getReadable() ) {
+	if( entry != nullptr && entry->getReadable() ) {
 		//call it
 		return entry->read( loc );
 	} else {
@@ -436,7 +434,13 @@ ubyte NesMemory::fastGetMemory( uword loc ) {
 	return data;
 }
 
-//returns a two byte value from loc (msb format)
+/*
+==============================================
+NesMemory::getWord
+
+  returns a two byte value from loc (msb format)
+==============================================
+*/
 uword NesMemory::getWord( uword loc ) {
 	word ret = getMemory( loc );
 	ret += getMemory( loc + 1 ) << 8;
@@ -453,7 +457,6 @@ void NesMemory::setMemory( uword loc, ubyte val ) {
 	FunctionTableEntry *entry = funcTable.getFunctionAt( loc );
 
 	//if function was found
-	if( entry != nullptr && entry->getWriteable() ) {
 		//call it
 		entry->write( loc, val );
 	} else {

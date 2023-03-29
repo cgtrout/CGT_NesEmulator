@@ -54,7 +54,6 @@ namespace NesEmulator {
 			readable( true ), writeable( true ) {}
 
 		FunctionTableEntry( const FunctionTableEntry& );
-		FunctionTableEntry( ) : FunctionTableEntry( 0, 0, nullptr, nullptr ) {}
 		
 		// Copy assignment operator
 		FunctionTableEntry& operator=( const FunctionTableEntry& other ) {
@@ -97,7 +96,7 @@ namespace NesEmulator {
 		void clearAllEntries();
 
 		//is there a function at this address?
-		//returns NULL if not found
+		//returns nullptr if not found
 		FunctionTableEntry *getFunctionAt( uword address );
 
 		FunctionTable();

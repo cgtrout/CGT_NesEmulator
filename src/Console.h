@@ -106,7 +106,7 @@ namespace Console {
 		  void saveFile( std::string_view, Variables *vars );
 		  
 		  //returns a definition, if it was in the file 
-		  //other wise returns null if varname was not found
+		  //other wise returns nullptr if varname was not found
 		  DefinitionLine *getDefinition( std::string_view varName );
 	  private:
 		  std::vector< DefinitionLine > definitionLines;
@@ -230,7 +230,7 @@ namespace Console {
 		
 		//used to show possible commands for user when they hit tab with a partial command
 		//returns match if only one found
-		//otherwise it returns NULL
+		//otherwise it returns nullptr
 		std::string  printMatches( std::string_view partial );
 
 		//get previous line from history buffer

@@ -26,7 +26,7 @@ void GUI::render() {
 	
 	renderSystem = &FrontEnd::SystemMain::getInstance()->renderer;
 	
-	if( opacity == NULL ) {
+	if( opacity == nullptr ) {
 		opacity = consoleSystem->variables.getFloatVariable( "guiOpacity" );
 	}
 

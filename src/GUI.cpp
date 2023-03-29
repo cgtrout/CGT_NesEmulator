@@ -60,7 +60,7 @@ GUI::runFrame()
 void GUI::runFrame() {
 	GUIElement *activeElem = findElementCursorOver();
 	
-	if( activeElem != NULL && usingMouse ) {
+	if( activeElem != nullptr && usingMouse ) {
 		activeElem->onMouseOver();
 		if( inputSystem->isMouseLeftDown() ) {
 			unactivateAllElements();
@@ -155,13 +155,13 @@ GUI::findElementCursorOver()
   finds the element that the mouse cursor is over
   and returns that element.
 
-  returns NULL if no element is found
+  returns nullptr if no element is found
 ==============================================
 */
 GUIElement *GUI::findElementCursorOver() {
 	std::vector< GUIElement* > currlist;
-	GUIElement *currelem = NULL;
-	GUIElement *retelem = NULL;
+	GUIElement *currelem = nullptr;
+	GUIElement *retelem = nullptr;
 
 	int mousex = inputSystem->getMouseX();
 	int mousey = inputSystem->getMouseY();
@@ -182,9 +182,9 @@ GUIElement *GUI::findElementCursorOver() {
 					retelem = currelem;
 					break;
 			}
-			currelem = NULL;
+			currelem = nullptr;
 		}
-		if( currelem == NULL )
+		if( currelem == nullptr )
 			break;
 	}
 	return retelem;
@@ -246,7 +246,7 @@ void GUI::renderElements(std::vector< GUIElement* > elems ) {
 //////////////////////////////////////////////////////////////////////
 
 GUIElement::GUIElement( std::string guitextures ) :
-	inputSystem( nullptr )	//must be passed pointer later
+	inputSystem( nullptrptr )	//must be passed pointer later
 {
 }
 
@@ -258,7 +258,7 @@ void GUIElement::initialize( std::string guitextures )
  {
 	x = 0; y = 0; width = 128; height = 128;
 	type = GE_BASE;
-	parent = NULL;
+	parent = nullptr;
 
 	open = true;
 	activeElement = false;
@@ -269,7 +269,7 @@ void GUIElement::initialize( std::string guitextures )
 	catch( GUITextures::GUITexturesLoadException ) {
 		throw GUIElementInitializeException( "GUIElement::initialize", "Error loading GUI Texture file" );
 	}
-	parent = NULL;
+	parent = nullptr;
 }
 
 /*
@@ -279,7 +279,7 @@ GUIElement *GUIElement::getRootParent()
 */
 GUIElement *GUIElement::getRootParent() {
 	GUIElement *ret = this;
-	while( ret->parent != NULL ) {
+	while( ret->parent != nullptr ) {
 		ret = ret->parent;
 	}
 	
@@ -330,7 +330,7 @@ GUIElement *GUIElement::getActiveChild(std::vector< GUIElement* > childList )
 */
 GUIElement *GUIElement::getActiveChild(std::vector< GUIElement* > childList ) {
 	std::vector< GUIElement* >::iterator iter;
-	GUIElement *curr = NULL;
+	GUIElement *curr = nullptr;
 
 	for( iter = childList.begin(); iter != childList.end(); iter++ ) {
 		curr = ( GUIElement* )( *iter );
@@ -680,7 +680,6 @@ void EditBox::setText( std::string_view newText ) {
 //////////////////////////////////////////////////////////////////////
 
 TextLabel::TextLabel() :
-	font( nullptr ),
 	str()
 {
 	type = GE_FONT;

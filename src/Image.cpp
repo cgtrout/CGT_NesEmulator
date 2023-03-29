@@ -263,7 +263,7 @@ Image convertToAlpha( int aR, int aG, int aB, const Image& image ) {
 //helper function for LoadBMP - loads an 'L.S.Byte first' format int from file
 //file must be loaded
 unsigned int readLSBFirstInt( std::ifstream *is ) {
-    assert( is != NULL );
+    assert( is != nullptr );
 
 	ubyte tempbyte[4];
 	unsigned int value;

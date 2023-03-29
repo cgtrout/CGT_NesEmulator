@@ -73,7 +73,7 @@ namespace FrontEnd {
 			std::string name;
 			
 			//get a button from controls list of buttons
-			//returns null if not found
+			//returns nullptr if not found
 			ControllableButton *getButton( std::string_view name );
 
 			//call once per frame to clear all button states

@@ -113,7 +113,7 @@ void Variables::addVariable( ConsoleVariable< T > *variable, std::list< ConsoleV
 	def = variableFile.getDefinition( *variable->getName() );
 	
 	//if def was found
-	if( def != NULL ) {
+	if( def != nullptr ) {
 		//set values to values that are in file
 		variable->setValueString( def->valstr );
 	}
@@ -153,7 +153,7 @@ ConsoleVariable< T > *Variables::getVariable( std::string_view name, std::list< 
 			return t;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /* 
@@ -169,14 +169,14 @@ std::string Variables::getValueString( std::string_view varName ) {
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
-	//if they are not null that means that we found a variable
+	//if they are not nullptr that means that we found a variable
 	//if they are found get the string value
-	if( i != NULL ) return i->getValueString();
-	if( f != NULL ) return f->getValueString();
-	if( b != NULL ) return b->getValueString();
-	if( s != NULL ) return s->getValueString();
+	if( i != nullptr ) return i->getValueString();
+	if( f != nullptr ) return f->getValueString();
+	if( b != nullptr ) return b->getValueString();
+	if( s != nullptr ) return s->getValueString();
 	
-	//if all are null then varName does not exist
+	//if all are nullptr then varName does not exist
 	return "NOT_FOUND";
 }
 
@@ -193,14 +193,14 @@ std::string Variables::getVariableDescription( std::string_view varName ) {
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
-	//if they are not null that means that we found a variable
+	//if they are not nullptr that means that we found a variable
 	//if they are found get the string value
-	if( i != NULL ) return std::string( *i->getDescription() );
-	if( f != NULL ) return std::string( *f->getDescription() );
-	if( b != NULL ) return std::string( *b->getDescription() );
-	if( s != NULL ) return std::string( *s->getDescription() );
+	if( i != nullptr ) return std::string( *i->getDescription() );
+	if( f != nullptr ) return std::string( *f->getDescription() );
+	if( b != nullptr ) return std::string( *b->getDescription() );
+	if( s != nullptr ) return std::string( *s->getDescription() );
 	
-	//if all are null then varName does not exist
+	//if all are nullptr then varName does not exist
 	return "NOT_FOUND";
 }
 
@@ -219,14 +219,14 @@ bool Variables::getSaveVarToFile( std::string_view varName ) {
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
-	//if they are not null that means that we found a variable
+	//if they are not nullptr that means that we found a variable
 	//if they are found get the saveTo value
-	if( i != NULL ) return i->getSaveToFile();
-	if( f != NULL ) return f->getSaveToFile();
-	if( b != NULL ) return b->getSaveToFile();
-	if( s != NULL ) return s->getSaveToFile();
+	if( i != nullptr ) return i->getSaveToFile();
+	if( f != nullptr ) return f->getSaveToFile();
+	if( b != nullptr ) return b->getSaveToFile();
+	if( s != nullptr ) return s->getSaveToFile();
 	
-	//if all are null then varName does not exist
+	//if all are nullptr then varName does not exist
 	return false;
 }
 
@@ -368,25 +368,25 @@ bool ConsoleSystem::findAndRunVariable( std::string_view varName, std::string_vi
 	ConsoleVariable< bool >   *b 		= variables.getBoolVariable( varName );
 	ConsoleVariable< std::string > *s 	= variables.getStringVariable( varName );
 	
-	if( i == NULL && f == NULL && b == NULL && s == NULL ) {
+	if( i == nullptr && f == nullptr && b == nullptr && s == nullptr ) {
 		//not found so return false
 		return false;
 	}
 
 	if( run  && value.length() != 0 ) {
-		if( i != NULL ) i->setValueString( value );
-		if( f != NULL ) f->setValueString( value );
-		if( b != NULL ) b->setValueString( value );
-		if( s != NULL ) b->setValueString( value );
+		if( i != nullptr ) i->setValueString( value );
+		if( f != nullptr ) f->setValueString( value );
+		if( b != nullptr ) b->setValueString( value );
+		if( s != nullptr ) b->setValueString( value );
 	}
 	
 	std::stringstream ss;
 	ss << "Variable \"";
 
-	if( i != NULL ) ss << *i->getName() << "\" is set to: " << i->getValue();
-	if( f != NULL ) ss << *f->getName() << "\" is set to: " << f->getValue();
-	if( b != NULL ) ss << *b->getName() << "\" is set to: " << b->getValue();
-	if( s != NULL ) ss << *s->getName() << "\" is set to: " << s->getValue();
+	if( i != nullptr ) ss << *i->getName() << "\" is set to: " << i->getValue();
+	if( f != nullptr ) ss << *f->getName() << "\" is set to: " << f->getValue();
+	if( b != nullptr ) ss << *b->getName() << "\" is set to: " << b->getValue();
+	if( s != nullptr ) ss << *s->getName() << "\" is set to: " << s->getValue();
 
 	printMessage( "%s", ss.str().c_str() );
 
@@ -576,7 +576,7 @@ std::string ConsoleSystem::History::getLine( int lineToGet ) {
 ConsoleSystem::printMatches(  )
   used to show possible commands for user when they hit tab with a partial command
   returns match if only one found
-  otherwise it returns NULL
+  otherwise it returns nullptr
 
 TODO return string that matches given partial until the point where the matches no longer match up
 ==============================================
@@ -644,7 +644,7 @@ std::string ConsoleSystem::printMatches( std::string_view partial ) {
 		cstr = ( std::string* )( *siter );
 		printMessage( cstr->c_str() );
 	}
-	//more than one match found so return null
+	//more than one match found so return nullptr
 	return std::string( "" );
 }
 
@@ -793,7 +793,7 @@ VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varn
 			  return &v;
 		  }
 	  }
-	  return NULL;
+	  return nullptr;
 }
 
 /* 
@@ -818,7 +818,7 @@ void VariableFile::saveFile( std::string_view filename, Variables *vars ) {
 		if( vars->getSaveVarToFile( *currVarName ) ) {
 			//try to find def
 			DefinitionLine *def = getDefinition( *(*i) );
-			if( def == NULL ) {
+			if( def == nullptr ) {
 				//def not found so create a new one
 				DefinitionLine newdef;
 				

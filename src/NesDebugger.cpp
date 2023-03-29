@@ -13,7 +13,6 @@ NesDebugger::NesDebugger()
 */
 NesDebugger::NesDebugger( NesEmulator::NesMain* nesMain ) :
 	nesMain( nesMain ),
-	memory( nullptr ),		
 	singleStepMode( false ),
 	doSingleStep( false ),
 	justInSingleStepMode( false ),
@@ -202,7 +201,7 @@ void NesDebugger::draw( ) {
 
 			ImGui::PopItemWidth( );
 
-			dumpAddress = ( uword )strtol( dumpAddressStr.c_str(), NULL, 16 );
+			dumpAddress = ( uword )strtol( dumpAddressStr.c_str(), nullptr, 16 );
 			std::string memoryDumpString = loadMemoryDump( );
 			ImGui::Text( memoryDumpString.c_str( ), 500.0f );
 
@@ -257,7 +256,7 @@ void NesEmulator::NesDebugger::drawWatchBox( const int index )
 	ImGui::InputText( title.c_str() , watchStrings[index], 5, ImGuiInputTextFlags_CharsHexadecimal );
 	ImGui::PopItemWidth( );
 
-	uword watchLoc = ( uword )strtol( watchStrings[ index ], NULL, 16 );
+	uword watchLoc = ( uword )strtol( watchStrings[ index ], nullptr, 16 );
 
 	ImGui::SameLine( );
 	ImGui::Text( "0x%02X", memory->getMemory( watchLoc ) );
