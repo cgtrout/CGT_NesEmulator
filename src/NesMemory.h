@@ -184,9 +184,9 @@ namespace NesEmulator {
 
 		void zeroMemory();
 
-		//fill in prg banks at "start_address" with data from main prgRom databank 
+		//fill in prg banks at "startAddress" with data from main prgRom databank 
 		//at pos "prgStartPos"
-		void fillChrBanks( uword start_address, uword chrStartPos, uword numBanks );
+		void fillChrBanks( uword startAddress, uword chrStartAddr, uword numBanks );
 		
 		//memory read/write functions
 		void setMemory( uword loc, ubyte val );		
@@ -234,9 +234,9 @@ namespace NesEmulator {
 		int getNumPrgPages( ) { return physicalMemBanks.prgRomPages; }
 		void loadPrgRomPages( int prgRomPages, const std::vector<ubyte> &data );
 
-		//fill in prg banks at "start_address" with data from main prgRom databank 
-		//at pos "prgStartPos" for "NumBanks"
-		void fillPrgBanks( uword start_address, int prgStartPos, int numBanks );
+		//fill in prg banks at "startAddress" with data from main prgRom databank 
+		//at address "prgStartAddr" for "NumBanks"
+		void fillPrgBanks( uword startAddress, uword prgStartAddr, int numBanks );
 
 		//port handlers
 

@@ -265,11 +265,11 @@ void NesMemory::fillPrgBanks
   fill in banks from prg rom storage to main bank positions
 ==============================================
 */
-void NesMemory::fillPrgBanks( uword start_address, int prgStartPos, int numBanks ) { 
+void NesMemory::fillPrgBanks( uword startAddress, uword prgStartAddr, int numBanks ) { 
 	_log->Write( "fillPrgBanks:   start_address=%04x   prgStartPos=%04x,  numBanks=%02x    pc=%04x ", start_address, prgStartPos, numBanks, nesMain->nesCpu.getPC()  );
 
-	int bankNum = calcCpuBank( start_address );
-	int prgPos = prgStartPos;
+	int bankNum = calcCpuBank( startAddress );
+	uword prgPos = prgStartAddr;
 	for( int x = 0; x < numBanks; x++ ) {
 		memBanks[ bankNum++ ]= &physicalMemBanks.prgRom[ prgPos++ ];
 	}
@@ -912,9 +912,9 @@ void PPUMemory::fillChrBanks
   fill in banks from prg rom storage to main bank positions
 ==============================================
 */
-void PPUMemory::fillChrBanks( uword start_address, uword chrStartPos, uword numBanks ) { 
-	int mainPos = ::calcPpuBank( start_address );
-	int chrPos = chrStartPos;
+void PPUMemory::fillChrBanks( uword startAddress, uword chrStartAddr, uword numBanks ) { 
+	int mainPos = calcPpuBank( startAddress );
+	int chrPos = chrStartAddr;
 	for( int x = 0; x < numBanks; x++ ) {
 		memBanks[ mainPos++ ] = &physicalMemBanks.chrRom[ chrPos++ ];
 	}
