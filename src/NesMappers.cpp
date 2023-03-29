@@ -110,11 +110,11 @@ void NesMapper1::initializeMap( ) {
 
 						//bit 3 - toggles between 16KB and 32KB PRGROM bank switching
 						//			0 = 32KB PRGROM switching, 1 = 16KB PRGROM switching
-						ubyte prgrom_switch_size = (bit3 == 0) ? 32 : 16;
+						prgrom_switch_size = (bit3 == 0) ? 32 : 16;
 
 						//bit 4 - sets 8KB or 4KB CHRROM switching mode
 						//			0 = 8KB CHRROM banks, 1 = 4KB CHRROM banks
-						ubyte chrrom_switch_size = ( bit4 == 0 ) ? 8 : 4;
+						char_rom_switch_size = ( bit4 == 0 ) ? 8 : 4;
 
 					}
 					//CHR bank 0 ( internal, $A000 - $BFFF )
