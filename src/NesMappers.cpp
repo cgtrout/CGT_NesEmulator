@@ -128,10 +128,15 @@ void NesMapper1::initializeMap( ) {
 						ubyte selected_bank = MMC1_PB & 0b11111;
 
 						//todo may need to mask here?
+						//Total ppu is 8kb
 						switch( char_rom_switch_size ) {
 						case 4:
+							//TODO sets bank for PPU 0000-0FFF (4kb region)
+							// full 5 bits are used - 32 possible banks
 							break;
 						case 8:
+							//TODO bottom bit is ignored (nerdy nights) so there are 16 possible banks
+							// sets bank for full PPU 0000-1FFF(8kb region)
 							break;
 						}
 						
