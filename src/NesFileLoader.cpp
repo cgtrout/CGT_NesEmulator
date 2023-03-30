@@ -36,7 +36,8 @@ void NesFile::loadFile( std::string_view filename ) {
 	NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
 		
 	//TODO make this more generalized (maybe add a console variable)
-	file = "./roms/" + file + ".nes";
+	//file = "./roms/" + file + ".nes";
+	file = file + ".nes";
 	std::ifstream is( file.c_str(), std::ios::binary );
 	if( !is.is_open( ) ) {
 		std::error_code ec( errno, std::generic_category( ) );

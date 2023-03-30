@@ -13,6 +13,8 @@ ConsoleCommand commands[] =
 //	Name			 Handler								Description
 { { "quit",			 &CommandHandlerSystem::quit,			"Closes the program" },
   {	"loadnesfile",	 &CommandHandlerSystem::loadNesFile,    "Loads an nes file" }, 
+  { "setTestDir",    &CommandHandlerSystem::setTestDir,		"Set testing directory"},
+  { "next",			 &CommandHandlerSystem::next,			"load next test" },
 #ifndef LIGHT_BUILD
   { "saveTrace",	 &CommandHandlerSystem::printTraceLog,	"Writes a cpu trace log" },
   { "saveAsm",		 &CommandHandlerSystem::printAsm,		"Writes dissasembled sorted trace" },
@@ -220,5 +222,21 @@ void CommandHandlerSystem::printHelpUsage( std::string_view errorMsg ) {
 	consoleSystem->printMessage( "Usage of help: \"help [ command/variable ]\".  This will print " );
 	consoleSystem->printMessage( "a description of the command or variable to the console" );
 }
+
+void CommandHandlerSystem::setTestDir( std::string_view param ) {
+
+	//TODO need to load list of rom files and store it somehow
+	auto directory = std::string( "./roms/") +  std::string( param ) + "/";
+	SystemMain::getInstance( )->testingSystem.buildDirVector( directory );
+	
+	auto messageString = std::string( "Loaded directory: " ) + std::string( param );
+	consoleSystem->printMessage( messageString.c_str() );
+}
+
+//loads next rom file in test list
+void CommandHandlerSystem::next( std::string_view param ) {
+	SystemMain::getInstance( )->loadNextTest( );
+}
+
 
 

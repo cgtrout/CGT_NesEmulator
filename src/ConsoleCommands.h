@@ -28,6 +28,9 @@ namespace Console {
 		void reset( std::string_view param );
 
 		void help( std::string_view param );
+
+		void setTestDir( std::string_view param );
+		void next( std::string_view param );
 		
 	private:
 		CommandHandlerSystem();
