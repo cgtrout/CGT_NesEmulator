@@ -60,6 +60,10 @@ void NesMapper1::initializeMap( ) {
 
 				//bit 2 - reset to logic 1
 				//bit 3 - reset to logic 1
+
+				//fix last prg bank at $C000
+				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
+
 				prgrom_bank_address = 0x8000; 
 				prgrom_switch_size = 16;
 			}
@@ -193,7 +197,6 @@ void NesMapper1::initializeMap( ) {
 					write_count = 0;
 					MMC1_SR = 0b10000;
 
-					nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
 				}
 				else {
 					write_count++;
