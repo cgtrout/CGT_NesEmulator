@@ -82,7 +82,7 @@ void NesDebugger::draw( ) {
 	
 	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
 	ImGui::SameLine( );
-	ImGui::TextColored( ImVec4( 1, 0.2, 0.2, 1 ), userMessage.c_str() );
+	ImGui::TextColored( ImVec4( 1, 0.2f, 0.2f, 1 ), userMessage.c_str() );
 		ImGui::BeginChild( "Scrolling", ImVec2( ImGui::GetContentRegionAvail( ).x * 0.5f, ImGui::GetContentRegionAvail( ).y ), false, window_flags );
 			for ( unsigned int n = 0; n < debugLines.size( ); n++ ) {
 				if ( isBreakPointAt( debugLines[ n ].address ) ) {
@@ -147,6 +147,20 @@ void NesDebugger::draw( ) {
 		//draw watchboxes
 		for ( unsigned int i = 0; i < watchStrings.size( ); i++ ) {
 			drawWatchBox( i );
+		}
+
+		ImGui::NewLine( );
+		ImGui::PushItemWidth( 50 );
+		static char selectedAddressText[5];
+		if( ImGui::InputText( "Goto addr", selectedAddressText, 5, ImGuiInputTextFlags_CharsHexadecimal ) ) {
+			selectedAddress = (uword)strtol( selectedAddressText, nullptr, 16 );
+			
+		}
+		ImGui::PopItemWidth( );
+		ImGui::SameLine( );
+
+		if( ImGui::Button( "Goto" ) ) {
+			buildDissassemblerLines( selectedAddress, numDebugLines );
 		}
 
 		ImGui::NewLine( );
