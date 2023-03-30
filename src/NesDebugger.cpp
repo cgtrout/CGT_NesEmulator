@@ -188,7 +188,6 @@ void NesDebugger::draw( ) {
 	
 	ImGui::End( );	
 
-
 	//show memory dump window
 	if ( this->showMemoryDump ) {
 		ImGui::Begin( "Memory dump", &this->showMemoryDump, 0 );
