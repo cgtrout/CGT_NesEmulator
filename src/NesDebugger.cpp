@@ -128,20 +128,21 @@ void NesDebugger::draw( ) {
 
 		ImGui::NewLine( );
 
-		bool carry = nesCpu->getCarry( );
-		bool zero = nesCpu->getZero( );
-		bool interruptDis = nesCpu->getInterruptDisable( );
-		bool breakPoint = nesCpu->getBreakPoint( );
-		bool overflow = nesCpu->getOverflow( );
-		bool negative = nesCpu->getNegative( );
-
-		ImGui::Checkbox( "Carry", &carry );
-		ImGui::Checkbox( "Zero", &zero );
-		ImGui::Checkbox( "Interupt Dis.", &interruptDis );
-		ImGui::Checkbox( "Breakpoint", &breakPoint );
-		ImGui::Checkbox( "Overflow", &overflow );
-		ImGui::Checkbox( "Negative", &negative);
+		//draw flags
+		std::string lines = "";
+		auto flags = this->nesMain->nesCpu.createFlagByte();
+		lines += BIT( 7, flags ) ? "N" : "n";
+		lines += BIT( 6, flags ) ? "V" : "v";
+		lines += BIT( 5, flags ) ? "U" : "u";
+		lines += BIT( 4, flags ) ? "B" : "b";
+		lines += BIT( 3, flags ) ? "D" : "d";
+		lines += BIT( 2, flags ) ? "I" : "i";
+		lines += BIT( 1, flags ) ? "Z" : "z";
+		lines += BIT( 0, flags ) ? "C" : "c";
 		
+		ImGui::TextColored( ImVec4( 1, 1, 0, 1), "FLAGS:" );
+		ImGui::SameLine( );
+		ImGui::Text( lines.c_str( ) );
 		ImGui::NewLine( );
 
 		//draw watchboxes
