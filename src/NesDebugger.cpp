@@ -71,11 +71,15 @@ void NesDebugger::draw( ) {
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
 	ImGui::Begin( "Debugger Window", &this->showDebugWindow, window_flags );
 	
+	//display step-debugger step title and 'user message'
 	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
 	ImGui::SameLine( );
 	ImGui::TextColored( ImVec4( 1, 0.2f, 0.2f, 1 ), userMessage.c_str() );
+		
+		//create scrolling child region for displaying debugger lines
 		ImGui::BeginChild( "Scrolling", ImVec2( ImGui::GetContentRegionAvail( ).x * 0.5f, ImGui::GetContentRegionAvail( ).y ), false, window_flags );
 			for ( unsigned int n = 0; n < debugLines.size( ); n++ ) {
+				//display breakpoint indicator if a breakpoint exists at the current address
 				if ( isBreakPointAt( debugLines[ n ].address ) ) {
 					ImGui::Text( " + " );
 				} else {
@@ -91,6 +95,7 @@ void NesDebugger::draw( ) {
 
 	ImGui::SameLine( );
 
+	//begin the second column for CPU registers and other information
 	ImGui::BeginChild( "second column" );
 	
 		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "A " );
@@ -119,7 +124,7 @@ void NesDebugger::draw( ) {
 
 		ImGui::NewLine( );
 
-		//draw flags
+		//draw CPU flags
 		std::string lines = "";
 		auto flags = this->nesMain->nesCpu.createFlagByte();
 		lines += BIT( 7, flags ) ? "N" : "n";
@@ -142,6 +147,8 @@ void NesDebugger::draw( ) {
 		}
 
 		ImGui::NewLine( );
+		
+		//draw input text box for entering an address to jump to
 		ImGui::PushItemWidth( 50 );
 		static char selectedAddressText[5];
 		if( ImGui::InputText( "Goto addr", selectedAddressText, 5, ImGuiInputTextFlags_CharsHexadecimal ) ) {
@@ -170,6 +177,7 @@ void NesDebugger::draw( ) {
 
 			ImGui::SameLine(  );
 
+			//display button that will control if memory dump window is shown
 			if ( ImGui::Button( "Show memory dump" ) ) {
 				showMemoryDump = !showMemoryDump;
 			}
@@ -190,6 +198,7 @@ void NesDebugger::draw( ) {
 			static bool cpuSet = true;
 			static bool ppuSet = false;
 
+			//listBox for selecting the memory type (CPU or PPU) for the memory dump
 			if( ImGui::BeginListBox( "Memory Selection", ImVec2( 100, 40 ) ) ) {
 				if( ImGui::Selectable( "CPU Memory", &cpuSet ) ) {
 					memDumpType = MemoryDumper::MEMDUMPTYPE_MAIN;
