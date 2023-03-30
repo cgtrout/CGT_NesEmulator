@@ -135,7 +135,8 @@ void NesMapper1::initializeMap( ) {
 							// full 5 bits are used - 32 possible banks
 							break;
 						case 8:
-							//TODO bottom bit is ignored (nerdy nights) so there are 16 possible banks
+							//bottom bit is ignored (nerdy nights) so there are 16 possible banks
+							selected_bank &= 0b11110;
 							// sets bank for full PPU 0000-1FFF(8kb region)
 							break;
 						}
