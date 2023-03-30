@@ -123,6 +123,9 @@ void NesMapper1::initializeMap( ) {
 						//			0 = 8KB CHRROM banks, 1 = 4KB CHRROM banks
 						char_rom_switch_size = ( bit4 == 0 ) ? 8 : 4;
 
+						//TODO we may need to reassign the locations here if any of these bits are different
+						
+
 					}
 					//CHR bank 0 ( internal, $A000 - $BFFF )
 					//4horz_vert 
