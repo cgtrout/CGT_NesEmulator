@@ -75,15 +75,20 @@ void NesFile::loadFile( std::string_view filename ) {
 	//byte 6/7
 	is >> controlbyte1 >> controlbyte2;
 
-	//extract information from control bytes
+	//extract information from control bytes (also known as flag 6)
 	horizontalMirroring 	= !( controlbyte1 & 1);		   //0001
-	verticalMirroring	=  ( controlbyte1 & 1);	
-	sramEnabled		=  ( controlbyte1 >> 1 ) & 1;  //0010
-	trainer			=  ( controlbyte1 >> 2 ) & 1 ; //0100
-	fourScreenVRam		=  ( controlbyte1 >> 3 ) & 1 ; //1000
+	verticalMirroring		=  ( controlbyte1 & 1);	
+	sramEnabled				=  ( controlbyte1 >> 1 ) & 1;  //0010
+	trainer					=  ( controlbyte1 >> 2 ) & 1 ; //0100
+	fourScreenVRam			=  ( controlbyte1 >> 3 ) & 1 ; //1000
 	
 	mapperNum = ( controlbyte1 >> 4 ) & 0x0f;
+	
+	//flag 7 (byte 7)
 	mapperNum +=  controlbyte2 & 0x0f;
+
+	//detect if this is an NES 2.0 file format
+	bool isNes2 = ( ( 0b00001100 & controlbyte2 ) >> 2 ) == 2;
 
 	//throw exception of trainer setting set - its not supported
 	if( trainer ) throw NesFileException( "NesFile::loadFile error", "Trainer not supported" );
