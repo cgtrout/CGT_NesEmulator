@@ -902,7 +902,7 @@ inline uword PPUMemory::resolveAddress( uword address ) {
 
 /* 
 ==============================================
-void PPUMemory::loadChrRomPages( int chrRomPages, const ubyte *data )
+void PPUMemory::loadChrRomPages
 ==============================================
 */
 void PPUMemory::loadChrRomPages( uword chrRomPages, const std::vector<ubyte> &data ) {
