@@ -128,7 +128,7 @@ void NesFile::loadFile( std::string_view filename ) {
 		nesMemory->initializeMemoryMap( std::make_unique<NesMapper2>() );
 		break;
 	default:
-		throw new NesFileException( "NesFile::loadFile error", "Mapper not yet supported" );
+		throw NesFileException( "NesFile::loadFile error", "Mapper not yet supported" );
 	}
 
 }
