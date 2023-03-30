@@ -82,7 +82,7 @@ void NesDebugger::draw( ) {
 	
 	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
 	ImGui::SameLine( );
-	ImGui::TextColored( ImVec4( 1, 0.2, 0.2, 1 ), userMessage.c_str() );
+	ImGui::TextColored( ImVec4( 1, 0.2f, 0.2f, 1 ), userMessage.c_str() );
 		ImGui::BeginChild( "Scrolling", ImVec2( ImGui::GetContentRegionAvail( ).x * 0.5f, ImGui::GetContentRegionAvail( ).y ), false, window_flags );
 			for ( unsigned int n = 0; n < debugLines.size( ); n++ ) {
 				if ( isBreakPointAt( debugLines[ n ].address ) ) {
@@ -128,25 +128,40 @@ void NesDebugger::draw( ) {
 
 		ImGui::NewLine( );
 
-		bool carry = nesCpu->getCarry( );
-		bool zero = nesCpu->getZero( );
-		bool interruptDis = nesCpu->getInterruptDisable( );
-		bool breakPoint = nesCpu->getBreakPoint( );
-		bool overflow = nesCpu->getOverflow( );
-		bool negative = nesCpu->getNegative( );
-
-		ImGui::Checkbox( "Carry", &carry );
-		ImGui::Checkbox( "Zero", &zero );
-		ImGui::Checkbox( "Interupt Dis.", &interruptDis );
-		ImGui::Checkbox( "Breakpoint", &breakPoint );
-		ImGui::Checkbox( "Overflow", &overflow );
-		ImGui::Checkbox( "Negative", &negative);
+		//draw flags
+		std::string lines = "";
+		auto flags = this->nesMain->nesCpu.createFlagByte();
+		lines += BIT( 7, flags ) ? "N" : "n";
+		lines += BIT( 6, flags ) ? "V" : "v";
+		lines += BIT( 5, flags ) ? "U" : "u";
+		lines += BIT( 4, flags ) ? "B" : "b";
+		lines += BIT( 3, flags ) ? "D" : "d";
+		lines += BIT( 2, flags ) ? "I" : "i";
+		lines += BIT( 1, flags ) ? "Z" : "z";
+		lines += BIT( 0, flags ) ? "C" : "c";
 		
+		ImGui::TextColored( ImVec4( 1, 1, 0, 1), "FLAGS:" );
+		ImGui::SameLine( );
+		ImGui::Text( lines.c_str( ) );
 		ImGui::NewLine( );
 
 		//draw watchboxes
 		for ( unsigned int i = 0; i < watchStrings.size( ); i++ ) {
 			drawWatchBox( i );
+		}
+
+		ImGui::NewLine( );
+		ImGui::PushItemWidth( 50 );
+		static char selectedAddressText[5];
+		if( ImGui::InputText( "Goto addr", selectedAddressText, 5, ImGuiInputTextFlags_CharsHexadecimal ) ) {
+			selectedAddress = (uword)strtol( selectedAddressText, nullptr, 16 );
+			
+		}
+		ImGui::PopItemWidth( );
+		ImGui::SameLine( );
+
+		if( ImGui::Button( "Goto" ) ) {
+			buildDissassemblerLines( selectedAddress, numDebugLines );
 		}
 
 		ImGui::NewLine( );

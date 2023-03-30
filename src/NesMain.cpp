@@ -25,7 +25,6 @@ void NesMain::runFrame() {
 	if( state != Emulating ) {
 		return;
 	}
-
 	//TODO ntsc / val handling
 	
 	//keep running this frame?
@@ -142,4 +141,3 @@ void NesMain::reset() {
 void NesEmulator::NesMain::enableStepDebugging( std::string_view message ) {
 	nesDebugger.setToSingleStepMode( nesCpu.getPC( ), message );
 }
-

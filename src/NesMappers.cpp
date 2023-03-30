@@ -60,6 +60,11 @@ void NesMapper1::initializeMap( ) {
 
 				//bit 2 - reset to logic 1
 				//bit 3 - reset to logic 1
+
+				//fix last prg bank at $C000
+				int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
+				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
+
 				prgrom_bank_address = 0x8000; 
 				prgrom_switch_size = 16;
 			}
@@ -159,8 +164,8 @@ void NesMapper1::initializeMap( ) {
 						//TODO wram
 
 						//incorrect in metroid
-						//when run in metroid causes 1st chr to be changes?
-						//it isn't this directly, but how it somehow affects something else??
+						//in metroid, for some reason this currently causes chr mapping to 
+						//be incorrect
 						nesMain->nesMemory.ppuMemory.fillChrBanks(
 							0x1000,								//start address
 							selected_bank * CHR_BANKS_PER_PAGE,	//chr rom page
@@ -193,7 +198,7 @@ void NesMapper1::initializeMap( ) {
 					write_count = 0;
 					MMC1_SR = 0b10000;
 
-					nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
+					//nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
 				}
 				else {
 					write_count++;

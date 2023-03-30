@@ -50,6 +50,7 @@ CGT_NesEmulator/Win32/Debug/
 CGT_NesEmulator/.vs/CGT_NesEmulator/v17/.suo
 CGT_NesEmulator/.vs/CGT_NesEmulator/v17/fileList.bin
 CGT_NesEmulator/.vs/CGT_NesEmulator/FileContentIndex/write.lock
+C:/Users/cgtro/Documents/2023_Repos/Nes_Emulator/CGT_NesEmulator/enc_temp_folder/*/*
 .vscode/c_cpp_properties.json
 .vscode/settings.json
 .vs/slnx.sqlite
@@ -58,3 +59,5 @@ autoexec.cfg
 CGT_NesEmulator/.vs/CGT_NesEmulator/v17/HierarchyCache.v1.txt
 asm_out.txt
 tracelog.txt
+CGT_NesEmulator/enc_temp_folder/9177169dd6c36f4587447f02658eb9/NesMappers.cpp
+roms/test/test.txt

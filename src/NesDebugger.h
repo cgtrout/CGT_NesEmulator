@@ -101,7 +101,7 @@ namespace NesEmulator {
 		};
 
 		std::vector<DebugLine> debugLines;
-		int numDebugLines = 20;
+		int numDebugLines = 24;
 
 		std::array<char[ 5 ], 4> watchStrings;
 
