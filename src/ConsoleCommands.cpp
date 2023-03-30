@@ -224,8 +224,7 @@ void CommandHandlerSystem::printHelpUsage( std::string_view errorMsg ) {
 }
 
 void CommandHandlerSystem::setTestDir( std::string_view param ) {
-
-	//TODO need to load list of rom files and store it somehow
+	//load list of rom files and store it in 'testingSystem'
 	auto directory = std::string( "./roms/") +  std::string( param ) + "/";
 	SystemMain::getInstance( )->testingSystem.buildDirVector( directory );
 	
