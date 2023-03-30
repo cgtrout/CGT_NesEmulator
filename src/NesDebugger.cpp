@@ -62,23 +62,8 @@ void NesDebugger::draw( ) {
 
 	auto* nesCpu = &nesMain->nesCpu;
 
-	//ImGui::Begin( "Debugger Window", &this->showDebugWindow, ImGuiWindowFlags_MenuBar );
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
 	ImGui::Begin( "Debugger Window", &this->showDebugWindow, window_flags );
-	/*
-	if ( ImGui::BeginMenuBar( ) )
-	{
-		if ( ImGui::BeginMenu( "File" ) )
-		{
-			if ( ImGui::MenuItem( "Close", "Ctrl+W" ) ) { 
-				this->showDebugWindow = false; 
-			}
-			ImGui::EndMenu( );
-		}
-		ImGui::EndMenuBar( );
-	}
-	*/
-
 	
 	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
 	ImGui::SameLine( );
