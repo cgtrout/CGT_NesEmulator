@@ -768,6 +768,7 @@ ubyte NesMemory::ph2006Read() {
 /*
 ==============================================
 void NesMemory::ph2007Read()
+  vram read
 ==============================================
 */
 ubyte NesMemory::ph2007Read() {
@@ -800,6 +801,7 @@ ubyte NesMemory::ph2007Read() {
 /*
 ==============================================
 void NesMemory::ph2007Write()
+  vram write
 ==============================================
 */
 void NesMemory::ph2007Write( ubyte val ) {

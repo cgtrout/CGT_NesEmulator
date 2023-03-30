@@ -164,8 +164,8 @@ void NesMapper1::initializeMap( ) {
 						//TODO wram
 
 						//incorrect in metroid
-						//when run in metroid causes 1st chr to be changes?
-						//it isn't this directly, but how it somehow affects something else??
+						//in metroid, for some reason this currently causes chr mapping to 
+						//be incorrect
 						nesMain->nesMemory.ppuMemory.fillChrBanks(
 							0x1000,								//start address
 							selected_bank * CHR_BANKS_PER_PAGE,	//chr rom page
