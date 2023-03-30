@@ -70,7 +70,8 @@ namespace FrontEnd {
 
 		//TestingSystem
 		//This allows us to set a test directory
-		//and then load next directories
+		//and then load a rom at a time to test multiple
+		//roms easily
 		struct TestingSystem {
 			bool inTestMode = false;
 			std::vector<std::string> files;
