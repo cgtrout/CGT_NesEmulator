@@ -236,22 +236,26 @@ void SystemMain::loadNextTest( ) {
 TestingSystem::buildDirVector()
 ==============================================
 */
-void SystemMain::TestingSystem::buildDirVector( std::string_view dirName ) {
-	files.clear( );
-	directory = dirName;
-	for( const auto& entry : std::filesystem::directory_iterator( dirName ) ) {
-		auto filepath = entry.path( ).filename( ).string( );
-		//confirm last three chars are nes
-		if( filepath.substr( filepath.length( ) - 3 , filepath.length( ) ) != "nes") {
-			continue;
-		}
+void SystemMain::TestingSystem::buildDirVector(std::string_view dirName) {
+    files.clear();
+    directory = dirName;
 
-		//remove .nes
-		filepath = filepath.substr( 0,  filepath.length( ) - 4 );
-		files.push_back( filepath );
-	}
-	std::sort( files.begin( ), files.end( ) );
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(dirName)) {
+            if (entry.path().extension() != ".nes") {
+                continue;
+            }
 
-	iter = files.begin( );
+            auto filepath = entry.path().stem().string();
+            files.push_back(filepath);
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+		std::ostringstream errorMsg;
+		errorMsg << "Error: Unable to access directory '" << dirName << "' (" << e.what() << "). Check existence and permissions.";
+		std::string errorMessage = errorMsg.str();
+		throw CgtException( "Testing System Error", errorMessage, true);
+    }
+
+    std::sort(files.begin(), files.end());
+    iter = files.begin();
 }
-
