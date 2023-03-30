@@ -86,7 +86,6 @@ namespace FrontEnd {
 		//load next test from the testing system
 		void loadNextTest( );
 
-		
 	  private:
 		
 		SystemMain();
