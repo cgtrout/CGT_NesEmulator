@@ -1,10 +1,16 @@
 #include "precompiled.h"
 #include "imgui/imgui.h"
 
-using namespace NesEmulator;
-
 #include "NesMain.h"
 #include "StringToNumber.h"
+
+#include <sstream>
+#include <iomanip>
+#include <vector>
+#include <stdexcept>
+
+using namespace NesEmulator;
+
 #ifndef LIGHT_BUILD
 /*
 ==============================================
@@ -207,11 +213,6 @@ void NesDebugger::draw( ) {
 		ImGui::End( );
 	}
 }
-
-#include <sstream>
-#include <iomanip>
-#include <vector>
-#include <stdexcept>
 
 std::string NesDebugger::loadMemoryDump( ) {
 	MemoryDumper md;
