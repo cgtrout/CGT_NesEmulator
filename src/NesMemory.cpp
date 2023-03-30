@@ -179,14 +179,11 @@ void PpuMemBanks::copyChrRom( int numPages, const std::vector<ubyte>& data ) {
 	int bank = 0;	//current bank
 	int b = 0;		//data byte
 	
-	//number of banks per page
-	static const int bankPerPage = CHR_ROM_PAGESIZE / PPU_BANKSIZE;	
-
 	//for each page
 	for( int page = 0; page < numPages; page++ ) {
 		
 		//for each bank in page
-		for( int bankinpage = 0; bankinpage < bankPerPage; bankinpage++ ) {
+		for( int bankinpage = 0; bankinpage < CHR_ROM_PAGESIZE; bankinpage++ ) {
 			
 			//for every byte in current bank
 			for( int bankb = 0; bankb < PPU_BANKSIZE; ) {
@@ -916,12 +913,14 @@ void PPUMemory::loadChrRomPages( uword chrRomPages, const std::vector<ubyte> &da
 ==============================================
 void PPUMemory::fillChrBanks
   
-  fill in banks from prg rom storage to main bank positions
+  fill in banks from prg rom storage to ppu bank positions
 ==============================================
 */
 void PPUMemory::fillChrBanks( uword startAddress, uword chrStartAddr, uword numBanks ) { 
 	int mainPos = calcPpuBank( startAddress );
-	int chrPos = chrStartAddr;
+	//Clculate which chrRom bank to start from keeping in mind each bank is 1kb
+	//shift right 10 is equivalent to divide by 1024 (1kb)
+	int chrPos = chrStartAddr >> 10;
 	for( int x = 0; x < numBanks; x++ ) {
 		memBanks[ mainPos++ ] = &physicalMemBanks.chrRom[ chrPos++ ];
 	}
