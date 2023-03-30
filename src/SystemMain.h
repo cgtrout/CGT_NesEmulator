@@ -67,6 +67,24 @@ namespace FrontEnd {
 		Render::Renderer		renderer;
 		
 		TimeProfiler timeProfiler;
+
+		//TestingSystem
+		//This allows us to set a test directory
+		//and then load next directories
+		struct TestingSystem {
+			bool inTestMode = false;
+			std::vector<std::string> files;
+			std::string directory;
+			std::vector<std::string>::iterator iter;
+
+			//takes in directory name and builds test list 
+			//of roms that reside in that dir
+			void buildDirVector( std::string_view dirName );
+		}testingSystem;
+
+		//load next test from the testing system
+		void loadNextTest( );
+
 		
 	  private:
 		
