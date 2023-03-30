@@ -59,10 +59,12 @@ void NesFile::loadFile( std::string_view filename ) {
 	if( strcmp( "NES", nesStr ) != 0 ) throw NesFileException( "NesFile::loadFile error", "File not an .nes file" );
 	
 	//if next value is not 0x1a throw an exception
+	//byte 3
 	is >> numcheck;
 	if( numcheck != 0x1a ) throw NesFileException( "NesFile::loadFile error", "File not an .nes file" );
 	
 	//read prgRom and charRom counts
+	//byte 4/5
 	is >> prgRomPageCount;
 	is >> chrRomPageCount;
 
@@ -70,6 +72,7 @@ void NesFile::loadFile( std::string_view filename ) {
 	//if( chrRomPageCount == 0 ) chrRomPageCount = 1;
 	
 	//read the two control bytes
+	//byte 6/7
 	is >> controlbyte1 >> controlbyte2;
 
 	//extract information from control bytes
@@ -86,18 +89,19 @@ void NesFile::loadFile( std::string_view filename ) {
 	if( trainer ) throw NesFileException( "NesFile::loadFile error", "Trainer not supported" );
 
 	//initialize prg-rom
-	prgRomPages = std::vector<ubyte>( prgRomPageCount * 0x4000 );
+	prgRomPages = std::vector<ubyte>( prgRomPageCount * PRG_ROM_PAGESIZE );
 	
 	if( chrRomPageCount != 0 ) {
-		chrRomPages = std::vector<ubyte>( chrRomPageCount * 0x2000 );
+		chrRomPages = std::vector<ubyte>( chrRomPageCount * CHR_ROM_PAGESIZE );
 	}
 	
 	//load prg and chr rom from file
+	//jump to byte 16, which is where data begins
 	is.seekg( 16, std::ios::beg );
-	is.read( reinterpret_cast< char* >( prgRomPages.data() ), prgRomPageCount * 0x4000 );
+	is.read( reinterpret_cast< char* >( prgRomPages.data() ), prgRomPageCount * PRG_ROM_PAGESIZE );
 	
 	if( chrRomPageCount != 0 ) {
-		is.read( reinterpret_cast< char* >( chrRomPages.data() ), chrRomPageCount * 0x2000 );
+		is.read( reinterpret_cast< char* >( chrRomPages.data() ), chrRomPageCount * CHR_ROM_PAGESIZE );
 	}
 
 	is.close();
