@@ -94,20 +94,22 @@ void NesMapper1::initializeMap( ) {
 						ubyte bit3 = BIT( 3, MMC1_PB );
 						ubyte bit4 = BIT( 4, MMC1_PB );
 
-						//bit 0 - toggles between "horizontal" and "vertical" mirroring
-						//			0 = vertical, 1 = horizontal
-						switch( horz_vert ) {
+						auto mirroring = 0b00011 & MMC1_PB;
+
+						switch( mirroring ) {
 						case 0:
+							nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
+							break;
+						case 1:
+							nesMain->nesMemory.ppuMemory.switchSingleHighMirroring( );
+							break;
+						case 2:
 							nesMain->nesMemory.ppuMemory.switchVerticalMirroring( );
 							break;
-						case 1://one screen upper bank
+						case 3:
 							nesMain->nesMemory.ppuMemory.switchHorizontalMirroring( );
 							break;
 						}
-
-						//bit 1 - toggles between H / V and "one-screen" mirroring
-						//			0 = one - screen mirroring, 1 = H / V mirroring
-						//TODO handle this
 												
 						//bit 2 - toggles between low PRGROM area switching and high
 						//			0 = high PRGROM switching, 1 = low PRGROM switching

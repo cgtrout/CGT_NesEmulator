@@ -1049,17 +1049,31 @@ void PPUMemory::initializeMemoryMap() {
 }
 
 void NesEmulator::PPUMemory::switchVerticalMirroring( ) {
-	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable0;
-	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable1;
-	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable0;
-	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable1;
 }
 
 void NesEmulator::PPUMemory::switchHorizontalMirroring( ) {
-	memBanks[ ::calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable0;
-	memBanks[ ::calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable0;
-	memBanks[ ::calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable1;
-	memBanks[ ::calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable1;
+}
+
+void NesEmulator::PPUMemory::switchSingleLowMirroring( ) {
+	memBanks[ calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable0;
+	memBanks[ calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable0;
+}
+
+void NesEmulator::PPUMemory::switchSingleHighMirroring( ) {
+	memBanks[ calcPpuBank( 0x2000 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ calcPpuBank( 0x2400 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ calcPpuBank( 0x2800 ) ] = &physicalMemBanks.nameTable1;
+	memBanks[ calcPpuBank( 0x2C00 ) ] = &physicalMemBanks.nameTable1;
 }
 
 /* 

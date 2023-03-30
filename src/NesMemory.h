@@ -182,8 +182,9 @@ namespace NesEmulator {
 		void initializeMemoryMap();
 
 		void switchVerticalMirroring( );
-
 		void switchHorizontalMirroring( );
+		void switchSingleLowMirroring( );
+		void switchSingleHighMirroring( );
 
 		void zeroMemory();
 
