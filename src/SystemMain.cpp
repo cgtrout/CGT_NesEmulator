@@ -86,6 +86,7 @@ void SystemMain::loadNesFile( std::string_view fileName ) {
 	nesMain.nesApu.setInitialized( );
 
 	nesMain.setState( Emulating );
+	nesMain.enableStepDebugging( "START" );
 }
 
 /*
