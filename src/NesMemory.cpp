@@ -129,23 +129,22 @@ CpuMemBanks::~CpuMemBanks() {
 void CpuMemBanks::copyPrgRom( int numPages, const ubyte *data )
 ==============================================
 */
-void CpuMemBanks::copyPrgRom( int numPages, const std::vector<ubyte> &data ) {
-	int bank = 0;	//current bank
-	int b = 0;		//data byte
-	
-	//for each page
-	for( int page = 0; page < numPages; page++ ) {
-		
-		//for each bank in page
-		for( int bankinpage = 0; bankinpage < PRG_BANKS_PER_PAGE; bankinpage++ ) {
-			
-			//for every byte in current bank
-			for( int bankb = 0; bankb < CPU_BANKSIZE; ) {
-				
-				//copy byte from data to prg rom bank 
-				prgRom[ bank ].data[ bankb++ ] = data[ b++ ];
-			}
-			bank++;
+void CpuMemBanks::copyPrgRom( int numPages, const std::vector<ubyte>& data ) {
+	int bank = 0; //current bank
+	int b = 0;    //data byte
+
+	// Calculate the total number of banks based on the size of the input data vector
+	int totalBanks = numPages * PRG_BANKS_PER_PAGE;
+
+	// For each bank
+	for( bank = 0; bank < totalBanks; bank++ ) {
+
+		// For every byte in the current bank
+		for( int bankb = 0; bankb < CPU_BANKSIZE; bankb++ ) {
+
+			// Copy byte from data to prg rom bank
+			prgRom[ bank ].data[ bankb ] = data[ b ];
+			b++;
 		}
 	}
 }
@@ -176,22 +175,19 @@ void PpuMemBanks::copyChrRom
 ==============================================
 */
 void PpuMemBanks::copyChrRom( int numPages, const std::vector<ubyte>& data ) {
-	int bank = 0;	//current bank
-	int b = 0;		//data byte
-	
-	//for each page
-	for( int page = 0; page < numPages; page++ ) {
-		
-		//for each bank in page
-		for( int bankinpage = 0; bankinpage < CHR_ROM_PAGESIZE; bankinpage++ ) {
-			
-			//for every byte in current bank
-			for( int bankb = 0; bankb < PPU_BANKSIZE; ) {
-				
-				//copy byte from data to prg rom bank 
-				chrRom[ bank ].data[ bankb++ ] = data[ b++ ];
-			}
-			bank++;
+	int bank = 0;
+	int b = 0;
+	int totalBanks = numPages * CHR_BANKS_PER_PAGE;
+
+	// For each bank
+	for( bank = 0; bank < totalBanks; bank++ ) {
+
+		// For every byte in the current bank
+		for( int bankb = 0; bankb < PPU_BANKSIZE; bankb++ ) {
+
+			// Copy byte from data to chr rom bank
+			chrRom[ bank ].data[ bankb ] = data[ b ];
+			b++;
 		}
 	}
 }
