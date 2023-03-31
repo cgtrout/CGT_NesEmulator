@@ -124,7 +124,7 @@ void NesMapper1::initializeMap( ) {
 						char_rom_switch_size = ( bit4 == 0 ) ? 8 : 4;
 
 						//TODO we may need to reassign the locations here if any of these bits are different
-						
+						nesMain->nesCpu.cpuTrace.addTraceText( "Reg0--prgrom_bank_address=%d prgrom_switch_size=%d char_rom_switch_size=%d", prgrom_bank_address, prgrom_switch_size, char_rom_switch_size);
 						remapMemory( );
 
 					}
@@ -138,16 +138,14 @@ void NesMapper1::initializeMap( ) {
 					else if( address >= 0xA000 && address <= 0xBFFF ) {
 						chr_selected_bank_0000 = MMC1_PB & 0b11111;
 
-						switch( char_rom_switch_size ) {
-						case 8:
+						if( char_rom_switch_size == 8 ) {
 							//bottom bit is ignored (nerdy nights) so there are 16 possible banks
 							chr_selected_bank_0000 &= 0b11110;
 							// sets bank for full PPU 0000-1FFF(8kb region)
-							break;
 						}
-						
-						remapMemory( );
+						nesMain->nesCpu.cpuTrace.addTraceText( "Reg1 chr_selected_bank_0000=%d", chr_selected_bank_0000 );
 
+						remapMemory( );
 							
 					}
 					//CHR bank 1 ( internal, $C000 - $DFFF )
@@ -160,7 +158,7 @@ void NesMapper1::initializeMap( ) {
 					else if( address >= 0xC000 && address <= 0xDFFF ) {
 						chr_selected_bank_1000 = MMC1_PB & 0b01111;
 						//TODO wram
-
+						nesMain->nesCpu.cpuTrace.addTraceText( "Reg2 chr_selected_bank_1000=%d", chr_selected_bank_1000 );
 						remapMemory( );
 						
 					}
@@ -179,7 +177,7 @@ void NesMapper1::initializeMap( ) {
 						if( prgrom_switch_size == 32 ) {
 							prg_selected_bank = prg_selected_bank & 0b1110;
 						}
-
+						nesMain->nesCpu.cpuTrace.addTraceText( "Reg3 prg_selected_bank=%d ", prg_selected_bank );
 						remapMemory( );
 					}
 					
@@ -207,13 +205,17 @@ void NesMapper1::initializeMap( ) {
 }
 
 void NesMapper1::remapMemory( ) {
-	//reg 1
+	nesMain->nesCpu.cpuTrace.addTraceText( "Remap memory..... char_rom_switch_size=%d chr_selected_bank_0000=%d  chr_selected_bank_1000=%d", char_rom_switch_size, chr_selected_bank_0000, chr_selected_bank_1000 );
+	
+	//reg 1: A000
+	nesMain->nesCpu.cpuTrace.addTraceText( "reg1: A000   Before fillchrBanks" );
 	nesMain->nesMemory.ppuMemory.fillChrBanks(
 		0x0000,											//start address
 		chr_selected_bank_0000 * CHR_BANKS_PER_PAGE,	//chr rom page
 		char_rom_switch_size );							//number of banks
 
-	//reg 2
+	//reg 2: C000
+	nesMain->nesCpu.cpuTrace.addTraceText( "reg2: C000   Before fillchrBanks" );
 	if( char_rom_switch_size != 8 ) {
 		nesMain->nesMemory.ppuMemory.fillChrBanks(
 			0x1000,											//start address
@@ -221,7 +223,8 @@ void NesMapper1::remapMemory( ) {
 			char_rom_switch_size );							//number of banks
 	}
 
-	//reg 3
+	//reg 3: E000
+	nesMain->nesCpu.cpuTrace.addTraceText( "reg3: E000   Before fillprgBanks" );
 	nesMain->nesMemory.fillPrgBanks(
 		prgrom_bank_address,							//start address
 		prg_selected_bank * PRG_BANKS_PER_PAGE,			//prg rom page

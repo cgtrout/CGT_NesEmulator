@@ -916,6 +916,9 @@ void PPUMemory::fillChrBanks
 */
 void PPUMemory::fillChrBanks( uword startAddress, uword chrStartAddr, uword numBanks ) { 
 	int mainPos = calcPpuBank( startAddress );
+
+	nesMain->nesCpu.cpuTrace.addTraceText( "              FillChrBanks: startAddress=%d chrStartAddr=%d numBanks=%d  mainPos=%d", startAddress, chrStartAddr, numBanks, mainPos );
+	
 	//Clculate which chrRom bank to start from keeping in mind each bank is 1kb
 	//shift right 10 is equivalent to divide by 1024 (1kb)
 	int chrPos = chrStartAddr >> 10;
