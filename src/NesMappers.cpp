@@ -181,8 +181,6 @@ void NesMapper1::initializeMap( ) {
 						remapMemory( );
 					}
 					
-					reset( );
-
 					//reset shift register
 					write_count = 0;
 					MMC1_SR = 0b10000;
