@@ -44,6 +44,14 @@ namespace NesEmulator {
 				
 		ubyte prgrom_switch_size = 16;	//prg bank switching size (16/32)
 		ubyte char_rom_switch_size = 4;	//chr bank switching size (4/8)
+
+		ubyte chr_selected_bank_0000 = 0;	//reg 1 setting
+		ubyte chr_selected_bank_1000 = 0;	//reg 2 setting
+		ubyte prg_selected_bank = 0;		//reg 3 setting
+		ubyte prg_ram_enable = 0;			//reg 3 setting
+
+		//remap all memory based on reg settings
+		void remapMemory( );
 	};
 
 	//mapper 2 - UNRom
