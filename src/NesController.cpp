@@ -1,6 +1,8 @@
 #include "precompiled.h"
 #include "NesController.h"
 
+#include "SystemMain.h"
+
 #include <sstream>
 
 using namespace NesEmulator;
@@ -94,9 +96,17 @@ ubyte NesController::getNextStrobe() {
 	case 3:
 		returnVal += buttons[ NES_BUTTON_SELECT ].getState();
 		break;
-	case 4:
-		returnVal += buttons[ NES_BUTTON_START ].getState();
+	case 4: {
+		auto state = buttons[ NES_BUTTON_START ].getState( );
+		if( state == 1 ) {
+			auto* s = FrontEnd::SystemMain::getInstance( );
+			//s->nesMain.enableStepDebugging( "START PRESSED" );
+			s->nesMain.nesCpu.cpuTrace.addTraceText( "START PRESSED" );
+		}
+
+		returnVal += buttons[ NES_BUTTON_START ].getState( );
 		break;
+	}
 	case 5:
 		returnVal += buttons[ NES_BUTTON_UP ].getState();
 		break;
