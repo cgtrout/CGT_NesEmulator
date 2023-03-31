@@ -1017,7 +1017,7 @@ void CPUTrace::printTrace( std::string_view filename ) {
 		std::stringstream lines;
 		
 		if( std::holds_alternative<std::string>( traceArray[ i ] ) ) {
-			lines << std::get_if<std::string>( &traceArray[ i ] );
+			lines << std::get_if<std::string>( &traceArray[ i ] )->c_str();
 		}
 		else {
 			const CPUTraceInstance* t = std::get_if<CPUTraceInstance>( &traceArray[ i ] );
