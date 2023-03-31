@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Log.h"
 #include "Console.h"
 
