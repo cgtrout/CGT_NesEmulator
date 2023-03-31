@@ -1,6 +1,3 @@
-// SystemMain.h: interface for the SystemMain class.
-//
-//////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "CGTSingleton.h"

@@ -2,8 +2,8 @@
 
 #include "Input.h"
 
-#define NUM_NES_BUTTONS 8
-using namespace FrontEnd::InputSystem;
+auto constexpr NUM_NES_BUTTONS = 8;
+
 namespace NesEmulator {
 	/*
 	================================================================
@@ -55,7 +55,6 @@ namespace NesEmulator {
 		ubyte strobeCount;
 	};
 
-#include "CGTSingleton.h"
 	enum {
 		CONTROLLER01,
 		CONTROLLER02,

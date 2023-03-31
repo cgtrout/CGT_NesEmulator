@@ -1,5 +1,6 @@
-#if !defined( NesSoundTools_INCLUDED )
-#define NesSoundTools_INCLUDED
+#pragma once
+
+#include <cassert>
 
 namespace NesApu {
 	/*
@@ -324,7 +325,7 @@ namespace NesApu {
 	}
 
 	inline void SweepUnit::setSquareChannel( ubyte ch ) {
-		_ASSERT( ch == 0 || ch == 1 );
+		assert( ch == 0 || ch == 1 );
 		squareChannel = ch;
 	}
 
@@ -344,5 +345,3 @@ namespace NesApu {
 		return lastShiftVal;
 	}
 };
-
-#endif

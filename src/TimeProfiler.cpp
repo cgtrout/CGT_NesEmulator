@@ -1,9 +1,9 @@
 #include "precompiled.h"
-
 #include "TimeProfiler.h"
 
 #include <sstream>
 #include <numeric>
+
 using namespace FrontEnd;
 
 /*
@@ -15,19 +15,11 @@ TimedSection class
 */
 /* 
 ==============================================
-TimedSection::TimedSection( const std::string &name )
+Constructors / Deconstructors
 ==============================================
 */
 TimedSection::TimedSection( const std::string &name ) : name(name) {
 	initialize( );
-}
-
-void FrontEnd::TimedSection::initialize( )
-{
-	for( int i = 0; i < TIMED_SECTION_SAMPLES; i++ ) {
-		usagePercentAvg[ i ] = 0;
-		timeAvg[ i ] = 0;
-	}
 }
 
 TimedSection::TimedSection( ) {
@@ -36,6 +28,19 @@ TimedSection::TimedSection( ) {
 
 TimedSection::~TimedSection( ) {
 	_log->Write( "~TimedSection" );
+}
+
+/* 
+==============================================
+TimedSection::initialize
+==============================================
+*/
+void FrontEnd::TimedSection::initialize( )
+{
+	for( int i = 0; i < TIMED_SECTION_SAMPLES; i++ ) {
+		usagePercentAvg[ i ] = 0;
+		timeAvg[ i ] = 0;
+	}
 }
 
 /* 
@@ -98,7 +103,7 @@ void TimedSection::addTimeSample( double sample, int index ) {
 
 /* 
 ==============================================
-double TimedSection::calcAvgPercent()
+TimedSection::calcAvgPercent()
 ==============================================
 */
 double TimedSection::calcAvgPercent() {
@@ -109,6 +114,11 @@ double TimedSection::calcAvgPercent() {
 	return total / TIMED_SECTION_SAMPLES;
 }
 
+/* 
+==============================================
+TimedSection::calcAvgTime()
+==============================================
+*/
 double TimedSection::calcAvgTime() {
 	double total = 0;
 	for( int i = 0; i < TIMED_SECTION_SAMPLES; i++ ) {

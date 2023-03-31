@@ -391,7 +391,6 @@ bool ConsoleSystem::findAndRunVariable( std::string_view varName, std::string_vi
 	return true;
 }
 
-
 /* 
 ==============================================
 bool ConsoleSystem::findAndRunCommand( std::string *commandName, std::string *param, bool run

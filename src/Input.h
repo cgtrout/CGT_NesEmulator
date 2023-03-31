@@ -1,19 +1,16 @@
-// Input.h: interface for the Input class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #pragma once
 
 #include <SDL_keyboard.h>
 #include <SDL_joystick.h>
 
 #include "typedefs.h"
-
 #include "CGTSingleton.h"
+
 #include <map>
 #include <string_view>
 #include <vector>
 #include <string>
+
 using namespace CGTSingleton;
 
 namespace FrontEnd {
@@ -102,8 +99,6 @@ namespace FrontEnd {
 
 			//clear all button and axis states
 			void clearState( );
-
-			//axis state
 
 			//button state <button_num, pressed?>
 			std::map<int, bool> buttonState;
@@ -196,8 +191,6 @@ namespace FrontEnd {
 
 			//get control from list of controls
 			Controllable *getControl( std::string_view control );
-
-			
 
 			//generate string command for binding one button to a controller
 			std::string generateControllerBindCommand( const Controllable& controllable, const ControllableButton& button );

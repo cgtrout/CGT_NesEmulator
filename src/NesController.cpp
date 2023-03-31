@@ -1,10 +1,10 @@
 #include "precompiled.h"
-
-using namespace NesEmulator;
-#include <sstream>
-
 #include "NesController.h"
 
+#include <sstream>
+
+using namespace NesEmulator;
+using namespace FrontEnd::InputSystem;
 
 /*
 ==============================================

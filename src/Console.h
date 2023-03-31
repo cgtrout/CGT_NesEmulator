@@ -1,17 +1,15 @@
 #pragma	once
 
 #include "NesCpuCore.h"
-
 #include "ConsoleCommands.h"
-
 #include "CGTSingleton.h"
+#include "CGString.h"
 
 #include <vector>
 #include <list>
 
-#include "CGString.h"
-
 using namespace CGTSingleton;
+
 /** 
 *** CONSOLE 
 ***
@@ -264,7 +262,6 @@ namespace Console {
 		bool findAndRunCommand ( std::string_view commandName, std::string_view param, bool run = true );
 
 		//History class - container with lines of history for console
-		//TODO this is fairly poorly designed and should be 
 		//replaced.  Uses too much crusty c string handling
 		static const int MaxLines				= 100;
 		static const int MaxLineSize			= 63;
@@ -272,8 +269,6 @@ namespace Console {
 		
 		class History {
 		public:
-			//TODO use std structure for htis
-			//TODO use strings rather than text
 			struct Line {
 				std::string text;
 			}lines[ MaxLines ];   //cyclic array of lines
@@ -297,7 +292,6 @@ namespace Console {
 		//main system used for handling console commands
 		CommandHandlerSystem *commandHandlerSystem;
 	};
-
 
 	class ConsoleSystemException : public CgtException {
 	public:

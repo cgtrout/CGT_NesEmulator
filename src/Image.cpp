@@ -101,15 +101,28 @@ void Image::allocate() {
 	data.resize( getSize( ), 0 );
 }
 
+/* 
+==============================================
+Image::setData()
+==============================================
+*/
 void Image::setData( ubyte* data ) {
 	assert( channels != 0 && sizeX != 0 && sizeY != 0 );
 	this->data = std::vector<ubyte>( data, data + getSize());
 }
 
+/* 
+==============================================
+Image::createGLTexture()
+==============================================
+*/
 void Image::createGLTexture(  ) {
 	if ( handle ) {
 		glDeleteTextures( 1, &handle );
 	}
+
+	//ensure that x, and y dimensions are powers of two
+	resizePowerOfTwo( );
 	
 	GLenum format = 0;
 	if ( channels == 3 ) {
@@ -129,17 +142,20 @@ void Image::createGLTexture(  ) {
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
-	//ensure that x, and y dimensions are powers of two
-	resizePowerOfTwo( );
-
 	glTexImage2D( GL_TEXTURE_2D, 0, channels, sizeX, sizeY, 0, format, GL_UNSIGNED_BYTE, data.data( ) );
 }
 
+/* 
+==============================================
+Image::bindGLTexture()
+==============================================
+*/
 void Image::bindGLTexture( ) {
 	glBindTexture( GL_TEXTURE_2D, handle);
 }
 
 int pow2Table[] = { 2,4,6,8,16,32,64,128,256,512,1024,2048 };
+
 
 int getNextPowerOf2( int value ) {
 	static int sizeOfTable = sizeof( pow2Table ) / sizeof( int );
@@ -156,6 +172,11 @@ int getNextPowerOf2( int value ) {
 	return 0;
 }
 
+/* 
+==============================================
+Image::resizePowerOfTwo()
+==============================================
+*/
 void Image::resizePowerOfTwo( ) {
 	sizeX = getNextPowerOf2( sizeX );
 	sizeY = getNextPowerOf2( sizeY );
@@ -165,8 +186,6 @@ void Image::resizePowerOfTwo( ) {
 /* 
 ==============================================
 loadImage
-
-  TODO add loaders for different file types
 ==============================================
 */
 Image loadImage( std::string_view strFileName ) {

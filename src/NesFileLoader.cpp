@@ -24,9 +24,6 @@ void NesFile::initialize() {}
 /* 
 ==============================================
 void NesFile::loadFile( std::string filename )
-
-TODO delete old mapper if present
-TODO allocated memory not being deleted after exception??
 ==============================================
 */
 void NesFile::loadFile( std::string_view filename ) {
@@ -35,7 +32,6 @@ void NesFile::loadFile( std::string_view filename ) {
 	ubyte numcheck, controlbyte1, controlbyte2;		//temp vars
 	NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
 		
-	//TODO make this more generalized (maybe add a console variable)
 	//file = "./roms/" + file + ".nes";
 	file = file + ".nes";
 	std::ifstream is( file.c_str(), std::ios::binary );

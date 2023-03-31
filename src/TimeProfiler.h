@@ -1,5 +1,4 @@
-#if !defined( TimeProfiler__H )
-#define TimeProfiler__H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -7,12 +6,9 @@
 #include <map>
 
 namespace FrontEnd {
-	
-	
+
 	const int TIMED_SECTION_SAMPLES = 60;
-	
-	//update rate
-	const int TIMED_SECTION_RATE = 20;
+	const int TIMED_SECTION_RATE 	= 20;
 	
 	/*
 	================================================================
@@ -56,8 +52,6 @@ namespace FrontEnd {
 		double  calcAvgTime();
 	
 	  private:	
-	
-		
 		bool activeFrame;
 		  
 		std::chrono::steady_clock::time_point startTime;
@@ -125,4 +119,3 @@ namespace FrontEnd {
 		void stopAll( );
 	};
 }
-#endif

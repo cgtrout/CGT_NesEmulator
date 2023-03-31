@@ -2,13 +2,13 @@
 #include "NesSound.h"
 #include "imgui/imgui.h"
 #include "implot/implot.h"
+#include "pocketfft/pocketfft_hdronly.h"
+#include "CgtGenericFunctions.h"
+
 #include <cassert>
 #include <limits>
 #include <numeric>
 #include <algorithm>
-
-#include "pocketfft/pocketfft_hdronly.h"
-#include "CgtGenericFunctions.h"
 
 using namespace NesApu;
 
@@ -62,7 +62,12 @@ double resampling_ratio = nes_clock_frequency / 44100;
 auto soundStartTime = std::chrono::steady_clock::now( );
 CgtLib::CircularBuffer<double> fpsHistory( 30 );
 
-std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( Uint32 queuedAudioSize, float fps ) {
+/*
+==============================================
+NesSoundBuffer::generateAudioBuffer
+==============================================
+*/
+ std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( Uint32 queuedAudioSize, float fps ) {
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::high_resolution_clock::now( ) - lastTime );
 	lastTime = std::chrono::high_resolution_clock::now( );
 	
@@ -152,6 +157,11 @@ std::vector<Sint16> NesSoundBuffer::generateAudioBuffer( Uint32 queuedAudioSize,
 	return newBuffer;
 }
 
+/*
+==============================================
+NesSoundBuffer::addSample
+==============================================
+*/
 void NesSoundBuffer::addSample( float sample ) {
 	//this is for the initial sample rate of 1.78Mhz
 	//this is done to avoid aliasing
@@ -165,6 +175,11 @@ void NesSoundBuffer::addSample( float sample ) {
 	}
 }
 
+/*
+==============================================
+NesSoundBuffer::renderImGui
+==============================================
+*/
 void NesSoundBuffer::renderImGui( ) {
 	// Create a custom ImGui window for the circular buffer visualization
 	ImGui::Begin( "Audio Buffer Visualization" );
@@ -253,6 +268,11 @@ void NesSoundBuffer::renderImGui( ) {
 	ImGui::End( );
 }
 
+/*
+==============================================
+NesSound Constructor
+==============================================
+*/
 NesSound::NesSound( ) :
 	cc(0),
 	curr240Clock( 0 ),
@@ -269,7 +289,12 @@ NesSound::NesSound( ) :
 	std::fill( fpsHistory.begin( ), fpsHistory.end( ), 60 );
 }
 
-//descc desired clock cycle
+/*
+==============================================
+NesSound::runTo
+  desPpucc - desired clock to run to
+==============================================
+*/
 void NesSound::runTo( PpuClockCycles desPpucc ) {
 	CpuClockCycles descc = PpuToCpu( desPpucc );
 	
@@ -289,10 +314,20 @@ void NesSound::runTo( PpuClockCycles desPpucc ) {
 	//_log->Write( "nesSound::runTo() descc=%d bufferPos @ end = %d", descc, buffer.getBufferPos() );
 }
 
+/*
+==============================================
+NesSound::resetCC
+==============================================
+*/
 void NesSound::resetCC() {
 	cc = 0;
 }
 
+/*
+==============================================
+NesSound::makeSample
+==============================================
+*/
 void NesSound::makeSample() {
 	float squareOut = 0;
 	
@@ -311,7 +346,11 @@ void NesSound::makeSample() {
 	buffer.addSample( output );
 }
 
-
+/*
+==============================================
+NesSound::queueSound
+==============================================
+*/
 void NesSound::queueSound( ) {
 	if( isInitialized( ) ) {
 		//calculate FPS average - used by sound to fudge the sample rate
@@ -332,6 +371,11 @@ void NesSound::queueSound( ) {
 	}
 }
 
+/*
+==============================================
+NesSound::clock
+==============================================
+*/
 inline void NesSound::clock() {
 	//increment clocks
 	square0.clock();
@@ -350,8 +394,14 @@ inline void NesSound::clock() {
 	}
 }
 
-//TODO handle 5 step
+/*
+==============================================
+NesSound::clock240Hz
+==============================================
+*/
 void NesSound::clock240Hz( ) {
+	//TODO handle 5 step
+
 	square0.clock240Hz( curr240ClockCycle );
 	square1.clock240Hz( curr240ClockCycle );
 	//triangle.clock240Hz( curr240Clock );

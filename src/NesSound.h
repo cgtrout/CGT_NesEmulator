@@ -1,10 +1,8 @@
-#if !defined( NesSound_INCLUDED )
-#define NesSound_INCLUDED
+#pragma once
 
 #include "FractionAdder.h"
 #include "NesSoundChannel.h"
 #include "CgtDataStructures.h"
-
 #include "CgtFilter.h"
 
 #include <SDL_audio.h>
@@ -157,4 +155,3 @@ namespace NesApu {
 		return CpuToPpu( cc );
 	}	
 };
-#endif //NesSound_INCLUDED

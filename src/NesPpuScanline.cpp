@@ -23,9 +23,7 @@ ConsoleVariable< int > cvSpriteZeroOffset (
 
 ScanlineDrawer::ScanlineDrawer( NesMain* nesMain ) : 
 	nesMain( nesMain )
-{
-	
-}
+{}
 
 void ScanlineDrawer::initialize( ) {
 	Console::ConsoleSystem* consoleSystem;
@@ -173,7 +171,6 @@ void BackgroundDrawer::drawBackground( PPUMemory *ppuMemory, Registers *r, Scanl
 		ubyte bit1 = BIT( abs( r->xOffset - 7 ), byte1 );
 		
 		//extract 2 attribute bits
-		
 		ubyte reducedSquare = ( ntoffset & 0x73 );
 		ubyte sx = ( reducedSquare & 0x0f ) / 2;
 		ubyte sy = ( reducedSquare & 0xf0 ) / 0x40;
@@ -191,7 +188,6 @@ void BackgroundDrawer::drawBackground( PPUMemory *ppuMemory, Registers *r, Scanl
 		newPtAddress = r->incrementXOffset();
 	}
 }
-
 
 /* 
 ==============================================

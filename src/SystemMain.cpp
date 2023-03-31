@@ -1,6 +1,3 @@
-// SystemMain.cpp: implementation of the SystemMain class.
-//
-//////////////////////////////////////////////////////////////////////
 #include "precompiled.h"
 
 #include "SystemMain.h"
@@ -11,11 +8,6 @@
   #include "NesDebugger.h"
 #endif  #end
 
-using namespace GUISystem;
-using namespace FrontEnd;
-using namespace Render;
-using namespace NesEmulator;
-
 #include <SDL_scancode.h>
 #include <filesystem>
 
@@ -25,9 +17,12 @@ using namespace NesEmulator;
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl2.h"
 
-#include "SystemMain.h"
 using namespace Console;
 using namespace InputSystem;
+using namespace GUISystem;
+using namespace FrontEnd;
+using namespace Render;
+using namespace NesEmulator;
 
 /*
 ==============================================
@@ -57,6 +52,11 @@ SystemMain::SystemMain() :
 	input.setUseDelay( true );
 }
 
+/*
+==============================================
+SystemMain::initialize()
+==============================================
+*/
 void SystemMain::initialize( ) {
 	gui.initialize( );
 	nesMain.nesCpu.initialize( );
@@ -68,12 +68,14 @@ void SystemMain::initialize( ) {
 #ifndef LIGHT_BUILD
 	nesMain.nesDebugger.initialize( );
 #endif
-
 }
 
-
+/*
+==============================================
+SystemMain::loadNesFile()
+==============================================
+*/
 void SystemMain::loadNesFile( std::string_view fileName ) {
-	//TODO move to seperate function in nesmain
 	nesMain.nesApu.setUninitialized( );
 	nesMain.setState( WaitingForFile );
 	nesMain.nesFile.loadFile( fileName );
@@ -144,8 +146,8 @@ void SystemMain::runFrame() {
 			guiConsole.editLine.setAsActiveElement( );
 		}
  else {
-	 input.setState( Input::InputSystemStates::NORMAL_MODE );
-	 guiConsole.editLine.unactivateElement( );
+	 	input.setState( Input::InputSystemStates::NORMAL_MODE );
+	 	guiConsole.editLine.unactivateElement( );
 		}
 	}
 

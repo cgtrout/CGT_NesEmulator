@@ -1,13 +1,10 @@
-// Input.cpp: implementation of the Input class.
-//
-//////////////////////////////////////////////////////////////////////
 #include "precompiled.h"
 
 #include "Input.h"
 #include "Console.h"
+#include "imgui/imgui.h"
 
 #include <exception>
-#include "imgui/imgui.h"
 
 using namespace FrontEnd::InputSystem;
 
@@ -56,6 +53,11 @@ ControllableButton::ControllableButton( std::string_view name, std::string_view 
 {
 }
 
+/* 
+==============================================
+Default constructor
+==============================================
+*/
 ControllableButton::ControllableButton() :
 	ControllableButton("NOT_SET", "NOT_SET", "NOT_SET" )
 {}

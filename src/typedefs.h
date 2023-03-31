@@ -1,15 +1,15 @@
-//for win32
-typedef unsigned char ubyte;
-typedef unsigned short uword;
+#include <cstdint>
 
-typedef unsigned int uint;
-typedef short word;
+using ubyte = std::uint8_t;
+using uword = std::uint16_t;
+using uint = std::uint32_t;
+using word = std::int16_t;
 
-typedef int CpuClockCycles;
-typedef int PpuClockCycles;
+using CpuClockCycles = std::int16_t;
+using PpuClockCycles = std::int16_t;
 
 //#define CpuToMaster( val ) (val * 3)
-#define CpuToPpu( val ) (val * 3)
 
+#define CpuToPpu( val ) (val * 3)
 #define PpuToCpu( val ) (val / 3)
 #define PpuToCpuMod( val ) (val % 3)

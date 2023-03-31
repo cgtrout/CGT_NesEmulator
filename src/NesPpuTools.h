@@ -1,5 +1,4 @@
-#if !defined( NesPpuTools_INCLUDED )
-#define NesPpuTools_INCLUDED
+#pragma once
 
 #include "Image.h"
 #include "NesPPU.h"
@@ -28,7 +27,13 @@ namespace NesEmulator {
 		ubyte pixelData24Bit[ SIZE_24BIT_PATTERNTABLE ];
 	};
 
-	//this class generates palette output for debugging purposes
+	/*
+	=====================================================
+	NesPPUPaletteGen class
+
+	  Generate palette data for visualization
+	=====================================================
+	*/
 	class NesPPUPaletteGen {
 	public:
 		NesPPUPaletteGen() :
@@ -58,5 +63,3 @@ namespace NesEmulator {
 		NesPalette *palette;
 	};
 };
-
-#endif //NesPpuTools_INCLUDED

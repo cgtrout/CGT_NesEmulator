@@ -24,6 +24,11 @@ NesPPU::NesPPU( NesMain* nesMain ) :
 	
 }
 
+/* 
+==============================================
+NesPPU::initialize()
+==============================================
+*/
 void NesPPU::initialize( ) {
 	_log = CLog::getInstance( );
 	consoleSystem = &SystemMain::getInstance( )->consoleSystem;
@@ -84,7 +89,7 @@ void NesPPU::renderBuffer( PpuClockCycles desiredcc, PpuUpdateType updateType ) 
 	//validation tests
 	//89342 cc's a frame - should be no higher than this
 	//TODO use constant value
-	_ASSERT( desiredcc >= 0 && desiredcc <= 89342 );
+	assert( desiredcc >= 0 && desiredcc <= 89342 );
 
 	if( updateType == UF_Sprite0 ) {
 		desiredcc = 89342;
@@ -153,7 +158,7 @@ void NesPPU::renderBuffer( PpuClockCycles desiredcc, PpuUpdateType updateType ) 
 			int endpos = scanlineDrawer.getPos() + pixelsToDraw;						
 			int orgPos = scanlineDrawer.getPos();
 		
-			_ASSERT( endpos < CLOCKS_PER_SCANLINE );
+			assert( endpos < CLOCKS_PER_SCANLINE );
 		
 			//draw scanline
 			//consoleSystem->printMessage( "offst = %d, scanline = %d, pixelsToDraw = %d, endpos = %d", offset, scanline, pixelsToDraw, endpos );

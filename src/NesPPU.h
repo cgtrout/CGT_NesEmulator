@@ -1,18 +1,16 @@
-#if !defined( NesPPU_INCLUDED )
-#define NesPPU_INCLUDED
+#pragma once
 
 //NUMBER OF PIXELS IN A PATTERN TABLE
-#define NUM_PATTERNTABLE_PIXELS 32768//16384
+constexpr auto NUM_PATTERNTABLE_PIXELS = 32768;//16384
 
 //SIZE OF A PATTERNTABLE REPRESENTED BY 24BIT COLOR DATA
-#define SIZE_24BIT_PATTERNTABLE 98304//49152
+constexpr auto SIZE_24BIT_PATTERNTABLE = 98304;//49152
 
 //x and y screen dimensions
-#define NTSC_X 256
-#define NTSC_Y 240
+constexpr auto NTSC_X = 256;
+constexpr auto NTSC_Y = 240;
 
 #include "CGTSingleton.h"
-using namespace CGTSingleton;
 
 #include "NesPalette.h"
 #include "NesSprite.h"
@@ -27,8 +25,6 @@ namespace NesEmulator {
 	NesPPU class
 
 	  Emulates the basic functionality of the 2C02 PPU chipset
-
-	  TODO fix nested class hell
 	=====================================================
 	*/
 	class NesPPU {
@@ -81,4 +77,3 @@ namespace NesEmulator {
 		ScanlineDrawer scanlineDrawer;
 	};
 }
-#endif	//!defined( NesPPU_INCLUDED )

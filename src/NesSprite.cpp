@@ -8,6 +8,11 @@ NesSprite::NesSprite() {
 
 }
 
+/*
+==============================================
+NesSprite::loadSpriteInformation
+==============================================
+*/
 void NesSprite::loadSpriteInformation( ubyte *spriteRamPtr ) {
 	uword currAddress = 0;
 	
@@ -27,7 +32,13 @@ void NesSprite::loadSpriteInformation( ubyte *spriteRamPtr ) {
 	//_log->Write("S0: x = %d, y = %d, tile = %d, upBits = %d", sprites[0].x, sprites[0].y, sprites[0].tileIndex, sprites[0].upperColorBits );
 }
 
-//scanline expected to be 0 based ( not from very start of vint )
+/*
+==============================================
+NesSprite::getScanlineList
+
+ scanline expected to be 0 based ( not from very start of vint )
+==============================================
+*/
 NesSpriteScanlineResults *NesSprite::getScanlineList( int scanline, ubyte spriteSize ) {
 	scanlineResults.clearList();
 
@@ -59,20 +70,40 @@ NesSpriteScanlineResults *NesSprite::getScanlineList( int scanline, ubyte sprite
 	return &scanlineResults;
 }
 
+/*
+==============================================
+NesSprite::getSprite
+==============================================
+*/
 SpriteData *NesSprite::getSprite( ubyte spriteToGet ) {
 	return &sprites[ spriteToGet ];
 }
 
+/*
+==============================================
+NesSprite::addSprite
+==============================================
+*/
 void NesSpriteScanlineResults::addSprite( SpriteData *sprite ) {
 	sprites.push_back( sprite );
 	count++;
 }
 
+/*
+==============================================
+NesSprite::clearList
+==============================================
+*/
 void NesSpriteScanlineResults::clearList() {
 	sprites.clear();
 	count = 0;
 }
 
+/*
+==============================================
+NesSprite::getSpriteList
+==============================================
+*/
 std::vector< SpriteData* > *NesSpriteScanlineResults::getSpriteList() {
 	return &sprites;
 }

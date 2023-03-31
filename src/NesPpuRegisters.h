@@ -1,5 +1,4 @@
-#if !defined( NesPpuRegisters_INCLUDED )
-#define NesPpuRegisters_INCLUDED
+#pragma once
 
 namespace NesEmulator {
 	enum {
@@ -112,5 +111,3 @@ namespace NesEmulator {
 		void reset();
 	};
 };
-
-#endif //NesPpuRegisters_INCLUDED

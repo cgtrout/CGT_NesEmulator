@@ -20,15 +20,11 @@
 using namespace CGTSingleton;
 
 #include "Console.h"
-//#include "Renderer.h"
-
-//extern FrontEnd::InputSystem::Input *input;
 
 namespace Render {
 	class Renderer;
 }
 
-//TODO why so many instances of classes instantiated with new?
 namespace GUISystem {
 	typedef float GuiDim;
 	/*
