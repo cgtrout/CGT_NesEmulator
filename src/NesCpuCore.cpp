@@ -1083,10 +1083,9 @@ void CPUTrace::printTrace( std::string_view filename ) {
 			lines << " PPU: ";
 			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
 			lines.width( 5 );
-			lines << t->ppuTime
-				<< "\n";
+			lines << t->ppuTime;
 		}
-		f << lines.str();
+		f << lines.str() << std::endl;
 	}
 	
 	f.close();
@@ -1154,8 +1153,23 @@ void CPUTrace::addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode
 	prevPc = pc;
 }
 
-void CPUTrace::addTraceText( std::string_view text ) {
-	traceArray.push_back( std::string( text ) );
+void CPUTrace::addTraceText( const char* text, ... ) {
+	va_list args;
+	va_start( args, text );
+
+	int buffer_size = std::vsnprintf( nullptr, 0, text, args );
+	va_end( args );
+
+	std::vector<char> buffer( buffer_size + 1 );
+
+	va_start( args, text );
+	std::vsnprintf( buffer.data( ), buffer.size( ), text, args );
+	va_end( args );
+
+	//return std::string( buffer.begin( ), buffer.end( ) - 1 );
+	
+	
+	traceArray.push_back( std::string( buffer.data() ) );
 }
 
 bool CPUTrace::areTracing() {

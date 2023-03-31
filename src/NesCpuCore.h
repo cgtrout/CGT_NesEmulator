@@ -120,7 +120,7 @@ namespace NesEmulator {
 		void printAsm( std::string_view filename );
 
 		void addTrace( uword pc, const opcodeLookUpTableEntry* l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime );
-		void addTraceText( std::string_view text );
+		void addTraceText( const char* text, ... );
 
 		bool areTracing( );
 
