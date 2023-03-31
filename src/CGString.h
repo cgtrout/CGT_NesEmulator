@@ -8,6 +8,7 @@
 namespace CgtLib {
 	//trim whitespace from beginning and end of string - returned trimmed string_view
 	std::string_view trimWhitespace( std::string_view str );
+	std::string trimWhitespace( const std::string &str );
 	
 	//convert string str to lowercase; converted string will be returned through returnString
 	std::string strtolower( std::string_view str );

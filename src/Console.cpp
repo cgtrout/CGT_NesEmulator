@@ -701,12 +701,24 @@ void ConsoleSystem::loadCommandFile( std::string_view filename ) {
 	}
 
 	while( std::getline( file, line ) ) {
-		// Comment line ignore
-		if( line.substr( 0, 2 ) == "//" ) {
-			continue;
-		}
+		// Find the position of the comment delimiter
+        size_t commentPos = line.find("//");
+		
+		// If the comment delimiter is found, remove the comment from the line
+        if (commentPos != std::string::npos) {
+            line = line.substr(0, commentPos);
+        }
+
+		// Remove whitespace
+        std::string trimmedLine = CgtLib::trimWhitespace(line);
+
+        // If the line is empty after removing comments and whitespace, skip it
+        if (trimmedLine.empty()) {
+            continue;
+        }
+
 		// Pass command to system
-		executeRequest( line.c_str(), false );
+		executeRequest(trimmedLine, false);
 	}
 }
 
