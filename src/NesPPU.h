@@ -1,15 +1,5 @@
 #pragma once
 
-//NUMBER OF PIXELS IN A PATTERN TABLE
-constexpr auto NUM_PATTERNTABLE_PIXELS = 32768;//16384
-
-//SIZE OF A PATTERNTABLE REPRESENTED BY 24BIT COLOR DATA
-constexpr auto SIZE_24BIT_PATTERNTABLE = 98304;//49152
-
-//x and y screen dimensions
-constexpr auto NTSC_X = 256;
-constexpr auto NTSC_Y = 240;
-
 #include "CGTSingleton.h"
 
 #include "NesPalette.h"
@@ -17,6 +7,16 @@ constexpr auto NTSC_Y = 240;
 
 #include "NesPpuRegisters.h"
 #include "NesPpuScanline.h"
+
+//NUMBER OF PIXELS IN A PATTERN TABLE
+const auto NUM_PATTERNTABLE_PIXELS = 32768;//16384
+
+//SIZE OF A PATTERNTABLE REPRESENTED BY 24BIT COLOR DATA
+const auto SIZE_24BIT_PATTERNTABLE = 98304;//49152
+
+//x and y screen dimensions
+const auto NTSC_X = 256u;
+const auto NTSC_Y = 240u;
 
 namespace NesEmulator {
 	

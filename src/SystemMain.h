@@ -52,7 +52,7 @@ namespace FrontEnd {
 		//updates all graphics objects
 		void graphicUpdate();
 
-		Input					input;
+		FrontEnd::InputSystem::Input		input;
 
 		Console::ConsoleSystem	consoleSystem;
 		

@@ -15,10 +15,9 @@
 #include <cmath>
 #include "image.h"
 
-
 //x and y screen dimensions
-#define NTSC_X 256
-#define NTSC_Y 240
+//#define NTSC_X 256
+//#define NTSC_Y 240
 
 #include "CGTSingleton.h"
 using namespace CGTSingleton;

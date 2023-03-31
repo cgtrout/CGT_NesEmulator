@@ -5,6 +5,8 @@
 #include <SDL_audio.h>
 #include "SystemMain.h"
 
+#include <cstdint>
+
 using namespace FrontEnd;
 using namespace NesEmulator;
 
@@ -17,7 +19,7 @@ NesMain::NesMain( FrontEnd::SystemMain* systemMain ) :
 	nesMemory( &systemMain->nesMain ),
 	nesPpu( &systemMain->nesMain )
 {
-	CyclesPerFrame = 89342;//89342;
+	CyclesPerFrame = 89342u;//89342;
 	state = WaitingForFile;
 }
 		
