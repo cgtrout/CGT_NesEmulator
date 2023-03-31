@@ -322,38 +322,38 @@ void ConsoleSystem::executeRequest( std::string_view str, bool echo = true ) {
 void ConsoleSystem::executeRequest
 ==============================================
 */
-void ConsoleSystem::executeRequest( const std::string &command, const std::string &value, bool echo ) {
-	if( command.empty() == true ) {
-		return;
-	}
-	if( echo ) {
-		//echo command
-		printMessage( " > %s %s", command.data(), value.data() );
-		std::stringstream ss;
-		ss << command;
-		
-		//add to previous request history list
-		if( value.empty() != true ) {
-			ss << " " << value;
-		}
-		//ss << ends;
-		prevRequests.push_front( ss.str() );
-		requestPos = 0;
-	}
-	
-	//is the command a variable
-	if( findAndRunVariable( command, value ) ) {
+void ConsoleSystem::executeRequest(const std::string &command, const std::string &value, bool echo) {
+    if (command.empty() == true) {
+        return;
+    }
+    if (echo) {
+        //echo command
+        printMessage(" > %s %s", command.data(), value.data());
+        std::string result;
+        result += command;
+
+        //add to previous request history list
+        if (value.empty() != true) {
+            result += " " + value;
+        }
+        prevRequests.push_front(result);
+        requestPos = 0;
+    }
+
+    //is the command a variable
+    if (findAndRunVariable(command, value)) {
         return; //was a variable : we are done
     }
-    
-	//next check to see if it is a command
-	if( findAndRunCommand( command, value ) ) {
-		return; //found command : we are done
-	}
 
-	//print error message
-	printMessage( """%s %s"" was not recognized", command.c_str(), value.c_str() );
+    //next check to see if it is a command
+    if (findAndRunCommand(command, value)) {
+        return; //found command : we are done
+    }
+
+    //print error message
+    printMessage("\"%s %s\" was not recognized", command.c_str(), value.c_str());
 }
+
 
 
 /* 
