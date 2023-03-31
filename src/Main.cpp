@@ -97,6 +97,11 @@ int main( int argc, char* args[] )
 		if ( vsyncSetting != vsync.getValue( ) ) {
 			vsyncSetting = VsyncHandler( window );
 		}
+
+		//see if user wants quit
+		if( systemMain->quitRequestSubmitted() ) {
+			quit = true;
+		}
 		
 		////frame initialization
 		////
