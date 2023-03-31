@@ -1,6 +1,8 @@
 #include "precompiled.h"
 #include "SystemMain.h"
 #include <memory>
+#include <iomanip>
+#include <filesystem>
 
 using namespace NesEmulator;
 
@@ -32,6 +34,10 @@ void NesFile::loadFile( std::string_view filename ) {
 	ubyte numcheck, controlbyte1, controlbyte2;		//temp vars
 	NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
 		
+	//parse out file name to store it simply so it can be shown to user later
+	std::filesystem::path path(filename);
+    nameOfFile = path.stem().string();
+
 	//file = "./roms/" + file + ".nes";
 	file = file + ".nes";
 	std::ifstream is( file.c_str(), std::ios::binary );
@@ -85,7 +91,7 @@ void NesFile::loadFile( std::string_view filename ) {
 	mapperNum +=  controlbyte2 & 0x0f;
 
 	//detect if this is an NES 2.0 file format
-	bool isNes2 = ( ( 0b00001100 & controlbyte2 ) >> 2 ) == 2;
+	isNes2 = ( ( 0b00001100 & controlbyte2 ) >> 2 ) == 2;
 
 	//throw exception of trainer setting set - its not supported
 	if( trainer ) throw NesFileException( "NesFile::loadFile error", "Trainer not supported" );
@@ -126,5 +132,30 @@ void NesFile::loadFile( std::string_view filename ) {
 	default:
 		throw NesFileException( "NesFile::loadFile error", "Mapper not yet supported" );
 	}
-
 }
+
+/*
+==============================================
+NesFile::toString
+==============================================
+*/
+std::string NesFile::toString() {
+    std::ostringstream ss;
+    const int fieldWidth = 22;
+
+    ss << std::left << std::setw(fieldWidth) << "File Name:"             << nameOfFile          << std::endl;
+	ss << std::left << std::setw(fieldWidth) << "MapperNum:"             << mapperNum           << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "Is Nes 2.0 File:"       << isNes2              << std::endl;
+	ss << std::left << std::setw(fieldWidth) << "PRG ROM Page Count:"    << prgRomPageCount     << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "CHR ROM Page Count:"    << chrRomPageCount     << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "Horizontal Mirroring:"  << horizontalMirroring << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "Verical Mirroring:"     << verticalMirroring   << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "SRAM Enabled:"          << sramEnabled         << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "Trainer:"               << trainer             << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "Four Screen Vram:"      << fourScreenVRam      << std::endl;
+
+    return ss.str();
+}
+
+
+

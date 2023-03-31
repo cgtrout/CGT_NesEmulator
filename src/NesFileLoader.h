@@ -33,6 +33,8 @@ namespace NesEmulator {
 
 		ubyte getMapperNum() {return mapperNum;}
 
+		std::string toString();
+
 		class NesFileException : public CgtException {
 		public:
 			NesFileException( std::string_view header, std::string_view message, bool showMessage = true ) :
@@ -43,19 +45,22 @@ namespace NesEmulator {
 	private:
 		NesMain* nesMain;
 
-		ubyte prgRomPageCount;	
-		ubyte chrRomPageCount;
+		ubyte prgRomPageCount = 0;			
+		ubyte chrRomPageCount = 0;
 
-		ubyte horizontalMirroring;
-		ubyte verticalMirroring;
-		ubyte sramEnabled;
-		ubyte trainer;
-		ubyte fourScreenVRam;
+		ubyte horizontalMirroring = 0;
+		ubyte verticalMirroring = 0;
+		ubyte sramEnabled = 0;
+		ubyte trainer = 0;
+		ubyte fourScreenVRam = 0;
 
-		ubyte mapperNum;
+		ubyte mapperNum = 0;
 
 		std::vector<ubyte> prgRomPages;
 		std::vector<ubyte> chrRomPages;
+
+		//is nes 2.0 file?
+		bool isNes2 = false;				
 
 		//std::string file;
 		//todo write destructor
