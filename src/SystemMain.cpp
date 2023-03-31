@@ -1,6 +1,6 @@
 #include "precompiled.h"
 
-#include "SystemMain.h"
+
 
 #include <cmath>
 
@@ -13,12 +13,14 @@
 
 #include "Console.h"
 #include "NesMain.h"
+#include "SystemMain.h"
 
+#include "Input.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl2.h"
 
 using namespace Console;
-using namespace InputSystem;
+using namespace FrontEnd::InputSystem;
 using namespace GUISystem;
 using namespace FrontEnd;
 using namespace Render;

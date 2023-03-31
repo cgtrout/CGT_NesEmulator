@@ -717,7 +717,7 @@ void ConsoleSystem::loadCommandFile( std::string_view filename ) {
         }
 
 		// Pass command to system
-		executeRequest(trimmedLine, false);
+		executeRequest(trimmedLine.c_str(), false );
 	}
 }
 

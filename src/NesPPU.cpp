@@ -10,6 +10,7 @@ using namespace Console;
 
 int CyclesPerFrame;
 
+
 TimeProfiler* timeProfiler = nullptr;
 
 /* 

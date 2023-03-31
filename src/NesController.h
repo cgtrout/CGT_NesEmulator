@@ -15,9 +15,9 @@ namespace NesEmulator {
 	================================================================
 	================================================================
 	*/
-	class NesController : public Controllable {
+	class NesController : public FrontEnd::InputSystem::Controllable {
 	  public:
-		NesController( Input* inputSystem );
+		NesController( FrontEnd::InputSystem::Input *inputSystem );
 
 		//clear all button states
 		void clear();
@@ -39,9 +39,9 @@ namespace NesEmulator {
 		
 	  private:
 
-		Input* inputSystem;
+		FrontEnd::InputSystem::Input* inputSystem;
 
-		ControllableButton buttons[ NUM_NES_BUTTONS ];
+		FrontEnd::InputSystem::ControllableButton buttons[ NUM_NES_BUTTONS ];
 
 		enum {
 			NES_BUTTON_A,		NES_BUTTON_B, 
@@ -71,10 +71,10 @@ namespace NesEmulator {
 	*/
 	class NesControllerSystem {
 	  public:	
-		NesControllerSystem( Input* inputSystem );
+		NesControllerSystem( FrontEnd::InputSystem::Input* inputSystem );
 	    NesController controller[ 2 ];
 
 	  private:
-		Input* inputSystem;
+		FrontEnd::InputSystem::Input* inputSystem;
 	};
 }

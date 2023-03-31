@@ -11,6 +11,7 @@
 
 #include "CgtDataStructures.h"
 #include "SystemMain.h"
+using namespace FrontEnd::InputSystem;
 
 Console::ConsoleVariable< bool > capFrameRate(
 	/*start val*/	false,
