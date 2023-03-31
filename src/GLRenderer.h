@@ -93,6 +93,17 @@ namespace Render {
 
 		Renderer( FrontEnd::SystemMain* );
 		virtual ~Renderer();
+
+		//state for drawing 'big' text
+		struct BigText {
+			std::string bigText;
+    		float timer = 0.0f;
+    		float fadeDuration = 2;
+		} bigText;
+
+		void setBigText( std::string_view newBigText );
+		void renderBigText();
+
 	private:
 
 		int xres, yres;

@@ -152,6 +152,9 @@ void Renderer::render2D() {
 	//renderer.drawImage( nesMain.nesApu.getGraph(), &Vec2d( 0, 20 ),true, 1, 0.5f );
 	systemMain->timeProfiler.startSection( "RenGUI" );
 	systemMain->gui.render( );
+
+	//render big text if it has been queued up
+	renderBigText();
 }
 
 void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte color ) {
@@ -341,5 +344,32 @@ char *Renderer::getGLErrorString( int error ) {
 
 		default:					return "Unknown GL Error";
 	}
+}
+
+void Renderer::renderBigText() {
+	if (bigText.timer > 0.0f) {
+        bigText.timer -= ImGui::GetIO().DeltaTime;
+
+        float alpha = bigText.timer / bigText.fadeDuration;
+        ImVec4 textColor = ImVec4(1.0f, 1.0f, 1.0f, alpha);
+
+        ImGui::GetFont()->FontSize = 30.0f;
+
+        ImGui::SetNextWindowBgAlpha(0.0f);
+        ImGui::Begin("LargeText", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs);
+
+        ImGui::SetWindowPos(ImVec2(0, 0));
+
+        ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+        ImGui::Text("%s", bigText.bigText.c_str());
+        ImGui::PopStyleColor();
+
+        ImGui::End(); // End the ImGui window
+    }
+}
+
+void Renderer::setBigText( std::string_view newBigText ) {
+	bigText.bigText = newBigText;
+	bigText.timer = bigText.fadeDuration;
 }
 

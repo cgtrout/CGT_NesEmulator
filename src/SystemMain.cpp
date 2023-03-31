@@ -90,6 +90,9 @@ void SystemMain::loadNesFile( std::string_view fileName ) {
 
 	nesMain.setState( Emulating );
 	nesMain.enableStepDebugging( "START" );
+
+	auto bigText = "Loaded rom: " + std::string(fileName);
+	renderer.setBigText( bigText );
 }
 
 /*
