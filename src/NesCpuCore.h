@@ -274,22 +274,22 @@ namespace NesEmulator {
 		//general operation routines
 		void opADC_General( ubyte memValue );
 		void opAND_General( ubyte memValue );
-		void opASL_General( short value );
+		void opASL_General( uword value );
 		void opBIT_General( ubyte memValue );
 		void opCMP_General( ubyte memValue );
 		void opCPX_General( ubyte memValue );
 		void opCPY_General( ubyte memValue );
-		void opDEC_General( short memLocation );    
+		void opDEC_General( uword memLocation );    
 		void opEOR_General( ubyte memValue ); 
-		void opINC_General( short memLocation );
+		void opINC_General( uword memLocation );
 		void opLDA_General( ubyte memValue );
 
 		void opLDX_General( ubyte memValue );
 		void opLDY_General( ubyte memValue );
-		void opLSR_General( short memLocation );
+		void opLSR_General( uword memLocation );
 		void opORA_General( ubyte memValue );
-		void opROL_General( short memLocation );
-		void opROR_General( short memLocation );
+		void opROL_General( uword memLocation );
+		void opROR_General( uword memLocation );
 		void opSBC_General( ubyte memValue );
 
 		/*
@@ -298,7 +298,7 @@ namespace NesEmulator {
 		https://www.pagetable.com/c64ref/6502/?tab=2#RLA
 		===================================================================
 		*/
-		void opRRA_General( short memLocation );
+		void opRRA_General( uword memLocation );
 
 		void followBranch();	//used by branches to follow a branch
 

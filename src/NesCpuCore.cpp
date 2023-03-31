@@ -480,7 +480,7 @@ void NesCpu::opASL_ACC() {
 	reg.a = r;
 }
 
-inline void NesCpu::opASL_General( short value ) {
+inline void NesCpu::opASL_General( uword value ) {
     ubyte m = nesMemory->getMemory( value ); 
 	ubyte r = m << 1;
 	flags.c = BIT( 7, m );
@@ -534,7 +534,7 @@ void NesCpu::opCPY_General( ubyte memValue ) {
 }
 
 
-inline void NesCpu::opDEC_General( short memLocation ) {
+inline void NesCpu::opDEC_General( uword memLocation ) {
     ubyte r = nesMemory->getMemory( memLocation ) - 1;
 	nesMemory->setMemory( memLocation, r );			
 	flags.n = BIT( 7, r );
@@ -556,7 +556,7 @@ void NesCpu::opCLV_IMP() {	flags.v = 0;	}
 void NesCpu::opCLD_IMP() {	flags.d = 0;	}
 void NesCpu::opSED_IMP() {	flags.d = 1;	}
 
-inline void NesCpu::opINC_General( short memLocation ) {
+inline void NesCpu::opINC_General( uword memLocation ) {
     ubyte r = nesMemory->getMemory( memLocation ) + 1;
 	nesMemory->setMemory( memLocation, r );
 	flags.n = BIT( 7, r );
@@ -618,7 +618,7 @@ void NesCpu::opLSR_ACC() {
 	reg.a = r;
 }
 
-inline void NesCpu::opLSR_General( short memLocation ) {
+inline void NesCpu::opLSR_General( uword memLocation ) {
 	ubyte m = nesMemory->getMemory( memLocation ); 
 	flags.c = m & 0x01;
 	ubyte r = m >> 1;
@@ -693,7 +693,7 @@ void NesCpu::opROL_ACC() {
 	reg.a = r;
 }
 
-inline void NesCpu::opROL_General( short memLocation ) {
+inline void NesCpu::opROL_General( uword memLocation ) {
 	ubyte m = nesMemory->getMemory( memLocation ); 
 	ubyte r = m << 1;
 	r += flags.c;
@@ -712,7 +712,7 @@ void NesCpu::opROR_ACC() {
 	reg.a = r;
 }
 
-inline void NesCpu::opROR_General( short memLocation ) {
+inline void NesCpu::opROR_General( uword memLocation ) {
 	ubyte m = nesMemory->getMemory( memLocation ); 
 	ubyte r = m >> 1;
 	r += flags.c << 7;
@@ -801,7 +801,7 @@ https://www.pagetable.com/c64ref/6502/?tab=2#RLA
 ===================================================================
 */
 
-void NesCpu::opRRA_General( short memLocation ) {
+void NesCpu::opRRA_General( uword memLocation ) {
 	ubyte m = nesMemory->getMemory( memLocation );
 	ubyte oldCarry = flags.c;
 	flags.c = m & 0x01;
