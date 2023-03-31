@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <variant>
 
 namespace NesEmulator {
 
@@ -106,6 +107,8 @@ namespace NesEmulator {
 	=================================================================
 	=================================================================
 	*/
+
+
 	class CPUTrace {
 	public:
 		CPUTrace( NesMain* );
@@ -117,6 +120,8 @@ namespace NesEmulator {
 		void printAsm( std::string_view filename );
 
 		void addTrace( uword pc, const opcodeLookUpTableEntry* l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime );
+		void addTraceText( std::string_view text );
+
 		bool areTracing( );
 
 		void startTrace( );
@@ -130,7 +135,7 @@ namespace NesEmulator {
 
 		bool trace;
 		std::vector<bool> traceWrittenAt;
-		std::vector< CPUTraceInstance > traceArray;
+		std::vector< std::variant<CPUTraceInstance, std::string> > traceArray; 
 		int numTraces;
 
 		void sortTraceArray( );

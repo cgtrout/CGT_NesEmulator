@@ -1014,74 +1014,78 @@ void CPUTrace::printTrace( std::string_view filename ) {
 	//}
 
 	for( ; i < tracesToRun; i++ ) {
-		const CPUTraceInstance *t = &traceArray[ i ];
-		ubyte b1 = t->byte1;
-		ubyte b2 = t->byte2;
-
-		std::string lt = nesMain->nesDebugger.buildDebugLine( t->pc, t->l, t->opcode, b1, b2 );
-		
-		//erase delim char
-		//int length = strlen( lt );
-		//lt[ length - 1 ] = '\0';
-		
-		//eliminate first char
-		lt = &lt[1];
-		
-		//lines.flush();
-
 		std::stringstream lines;
+		
+		if( std::holds_alternative<std::string>( traceArray[ i ] ) ) {
+			lines << std::get_if<std::string>( &traceArray[ i ] );
+		}
+		else {
+			const CPUTraceInstance* t = std::get_if<CPUTraceInstance>( &traceArray[ i ] );
+			ubyte b1 = t->byte1;
+			ubyte b2 = t->byte2;
 
-		lines.setf( std::ios_base::left, std::ios_base::adjustfield );
-		lines.width( 40 );
-		lines << lt;
-		lines.seekp( 0, std::ios::end );
+			std::string lt = nesMain->nesDebugger.buildDebugLine( t->pc, t->l, t->opcode, b1, b2 );
 
-		lines << "A:" << ubyteToString( t->reg.a ) << " "
-		 	  << "X:" << ubyteToString( t->reg.x ) << " "
-		 	  << "Y:" << ubyteToString( t->reg.y ) << " "
-			  << "P:";
-		
-		//write out flags
-		//nvub dizc
-		if( BIT(7, t->flags) ) lines << "N"; else lines << "n";
-		if( BIT(6, t->flags) ) lines << "V"; else lines << "v";
-		if( BIT(5, t->flags) ) lines << "U"; else lines << "u";
-		if( BIT(4, t->flags) ) lines << "B"; else lines << "b";
-		if( BIT(3, t->flags) ) lines << "D"; else lines << "d";
-		if( BIT(2, t->flags) ) lines << "I"; else lines << "i";
-		if( BIT(1, t->flags) ) lines << "Z"; else lines << "z";
-		if( BIT(0, t->flags) ) lines << "C"; else lines << "c";
-		
-		//lines << ubyteToString( t->flags );
+			//erase delim char
+			//int length = strlen( lt );
+			//lt[ length - 1 ] = '\0';
 
-		lines << " SP: " << ubyteToString( t->sp );
-		
-		//figure out scanline and cycle
-		scanline = t->cpuTime / 341;
-		cycleOffset = t->cpuTime - ( scanline * 341 );
+			//eliminate first char
+			lt = &lt[ 1 ];
 
-		//fill in cycles and scanline counters
-		lines << " CYC: ";
-		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
-		lines.width( 3 );
-		lines << cycleOffset;
-		
-		lines << " SL: ";
-		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
-		lines.width( 3 );
-		lines << scanline;
-		
-		lines << " CPU: ";
-		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
-		lines.width( 5 );
-		lines << t->cpuTime;
+			//lines.flush();
 
-		lines << " PPU: ";
-		lines.setf( std::ios_base::right, std::ios_base::adjustfield );
-		lines.width( 5 );
-		lines << t->ppuTime 
-			  << "\n";
-		
+			lines.setf( std::ios_base::left, std::ios_base::adjustfield );
+			lines.width( 40 );
+			lines << lt;
+			lines.seekp( 0, std::ios::end );
+
+			lines << "A:" << ubyteToString( t->reg.a ) << " "
+				<< "X:" << ubyteToString( t->reg.x ) << " "
+				<< "Y:" << ubyteToString( t->reg.y ) << " "
+				<< "P:";
+
+			//write out flags
+			//nvub dizc
+			if( BIT( 7, t->flags ) ) lines << "N"; else lines << "n";
+			if( BIT( 6, t->flags ) ) lines << "V"; else lines << "v";
+			if( BIT( 5, t->flags ) ) lines << "U"; else lines << "u";
+			if( BIT( 4, t->flags ) ) lines << "B"; else lines << "b";
+			if( BIT( 3, t->flags ) ) lines << "D"; else lines << "d";
+			if( BIT( 2, t->flags ) ) lines << "I"; else lines << "i";
+			if( BIT( 1, t->flags ) ) lines << "Z"; else lines << "z";
+			if( BIT( 0, t->flags ) ) lines << "C"; else lines << "c";
+
+			//lines << ubyteToString( t->flags );
+
+			lines << " SP: " << ubyteToString( t->sp );
+
+			//figure out scanline and cycle
+			scanline = t->cpuTime / 341;
+			cycleOffset = t->cpuTime - ( scanline * 341 );
+
+			//fill in cycles and scanline counters
+			lines << " CYC: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 3 );
+			lines << cycleOffset;
+
+			lines << " SL: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 3 );
+			lines << scanline;
+
+			lines << " CPU: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 5 );
+			lines << t->cpuTime;
+
+			lines << " PPU: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 5 );
+			lines << t->ppuTime
+				<< "\n";
+		}
 		f << lines.str();
 	}
 	
@@ -1104,7 +1108,12 @@ void CPUTrace::printAsm( std::string_view filename ) {
 	std::ofstream f( fn.c_str() );
 	
 	for( unsigned int i = 0; i < traceArray.size(); i++ ) {
-		CPUTraceInstance *t = &traceArray[ i ];
+		if( std::holds_alternative<std::string>( traceArray[ i ] ) ) {
+			// The element is a std::string
+			const std::string* str = std::get_if<std::string>( &traceArray[ i ] );
+			continue;
+		}
+		const CPUTraceInstance* t = std::get_if<CPUTraceInstance>( &traceArray[ i ] );
 		
 		std::string lt = nesMain->nesDebugger.buildDebugLine( t->pc, t->l, t->opcode, t->byte1, t->byte2 );
 		
@@ -1145,6 +1154,10 @@ void CPUTrace::addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode
 	prevPc = pc;
 }
 
+void CPUTrace::addTraceText( std::string_view text ) {
+	traceArray.push_back( std::string( text ) );
+}
+
 bool CPUTrace::areTracing() {
 	return trace;
 }
@@ -1169,7 +1182,7 @@ void CPUTrace::clearTraces() {
 //sorts array based on pc
 //can not be undone
 void CPUTrace::sortTraceArray() {
-	std::sort( traceArray.begin(), traceArray.end() );
+	//std::sort( traceArray.begin(), traceArray.end() );
 }
 
 
