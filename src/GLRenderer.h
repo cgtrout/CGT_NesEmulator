@@ -97,10 +97,13 @@ namespace Render {
 		struct BigText {
 			std::string bigText;
     		float timer = 0.0f;
-    		float fadeDuration = 2;
+    		float fadeDuration = 5;
 		} bigText;
-
+		
+		//set big text to be drawn
 		void setBigText( std::string_view newBigText );
+		
+		//handles actual drawing of big text
 		void renderBigText();
 
 	private:

@@ -144,6 +144,9 @@ void Renderer::render2D() {
 	systemMain->nesMain.nesDebugger.draw( );
 
 	systemMain->timeProfiler.startSection( "ImGui render" );
+	
+	//render big text if it has been queued up
+	renderBigText( );
 	ImGui::Render( );
 
 	systemMain->timeProfiler.startSection( "ImGui drawdata" );
@@ -152,9 +155,6 @@ void Renderer::render2D() {
 	//renderer.drawImage( nesMain.nesApu.getGraph(), &Vec2d( 0, 20 ),true, 1, 0.5f );
 	systemMain->timeProfiler.startSection( "RenGUI" );
 	systemMain->gui.render( );
-
-	//render big text if it has been queued up
-	renderBigText();
 }
 
 void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte color ) {
@@ -346,26 +346,36 @@ char *Renderer::getGLErrorString( int error ) {
 	}
 }
 
+/*
+==============================================
+Renderer::renderBigText
+  FIXME: not so big right now, but it is a pain to change font size with imgui
+		 so will do later at some point
+==============================================
+*/
 void Renderer::renderBigText() {
 	if (bigText.timer > 0.0f) {
         bigText.timer -= ImGui::GetIO().DeltaTime;
 
         float alpha = bigText.timer / bigText.fadeDuration;
-        ImVec4 textColor = ImVec4(1.0f, 1.0f, 1.0f, alpha);
+        
+		ImVec4 textColor = ImVec4(1.0f, 1.0f, 1.0f, alpha);
 
-        ImGui::GetFont()->FontSize = 30.0f;
-
-        ImGui::SetNextWindowBgAlpha(0.0f);
+		ImVec2 textSize = ImGui::CalcTextSize( bigText.bigText.c_str( ) );
+		ImVec2 windowSize = ImVec2( textSize.x + 10.0f, textSize.y + 10.0f ); // Add some padding around the text
+		ImGui::SetNextWindowSize( windowSize );
+        ImGui::SetNextWindowBgAlpha(1.0f);
         ImGui::Begin("LargeText", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs);
 
-        ImGui::SetWindowPos(ImVec2(0, 0));
+		//position on bottom left of screen
+		ImGui::SetWindowPos( ImVec2(-1.0f, yres - 20.0f ) );
 
         ImGui::PushStyleColor(ImGuiCol_Text, textColor);
         ImGui::Text("%s", bigText.bigText.c_str());
         ImGui::PopStyleColor();
 
         ImGui::End(); // End the ImGui window
-    }
+    }	
 }
 
 void Renderer::setBigText( std::string_view newBigText ) {

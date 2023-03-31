@@ -46,9 +46,6 @@ SystemMain::SystemMain() :
 	input.init();
 	input.clear();	
 
-	//make sure that nesFile is loaded into memory before we load nes file
-	nesMain.nesFile.initialize();
-
 	wantsQuit = false;
 	
 	input.setUseDelay( true );
@@ -70,6 +67,9 @@ void SystemMain::initialize( ) {
 #ifndef LIGHT_BUILD
 	nesMain.nesDebugger.initialize( );
 #endif
+
+	//make sure that nesFile is loaded into memory before we load nes file
+	nesMain.nesFile.initialize( );
 }
 
 /*
