@@ -1,10 +1,18 @@
 #include "precompiled.h"
 #include "SystemMain.h"
+#include "imgui/imgui.h"
+
 #include <memory>
 #include <iomanip>
 #include <filesystem>
 
 using namespace NesEmulator;
+
+Console::ConsoleVariable< bool > drawFileInformationPanel (
+	/*start val*/	true,
+	/*name*/		"drawFileInformationPanel",
+	/*description*/	"Draw nes from file info",
+	/*save?*/		SAVE_TO_FILE );
 
 /* 
 ==============================================
@@ -21,7 +29,9 @@ NesFile::NesFile( NesMain* nesMain ) :
 void NesFile::initialize()
 ==============================================
 */
-void NesFile::initialize() {}
+void NesFile::initialize() {
+	consoleSystem->variables.addBoolVariable( &drawFileInformationPanel );
+}
 
 /* 
 ==============================================
@@ -155,6 +165,19 @@ std::string NesFile::toString() {
     ss << std::left << std::setw(fieldWidth) << "Four Screen Vram:"      << fourScreenVRam      << std::endl;
 
     return ss.str();
+}
+
+/*
+==============================================
+NesFile::displayInformationPanel
+==============================================
+*/
+void NesFile::displayInformationPanel() {
+	std::string nesFileText = toString();
+
+	ImGui::Begin("NesFile Information", drawFileInformationPanel.getPointer());
+	ImGui::TextUnformatted(nesFileText.c_str());
+	ImGui::End(); 
 }
 
 

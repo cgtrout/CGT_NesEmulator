@@ -35,6 +35,9 @@ namespace NesEmulator {
 
 		std::string toString();
 
+		//draw imgui information panel
+		void displayInformationPanel();
+
 		class NesFileException : public CgtException {
 		public:
 			NesFileException( std::string_view header, std::string_view message, bool showMessage = true ) :
@@ -44,6 +47,8 @@ namespace NesEmulator {
 		
 	private:
 		NesMain* nesMain;
+
+		std::string nameOfFile = "";
 
 		ubyte prgRomPageCount = 0;			
 		ubyte chrRomPageCount = 0;
@@ -60,7 +65,7 @@ namespace NesEmulator {
 		std::vector<ubyte> chrRomPages;
 
 		//is nes 2.0 file?
-		bool isNes2 = false;				
+		bool isNes2 = false;
 
 		//std::string file;
 		//todo write destructor
