@@ -354,8 +354,6 @@ void ConsoleSystem::executeRequest(const std::string &command, const std::string
     printMessage("\"%s %s\" was not recognized", command.c_str(), value.c_str());
 }
 
-
-
 /* 
 ==============================================
 bool ConsoleSystem::findAndRunVariable( std::string *varName, std::string *value, bool run )
