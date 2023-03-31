@@ -125,6 +125,7 @@ void NesMapper1::initializeMap( ) {
 
 						//TODO we may need to reassign the locations here if any of these bits are different
 						
+						remapMemory( );
 
 					}
 					//CHR bank 0 ( internal, $A000 - $BFFF )
@@ -135,20 +136,18 @@ void NesMapper1::initializeMap( ) {
 					//+++++- Select 4 KB or 8 KB CHR bank at PPU $0000 (low bit ignored in 8 KB mode) 
 					// REGISTER 01 - Assign CHR bank
 					else if( address >= 0xA000 && address <= 0xBFFF ) {
-						ubyte selected_bank = MMC1_PB & 0b11111;
+						chr_selected_bank_0000 = MMC1_PB & 0b11111;
 
 						switch( char_rom_switch_size ) {
 						case 8:
 							//bottom bit is ignored (nerdy nights) so there are 16 possible banks
-							selected_bank &= 0b11110;
+							chr_selected_bank_0000 &= 0b11110;
 							// sets bank for full PPU 0000-1FFF(8kb region)
 							break;
 						}
 						
-						nesMain->nesMemory.ppuMemory.fillChrBanks(
-							0x0000,								//start address
-							selected_bank * CHR_BANKS_PER_PAGE,	//chr rom page
-							char_rom_switch_size );				//number of banks
+						remapMemory( );
+
 							
 					}
 					//CHR bank 1 ( internal, $C000 - $DFFF )
@@ -158,17 +157,12 @@ void NesMapper1::initializeMap( ) {
 					//||||| 
 					//+++++- Select 4 KB CHR bank at PPU $1000 (ignored in 8 KB mode) 
 					// REGISTER 02 - Assign CHR bank
-					else if( address >= 0xC000 && address <= 0xDFFF && char_rom_switch_size != 8 ) {
-						ubyte selected_bank = MMC1_PB & 0b01111;
+					else if( address >= 0xC000 && address <= 0xDFFF ) {
+						chr_selected_bank_1000 = MMC1_PB & 0b01111;
 						//TODO wram
 
-						//incorrect in metroid
-						//in metroid, for some reason this currently causes chr mapping to 
-						//be incorrect
-						nesMain->nesMemory.ppuMemory.fillChrBanks(
-							0x1000,								//start address
-							selected_bank * CHR_BANKS_PER_PAGE,	//chr rom page
-							char_rom_switch_size);				//number of banks
+						remapMemory( );
+						
 					}
 					//PRG bank( internal, $E000 - $FFFF )
 					//4horz_vert 
@@ -179,25 +173,23 @@ void NesMapper1::initializeMap( ) {
 					//+----- PRG RAM chip enable (0: enabled; 1: disabled; ignored on MMC1A) 
 					// REGISTER 03 - Assign PRG bank	
 					else if( address >= 0xE000 && address <= 0xFFFF ) {
-						ubyte selected_bank = MMC1_PB & 0b1111;
-						ubyte prg_ram_enable = BIT( 4, selected_bank );
+						prg_selected_bank = MMC1_PB & 0b1111;
+						prg_ram_enable = BIT( 4, MMC1_PB );
 
 						if( prgrom_switch_size == 32 ) {
-							selected_bank = selected_bank & 0b1110;
+							prg_selected_bank = prg_selected_bank & 0b1110;
 						}
 
-						//do prg rom swap
-						nesMain->nesMemory.fillPrgBanks(
-							prgrom_bank_address,				//start address
-							selected_bank * PRG_BANKS_PER_PAGE,	//prg rom page
-							prgrom_switch_size );				//number of banks
+						remapMemory( );
 					}
-						
+					
+					reset( );
+
 					//reset shift register
 					write_count = 0;
 					MMC1_SR = 0b10000;
 
-					//nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
+					nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
 				}
 				else {
 					write_count++;
@@ -212,6 +204,28 @@ void NesMapper1::initializeMap( ) {
 
 	entry.setNonReadable( );
 	nesMain->nesMemory.addFunction( entry );
+}
+
+void NesMapper1::remapMemory( ) {
+	//reg 1
+	nesMain->nesMemory.ppuMemory.fillChrBanks(
+		0x0000,											//start address
+		chr_selected_bank_0000 * CHR_BANKS_PER_PAGE,	//chr rom page
+		char_rom_switch_size );							//number of banks
+
+	//reg 2
+	if( char_rom_switch_size != 8 ) {
+		nesMain->nesMemory.ppuMemory.fillChrBanks(
+			0x1000,											//start address
+			chr_selected_bank_1000 * CHR_BANKS_PER_PAGE,	//chr rom page
+			char_rom_switch_size );							//number of banks
+	}
+
+	//reg 3
+	nesMain->nesMemory.fillPrgBanks(
+		prgrom_bank_address,							//start address
+		prg_selected_bank * PRG_BANKS_PER_PAGE,			//prg rom page
+		prgrom_switch_size );							//number of banks
 }
 
 void NesMapper1::reset( ) {
