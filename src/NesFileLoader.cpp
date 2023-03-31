@@ -2,6 +2,7 @@
 #include "SystemMain.h"
 #include <memory>
 #include <iomanip>
+#include <filesystem>
 
 using namespace NesEmulator;
 
@@ -33,6 +34,10 @@ void NesFile::loadFile( std::string_view filename ) {
 	ubyte numcheck, controlbyte1, controlbyte2;		//temp vars
 	NesMemory *nesMemory = &FrontEnd::SystemMain::getInstance()->nesMain.nesMemory;
 		
+	//parse out file name to store it simply so it can be shown to user later
+	std::filesystem::path path(filename);
+    nameOfFile = path.stem().string();
+
 	//file = "./roms/" + file + ".nes";
 	file = file + ".nes";
 	std::ifstream is( file.c_str(), std::ios::binary );
@@ -138,7 +143,8 @@ std::string NesFile::toString() {
     std::ostringstream ss;
     const int fieldWidth = 22;
 
-    ss << std::left << std::setw(fieldWidth) << "MapperNum:"             << mapperNum           << std::endl;
+    ss << std::left << std::setw(fieldWidth) << "File Name:"             << nameOfFile          << std::endl;
+	ss << std::left << std::setw(fieldWidth) << "MapperNum:"             << mapperNum           << std::endl;
     ss << std::left << std::setw(fieldWidth) << "Is Nes 2.0 File:"       << isNes2              << std::endl;
 	ss << std::left << std::setw(fieldWidth) << "PRG ROM Page Count:"    << prgRomPageCount     << std::endl;
     ss << std::left << std::setw(fieldWidth) << "CHR ROM Page Count:"    << chrRomPageCount     << std::endl;
