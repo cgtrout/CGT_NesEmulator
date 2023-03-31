@@ -61,6 +61,8 @@ void NesMapper1::initializeMap( ) {
 				//bit 2 - reset to logic 1
 				//bit 3 - reset to logic 1
 
+				nesMain->nesCpu.cpuTrace.addTraceText( "BIT7 high: fix last prg bank" );
+
 				//fix last prg bank at $C000
 				int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
 				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
@@ -178,6 +180,7 @@ void NesMapper1::initializeMap( ) {
 							prg_selected_bank = prg_selected_bank & 0b1110;
 						}
 						nesMain->nesCpu.cpuTrace.addTraceText( "Reg3 prg_selected_bank=%d ", prg_selected_bank );
+						
 						remapMemory( );
 					}
 					
@@ -185,7 +188,7 @@ void NesMapper1::initializeMap( ) {
 					write_count = 0;
 					MMC1_SR = 0b10000;
 
-					nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
+					//nesMain->enableStepDebugging( "RESET SHIFT REGISTER" );
 				}
 				else {
 					write_count++;
@@ -203,7 +206,7 @@ void NesMapper1::initializeMap( ) {
 }
 
 void NesMapper1::remapMemory( ) {
-	nesMain->nesCpu.cpuTrace.addTraceText( "Remap memory..... char_rom_switch_size=%d chr_selected_bank_0000=%d  chr_selected_bank_1000=%d", char_rom_switch_size, chr_selected_bank_0000, chr_selected_bank_1000 );
+	nesMain->nesCpu.cpuTrace.addTraceText( "\nRemap memory..... char_rom_switch_size=%d chr_selected_bank_0000=%d  chr_selected_bank_1000=%d", char_rom_switch_size, chr_selected_bank_0000, chr_selected_bank_1000 );
 	
 	//reg 1: A000
 	nesMain->nesCpu.cpuTrace.addTraceText( "reg1: A000   Before fillchrBanks" );
@@ -226,7 +229,7 @@ void NesMapper1::remapMemory( ) {
 	nesMain->nesMemory.fillPrgBanks(
 		prgrom_bank_address,							//start address
 		prg_selected_bank * PRG_BANKS_PER_PAGE,			//prg rom page
-		prgrom_switch_size );							//number of banks
+		prgrom_switch_size );							//number of bankk
 }
 
 void NesMapper1::reset( ) {
