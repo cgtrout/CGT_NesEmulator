@@ -1,4 +1,5 @@
 #include "precompiled.h"
+#include "precompiled.h"
 #include <cassert>
 
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
@@ -258,11 +259,12 @@ void NesMemory::fillPrgBanks
 ==============================================
 */
 void NesMemory::fillPrgBanks( uword startAddress, uword prgStartAddr, int numBanks ) { 
-	_log->Write( "fillPrgBanks:   startAddress=%04x   prgStartAddr=%04x,  numBanks=%02x    pc=%04x ", startAddress, prgStartAddr, numBanks, nesMain->nesCpu.getPC()  );
-
 	int bankNum = calcCpuBank( startAddress );
+	nesMain->nesCpu.cpuTrace.addTraceText( "" );
+	nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillPGMBanks: startAddress=%04x prgStartAddr=%d numBanks=%d  banknum=%d", startAddress, prgStartAddr, numBanks, bankNum );
 	uword prgPos = prgStartAddr;
 	for( int x = 0; x < numBanks; x++ ) {
+		nesMain->nesCpu.cpuTrace.addTraceText( "                memBanks[%d] = physicalMemBanks.prgRom[ %d ]", bankNum, prgPos );
 		memBanks[ bankNum++ ]= &physicalMemBanks.prgRom[ prgPos++ ];
 	}
 }
@@ -916,10 +918,14 @@ void PPUMemory::fillChrBanks
 */
 void PPUMemory::fillChrBanks( uword startAddress, uword chrStartAddr, uword numBanks ) { 
 	int mainPos = calcPpuBank( startAddress );
+	nesMain->nesCpu.cpuTrace.addTraceText( "" );
+	nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillChrBanks: startAddress=%04x chrStartAddr=%d numBanks=%d  mainPos=%d", startAddress, chrStartAddr, numBanks, mainPos );
+	
 	//Clculate which chrRom bank to start from keeping in mind each bank is 1kb
 	//shift right 10 is equivalent to divide by 1024 (1kb)
 	int chrPos = chrStartAddr >> 10;
 	for( int x = 0; x < numBanks; x++ ) {
+		nesMain->nesCpu.cpuTrace.addTraceText( "                memBanks[%d] = physicalMemBanks.chrRom[ %d ]", mainPos, chrPos );
 		memBanks[ mainPos++ ] = &physicalMemBanks.chrRom[ chrPos++ ];
 	}
 }
