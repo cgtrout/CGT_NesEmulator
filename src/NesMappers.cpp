@@ -67,6 +67,8 @@ void NesMapper1::initializeMap( ) {
 				int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
 				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
 
+				nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
+
 				prgrom_bank_address = 0x8000; 
 				prgrom_switch_size = 16;
 			}
