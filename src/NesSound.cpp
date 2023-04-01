@@ -91,7 +91,7 @@ NesSoundBuffer::generateAudioBuffer
 	nes_clock_frequency = 29893 * fps;
 	newResampleRatio = nes_clock_frequency / 44100;
 
-	_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
+	//_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
 
 	if( averageQueuedAudioSize < 4000 ) {
 		newResampleRatio = newResampleRatio * 0.994;
