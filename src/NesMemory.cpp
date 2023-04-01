@@ -916,7 +916,7 @@ void PPUMemory::fillChrBanks
   fill in banks from prg rom storage to ppu bank positions
 ==============================================
 */
-void PPUMemory::fillChrBanks( uword startAddress, uword chrStartAddr, uword numBanks ) { 
+void PPUMemory::fillChrBanks( uword startAddress, uint chrStartAddr, uword numBanks ) { 
 	int mainPos = calcPpuBank( startAddress );
 	nesMain->nesCpu.cpuTrace.addTraceText( "" );
 	nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillChrBanks: startAddress=%04x chrStartAddr=%d numBanks=%d  mainPos=%d", startAddress, chrStartAddr, numBanks, mainPos );

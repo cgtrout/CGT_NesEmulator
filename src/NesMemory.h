@@ -190,7 +190,7 @@ namespace NesEmulator {
 
 		//fill in prg banks at "startAddress" with data from main prgRom databank 
 		//at pos "prgStartPos"
-		void fillChrBanks( uword startAddress, uword chrStartAddr, uword numBanks );
+		void fillChrBanks( uword startAddress, uint chrStartAddr, uword numBanks );
 		
 		//memory read/write functions
 		void setMemory( uword loc, ubyte val );		
