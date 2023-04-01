@@ -52,23 +52,32 @@ namespace FrontEnd {
 		//updates all graphics objects
 		void graphicUpdate();
 
-		FrontEnd::InputSystem::Input		input;
+		//MAIN SYSTEMS
+		FrontEnd::InputSystem::Input		input;			//input system
 
-		Console::ConsoleSystem	consoleSystem;
+		Console::ConsoleSystem				consoleSystem;	//command / var system
 		
-		GUISystem::GUI			gui;
-		GUISystem::GUIConsole	guiConsole;
+		GUISystem::GUI						gui;			//GUI System
+		GUISystem::GUIConsole				guiConsole;	
 		
-		NesEmulator::NesMain	nesMain;
+		NesEmulator::NesMain				nesMain;		//Main emulator instance
 		
-		Render::Renderer		renderer;
+		Render::Renderer					renderer;		//Render system
 		
-		TimeProfiler timeProfiler;
+		TimeProfiler 						timeProfiler;	//Profiler system
 
-		//TestingSystem
-		//This allows us to set a test directory
-		//and then load a rom at a time to test multiple
-		//roms easily
+		/*
+		================================================================
+		================================================================
+		TestingSystem
+
+			This allows us to set a test directory and then load a rom 
+			at a time to test multiple roms easily.  Holds a vector of 
+			files - use 'next' command in console to load next rom in 
+			vector
+		================================================================
+		================================================================
+		*/
 		struct TestingSystem {
 			bool inTestMode = false;
 			std::vector<std::string> files;
