@@ -88,14 +88,18 @@ NesSoundBuffer::generateAudioBuffer
 	auto newResampleRatio = resampling_ratio;
 	float averageQueuedAudioSize = CgtLib::calculateAverageFloat( queuedAudioSizeBuffer );
 
-	nes_clock_frequency = 29893 * fps;
-	newResampleRatio = nes_clock_frequency / 44100;
+	if( averageQueuedAudioSize < 5000 ) {
+		newResampleRatio = newResampleRatio * 0.994;
+	}
+	else {
+		//adjust clock freq based on FPS
+		nes_clock_frequency = 29760 * fps;
+		newResampleRatio = nes_clock_frequency / 44100;
+	}
 
 	//_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
 
-	if( averageQueuedAudioSize < 4000 ) {
-		newResampleRatio = newResampleRatio * 0.994;
-	}
+	
 
 	remappedValuesHistory.add( newResampleRatio );
 
