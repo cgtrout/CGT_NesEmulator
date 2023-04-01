@@ -15,7 +15,10 @@ namespace NesEmulator {
 	public:
 		void initialize();
 	    
+		//load debug window with text (disassembled lines)
 		void loadWindowText();
+
+		//update debugger - called once per frame
 		void updateDebugger();
 
 		//draw debugger using imgui
@@ -49,6 +52,8 @@ namespace NesEmulator {
 		bool removeBreakPoint( uword address );
 		
 		bool isOpen();
+
+		//on keyboard 'enter' pressed
 		void onEnter();
 
 		//what is the location of the previous instruction to the instruction at "address"
