@@ -65,7 +65,7 @@ void NesMapper1::initializeMap( ) {
 
 				//fix last prg bank at $C000
 				int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
-				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
+				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
 
 				prgrom_bank_address = 0x8000; 
 				prgrom_switch_size = 16;
@@ -228,7 +228,7 @@ void NesMapper1::remapMemory( ) {
 	nesMain->nesCpu.cpuTrace.addTraceText( "reg3: E000   Before fillprgBanks" );
 	nesMain->nesMemory.fillPrgBanks(
 		prgrom_bank_address,							//start address
-		prg_selected_bank * PRG_BANKS_PER_PAGE,			//prg rom page
+		prg_selected_bank * PRG_ROM_PAGESIZE,			//prg rom page
 		prgrom_switch_size );							//number of bankk
 }
 
@@ -238,7 +238,7 @@ void NesMapper1::reset( ) {
 	//map first prg rom bank
 	nesMain->nesMemory.fillPrgBanks( 0x8000, 0, 0x4000 / CPU_BANKSIZE );
 	//map last prg rom bank
-	nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
+	nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
 
 	write_count = 0;
 }
@@ -263,7 +263,7 @@ void NesMapper2::initializeMap() {
 		[this]( uword address, ubyte param ) {
  			nesMain->nesMemory.fillPrgBanks(
 				0x8000,						//start pos
-				param * PRG_BANKS_PER_PAGE,	//prg rom page
+				param * PRG_ROM_PAGESIZE,	//prg rom page
 				0x4000 / CPU_BANKSIZE );	//number of banks
 		},
 		
@@ -283,5 +283,5 @@ void NesMapper2::reset() {
 	nesMain->nesMemory.fillPrgBanks( 0x8000, 0, 0x4000 / CPU_BANKSIZE );
 
 	//map last prg rom bank
-	nesMain->nesMemory.fillPrgBanks( 0xC000, (prgRomPages - 1) * PRG_BANKS_PER_PAGE, 0x4000 / CPU_BANKSIZE );
+	nesMain->nesMemory.fillPrgBanks( 0xC000, (prgRomPages - 1) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
 }

@@ -258,11 +258,11 @@ void NesMemory::fillPrgBanks
   fill in banks from prg rom storage to main bank positions
 ==============================================
 */
-void NesMemory::fillPrgBanks( uword startAddress, uword prgStartAddr, int numBanks ) { 
+void NesMemory::fillPrgBanks( uword startAddress, uint prgStartAddr, int numBanks ) { 
 	int bankNum = calcCpuBank( startAddress );
 	nesMain->nesCpu.cpuTrace.addTraceText( "" );
 	nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillPGMBanks: startAddress=%04x prgStartAddr=%d numBanks=%d  banknum=%d", startAddress, prgStartAddr, numBanks, bankNum );
-	uword prgPos = prgStartAddr;
+	uword prgPos = prgStartAddr / CPU_BANKSIZE;
 	for( int x = 0; x < numBanks; x++ ) {
 		nesMain->nesCpu.cpuTrace.addTraceText( "                memBanks[%d] = physicalMemBanks.prgRom[ %d ]", bankNum, prgPos );
 		memBanks[ bankNum++ ]= &physicalMemBanks.prgRom[ prgPos++ ];

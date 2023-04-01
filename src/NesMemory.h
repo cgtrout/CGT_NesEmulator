@@ -240,7 +240,7 @@ namespace NesEmulator {
 
 		//fill in prg banks at "startAddress" with data from main prgRom databank 
 		//at address "prgStartAddr" for "NumBanks"
-		void fillPrgBanks( uword startAddress, uword prgStartAddr, int numBanks );
+		void fillPrgBanks( uword startAddress, uint prgStartAddr, int numBanks );
 
 		//port handlers
 
