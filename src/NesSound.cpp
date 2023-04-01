@@ -60,7 +60,7 @@ double nes_clock_frequency = 1789773.2727272f;
 double resampling_ratio = nes_clock_frequency / 44100;
 
 auto soundStartTime = std::chrono::steady_clock::now( );
-CgtLib::CircularBuffer<double> fpsHistory( 30 );
+CgtLib::CircularBuffer<double> fpsHistory( 240 );
 
 /*
 ==============================================
@@ -88,22 +88,13 @@ NesSoundBuffer::generateAudioBuffer
 	auto newResampleRatio = resampling_ratio;
 	float averageQueuedAudioSize = CgtLib::calculateAverageFloat( queuedAudioSizeBuffer );
 
-	//if queuedAudioSize too high adjust sample rate
-	//only need to adjust it by a very tiny amount - this keeps pitch change imperceptable
-	if( averageQueuedAudioSize > 0 && averageQueuedAudioSize < 10000 && fps < 60 ) {
-		// 0.0982976 + 0.000189248 * x - 9.9078 * 10^-9 * x^2
-		auto polynomial = []( double x ) {
-			double term1 = 0.0982976;
-			double term2 = 0.000189248 * x;
-			double term3 = -9.9078 * pow( 10, -9 ) * pow( x, 2 );
+	nes_clock_frequency = 29893 * fps;
+	newResampleRatio = nes_clock_frequency / 44100;
 
-			return term1 + term2 + term3;
-		};
+	_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
 
-		double remappedValue = polynomial( averageQueuedAudioSize );
-		newResampleRatio *= remappedValue;
-
-		//_log->Write( "fps:%f   averageQueuedAudioSize: %f  newResampleRatio=%f", fps, averageQueuedAudioSize, newResampleRatio );
+	if( averageQueuedAudioSize < 4000 ) {
+		newResampleRatio = newResampleRatio * 0.994;
 	}
 
 	remappedValuesHistory.add( newResampleRatio );
