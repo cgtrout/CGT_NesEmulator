@@ -157,7 +157,9 @@ PpuMemBanks::PpuMemBanks
 */
 PpuMemBanks::PpuMemBanks( int chrRomPages, const std::vector<ubyte>& data ) {
 	if( chrRomPages == 0 ) {
-		this->chrRomPages = 2;
+		//FIXME: determine correct value for this
+		//should this possibly be a mapper responsibility to change this?
+		this->chrRomPages = 16;
 	} else {
 		this->chrRomPages = chrRomPages;
 	}	
