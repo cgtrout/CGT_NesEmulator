@@ -153,18 +153,18 @@ std::string NesFile::toString() {
     std::ostringstream ss;
     const int fieldWidth = 22;
 
-    ss << std::left << std::setw(fieldWidth) << "File Name:"             << nameOfFile          << std::endl;
-	ss << std::left << std::setw(fieldWidth) << "MapperNum:"             << mapperNum           << std::endl;
-    ss << std::left << std::setw(fieldWidth) << "Is Nes 2.0 File:"       << isNes2              << std::endl;
-	ss << std::left << std::setw(fieldWidth) << "PRG ROM Page Count:"    << prgRomPageCount     << std::endl;
-    ss << std::left << std::setw(fieldWidth) << "CHR ROM Page Count:"    << chrRomPageCount     << std::endl;
-    ss << std::left << std::setw(fieldWidth) << "Horizontal Mirroring:"  << horizontalMirroring << std::endl;
-    ss << std::left << std::setw(fieldWidth) << "Verical Mirroring:"     << verticalMirroring   << std::endl;
-    ss << std::left << std::setw(fieldWidth) << "SRAM Enabled:"          << sramEnabled         << std::endl;
-    ss << std::left << std::setw(fieldWidth) << "Trainer:"               << trainer             << std::endl;
-    ss << std::left << std::setw(fieldWidth) << "Four Screen Vram:"      << fourScreenVRam      << std::endl;
-
-    return ss.str();
+	ss << std::left << std::setw( fieldWidth ) << "File Name:" << nameOfFile << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "MapperNum:" << std::to_string( mapperNum ) << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "Is Nes 2.0 File:" << isNes2 << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "PRG ROM Page Count:" << std::to_string( prgRomPageCount ) << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "CHR ROM Page Count:" << std::to_string( chrRomPageCount ) << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "Horizontal Mirroring:" << std::to_string( horizontalMirroring ) << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "Verical Mirroring:" << std::to_string( verticalMirroring ) << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "SRAM Enabled:" << std::to_string( sramEnabled ) << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "Trainer:" << std::to_string( trainer ) << std::endl;
+	ss << std::left << std::setw( fieldWidth ) << "Four Screen Vram:" << std::to_string( fourScreenVRam ) << std::endl;
+	
+	return ss.str();
 }
 
 /*

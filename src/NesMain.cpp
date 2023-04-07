@@ -32,6 +32,8 @@ void NesMain::runFrame() {
 	//keep running this frame?
 	bool runFrame = true;
 
+	nesFile.displayInformationPanel( );
+
 	//update emulator systems for this frame
 	while( runFrame ) {
 
