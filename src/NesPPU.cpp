@@ -132,8 +132,7 @@ void NesPPU::renderBuffer( PpuClockCycles desiredcc, PpuUpdateType updateType ) 
 			if( !scanlineDrawer.getScanlineDrawn(scanline) ) {
 				if( scanline == 21 ) {
 					
-					if( registers.backgroundVisible && registers.spriteVisible ) {
-						//_log->Write(" vramAddress = tempAddress ");
+					if( registers.backgroundVisible || registers.spriteVisible ) {
 						registers.vramAddress = registers.tempAddress;
 					}
 				}
