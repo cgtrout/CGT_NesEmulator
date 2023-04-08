@@ -994,7 +994,7 @@ void CPUTrace::printTrace( std::string_view filename ) {
 	PpuClockCycles	cycleOffset;	//from start of scanline
 
 	if( filename.length() == 0 ) {
-		fn = "tracelog.txt";
+		fn = "tracelog.log";
 	}
 	else {
 		fn = filename;
