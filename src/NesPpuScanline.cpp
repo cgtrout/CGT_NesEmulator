@@ -196,30 +196,35 @@ void NesPPU::ScanlineDrawer::finishScanline()
   does finishing touches on scanlihne
 ==============================================
 */
-void ScanlineDrawer::finishScanline() {
-	//increment y offset
+void ScanlineDrawer::finishScanline( ) {
 	registers->vramAddress += 0x1000;
-	//_log->Write( "finishing scanline %d (+0x1000)", scanline );
-	
-	//handle wrap around logic
-	if( registers->vramAddress & 0x8000 ) {
-		registers->vramAddress &= 0x0fff;		//clear
 
-		//increase y scroll 
-		//TODO move these to own functions to hide nasty bit manipulation
-		if( ( ( registers->vramAddress & 0x03e0 ) >> 5 ) < 29 ) {
+	//check for wrap around
+	if( registers->vramAddress & 0x8000 ) {
+		registers->vramAddress &= 0x0fff;
+
+		auto current_yscroll = ( registers->vramAddress & 0x03e0 ) >> 5;
+		if( current_yscroll < 29 ) {
 			uword oadd = registers->vramAddress;
-			registers->vramAddress &= ( ~0x03e0 & 0xffff );	
-			registers->vramAddress += ( ( ( oadd & 0x03e0 ) >> 5 ) + 1 ) << 5 ;		//increase
-		} else {
-			registers->vramAddress &= 0xfc1f;	//reset
+
+			//clear course y
+			registers->vramAddress &= ( ~0x03e0 & 0xffff );
 			
-			//flip bit 11
+			//increment the y-scroll position by 1
+			registers->vramAddress += ( ( ( oadd & 0x03e0 ) >> 5 ) + 1 ) << 5;
+		}
+		else {
+			//reset 'course y'
+			registers->vramAddress &= 0xfc1f;
+
+			//flip bit 11 of the VRAM address to toggle the nametable being accessed
 			registers->vramAddress = FLIP_BIT( 11, registers->vramAddress );
 		}
 	}
+
 	registers->status.scanlineSriteMaxHit = 0;
 }
+
 
 /* 
 ==============================================

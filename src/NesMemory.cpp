@@ -592,7 +592,6 @@ ubyte NesMemory::ph2002Read()  {
 
 	//reset 2005/2006 flipflop ptrs
 	_20056State = LOW;
-	//_2006State = LOW;
 	
 	return out;
 }
@@ -706,19 +705,19 @@ void NesMemory::ph2005Write( ubyte val ) {
 
 	//write 1
 	if( _20056State == LOW ) {
-		nesPpu->registers.tempAddress &= 0xffe0;
+		nesPpu->registers.tempAddress &= 0b1111111111100000;
 
 		nesPpu->registers.tempAddress += wordval >> 3;
-		nesPpu->registers.xOffset = ( wordval & 7 );
+		nesPpu->registers.xOffset = ( wordval & 0b111 );
 
 		_20056State = HIGH;
 	}
 	//write 2
 	else {
-		nesPpu->registers.tempAddress &= 0x8c1f; 
+		nesPpu->registers.tempAddress &= 0b0000110000011111;
 
-		nesPpu->registers.tempAddress += ( wordval & 0xf8 ) << 2;
-		nesPpu->registers.tempAddress += ( wordval & 7 ) << 12;
+		nesPpu->registers.tempAddress += ( wordval & 0b11111000 ) << 2;
+		nesPpu->registers.tempAddress += ( wordval & 0b111 ) << 12;
 
 		_20056State = LOW;
 	}
@@ -742,16 +741,16 @@ void NesMemory::ph2006Write( ubyte val ) {
 
 	//write 1
 	if( _20056State == LOW ) {
-		nesPpu->registers.tempAddress &= 0xc0ff;
+		nesPpu->registers.tempAddress &= 0b0000000011111111;
 
-		nesPpu->registers.tempAddress += ( val & 0x3f ) << 8;
-		nesPpu->registers.tempAddress &= 0x3fff ;
+		nesPpu->registers.tempAddress += ( val & 0b111111 ) << 8;
+		nesPpu->registers.tempAddress &= 0b111111111111111;
 
 		_20056State = HIGH;
 	}
 	//write 2
 	else {
-		nesPpu->registers.tempAddress &= 0xff00;
+		nesPpu->registers.tempAddress &= 0b1111111100000000;
 
 		nesPpu->registers.tempAddress += val;
 		nesPpu->registers.vramAddress = nesPpu->registers.tempAddress;
