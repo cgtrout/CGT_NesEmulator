@@ -356,11 +356,16 @@ inline void NesCpu::gotoInterrupt( int memLoc )
 ==============================================
 */
 inline void NesCpu::gotoInterrupt( uword memLoc ) {
+
+	flags.u = 1;
+	flags.b = 0;
+
 	nesMemory->setMemory( ( uword )sp-- + 0x100, pc >> 8 );
 	nesMemory->setMemory( ( uword )sp-- + 0x100, pc & 0x00FF );
 	nesMemory->setMemory( ( uword )sp-- + 0x100, createFlagByte() );
 	pc = memLoc;	
 	flags.i = 1;
+	flags.u = 0;
 }
 
 /*
@@ -412,17 +417,26 @@ inline ubyte NesCpu::getMemoryINDX() {
 	//handle 'wraparound'	
 	addressPtr &= 0x00ff;
 	
+	//if second addressptr is a wrap around, we need to set it to zero
+	uword addr1 = addressPtr;
+	uword addr2 = addressPtr+1;
+	if( addr1 == 0xff ) addr2 = 0;
+
 	//get memory address to pull from
-	uword memAdd = nesMemory->getMemory( addressPtr ) + ( nesMemory->getMemory( addressPtr+1 ) << 8 );
+	uword memAdd = nesMemory->getMemory( addr1 ) + ( nesMemory->getMemory( addr2 ) << 8 );
 	return nesMemory->getMemory( memAdd );
 }
 
 inline ubyte NesCpu::getMemoryINDY() {
     uword addressPtr = b1;
 
+	//casting here to handle wrap around on addressing
+	ubyte addr1 = (ubyte)addressPtr;
+	ubyte addr2 = (ubyte)(addressPtr + 1);
+
 	//get address at addressPtr 
-	ubyte part1 = nesMemory->getMemory( addressPtr );
-	ubyte part2 = nesMemory->getMemory( addressPtr+1 );
+	ubyte part1 = nesMemory->getMemory( addr1 );
+	ubyte part2 = nesMemory->getMemory( addr2 );
 	uword memAdd = ( ( uword )part1 + ( ( uword )part2 << 8 ) );
 	
 	//check for page boundary cross
@@ -499,12 +513,14 @@ inline void NesCpu::opBIT_General( ubyte memValue ) {
 void NesCpu::opBRK_IMP() {
 	flags.b = 1; pc += 2;
 	flags.i = 1;
+	flags.u = 1;
 	nesMemory->fastSetMemory( sp-- + 0x100, pc >> 8 );
 	nesMemory->fastSetMemory( sp-- + 0x100, pc & 0xFF ); 
 	nesMemory->fastSetMemory( sp-- + 0x100, ( createFlagByte() ) );// | 0x10 ) );  //or flag with 0x10??
 	ubyte low = nesMemory->fastGetMemory( 0xFFFE );
 	uword hi = nesMemory->fastGetMemory( 0xFFFF ) << 8;
 	pc = hi + low;
+	flags.b = 0; flags.u = 0;
 	branched = true;
 }
 
@@ -708,19 +724,20 @@ void NesCpu::opROR_ACC() {
 	r += flags.c << 7;
 	flags.n = flags.c;
 	flags.c = BIT( 0, reg.a );
-	flags.z = ( r == 0 );
+	flags.n = BIT( 7, r );
 	reg.a = r;
 }
 
 inline void NesCpu::opROR_General( uword memLocation ) {
-	ubyte m = nesMemory->getMemory( memLocation ); 
+	ubyte m = nesMemory->getMemory( memLocation );
 	ubyte r = m >> 1;
 	r += flags.c << 7;
-	flags.n = flags.c;
 	flags.c = BIT( 0, m );
 	flags.z = ( r == 0 );
+	flags.n = BIT( 7, r );
 	nesMemory->setMemory( memLocation, r );
 }
+
 
 void NesCpu::opRTI_IMP() {	
 	setFlagsFromByte( nesMemory->getMemory( ( uword )++sp + 0x100 ) );
@@ -790,7 +807,12 @@ void NesCpu::opPLA_IMP() {
 	flags.n = BIT( 7, reg.a );
 }
 
-void NesCpu::opPHP_IMP() { nesMemory->setMemory( (uword)(sp--) + 0x100, createFlagByte()   ); }
+void NesCpu::opPHP_IMP() { 
+	//set flags for write out to memory, but then reset them
+	flags.u = 1; flags.b = 1;
+	nesMemory->setMemory( (uword)(sp--) + 0x100, createFlagByte()   ); 
+	flags.u = 0; flags.b = 0;
+}
 void NesCpu::opPLP_IMP() { setFlagsFromByte( nesMemory->getMemory( ( uword )++sp + 0x100 ) ); }
 
 
@@ -936,7 +958,7 @@ void NesCpu::opROL_ABSX() {	opROL_General( getABSX() ); }
 
 void NesCpu::opROR_ZP()   {	opROR_General( getIMM()  ); }
 void NesCpu::opROR_ZPX()  { opROR_General( getZPX()  ); }
-void NesCpu::opROR_ABS()  { opROR_General( getZPX()  );}
+void NesCpu::opROR_ABS()  { opROR_General( getABS()  );}
 void NesCpu::opROR_ABSX() { opROR_General( getABSX() );}
 
 void NesCpu::opSBC_IMM()  {	opSBC_General( getIMM()			); }
