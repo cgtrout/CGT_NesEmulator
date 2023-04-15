@@ -21,6 +21,7 @@ CGT NES Emulator.exe
 SDL2.dll
 /roms/rom_dev/
 /roms/nes-test-roms-master
+/roms/__TESTS/
 /src/imgui
 /src/implot
 CGT_NesEmulator/SDL2
