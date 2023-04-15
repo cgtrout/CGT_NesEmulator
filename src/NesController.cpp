@@ -93,9 +93,20 @@ ubyte NesController::getNextStrobe() {
 	case 2:
 		returnVal += buttons[ NES_BUTTON_B ].getState();
 		break;
-	case 3:
-		returnVal += buttons[ NES_BUTTON_SELECT ].getState();
+	case 3: {
+		auto state = buttons[ NES_BUTTON_SELECT ].getState( );
+		if( state == 1 ) {
+			auto* s = FrontEnd::SystemMain::getInstance( );
+			//s->nesMain.enableStepDebugging( "START PRESSED" );
+			//if( s->nesMain.nesCpu.cpuTrace.areTracing( ) == false ) {
+			//	s->nesMain.nesCpu.cpuTrace.startTrace( );
+			//}
+			s->nesMain.nesCpu.cpuTrace.addTraceText( "SELECT PRESSED" );
+		}
+
+		returnVal += buttons[ NES_BUTTON_SELECT ].getState( );
 		break;
+	}
 	case 4: {
 		auto state = buttons[ NES_BUTTON_START ].getState( );
 		if( state == 1 ) {
