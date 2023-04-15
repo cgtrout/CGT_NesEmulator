@@ -140,7 +140,7 @@ void NesPPU::renderBuffer( PpuClockCycles desiredcc, PpuUpdateType updateType ) 
 				scanlineDrawer.resetPos();
 				scanlineDrawer.clearBuffers();
 				//scanlineDrawer.setScanlineDrawn( scanline );
-				if( registers.backgroundVisible && registers.spriteVisible ) {
+				if( registers.backgroundVisible || registers.spriteVisible ) {
 					registers.vramAddress &= 0xfbe0;
 					registers.vramAddress += ( registers.tempAddress & 0x041f );
 					//_log->Write( "vramAddress - start of scanline");
