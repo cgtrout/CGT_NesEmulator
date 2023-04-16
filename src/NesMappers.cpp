@@ -66,6 +66,10 @@ void NesMapper1::initializeMap( ) {
 				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
 
 				nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
+				//NOTE: the following mirroring fixes tetris, but breaks mega man 2
+				//TODO - determine why tetris does not work without this
+				//nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
+				 //nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
 
 				prgrom_bank_address = 0x8000; 
 				prgrom_switch_size = 16;
