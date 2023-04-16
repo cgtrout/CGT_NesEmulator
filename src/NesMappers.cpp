@@ -65,10 +65,8 @@ void NesMapper1::initializeMap( ) {
 				int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
 				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
 
-				nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
 				//NOTE: the following mirroring fixes tetris, but breaks mega man 2
 				//TODO - determine why tetris does not work without this
-				//nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
 				 //nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
 
 				prgrom_bank_address = 0x8000; 
@@ -203,17 +201,17 @@ void NesMapper1::initializeMap( ) {
 }
 
 void NesMapper1::remapMemory( ) {
-	nesMain->nesCpu.cpuTrace.addTraceText( "\nRemap memory..... char_rom_switch_size=%d chr_selected_bank_0000=%d  chr_selected_bank_1000=%d", char_rom_switch_size, chr_selected_bank_0000, chr_selected_bank_1000 );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "\nRemap memory..... char_rom_switch_size=%d chr_selected_bank_0000=%d  chr_selected_bank_1000=%d", char_rom_switch_size, chr_selected_bank_0000, chr_selected_bank_1000 );
 	
 	//reg 1: A000
-	nesMain->nesCpu.cpuTrace.addTraceText( "reg1: A000   Before fillchrBanks" );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "reg1: A000   Before fillchrBanks" );
 	nesMain->nesMemory.ppuMemory.fillChrBanks(
 		0x0000,															
 		chr_selected_bank_0000 * char_rom_switch_size * PPU_BANKSIZE,	
 		char_rom_switch_size );							
 
 	//reg 2: C000
-	nesMain->nesCpu.cpuTrace.addTraceText( "reg2: C000   Before fillchrBanks" );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "reg2: C000   Before fillchrBanks" );
 	if( char_rom_switch_size != 8 ) {
 		nesMain->nesMemory.ppuMemory.fillChrBanks(
 			0x1000,											
@@ -222,7 +220,7 @@ void NesMapper1::remapMemory( ) {
 	}
 
 	//reg 3: E000
-	nesMain->nesCpu.cpuTrace.addTraceText( "reg3: E000   Before fillprgBanks" );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "reg3: E000   Before fillprgBanks" );
 	nesMain->nesMemory.fillPrgBanks(
 		prgrom_bank_address,				
 		prg_selected_bank * PRG_ROM_PAGESIZE,

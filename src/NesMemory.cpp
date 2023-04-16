@@ -262,11 +262,11 @@ void NesMemory::fillPrgBanks
 */
 void NesMemory::fillPrgBanks( uword startAddress, uint prgStartAddr, int numBanks ) { 
 	int bankNum = calcCpuBank( startAddress );
-	nesMain->nesCpu.cpuTrace.addTraceText( "" );
-	nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillPGMBanks: startAddress=%04x prgStartAddr=%d numBanks=%d  banknum=%d", startAddress, prgStartAddr, numBanks, bankNum );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "" );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillPGMBanks: startAddress=%04x prgStartAddr=%d numBanks=%d  banknum=%d", startAddress, prgStartAddr, numBanks, bankNum );
 	uword prgPos = prgStartAddr / CPU_BANKSIZE;
 	for( int x = 0; x < numBanks; x++ ) {
-		nesMain->nesCpu.cpuTrace.addTraceText( "                memBanks[%d] = physicalMemBanks.prgRom[ %d ]", bankNum, prgPos );
+		//nesMain->nesCpu.cpuTrace.addTraceText( "                memBanks[%d] = physicalMemBanks.prgRom[ %d ]", bankNum, prgPos );
 		memBanks[ bankNum++ ]= &physicalMemBanks.prgRom[ prgPos++ ];
 	}
 }
@@ -811,15 +811,14 @@ void NesMemory::ph2007Write( ubyte val ) {
 	nesMain->PpuCpuSync( );
 	auto* nesPpu = &nesMain->nesPpu;
 
-	//_20056State = LOW;	// experimental change
 	uword address = nesPpu->registers.vramAddress;
-	
-	//_log->Write( "2007 write address = %x pc = %x", address, nesCpu->getPC() );
 	
 	if( address >= 0x3f00 && address < 0x4000 ) {
 		//d7 and d6 are ignored on writes to palette
 		val &= 0x3f;
 	}
+
+	nesMain->nesCpu.cpuTrace.addTraceText( "    2007 write::  Address =%x  Value=%x", address, val );
 	
 	//use PPU Registers
 	ppuMemory.setMemory( address, val );
@@ -919,14 +918,14 @@ void PPUMemory::fillChrBanks
 */
 void PPUMemory::fillChrBanks( uword startAddress, uint chrStartAddr, uword numBanks ) { 
 	int mainPos = calcPpuBank( startAddress );
-	nesMain->nesCpu.cpuTrace.addTraceText( "" );
-	nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillChrBanks: startAddress=%04x chrStartAddr=%d numBanks=%d  mainPos=%d", startAddress, chrStartAddr, numBanks, mainPos );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "" );
+	//nesMain->nesCpu.cpuTrace.addTraceText( "$$$$$$$$$$$$$$$$$$$$FillChrBanks: startAddress=%04x chrStartAddr=%d numBanks=%d  mainPos=%d", startAddress, chrStartAddr, numBanks, mainPos );
 	
 	//Clculate which chrRom bank to start from keeping in mind each bank is 1kb
 	//shift right 10 is equivalent to divide by 1024 (1kb)
 	int chrPos = chrStartAddr >> 10;
 	for( int x = 0; x < numBanks; x++ ) {
-		nesMain->nesCpu.cpuTrace.addTraceText( "                memBanks[%d] = physicalMemBanks.chrRom[ %d ]", mainPos, chrPos );
+		//nesMain->nesCpu.cpuTrace.addTraceText( "                memBanks[%d] = physicalMemBanks.chrRom[ %d ]", mainPos, chrPos );
 		memBanks[ mainPos++ ] = &physicalMemBanks.chrRom[ chrPos++ ];
 	}
 }
@@ -979,8 +978,13 @@ void PPUMemory::setMemory( uword loc, ubyte val ) {
 		return;
 	}
 
-	uword bank = ::calcPpuBank( address );
-	memBanks[ bank ]->data[ ::calcPpuBankPos( address, bank ) ] = val;
+	uword bank = calcPpuBank( address );
+	uword bankpos = calcPpuBankPos( address, bank );
+	memBanks[ bank ]->data[ bankpos ] = val;
+
+	if( address == 0x2190 ) {
+		int z = 0;
+	}
 }
 
 /* 

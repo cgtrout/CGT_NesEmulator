@@ -143,7 +143,13 @@ void NesCpu::runInstruction() {
 	//handle 'tracing' if enabled
 	if( cpuTrace.areTracing() ) {
 		cpuTrace.addTrace( pc, lookupEntry, currOp, b1, b2, reg, createFlagByte(), sp, getCC(), nesMain->nesPpu.getCC() );
+		auto tempVal = nesMemory->ppuMemory.getMemory( 0x2190 );
+		if( tempVal != 0 ) {
+			cpuTrace.addTraceText( "  $2190 value is %x", tempVal );
+		}
 	}
+
+	
 #endif 	
 	//call opcode function
 	CALL_MEMBER_FN( *this, lookupEntry->fnptr )();
@@ -1149,6 +1155,10 @@ void CPUTrace::printAsm( std::string_view filename ) {
 }
 
 void CPUTrace::addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime ) {
+	if( !areTracing( ) ) {
+		return;
+	}
+
 	CPUTraceInstance inst;
 
 	static uword prevPc = 0;
@@ -1176,6 +1186,10 @@ void CPUTrace::addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode
 }
 
 void CPUTrace::addTraceText( const char* text, ... ) {
+	if( !areTracing( ) ) {
+		return;
+	}
+	
 	va_list args;
 	va_start( args, text );
 
@@ -1188,10 +1202,8 @@ void CPUTrace::addTraceText( const char* text, ... ) {
 	std::vsnprintf( buffer.data( ), buffer.size( ), text, args );
 	va_end( args );
 
-	//return std::string( buffer.begin( ), buffer.end( ) - 1 );
-	
-	
-	traceArray.push_back( std::string( buffer.data() ) );
+	auto str = std::string( buffer.data( ) );
+	traceArray.push_back( str );
 }
 
 bool CPUTrace::areTracing() {
