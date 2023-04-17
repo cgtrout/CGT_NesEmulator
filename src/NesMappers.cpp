@@ -246,9 +246,7 @@ void NesMapper1::remapMemory( ) {
 			0x8000,
 			prg_selected_bank * PRG_ROM_PAGESIZE,
 			16 );
-	}
-
-					
+	}					
 }
 
 void NesMapper1::reset( ) {
