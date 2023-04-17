@@ -74,7 +74,7 @@ FunctionTable::addEntry
 ==============================================
 */
 void FunctionTable::addEntry( NesEmulator::FunctionTableEntry e ) {
-	for( int i = e.low; i < e.high; ++i ) {
+	for( int i = e.low; i <= e.high; ++i ) {
 		entries[ i ] = e;
 	}
 }
