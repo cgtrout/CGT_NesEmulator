@@ -64,13 +64,6 @@ void NesMapper1::initializeMap( ) {
 				//fix last prg bank at $C000
 				int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
 				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
-
-				//NOTE: the following mirroring fixes tetris, but breaks mega man 2
-				//TODO - determine why tetris does not work without this
-				 //nesMain->nesMemory.ppuMemory.switchSingleLowMirroring( );
-
-				prgrom_bank_address = 0x8000; 
-				prgrom_switch_size = 16;
 			}
 			else {
 				//wait 5 writes...
@@ -91,7 +84,7 @@ void NesMapper1::initializeMap( ) {
 					// REGISTER 00					
 					//   https://www.zophar.net/fileuploads/2/10694edseu/mapper1.txt
 					//
-					if( address >= 0x8000 && address < 0x9FFF ) {
+					if( address >= 0x8000 && address <= 0x9FFF ) {
 						ubyte horz_vert = BIT( 0, MMC1_PB );
 						ubyte bit1 = BIT( 1, MMC1_PB );
 						ubyte bit2 = BIT( 2, MMC1_PB );
@@ -115,13 +108,8 @@ void NesMapper1::initializeMap( ) {
 							break;
 						}
 												
-						//bit 2 - toggles between low PRGROM area switching and high
-						//			0 = high PRGROM switching, 1 = low PRGROM switching
-						prgrom_bank_address = ( bit2 == 0 ) ? 0xc000 : 0x8000;
-
-						//bit 3 - toggles between 16KB and 32KB PRGROM bank switching
-						//			0 = 32KB PRGROM switching, 1 = 16KB PRGROM switching
-						prgrom_switch_size = (bit3 == 0) ? 32 : 16;
+						//bit 2, 3 prgrom_bank_mode
+						prgrom_bank_mode = (MMC1_PB & 0b1100) >> 2;
 
 						//bit 4 - sets 8KB or 4KB CHRROM switching mode
 						//			0 = 8KB CHRROM banks, 1 = 4KB CHRROM banks
@@ -175,9 +163,7 @@ void NesMapper1::initializeMap( ) {
 						prg_selected_bank = MMC1_PB & 0b1111;
 						prg_ram_enable = BIT( 4, MMC1_PB );
 
-						if( prgrom_switch_size == 32 ) {
-							prg_selected_bank = prg_selected_bank & 0b1110;
-						}
+						
 						remapMemory( );
 					}
 					
@@ -202,7 +188,7 @@ void NesMapper1::initializeMap( ) {
 
 void NesMapper1::remapMemory( ) {
 	//nesMain->nesCpu.cpuTrace.addTraceText( "\nRemap memory..... char_rom_switch_size=%d chr_selected_bank_0000=%d  chr_selected_bank_1000=%d", char_rom_switch_size, chr_selected_bank_0000, chr_selected_bank_1000 );
-	
+
 	//reg 1: A000
 	//nesMain->nesCpu.cpuTrace.addTraceText( "reg1: A000   Before fillchrBanks" );
 	nesMain->nesMemory.ppuMemory.fillChrBanks(
@@ -221,10 +207,48 @@ void NesMapper1::remapMemory( ) {
 
 	//reg 3: E000
 	//nesMain->nesCpu.cpuTrace.addTraceText( "reg3: E000   Before fillprgBanks" );
-	nesMain->nesMemory.fillPrgBanks(
-		prgrom_bank_address,				
-		prg_selected_bank * PRG_ROM_PAGESIZE,
-		prgrom_switch_size );				
+
+	switch( prgrom_bank_mode ) {
+	case 0:
+	case 1: {
+		//switch 32kb at $8000, ignoring low bit
+		ubyte selectedBank = prg_selected_bank;
+		selectedBank &= 0b11111110;
+		nesMain->nesMemory.fillPrgBanks(
+			0x8000,
+			selectedBank * PRG_ROM_PAGESIZE,
+			32 );
+		break;
+	}
+	case 2:
+		//fix first bank at $8000
+		nesMain->nesMemory.fillPrgBanks(
+			0x8000,
+			0,
+			16 );
+
+		//switch 16kb bank at $C000
+		nesMain->nesMemory.fillPrgBanks(
+			0xC000,
+			prg_selected_bank * PRG_ROM_PAGESIZE,
+			16 );
+		break;
+	case 3:
+		auto last_bank = nesMain->nesFile.getNumPrgRomPages()-1;
+		//fix last bank at $C000
+		nesMain->nesMemory.fillPrgBanks(
+			0xC000,
+			last_bank * PRG_ROM_PAGESIZE,
+			16 );
+
+		//switch 16kb at $8000
+		nesMain->nesMemory.fillPrgBanks(
+			0x8000,
+			prg_selected_bank * PRG_ROM_PAGESIZE,
+			16 );
+	}
+
+					
 }
 
 void NesMapper1::reset( ) {
