@@ -143,10 +143,6 @@ void NesCpu::runInstruction() {
 	//handle 'tracing' if enabled
 	if( cpuTrace.areTracing() ) {
 		cpuTrace.addTrace( pc, lookupEntry, currOp, b1, b2, reg, createFlagByte(), sp, getCC(), nesMain->nesPpu.getCC() );
-		auto tempVal = nesMemory->ppuMemory.getMemory( 0x2190 );
-		if( tempVal != 0 ) {
-			cpuTrace.addTraceText( "  $2190 value is %x", tempVal );
-		}
 	}
 
 	
