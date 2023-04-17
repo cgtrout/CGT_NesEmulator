@@ -62,8 +62,8 @@ void NesMapper1::initializeMap( ) {
 				//bit 3 - reset to logic 1
 
 				//fix last prg bank at $C000
-				int prgRomPages = nesMain->nesMemory.getNumPrgPages( );
-				nesMain->nesMemory.fillPrgBanks( 0xC000, ( prgRomPages - 1 ) * PRG_ROM_PAGESIZE, 0x4000 / CPU_BANKSIZE );
+				prgrom_bank_mode = 3;
+				remapMemory( );
 			}
 			else {
 				//wait 5 writes...
