@@ -1,19 +1,15 @@
-#if !defined( console__H )
-#define console__H
+#pragma	once
 
 #include "NesCpuCore.h"
-
-extern NesEmulator::NesCpu *nesCpu;
-
 #include "ConsoleCommands.h"
-
 #include "CGTSingleton.h"
+#include "CGString.h"
+
 #include <vector>
 #include <list>
 
-#include "CGString.h"
-
 using namespace CGTSingleton;
+
 /** 
 *** CONSOLE 
 ***
@@ -67,6 +63,7 @@ namespace Console {
 		std::string getValueString();
 
 		T getValue() { return value; }
+		T* getPointer( ) { return &value; }
 		void setValueString( std::string_view val );
 		void setValue( T val );
 
@@ -101,16 +98,16 @@ namespace Console {
 		  };
 	  
 		  //load all file definitions from a file
-		  void loadFile( const char * );			
+		  void loadFile( std::string_view );			
 		  
 		  //save all file defintions to file
-		  void saveFile( const char *, Variables *vars );
+		  void saveFile( std::string_view, Variables *vars );
 		  
 		  //returns a definition, if it was in the file 
-		  //other wise returns null if varname was not found
+		  //other wise returns nullptr if varname was not found
 		  DefinitionLine *getDefinition( std::string_view varName );
 	  private:
-		  std::vector< DefinitionLine > vars;
+		  std::vector< DefinitionLine > definitionLines;
 	};
 
 	/*
@@ -194,6 +191,8 @@ namespace Console {
 	*/
 	class ConsoleSystem {
 	public:
+		friend class CommandHandlerSystem;
+		
 		ConsoleSystem();
 		~ConsoleSystem();
 		
@@ -213,7 +212,7 @@ namespace Console {
 		void executeRequest( const std::string &command, const std::string &value, bool echo = true );		
 	    
 		//get the last 'numLines' number of lines printed to console history starting at 'pos'
-		char *getHistoryLines( int numLines, int pos );
+		std::string getHistoryLines( int numLines, int pos );
 		
 		//returns the number of lines in the history buffer
 		int sizeOfHistory() {return history.numLines;}
@@ -229,7 +228,7 @@ namespace Console {
 		
 		//used to show possible commands for user when they hit tab with a partial command
 		//returns match if only one found
-		//otherwise it returns NULL
+		//otherwise it returns nullptr
 		std::string  printMatches( std::string_view partial );
 
 		//get previous line from history buffer
@@ -247,7 +246,7 @@ namespace Console {
 		
 	private:
 		//list of console commands
-		std::list< ConsoleCommand* >  commands;
+		std::vector< ConsoleCommand* >  commands;
 
 		//history of commands previously entered
 		std::list< std::string > prevRequests;
@@ -263,7 +262,6 @@ namespace Console {
 		bool findAndRunCommand ( std::string_view commandName, std::string_view param, bool run = true );
 
 		//History class - container with lines of history for console
-		//TODO this is fairly poorly designed and should be 
 		//replaced.  Uses too much crusty c string handling
 		static const int MaxLines				= 100;
 		static const int MaxLineSize			= 63;
@@ -271,41 +269,36 @@ namespace Console {
 		
 		class History {
 		public:
-			//TODO use std structure for htis
 			struct Line {
-				char text[ MaxLineSize ];
+				std::string text;
 			}lines[ MaxLines ];   //cyclic array of lines
 	        
 			//number of lines in buffer
 			int numLines;
 			int currentLine;
-			int firstLinePos;
 	        
 			//writes a line to console history
-			void writeLine( char *string );
+			void writeLine( std::string_view string );
 	        
 			//gets a line from lines array
-			char *getLine( int lineToGet );
+			std::string getLine( int lineToGet );
 	        
 			//gets a string with lines starting at 'startline', ending at 'endline'
-			char *getBuffer( int startline, int endline );
+			std::string getBuffer( int startline, int endline );
 	        
-			char returnBuffer[ MaxReturnBufferSize ];
-  
-			History():numLines( 0 ), currentLine( 0 ) {}
+			History():	numLines( 0 ), currentLine( 0 ) { }
 		} history;
 		
 		//main system used for handling console commands
 		CommandHandlerSystem *commandHandlerSystem;
 	};
 
-
 	class ConsoleSystemException : public CgtException {
 	public:
-		ConsoleSystemException( const char *h, const char *m, bool s = true) { ::CgtException( h, m, s );	}
+		ConsoleSystemException( std::string_view h, std::string_view m, bool s = true) :CgtException( h, m, s )	
+		{}
 	private:
 		ConsoleSystemException();
 	};
 }
 
-#endif //console

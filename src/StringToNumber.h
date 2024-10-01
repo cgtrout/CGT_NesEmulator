@@ -2,15 +2,10 @@
 /////does same thing as atoi and atof but throws an exception if
 /////string paramater is not in the proper format
 
-#if !defined( StringToNumber__H )
-#define StringToNumber__H
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "typedefs.h"
-#include < string >
+#include <string>
 
 //converts std::string to an int
 int convertStrToInt( std::string n );
@@ -31,7 +26,7 @@ std::string ubyteToString( ubyte val, bool leader = false );
 
 //converts a uword number to string
 //leader is used to print leading "0x" at the end of the string
-std::string uwordToString( uword val, bool leader = false );
+std::string uwordToString( uword val, unsigned int width, bool leader = false );
 
 //initialize exception class
 class StringToNumberException {
@@ -43,5 +38,3 @@ public:
 		//_log->Write( output.c_str() );
 	}
 };
-
-#endif

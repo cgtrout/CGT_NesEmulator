@@ -1,11 +1,12 @@
-#if !defined( NesPpuScanline_INCLUDED )
-#define NesPpuScanline_INCLUDED
+#pragma once
 
+#include "NesPpuRegisters.h"
+#include "NesSprite.h"
 
-namespace PpuSystem {
-	static const int PIXELS_PER_SCANLINE = 256; 
-	static const int CLOCKS_PER_SCANLINE = 341;
-	static const int CLOCKS_PER_HBLANK = 85;
+namespace NesEmulator {
+	static constexpr int PIXELS_PER_SCANLINE = 256; 
+	static constexpr int CLOCKS_PER_SCANLINE = 341;
+	static constexpr int CLOCKS_PER_HBLANK = 85;
 
 	//this specifies how far the ppu should be updated when
 	//catching it up to cpu
@@ -13,10 +14,20 @@ namespace PpuSystem {
 
 	class ScanlineDrawer;
 
+	/*
+	================================================================
+	================================================================
+	Class
+	SpriteDrawer
+
+	  Draws sprites onto scanline
+	================================================================
+	================================================================
+	*/
 	class SpriteDrawer {
 	 public:
 		//draws front or back sprites
-		void drawSprites( ubyte backgroundPri, Registers *r, ScanlineDrawer *scanlineDrawer );
+		void drawSprites( PPUMemory* ppuMemory, ubyte backgroundPri, Registers *r, ScanlineDrawer *scanlineDrawer );
 		
 	 private:
 		//y offset from start of sprite
@@ -39,15 +50,34 @@ namespace PpuSystem {
 		bool isSpriteZeroOnLine() { return sprite0_onLine; }	
 	};
 
-	
+	/*
+	================================================================
+	================================================================
+	Class
+	BackgroundDrawer
+
+	  Draws background onto scanline
+	================================================================
+	================================================================
+	*/
 	class BackgroundDrawer {
 	  public:
-		void drawBackground( Registers*, ScanlineDrawer* );
+		void drawBackground( PPUMemory*, Registers*, ScanlineDrawer* );
 	};
 
+	/*
+	================================================================
+	================================================================
+	Class
+	ScanlineDrawer
+
+	  Handles drawing of scanlines for NesMain (an emulator instance)
+	================================================================
+	================================================================
+	*/
 	class ScanlineDrawer {
 	  public:
-		ScanlineDrawer();
+		ScanlineDrawer( NesMain *nesMain );
 
 		void initialize( );
 		  
@@ -81,6 +111,8 @@ namespace PpuSystem {
 		NesSpriteScanlineResults *scanlineTest ;
 
 	  private:
+
+		NesMain* nesMain;
 		
 		PpuClockCycles detectSprite0Hit();
 		  
@@ -116,5 +148,3 @@ namespace PpuSystem {
 		BackgroundDrawer backgroundDrawer;
 	};
 };
-
-#endif //NesPpuScanline_INCLUDED

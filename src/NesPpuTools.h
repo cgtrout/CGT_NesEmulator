@@ -1,7 +1,9 @@
-#if !defined( NesPpuTools_INCLUDED )
-#define NesPpuTools_INCLUDED
+#pragma once
 
-namespace PpuSystem {
+#include "Image.h"
+#include "NesPPU.h"
+
+namespace NesEmulator {
 	/*
 	=====================================================
 	NesPPUPixelGen class
@@ -12,8 +14,8 @@ namespace PpuSystem {
 	*/
 	class NesPPUPixelGen {
 	public:
-		NesPPUPixelGen() {}
-		void genPatternTablePixelData();
+		NesPPUPixelGen() : pixelData{ 0 }, pixelData24Bit{ 0 } {}
+		void genPatternTablePixelData( NesMemory* nesMemory );
 		void genPatternTablePixelData24Bit( Pixel3Byte *colors );
 	    
 		ubyte *getPatternTablePixelData() {return pixelData;}
@@ -25,16 +27,25 @@ namespace PpuSystem {
 		ubyte pixelData24Bit[ SIZE_24BIT_PATTERNTABLE ];
 	};
 
-	//this class generates palette output for debugging purposes
+	/*
+	=====================================================
+	NesPPUPaletteGen class
+
+	  Generate palette data for visualization
+	=====================================================
+	*/
 	class NesPPUPaletteGen {
 	public:
-		NesPPUPaletteGen() { }
-		void genPalettePixelData( NesPalette *p );
+		NesPPUPaletteGen() :
+			palette(nullptr),
+			pixelData{}
+		{ }
+		void genPalettePixelData( NesEmulator::NesMemory* nesMemory, NesPalette *p );
 
 		ubyte *getPixelData() { return pixelData; }
 
 	private:
-		void buildColorTable();
+		void buildColorTable( NesMemory* nesMemory );
 
 		int getSquareX( int pixel );
 		int getSquareY( int pixel );
@@ -52,5 +63,3 @@ namespace PpuSystem {
 		NesPalette *palette;
 	};
 };
-
-#endif //NesPpuTools_INCLUDED

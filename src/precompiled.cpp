@@ -2,10 +2,6 @@
 #include <string>
 
 //global singletons
-FrontEnd::SystemMain	*systemMain = NULL;
-FrontEnd::InputSystem::Input *input = NULL;
-FrontEnd::CLog *_log = NULL;
-FrontEnd::Timer *timer = NULL;
-
-Console::ConsoleSystem *consoleSystem = NULL;
+FrontEnd::CLog *_log = nullptr;
+Console::ConsoleSystem *consoleSystem = nullptr;
 

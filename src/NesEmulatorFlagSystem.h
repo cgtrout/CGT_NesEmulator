@@ -1,11 +1,6 @@
-#if !defined( NesEmulatorFlags_INCLUDED )
-#define NesEmulatorFlags_INCLUDED
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include < deque >
+#include <deque>
 
 #include "CGTSingleton.h"
 #include "typedefs.h"
@@ -66,5 +61,3 @@ namespace NesEmulator {
 	};
 	
 }
-
-#endif //NesEmulatorFlags_INCLUDED

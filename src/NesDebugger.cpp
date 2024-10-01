@@ -1,14 +1,15 @@
 #include "precompiled.h"
+#include "imgui/imgui.h"
 
+#include "NesMain.h"
+#include "StringToNumber.h"
+
+#include <sstream>
+#include <iomanip>
+#include <vector>
+#include <stdexcept>
 
 using namespace NesEmulator;
-
-//disable string warning
-#if _MSC_VER > 1000
-	#pragma warning ( disable : 4996 )
-#endif
-
-NesMemory *memory;
 
 #ifndef LIGHT_BUILD
 /*
@@ -16,98 +17,347 @@ NesMemory *memory;
 NesDebugger::NesDebugger()
 ==============================================
 */
-NesDebugger::NesDebugger() {
-	
+NesDebugger::NesDebugger( NesEmulator::NesMain* nesMain ) :
+	nesMain( nesMain ),
+	singleStepMode( false ),
+	doSingleStep( false ),
+	justInSingleStepMode( false ),
+	renderPos( 0 ),
+	selectedPos( 0 ),
+	showDebugWindow( false ),
+	showMemoryDump( false ),
+	debugLines( ),
+	selectedAddress (0),
+	dumpAddress(0),
+	dumpSize(368),
+	dumpAddressStr( 5, 0 ), //5 chars long initialized to 0
+	watchStrings{ { { "" }, { "" }, { "" }, { "" } } },
+	memDumpType( MemoryDumper::MEMDUMPTYPE_MAIN )
+{
 }
 
-void NesDebugger::initialize() {
-	memory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory;
-	singleStepMode = false;
-	//singleStepMode = true;
-    justInSingleStepMode = false;
-    numBreakPoints = 0;
-	
-    //clear all breakpoints
-	for( int x = 0; x < MAX_BREAKPOINTS; x++ ) {
-		breakPoints[ x ] = 0;
-	}
-}
 /*
 ==============================================
 NesDebugger::~NesDebugger()
 ==============================================
 */
-NesDebugger::~NesDebugger() {
+NesDebugger::~NesDebugger( ) {
 }
 
+
+/*
+==============================================
+NesDebugger::initialize()
+==============================================
+*/
+void NesDebugger::initialize() {
+	memory = &nesMain->nesMemory;
+	singleStepMode = false;
+    justInSingleStepMode = false;
+}
+
+/*
+==============================================
+NesDebugger::draw()
+==============================================
+*/
+void NesDebugger::draw( ) {
+	if ( showDebugWindow == false ) {
+		return;
+	}
+
+	auto* nesCpu = &nesMain->nesCpu;
+
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+	ImGui::Begin( "Debugger Window", &this->showDebugWindow, window_flags );
+	
+	//display step-debugger step title and 'user message'
+	ImGui::TextColored( ImVec4( 1, 1, 1, 1 ), "Step Debugger" );
+	ImGui::SameLine( );
+	ImGui::TextColored( ImVec4( 1, 0.2f, 0.2f, 1 ), userMessage.c_str() );
+		
+		//create scrolling child region for displaying debugger lines
+		ImGui::BeginChild( "Scrolling", ImVec2( ImGui::GetContentRegionAvail( ).x * 0.5f, ImGui::GetContentRegionAvail( ).y ), false, window_flags );
+			for ( unsigned int n = 0; n < debugLines.size( ); n++ ) {
+				//display breakpoint indicator if a breakpoint exists at the current address
+				if ( isBreakPointAt( debugLines[ n ].address ) ) {
+					ImGui::Text( " + " );
+				} else {
+					ImGui::Text( "   " );
+				}
+				ImGui::SameLine( 0.0f, 0.0f );
+				if ( ImGui::Selectable( debugLines[ n ].line.c_str( ), selectedPos == n ) ) {
+					selectedPos = n;
+					selectedAddress = debugLines[ n ].address;
+				}
+			}
+		ImGui::EndChild( );
+
+	ImGui::SameLine( );
+
+	//begin the second column for CPU registers and other information
+	ImGui::BeginChild( "second column" );
+	
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "A " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%02X", nesCpu->getAReg( ) );
+	
+		ImGui::SameLine( );
+
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "PC " );
+		ImGui::SameLine( );
+		ImGui::Text( "%04X", nesCpu->getPC( ) );
+
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "X " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%02X", nesCpu->getXReg( ) );
+	
+		ImGui::SameLine( );
+
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "SP " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%04X", nesCpu->getSP( ) );
+		
+		ImGui::TextColored( ImVec4( 1.0f, 1.0f, 0.0f, 1.0f ), "Y " );
+		ImGui::SameLine( );
+		ImGui::Text( "0x%02X", nesCpu->getYReg( ) );
+
+		ImGui::NewLine( );
+
+		//draw CPU flags
+		std::string lines = "";
+		auto flags = this->nesMain->nesCpu.createFlagByte();
+		lines += BIT( 7, flags ) ? "N" : "n";
+		lines += BIT( 6, flags ) ? "V" : "v";
+		lines += BIT( 5, flags ) ? "U" : "u";
+		lines += BIT( 4, flags ) ? "B" : "b";
+		lines += BIT( 3, flags ) ? "D" : "d";
+		lines += BIT( 2, flags ) ? "I" : "i";
+		lines += BIT( 1, flags ) ? "Z" : "z";
+		lines += BIT( 0, flags ) ? "C" : "c";
+		
+		ImGui::TextColored( ImVec4( 1, 1, 0, 1), "FLAGS:" );
+		ImGui::SameLine( );
+		ImGui::Text( lines.c_str( ) );
+		ImGui::NewLine( );
+
+		//draw watchboxes
+		for ( unsigned int i = 0; i < watchStrings.size( ); i++ ) {
+			drawWatchBox( i );
+		}
+
+		ImGui::NewLine( );
+		
+		//draw input text box for entering an address to jump to
+		ImGui::PushItemWidth( 50 );
+		static char selectedAddressText[5];
+		if( ImGui::InputText( "Goto addr", selectedAddressText, 5, ImGuiInputTextFlags_CharsHexadecimal ) ) {
+			selectedAddress = (uword)strtol( selectedAddressText, nullptr, 16 );
+			
+		}
+		ImGui::PopItemWidth( );
+		ImGui::SameLine( );
+
+		if( ImGui::Button( "Goto" ) ) {
+			buildDissassemblerLines( selectedAddress, numDebugLines );
+		}
+
+		ImGui::NewLine( );
+
+		ImGui::BeginChild( "buttons" );
+			if ( ImGui::Button( "Step" ) ) {
+				this->singleStepRequest( );
+			}
+
+			ImGui::SameLine( );
+
+			if ( ImGui::Button( "Run" ) ) {
+				this->turnOffSingleStepMode( );
+			}
+
+			ImGui::SameLine(  );
+
+			//display button that will control if memory dump window is shown
+			if ( ImGui::Button( "Show memory dump" ) ) {
+				showMemoryDump = !showMemoryDump;
+			}
+		ImGui::EndChild( );
+
+	ImGui::EndChild();
+	
+	ImGui::End( );	
+
+	//show memory dump window
+	if ( this->showMemoryDump ) {
+		ImGui::Begin( "Memory dump", &this->showMemoryDump, 0 );
+			ImGui::PushItemWidth( 50 );
+			ImGui::InputText( "Address", &dumpAddressStr[0], 5, ImGuiInputTextFlags_CharsHexadecimal);
+
+			ImGui::SameLine( );
+
+			static bool cpuSet = true;
+			static bool ppuSet = false;
+
+			//listBox for selecting the memory type (CPU or PPU) for the memory dump
+			if( ImGui::BeginListBox( "Memory Selection", ImVec2( 100, 40 ) ) ) {
+				if( ImGui::Selectable( "CPU Memory", &cpuSet ) ) {
+					memDumpType = MemoryDumper::MEMDUMPTYPE_MAIN;
+					cpuSet = true;
+					ppuSet = false;
+				}
+				if( ImGui::Selectable( "PPU Memory", &ppuSet ) ) {
+					memDumpType = MemoryDumper::MEMDUMPTYPE_PPU;
+					ppuSet = true;
+					cpuSet = false;
+				}
+				ImGui::EndListBox( );
+			}
+
+			ImGui::PopItemWidth( );
+
+			dumpAddress = ( uword )strtol( dumpAddressStr.c_str(), nullptr, 16 );
+			std::string memoryDumpString = loadMemoryDump( );
+			ImGui::Text( memoryDumpString.c_str( ), 500.0f );
+
+		ImGui::End( );
+	}
+}
+
+std::string NesDebugger::loadMemoryDump( ) {
+	MemoryDumper md;
+	std::vector<ubyte> memdumpBuffer( dumpSize );
+
+	// how many dumps should be on each line of the printout
+	static constexpr int kDumpsPerLine = 16;
+
+	try {
+		// grab dump
+		md.getMemoryDump( &nesMain->nesMemory, memDumpType, memdumpBuffer.data( ), dumpAddress, dumpSize );
+	}
+	catch( NesMemoryException& e ) {
+		throw CgtException( "Memory Dump Error", e.getMessage( ), true );
+	}
+
+	// print header
+	std::ostringstream oss;
+	oss << std::right << std::setfill( '0' );
+	for( int i = 0; i < kDumpsPerLine; i++ ) {
+		oss << "0x" << std::setw( 2 ) << std::hex << i << " ";
+	}
+	oss << "\n\n";
+
+	// get formatted string form of dump
+	oss << md.formatDump( memdumpBuffer.data( ), dumpAddress, dumpSize, kDumpsPerLine );
+
+	return oss.str( );
+}
+
+/*
+==============================================
+NesDebugger::drawWatchBox()
+==============================================
+*/
+void NesEmulator::NesDebugger::drawWatchBox( const int index )
+{
+	ImGui::PushItemWidth( 50 );
+	std::string title{ "Watch" };
+	title += '0' + index;
+	ImGui::InputText( title.c_str() , watchStrings[index], 5, ImGuiInputTextFlags_CharsHexadecimal );
+	ImGui::PopItemWidth( );
+
+	uword watchLoc = ( uword )strtol( watchStrings[ index ], nullptr, 16 );
+
+	ImGui::SameLine( );
+	ImGui::Text( "0x%02X", memory->getMemory( watchLoc ) );
+}
+
+
+/*
+==============================================
+NesDebugger::isOpen()
+==============================================
+*/
 bool NesDebugger::isOpen() {
-	return winDebugger.isOpen();
+	return showDebugWindow;
 }
 
+/*
+==============================================
+NesDebugger::onEnter()
+==============================================
+*/
 void NesDebugger::onEnter() {
-	winDebugger.onEnter();
+	//winDebugger.onEnter();
+	//throw CgtException( "Warning", "unimplemented", true );
 }
 
+/*
+==============================================
+NesDebugger::selectDissasemblerLine()
+==============================================
+*/
 void NesDebugger::selectDissasemblerLine( int line ) {
-	winDebugger.selectDissasemblerLine( line );
+	selectedPos = line;
 }
 
+/*
+==============================================
+NesDebugger::setRenderPos()
+==============================================
+*/
 void NesDebugger::setRenderPos( uword val ) {
 	renderPos = val;
 	updateDebugger();
 }
 
-//TODO very slow algorithm
+/*
+==============================================
+NesDebugger::isBreakPointAt()
+==============================================
+*/
 bool NesDebugger::isBreakPointAt( uword address ) {
-	int bpFound = 0;	//breakpoints found
-	for( int x = 0; x < MAX_BREAKPOINTS, bpFound < numBreakPoints; x++ ) {
-		if( breakPoints[ x ] != 0 ) {
-			bpFound++;
-		}
-		if( breakPoints[ x ] == address ) {
-			return true;
-		}
+	if ( breakPoints.empty( ) ) {
+		return false;
+	} else {
+		auto find_result = std::find( breakPoints.begin( ), breakPoints.end( ), address );
+		return ( find_result != breakPoints.end( ) );
 	}
-	return false;	
 }
-//returns true if breakpoint was added
+
+/*
+==============================================
+NesDebugger::addBreakPoint()
+==============================================
+*/
 bool NesDebugger::addBreakPoint( uword address ) {
 	int bpFound = 0;	//breakpoints found
 	
 	if( isBreakPointAt( address ) ) {
 		removeBreakPoint( address );
-		loadWindowText();;
+		loadWindowText();
 		return false;
 	}
 
-	for( int x = 0; x < MAX_BREAKPOINTS; x++ ) {
-		if( breakPoints[ x ] != 0 ) {
-			bpFound++;
-		}		
-		//find first empty spot in array
-		else if( breakPoints[ x ] == 0 ) {
-			breakPoints[ x ] = address;
-			numBreakPoints++;
-			loadWindowText();;
-			return true;
-		}
-	}
-	return false;	//no empty spot found
+	breakPoints.push_back( address );
+	return true;	
 }
 
+
+/*
+==============================================
+NesDebugger::removeBreakPoint
+==============================================
+*/
 bool NesDebugger::removeBreakPoint( uword address ) {
 	int bpFound = 0;	//breakpoints found
-	for( int x = 0; x < MAX_BREAKPOINTS, bpFound < numBreakPoints; x++ ) {
-		if( breakPoints[ x ] != 0 ) {
-			bpFound++;
-		}
-		if( breakPoints[ x ] == address ) {
-			breakPoints[ x ] = 0;
-			numBreakPoints--;
-			return true;
-		}
+	auto find_result = std::find( breakPoints.begin( ), breakPoints.end( ), address );
+
+	if ( find_result != breakPoints.end( ) ) { 
+		breakPoints.erase( find_result );
+		return true;
+	} else {
+		return false;  //breakpoint was not found
 	}
-	return false;  //breakpoint was not found
 }
 /*
 ==============================================
@@ -115,14 +365,12 @@ void NesDebugger::loadWindowText
 ==============================================
 */
 void NesDebugger::loadWindowText() {
-	static char buffer[ 1024 ];
-	//static uword lastAddress = 0;
+	static uword lastAddress = 0;
 
-	//if( renderPos != lastAddress ) {
-		strcpy( buffer, buildOutputString( renderPos, winDebugger.numDebugLines ).c_str() );
-		winDebugger.loadDisassemblyWindow( buffer );
-	//	lastAddress = renderPos;
-	//}
+	if( renderPos != lastAddress ) {
+		buildDissassemblerLines( renderPos, numDebugLines );
+		lastAddress = renderPos;
+	}
 }
 /*
 ==============================================
@@ -131,25 +379,21 @@ void NesDebugger::updateDebugger()
 */
 void NesDebugger::updateDebugger() {
 	loadWindowText();
-	winDebugger.fillWindow();
 }
 /*
 ==============================================
 void NesDebugger::setToSingleStepMode()
 ==============================================
 */
-void NesDebugger::setToSingleStepMode( uword address ) {
+void NesDebugger::setToSingleStepMode( uword address, std::string_view input_message ) {
 	singleStepMode = true;
 	justInSingleStepMode = true;
 	renderPos = address;
-
-	//show debugger window incase it is not open
-	winDebugger.showWindow();
-	
-    //winDebugger.fillWindow();
+	showDebugWindow = true;
+	userMessage = input_message;
     updateDebugger();
 	
-	winDebugger.selectDissasemblerLine( 0 );
+	//winDebugger.selectDissasemblerLine( 0 );
 }
 
 /* 
@@ -160,8 +404,7 @@ void NesDebugger::turnOffSingleStepMode()
 void NesDebugger::turnOffSingleStepMode() {
 	singleStepMode = false; 
 	justInSingleStepMode = true;
-
-	winDebugger.hideWindow();
+	showDebugWindow = false;
 }
 
 /*
@@ -257,18 +500,17 @@ bool NesDebugger::isAPreviousValidInst( uword opAddress ) {
 ==============================================
 NesDebugger::buildOutputString( uword startAddress, const int length )
 - builds debug output of length "length" starting at first valid opcode found at address "startAddress"
-- returns output string
+- sets vector of output strings
 ==============================================
 */
-std::string NesDebugger::buildOutputString( uword startAddress, const int length ) {
-	static std::string output;
+void NesDebugger::buildDissassemblerLines( uword startAddress, const int length ) {
 	int linesMade;
 	uword currAddress = 0;
 
 	int opLength;
 	ubyte b1, b2;
 	//uword fullb;
-	output.clear();
+	debugLines.clear();
 	linesMade = 0;
 	
 	//starting at address at pos startAddress move foward until first valid opcode is found
@@ -298,201 +540,140 @@ std::string NesDebugger::buildOutputString( uword startAddress, const int length
 		//fullb = ( b2 << 8 ) + b1;
 		opLength = addModeLengthTable[ lookupEntry->mode ];		
 		
-		//build outputline
-		output += buildDebugLine( currAddress, lookupEntry, memory->getMemory( currAddress ), b1, b2 );
+		//build debugLinesline
+		debugLines.push_back( DebugLine( currAddress, buildDebugLine( currAddress, lookupEntry, memory->getMemory( currAddress ), b1, b2 ) ));
 		
 		//increment currAddress to point to next opcode
 		currAddress += opLength;
 		linesMade++;
 	}
-
-	return output;
 }
 
 /* 
 ==============================================
-char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte byte1val, ubyte byte2val )
+NesDebugger::buildDebugLine
 ==============================================
 */
-char *NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val ) {
-	char byte1[ 3 ];
-	char byte2[ 3 ];
-	char symbol[ 3 ];
-	char end[ 4 ];
-	char addressStr[ 8 ];  
-	char opString[ 3 ];
+std::string NesDebugger::buildDebugLine( uword address, const opcodeLookUpTableEntry* opcodeLookup, ubyte opcode, ubyte byte1val, ubyte byte2val )
+{
+	std::ostringstream oss;
+	std::string byte1 = uwordToString( byte1val, 2 );
+	std::string byte2 = uwordToString( byte2val, 2 );
+	std::string symbol;
+	std::string end;
+	std::string addressStr = "$" + uwordToString( address, 4, false ) + ": ";
 
-	bool usebyte1;
-	bool usebyte2;
-	bool useend; //use string after bytes are printed
+	bool usebyte1 = false;
+	bool usebyte2 = false;
+	bool useend = false;
 
-	static char debugBuffer[ 1000 ];
-	debugBuffer[ 0 ] = '\0';
-	usebyte1 = false;
-	usebyte2 = false;
-	useend = false;
-
-	sprintf( byte1, "%X", byte1val );
-	sprintf( byte2, "%X", byte2val );
-
-	//pad with '0' if length is one
-	if( strlen( byte1 ) == 1 ) {
-		byte1[ 1 ] = byte1[ 0 ];
-		byte1[ 0 ] = '0';
-		byte1[ 2 ] = '\0';
-	}
-	if( strlen( byte2 ) == 1 ) {
-		byte2[ 1 ] = byte2[ 0 ];
-		byte2[ 0 ] = '0';
-		byte2[ 2 ] = '\0';
-	}
-
-	switch( l->mode ) {
-	case M_IMMEDIATE:
-		usebyte1 = true;
-		sprintf( symbol, "#$" ); 
-		break;
-	case M_ZEROPAGE:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		break;
-	case M_ZEROPAGEX:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",X" );
-		useend = true;
-		break;
-	case M_ZEROPAGEY:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",X" );
-		useend = true;
-		break;
-	case M_ABSOLUTE:
-		usebyte1 = true;
-		usebyte2 = true;
-		sprintf( symbol, "$" ); 
-		break;
-	case M_ABSOLUTEX:
-		usebyte1 = true;
-		usebyte2 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",X" );
-		useend = true;
-		break;
-	case M_ABSOLUTEY:
-		usebyte2 = true;
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		sprintf( end, ",Y" );
-		useend = true;
-		break;
-	case M_INDIRECT:
-		usebyte1 = true;
-		usebyte2 = true;
-		sprintf( symbol, "( $" ); 
-		sprintf( end, " )" );
-		useend = true;
-		break;
-	case M_INDIRECTX:
-		usebyte1 = true;
-		sprintf( symbol, "( $" ); 
-		sprintf( end, ",X )" );
-		useend = true;
-		break;
-	case M_INDIRECTY:
-		usebyte1 = true;
-		sprintf( symbol, "( $" ); 
-		sprintf( end, " ),Y" );
-		useend = true;
-		break;
-	case M_IMPLIED:
-		symbol[ 0 ] = '\0';
-		break;
-	case M_ACCUMULATOR:
-		sprintf( symbol, "A" ); 
-		break;
-	case M_RELATIVE:
-		usebyte1 = true;
-		sprintf( symbol, "$" ); 
-		break;
-	}
-	char breakpstr[ 2 ];
-
-	//draw breakpoint symbol if there is a breakpoint here
-	if( isBreakPointAt( address ) ) {
-		sprintf( breakpstr, "+" );
-	}
-	else {
-		sprintf( breakpstr, " " );
-	}
-	//sprintf( breakpstr, "-", bullet );
-
-	//pad to zero
-	std::string &convertedAddress = uwordToString( address, false );
-
-	sprintf( addressStr, "$%s: ", convertedAddress.c_str() );
-
-	strcat( debugBuffer, breakpstr );
-	strcat( debugBuffer, addressStr );
-	
-	//print data
-	//
-	sprintf( opString, "%X", opcode );
-	
-	//pad with '0' if length is one
-	if( strlen( opString ) == 1 ) {
-		opString[ 1 ] = opString[ 0 ];
-		opString[ 0 ] = '0';
-		opString[ 2 ] = '\0';
-	}
-	strcat( debugBuffer, opString );
-	strcat( debugBuffer, " " );
-	if( usebyte1 ) {
-		strcat( debugBuffer, byte1 );
-		strcat( debugBuffer, " " );
-	}
-	if( usebyte2 ) {
-		strcat( debugBuffer, byte2 );
-		strcat( debugBuffer, "  " );
+	switch ( opcodeLookup->mode )
+	{
+		case M_IMMEDIATE:
+			usebyte1 = true;
+			symbol = "#$";
+			break;
+		case M_ZEROPAGE:
+			usebyte1 = true;
+			symbol = "$";
+			break;
+		case M_ZEROPAGEX:
+			usebyte1 = true;
+			symbol = "$";
+			end = ",X";
+			useend = true;
+			break;
+		case M_ZEROPAGEY:
+			usebyte1 = true;
+			symbol = "$";
+			end = ",Y";
+			useend = true;
+			break;
+		case M_ABSOLUTE:
+			usebyte1 = true;
+			usebyte2 = true;
+			symbol = "$";
+			break;
+		case M_ABSOLUTEX:
+			usebyte1 = true;
+			usebyte2 = true;
+			symbol = "$";
+			end = ",X";
+			useend = true;
+			break;
+		case M_ABSOLUTEY:
+			usebyte2 = true;
+			usebyte1 = true;
+			symbol = "$";
+			end = ",Y";
+			useend = true;
+			break;
+		case M_INDIRECT:
+			usebyte1 = true;
+			usebyte2 = true;
+			symbol = "($";
+			end = ")";
+			useend = true;
+			break;
+		case M_INDIRECTX:
+			usebyte1 = true;
+			symbol = "($";
+			end = ",X)";
+			useend = true;
+			break;
+		case M_INDIRECTY:
+			usebyte1 = true;
+			symbol = "($";
+			end = "),Y";
+			useend = true;
+			break;
+		case M_IMPLIED:
+			symbol = "";
+			break;
+		case M_ACCUMULATOR:
+			symbol = "A";
+			break;
+		case M_RELATIVE:
+			usebyte1 = true;
+			symbol = "$";
+			break;
 	}
 
-	//ensure we are at position 16 ( to pad output string so 
-	//instructions line up properly )
-	int position = strlen( debugBuffer )-1;
-	//position in the string that instruction string should start
-	static int opPadPosition = 17;		
-	
-	if( position != opPadPosition ) {
-		//determine how many spaces are needed
-		int spaceNeeded = opPadPosition - position;
-				
-		//add spaces
-		for( int x = 0; x < spaceNeeded; x++ ) {
-			strcat( debugBuffer, " " );
-		}
+	oss << addressStr;
+
+	oss << uwordToString( opcode, 2 ) << " ";
+	if ( usebyte1 )
+	{
+		oss << byte1 << " ";
+	}
+	if ( usebyte2 )
+	{
+		oss << byte2 << "  ";
 	}
 
-	strcat( debugBuffer, l->syntax );
-	strcat( debugBuffer, " " );
-	strcat( debugBuffer, symbol );
-	if( usebyte2 ) {
-		strcat( debugBuffer, byte2 );
+	// Pad to position 16
+	auto position = oss.tellp( );
+	const int opPadPosition = 17;
+	if ( position != opPadPosition )
+	{
+		oss << std::setw( opPadPosition - position ) << "";
 	}
-	if( usebyte1 ) {
-		strcat( debugBuffer, byte1 );
+
+	oss << opcodeLookup->syntax << " " << symbol;
+	if ( usebyte2 )
+	{
+		oss << byte2;
 	}
-	if( useend ) {
-		strcat( debugBuffer, end );
+	if ( usebyte1 )
+	{
+		oss << byte1;
 	}
-	
-	char *delimString = "_";
-	char *charReturn = "\0";
-	
-	strcat( debugBuffer, charReturn );
-	strcat( debugBuffer, delimString );
-	
-	return debugBuffer;
+	if ( useend )
+	{
+		oss << end;
+	}
+
+	return oss.str( );
 }
 
 

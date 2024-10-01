@@ -3,17 +3,15 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined( AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_ )
-#define AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include < list >
+#include <list>
 #include <string>
 #include <memory>
 #include "Image.h"
+#include "Input.h"
+
+#include <SDL_keyboard.h>
 
 //to fix name collision
 #undef DialogBox
@@ -23,15 +21,16 @@ using namespace CGTSingleton;
 
 #include "Console.h"
 
-//extern FrontEnd::InputSystem::Input *input;
+namespace Render {
+	class Renderer;
+}
 
-//TODO why so many instances of classes instantiated with new?
 namespace GUISystem {
-	typedef float GuiDim ;
+	typedef float GuiDim;
 	/*
 	=================================================================
 	=================================================================
-	GEDrawElement   
+	GEDrawElement
 
 	  a draw element is used to tell the gui how to draw a particular
 	  image
@@ -41,31 +40,38 @@ namespace GUISystem {
 	=================================================================
 	*/
 	//stretch types
-	enum StretchType {	
+	enum StretchType {
 		ST_X,		//stretch image in the x direction
 		ST_Y,		//stretch image in the y direction
 		ST_XY,		//stretch in x and y direction
 		ST_NONE		//draw image unaltered
 	};
-	
+
 	class GEDrawElement {
-	public:	
-		GEDrawElement() {
-			opacity = 1.0;
+	public:
+		GEDrawElement( ) :
+			image( ),
+			x( 0 ),
+			y( 0 ),
+			stretchFactorx( 1.0f ),
+			stretchFactory( 1.0f ),
+			stretchType( ST_XY ),
+			opacity( 1.0f ) {
 		}
 
-		virtual ~GEDrawElement() {
-		
+		virtual ~GEDrawElement( ) {
 		}
+
+		// Copy constructor
+		GEDrawElement( const GEDrawElement& de ) = delete;
 
 		Image image;
-		unsigned int imageid;
-		GuiDim x, y, 
-			stretchFactorx, //how much to stretch if not ST_NONE
+		GuiDim x, y,
+			stretchFactorx, // How much to stretch if not ST_NONE
 			stretchFactory;
 		StretchType stretchType;
 
-		float opacity;	//tranparency of draw
+		float opacity; // Transparency of draw
 	};
 
 	/*
@@ -73,64 +79,57 @@ namespace GUISystem {
 	=================================================================
 	GUITextures Class
 
-	simple class used to get filename strings linearly from a file 
+	simple class used to get filename strings linearly from a file
 	=================================================================
 	=================================================================
 	*/
 	class GUITextures {
 	public:
-		GUITextures( std::string fileName ) { }
+		GUITextures( std::string fileName )
+			: fileName( fileName ), currLine( 0 ) {}
 
-		GUITextures ( ) {}
-		virtual ~GUITextures() {}
+		GUITextures( )
+			: fileName( "" ), currLine( 0 ) {}
 
-		void loadFile( std::string fileName) {
-			loadFromFile( fileName );
-			iter = fileList.begin();
+		virtual ~GUITextures( ) {}
 
-			if( fileList.size() == 0 ) {
+		void loadFile( std::string_view fileNameIn ) {
+			loadFromFile( fileNameIn );
+			iter = fileList.begin( );
+
+			if( fileList.size( ) == 0 ) {
 				throw GUITexturesLoadException( "GUITextures::loadFile", "No textures in list" );
 			}
 		}
 
-		//TODO validation to make sure there is another texture to output
-		//TODO rewrite using c++ stuff
-		const char *getNextTexture() {
-			const char *returnStr;
-			std::string str;
-			str = ( ( std::string )*iter++ );
-			returnStr = str.c_str();
-			
-			#if _MSC_VER > 1000
-				strncpy_s( buffer, str.c_str(), str.size() );
-			#else 
-				strncpy( buffer, str.c_str(), str.size() );
-			#endif
-			
-			return buffer;
+		// TODO validation to make sure there is another texture to output
+		std::string getNextTexture( ) {
+			if( iter != fileList.end( ) ) {
+				return *iter++;
+			}
+			else {
+				throw GUITexturesLoadException( "GUITextures::getNextTexture", "No more textures in list" );
+			}
 		}
 
-		//initialize exception class
-		class GUITexturesLoadException {
-		  public:
-			GUITexturesLoadException( std::string header, std::string m, bool s = true ) {
-				::CgtException( header, m, s );
+		// Initialize exception class
+		class GUITexturesLoadException : public CgtException {
+		public:
+			GUITexturesLoadException( std::string header, std::string m, bool s = true )
+				: CgtException( header, m, s ) {
 			}
 		};
-		
-		
-	private:
-		std::vector< std::string > fileList;
-		std::vector< std::string >::iterator iter;
-		std::string fileName;
-		void loadFromFile( const std::string &fileName );
-		void parseLine( const std::string &line );
 
-		char buffer[ 255 ];
+	private:
+		std::vector<std::string> fileList;
+		std::vector<std::string>::iterator iter;
+		std::string fileName;
+		void loadFromFile( std::string_view fileName );
+		void parseLine( std::string_view line );
 
 		int currLine;
-		
 	};
+
 
 	/*
 	=================================================================
@@ -153,10 +152,13 @@ namespace GUISystem {
 
 	class GUIElement {
 	public:
-		GUIElement() : name("unnamed") {}
+		GUIElement() : name("unnamed"), inputSystem(nullptr) {}
 		GUIElement( std::string guitextures );
 
 		virtual ~GUIElement();
+
+		void setInputSystem( FrontEnd::InputSystem::Input* i ) { 
+			inputSystem = i; }
 
 		//these "events" are called when certain mouse actions are performed by the user
 		virtual void onLeftMouseDown() {setAsActiveElement();}
@@ -166,7 +168,7 @@ namespace GUISystem {
 		virtual void onRightMouseRelease() {}
 
 		//called when user presses a key on keyboard while a control is selected
-		virtual void onKeyDown( unsigned short key ) {}
+		virtual void onKeyDown( SDL_Keycode ) {}
 		
 		//called when gui is rendering the guielements
 		virtual void onRender() {}
@@ -196,6 +198,7 @@ namespace GUISystem {
 		//add child to this elements childList
 		void addChild( GUIElement *elem ) {
 			elem->setParent( this );
+			elem->setInputSystem( inputSystem );
 			children.push_back( elem );
 		}
 		
@@ -230,14 +233,16 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIElementInitializeException : public CgtException {
 		public:
-			GUIElementInitializeException(std::string header, std::string m, bool s = true ) {
-				::CgtException( header, m, s );
-			}
+			GUIElementInitializeException( std::string_view header, std::string_view message, bool show = true ) :
+				CgtException( header, message, show ) 
+			{}
 		};
 
 		friend class GUI;
 
 	protected:
+
+		FrontEnd::InputSystem::Input* inputSystem;
 
 		std::string name;
 		//every gui element will have 0 or more children.  Children are guielements
@@ -245,7 +250,7 @@ namespace GUISystem {
 		std::vector< GUIElement* > children;
 
 		//list of draw elements
-		std::vector< GEDrawElement >drawList;
+		std::vector< GEDrawElement* >drawList;
 
 		//gui textures object
 		GUITextures gt;
@@ -291,13 +296,11 @@ namespace GUISystem {
 		GuiDim &getFontWidth() {return fontWidth;}
 		GuiDim &getFontHeight() {return fontHeight;}
 
-		Image getImage() {return image;}
+		Image& getImage() {return image;}
 
 		//pixel coordinates to draw given character at
 		//must call setChar first to get these
 		TextureCoord *getCoord( unsigned char c );
-
-		unsigned int getImageid() {return imageid;}
 
 	private:
 		char currChar;
@@ -313,9 +316,7 @@ namespace GUISystem {
 		std::vector< TextureCoord > coordTable;
 
 		Image image;
-		unsigned int imageid;
 	};
-
 
 	/*
 	=================================================================
@@ -337,11 +338,11 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( unsigned char key ) {}
+		void onKeyDown( SDL_Keycode ) {}
 
 		void update() {}
 
-		void loadFont( Font *font ) {this->font = *font;}
+		void loadFont( Font* fontIn ) {this->font = fontIn;}
 		
 		std::string &getString() {return str;}
 		
@@ -349,14 +350,14 @@ namespace GUISystem {
 		
 		void setString( const char *n ) {
 			str = n;
-			height = font.getFontHeight();
-			width = font.getFontWidth() * str.length();
+			height = font->getFontHeight();
+			width = font->getFontWidth() * str.length();
 		}
 		
-		Font *getFont() {return &font;}
+		Font *getFont() {return font;}
 
 	protected:
-		Font font;
+		Font *font;
 		std::string str;
 		void initialize( std::string &guitextures );
 	};
@@ -374,7 +375,7 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( unsigned char key ) {}
+		void onKeyDown( SDL_Keycode ) {}
 
 		void update() {}
 
@@ -424,13 +425,12 @@ namespace GUISystem {
 		void onRightMouseRelease();
 		virtual void onEnterKey();
 
-		virtual void onKeyDown( unsigned char key ) {}
+		virtual void onKeyDown( SDL_Keycode ) {}
 
 		void update();
 
 		std::string getText() {return text;}
-		void setText( const char *text );
-		void setText( std::string text );
+		void setText( std::string_view text );
 		void clearText() {
 			text = "";
 			boxtext.setString( "" );
@@ -439,7 +439,7 @@ namespace GUISystem {
 		}
 
 		void setCursorPos( int pos ) {cursorPos = pos;}
-		void setMaxLength( int l ) { maxLength = l; }
+		void setMaxLength( int len ) { maxLength = len; }
 	protected:
 		GEDrawElement l, r, b, t, bl, br, tl, tr, cursor;	//left , right, bottom, etc..
 		bool multiLine;
@@ -458,6 +458,7 @@ namespace GUISystem {
 		std::string text;
 		
 		class EditBoxText : public TextLabel {
+		public:
 			void onLeftMouseDown() {parent->onLeftMouseDown();}
 		}boxtext;
 		
@@ -469,208 +470,14 @@ namespace GUISystem {
 	/*
 	=================================================================
 	=================================================================
-	Button Class
-	=================================================================
-	=================================================================
-	*/
-	class Button : public GUIElement {
-	public:	
-		Button();
-		Button( std::string guitextures );
-		~Button();
-		
-		void onLeftMouseDown();
-		void onLeftMouseRelease();
-		void onMouseOver();
-		void onRender();
-		void onRightMouseDown();
-		void onRightMouseRelease();
-
-		virtual void onButtonPress();
-
-		void update();
-	protected:
-		GEDrawElement l, r, b, t, bl, br, tl, tr;			//left , right, bottom, etc..
-		GEDrawElement dl, dr, db, dt, dbl, dbr, dtl, dtr;	//for when button is down
-
-		bool buttonDown;
-		
-		void initialize( std::string guitextures );
-	};
-
-	class CloseButton : public Button {
-		void onButtonPress();
-		
-	};
-
-	/*
-	=================================================================
-	=================================================================
-	TitleBar Class
-	=================================================================
-	=================================================================
-	*/
-	class TitleBar : public GUIElement {
-	public:
-		TitleBar();
-		TitleBar( std::string guitextures );
-		~TitleBar();
-
-		void onLeftMouseDown();
-		void onLeftMouseRelease();
-		void onMouseOver();
-		void onRender();
-		void onRightMouseDown();
-		void onRightMouseRelease();
-
-		void update();
-
-		void setDialogTitle( DialogTitle *dt ) {
-			textLabel = dt;
-			addChild( textLabel );
-		}
-
-		friend class DialogBox;
-
-	protected:
-		GEDrawElement left, right, middle;
-
-		int lastx, lasty;
-		bool movement;
-
-		DialogTitle *textLabel;
-		CloseButton closeButton;
-
-		void initialize( std::string guitextures );
-	};
-
-
-
-	/*
-	=================================================================
-	=================================================================
-	DialogBox Class
-	=================================================================
-	=================================================================
-	*/
-	class DialogBox : public GUIElement {
-	public:
-		DialogBox();
-		DialogBox( std::string guitextures );
-		~DialogBox();
-
-		void onLeftMouseDown();
-		void onLeftMouseRelease();
-		void onMouseOver();
-		void onRender();
-		void onRightMouseDown();
-		void onRightMouseRelease();
-		void update() {}
-
-		void setTitle( char *str ) {title.setString( str );}
-
-	protected:
-		TitleBar titleBar;
-
-		DialogTitle title;
-		Font font;
-		
-		GEDrawElement lborder, rborder, blcorner, brcorner, bborder, background;
-
-		void initialize( std::string guitextures );
-	};
-
-	/*
-	=================================================================
-	=================================================================
-	Slider Class
-	=================================================================
-	=================================================================
-	*/
-	#define maxSliderHeight 0x666666
-
-	class Slider : public GUIElement {
-	public:
-		//type = SLIDER_X or SLIDER_Y - used to choose whether slider moves up and down
-		//								or left and right
-		Slider( int type );
-		Slider( std::string guitextures, int type );
-		Slider( ) {}
-		~Slider();
-
-		void onLeftMouseDown();
-		void onLeftMouseRelease();
-		void onMouseOver();
-		void onRender();
-		void onRightMouseDown();
-		void onRightMouseRelease();
-
-		void update();
-
-		//get current value of slider ( 0x0 - maxSliderHeight ) 
-		int getValue() {return value;}
-		
-		//if set to true the value will be displayed beside the slider
-		void setDrawValueLabel( bool val ) {drawValueLabel = val;valueLabel.setOpen( drawValueLabel );}
-
-		GuiDim calcSliderPos();
-
-		friend class SliderBar;
-		enum {
-			SLIDER_X,
-			SLIDER_Y
-		};
-
-	protected:
-
-		GEDrawElement top, bottom, middle;
-		Font font;
-		TextLabel valueLabel;
-
-		bool slideControl;
-		unsigned int value;			
-		int type;					
-
-		int velocity;
-		int mouseX, mouseY;
-				
-		bool drawValueLabel;
-
-		void initialize( std::string guitextures );
-
-		//controls the slider bar on the slider
-		class SliderBar : public GUIElement {
-		public:	
-			SliderBar( int type );
-			SliderBar( std::string guitextures, int type );
-			SliderBar( ) {};
-			~SliderBar();
-
-			void onLeftMouseDown();
-			void onLeftMouseRelease();
-			void onMouseOver();
-			void onRender();
-			void onRightMouseDown();
-			void onRightMouseRelease();
-
-			void update();
-		private:
-			GEDrawElement sliderBar;
-			int type;
-
-			void initialize( std::string guitextures );
-		}sliderBar;
-	};
-
-	/*
-	=================================================================
-	=================================================================
 	GUI   Class
 	=================================================================
 	=================================================================
 	*/
 	class GUI {
 	public:
+		GUI( FrontEnd::InputSystem::Input *inputSystem  );
+		virtual ~GUI( );
 
 		//updates all elements based on user's actions
 		void runFrame();
@@ -679,7 +486,7 @@ namespace GUISystem {
 		void render();
 		
 		//adds a gui element to the gui system - caller is responsible for managing lifetime of object
-		void addElement( GUIElement *ge ) {elements.push_back( ge );}
+		void addElement( GUIElement* ge );
 
 		//sets whether the gui is using the mouse
 		void setUsingMouse( bool val ) {usingMouse = val;}
@@ -693,16 +500,18 @@ namespace GUISystem {
 		//initialize exception class
 		class GUIRunException : public CgtException {
 		public:
-			GUIRunException( std::string header, std::string m, bool s = true ) {
-				::CgtException( header, m, s );
-			}
+			GUIRunException( std::string header, std::string m, bool s = true ) :
+				CgtException( header, m, s )
+			{}
 		};
-		GUI();
-		virtual ~GUI();
 
 		void initialize( );
 
 	private:
+
+		Render::Renderer* renderSystem;
+		FrontEnd::InputSystem::Input* inputSystem;
+
 		std::vector< GUIElement* > elements;
 		
 		bool usingMouse;
@@ -715,7 +524,7 @@ namespace GUISystem {
 		void renderElements( std::vector< GUIElement* > elems );
 		void renderTextLabel( TextLabel *fs );
 		void renderDebugLines( GUIElement *element );
-		void renderDrawList( const std::vector< GEDrawElement > &drawList );
+		void renderDrawList( std::vector< GEDrawElement* > &drawList );
 		GUIElement *findElementCursorOver();
 		void sendActiveToFront();
 
@@ -724,4 +533,3 @@ namespace GUISystem {
 	};
 
 }	//namespace gui
-#endif // !defined( AFX_GUI_H__B172BAD5_6BBC_442E_B396_1207A4FAFF65__INCLUDED_ )

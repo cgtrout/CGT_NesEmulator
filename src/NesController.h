@@ -2,8 +2,8 @@
 
 #include "Input.h"
 
-#define NUM_NES_BUTTONS 8
-using namespace FrontEnd::InputSystem;
+auto constexpr NUM_NES_BUTTONS = 8;
+
 namespace NesEmulator {
 	/*
 	================================================================
@@ -15,9 +15,9 @@ namespace NesEmulator {
 	================================================================
 	================================================================
 	*/
-	class NesController : public Controllable {
+	class NesController : public FrontEnd::InputSystem::Controllable {
 	  public:
-		NesController();
+		NesController( FrontEnd::InputSystem::Input *inputSystem );
 
 		//clear all button states
 		void clear();
@@ -39,7 +39,9 @@ namespace NesEmulator {
 		
 	  private:
 
-		ControllableButton buttons[ NUM_NES_BUTTONS ];
+		FrontEnd::InputSystem::Input* inputSystem;
+
+		FrontEnd::InputSystem::ControllableButton buttons[ NUM_NES_BUTTONS ];
 
 		enum {
 			NES_BUTTON_A,		NES_BUTTON_B, 
@@ -53,7 +55,6 @@ namespace NesEmulator {
 		ubyte strobeCount;
 	};
 
-#include "CGTSingleton.h"
 	enum {
 		CONTROLLER01,
 		CONTROLLER02,
@@ -70,10 +71,10 @@ namespace NesEmulator {
 	*/
 	class NesControllerSystem {
 	  public:	
-	    NesControllerSystem() { }
+		NesControllerSystem( FrontEnd::InputSystem::Input* inputSystem );
 	    NesController controller[ 2 ];
 
 	  private:
-		
+		FrontEnd::InputSystem::Input* inputSystem;
 	};
 }

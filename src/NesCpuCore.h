@@ -1,33 +1,32 @@
 //nes cpu core
-#if !defined( NesCpu_INCLUDED )
-#define NesCpu_INCLUDED
-
-#if _MSC_VER > 1000
 #pragma once
-#pragma warning( disable : 4786 ) 
-#endif // _MSC_VER > 1000
 
 #include "NesMemory.h"
-//#include "NesSound.h"
-
 #include "NesEmulatorFlagSystem.h"
-
 #include "typedefs.h"
 
 #define CALL_MEMBER_FN( object,ptrToMember )  ( ( object ).*( ptrToMember ) )
 
-#include < string >
-#include < vector >
+#include <string>
+#include <vector>
+#include <variant>
 
 namespace NesEmulator {
-	
+
+	//forward declarations
+	class NesMain;
+	class NesDebugger;
+	class NesMemory;
+	class NesPPU;
+		
 	//opcodes
 	enum CpuOpcode {
 		OP_ADC,	OP_AND,	OP_ASL,	OP_BCC,	OP_BCS,	OP_BEQ,	OP_BIT,	OP_BMI,	OP_BNE,	OP_BPL,	OP_BRK,	OP_BVC,	OP_BVS,
 		OP_CLC,	OP_CLD,	OP_CLI,	OP_CLV,	OP_CMP,	OP_CPX,	OP_CPY,	OP_DEC,	OP_DEX,	OP_DEY,	OP_EOR,	OP_INC,	OP_INX,
 		OP_INY,	OP_JMP,	OP_JSR,	OP_LDA,	OP_LDX,	OP_LDY,	OP_LSR,	OP_NOP,	OP_ORA,	OP_PHA,	OP_PHP,	OP_PLA,	OP_PLP,
 		OP_ROL,	OP_ROR,	OP_RTI,	OP_RTS,	OP_SBC,	OP_SEC,	OP_SED,	OP_SEI,	OP_STA,	OP_STX,	OP_STY,	OP_TAX,	OP_TAY,
-		OP_TSX,	OP_TXA,	OP_TXS,	OP_TYA,	OP_BREAK, OP_BAD
+		OP_TSX,	OP_TXA,	OP_TXS,	OP_TYA,	OP_BREAK, OP_RRA,
+		OP_BAD
 	};
 
 	//addressing modes
@@ -78,6 +77,73 @@ namespace NesEmulator {
 		InstType	type;	 //read/write type of opcode
 	};
 
+	struct Regs { ubyte a, x, y; };
+
+#if !defined ( LIGHT_BUILD )
+
+	struct CPUTraceInstance {
+		uword pc;
+		ubyte opcode;
+		const opcodeLookUpTableEntry* l;
+		ubyte byte1, byte2;
+		ubyte flags;
+		Regs reg;
+		ubyte sp;
+
+		CpuClockCycles cpuTime;
+		PpuClockCycles ppuTime;
+
+		CPUTraceInstance( );
+
+		//used for sorting
+		bool operator <( CPUTraceInstance& );
+	};
+
+	/*
+	=================================================================
+	=================================================================
+	  CPUTrace
+			is processor intensive and very memory intensive to run this
+	=================================================================
+	=================================================================
+	*/
+
+
+	class CPUTrace {
+	public:
+		CPUTrace( NesMain* );
+
+		//print 
+		void printTrace( std::string_view filename );
+
+		//print dissassembled view
+		void printAsm( std::string_view filename );
+
+		void addTrace( uword pc, const opcodeLookUpTableEntry* l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime );
+		void addTraceText( const char* text, ... );
+
+		bool areTracing( );
+
+		void startTrace( );
+		void stopTrace( );
+
+		void clearTraces( );
+
+	private:
+
+		NesMain* nesMain;
+
+		bool trace;
+		std::vector<bool> traceWrittenAt;
+		std::vector< std::variant<CPUTraceInstance, std::string> > traceArray; 
+		int numTraces;
+
+		void sortTraceArray( );
+
+	};
+
+#endif 
+
 	/*
 	=================================================================
 	=================================================================
@@ -89,7 +155,8 @@ namespace NesEmulator {
 	*/
 	class NesCpu {
 	  public:
-		NesCpu();
+
+		NesCpu( NesMain* nesMain );
 		~NesCpu();
 
 		void initialize( );
@@ -138,7 +205,16 @@ namespace NesEmulator {
 		ubyte getYReg() { return reg.y; }
 		uword getSP()   { return sp;    }
 
+		NesEmulatorFlagSystem* flagSystem;
+		CPUTrace cpuTrace;
+
 	private:
+
+		NesMain*		nesMain;
+		NesDebugger*	nesDebugger;
+		NesMemory*		nesMemory;
+		NesPPU*			nesPpu;
+
 		//memory read routines
 		ubyte getMemoryZP();		ubyte getIMM();		
 		ubyte getMemoryZPX();		ubyte getZPX();
@@ -172,7 +248,7 @@ namespace NesEmulator {
 		const opcodeLookUpTableEntry *lookupEntry;
 
 		//registers
-		struct Regs { ubyte a, x, y; } reg;
+		Regs reg;
 
 		//TODO - perhaps the flags should be stored in one byte form ??
 		struct {
@@ -198,30 +274,36 @@ namespace NesEmulator {
 		
 		//run ( 1 ) instruction
 		void runInstruction();
-
-		NesEmulatorFlagSystem *flagSystem;
 		
 	public:
 		//general operation routines
 		void opADC_General( ubyte memValue );
 		void opAND_General( ubyte memValue );
-		void opASL_General( short value );
+		void opASL_General( uword value );
 		void opBIT_General( ubyte memValue );
 		void opCMP_General( ubyte memValue );
 		void opCPX_General( ubyte memValue );
 		void opCPY_General( ubyte memValue );
-		void opDEC_General( short memLocation );    
+		void opDEC_General( uword memLocation );    
 		void opEOR_General( ubyte memValue ); 
-		void opINC_General( short memLocation );
+		void opINC_General( uword memLocation );
 		void opLDA_General( ubyte memValue );
 
 		void opLDX_General( ubyte memValue );
 		void opLDY_General( ubyte memValue );
-		void opLSR_General( short memLocation );
+		void opLSR_General( uword memLocation );
 		void opORA_General( ubyte memValue );
-		void opROL_General( short memLocation );
-		void opROR_General( short memLocation );
+		void opROL_General( uword memLocation );
+		void opROR_General( uword memLocation );
 		void opSBC_General( ubyte memValue );
+
+		/*
+		===================================================================
+		NEW undocumented
+		https://www.pagetable.com/c64ref/6502/?tab=2#RLA
+		===================================================================
+		*/
+		void opRRA_General( uword memLocation );
 
 		void followBranch();	//used by branches to follow a branch
 
@@ -257,11 +339,15 @@ namespace NesEmulator {
 		void opTXS_IMP(); void opTSX_IMP(); void opPHA_IMP(); void opPLA_IMP(); void opPHP_IMP();
 		void opPLP_IMP(); void opSTX_ZP(); void opSTX_ZPY(); void opSTX_ABS(); void opSTY_ZP();
 		void opSTY_ZPX(); void opSTY_ABS();
+
+		void opRRA_IMM( );void opRRA_ZP( );void opRRA_ZPX( );void opRRA_ABS( );void opRRA_ABSX( );void opRRA_ABSY( );
+		void opRRA_INDX( );
+		void opRRA_INDY( );
 	};
+
+
 }
 
 #include "NesOpcodeTable.h"
-
-#endif	//!defined( NesCpu_INCLUDED )
 
 

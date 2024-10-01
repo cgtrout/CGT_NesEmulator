@@ -10,6 +10,10 @@ typedef unsigned char ubyte;
 struct Vec2d {
 	int x, y;
 
+	//get float value for things that need it
+	float getX( ) { return static_cast<float>( x ); }
+	float getY( ) { return static_cast<float>( y ); }
+
 	Vec2d( int x_, int y_ ) { x = x_; y = y_; }
 };
 
@@ -23,7 +27,8 @@ struct Pixel3Byte {
 		color[ COLOR_GREEN ]	= g;
 		color[ COLOR_BLUE ]		= b;
 	}
-	Pixel3Byte() { } 
+	Pixel3Byte() :
+		Pixel3Byte (0, 0, 0) { } 
 };
 
 /*
@@ -37,7 +42,12 @@ class Image {
   public:
 	int channels = 0;			
 	int sizeX = 0;				
-	int sizeY = 0;				
+	int sizeY = 0;	
+
+	float getSizeX( ) { return static_cast<float>( sizeX ); }
+	float getSizeY( ) { return static_cast<float>( sizeY ); }
+
+	unsigned int handle = 0;
 	
 	void plotPixel( const Vec2d *pos, const Pixel3Byte *color, ubyte alpha = 255 );
 	void clearImage();
@@ -51,41 +61,37 @@ class Image {
 	void setData( ubyte* data );
 
 	int getSize() { return channels * sizeX * sizeY; }
+
+	void createGLTexture( );
+	void bindGLTexture( );
 	
 	//size up to next power of two to satisfy opengl requirements
 	void resizePowerOfTwo( );
 
-	Image(): data(), imgid(0) {}
+	Image(): data() {}
+	Image( Image& ) = delete;
+	Image( Image&& );
+	Image& operator=( Image&& );
+
 	~Image();
 
 	//TODO eventually this should probably be private
 	std::vector<ubyte> data;	
-	unsigned int imgid;
 };
 
 class ImageException : public CgtException {
 public:	
-	ImageException( const char *h, const char *m, bool show = true) {
-		::CgtException(h, m, show);
-	}
+	ImageException( std::string_view h, std::string_view m, bool show = true) : 
+		CgtException(h, m, show)
+	{}
 }; 
 
 void copyImage( Image *source, int sx, int sy, int width, int height, Image *destination, int dx, int dy );
 Image loadImage( std::string_view strFileName );
 Image *flipImage( Image *image );
-Image convertToAlpha( int aR, int aG, int aB, Image image );
+Image convertToAlpha( int aR, int aG, int aB, const Image& image );
 
 // This loads and returns the BMP data
 Image LoadBMP( std::string_view strFileName );
 
 void ExportImageToBMP( const Image &image, std::string_view fileName );
-
-// This loads and returns the TGA data
-//Image *LoadTGA( const char *strFileName );
-
-// This loads and returns the JGP data
-Image *LoadJPG( const char *strFileName );
-
-// This decompresses the JPEG and fills in the image data
-//void DecodeJPG( jpeg_decompress_struct* cinfo, Image *pImageData );
-

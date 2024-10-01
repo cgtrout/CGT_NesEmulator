@@ -1,18 +1,23 @@
-#include < string >
+#pragma once
+
+#include <string>
 #include <string_view>
-#include < vector >
+#include <vector>
 //basic string routines
 
-namespace CgtString {
+namespace CgtLib {
+	//trim whitespace from beginning and end of string - returned trimmed string_view
+	std::string_view trimWhitespace( std::string_view str );
+	std::string trimWhitespace( const std::string &str );
+	
 	//convert string str to lowercase; converted string will be returned through returnString
 	std::string strtolower( std::string_view str );
 
 	//compare strings ignoring case
-	bool strcasecmp( std::string_view str1, std::string_view str2 );
+	bool stringCaseCmp( std::string_view str1, std::string_view str2 );
 
 	//converts a std::string to lower case
 	std::string toLower( std::string_view s );
-	
 
 	/*
 	================================================================
@@ -59,8 +64,9 @@ namespace CgtString {
 		std::vector< std::string > strings;
 		std::string delims;
 
-		int minTokens;
-		int maxTokens;
+		std::basic_string<char>::size_type minTokens;
+		std::basic_string<char>::size_type maxTokens;
+		std::basic_string<char>::size_type npos = std::string::npos;
 
 		//clear all strings that are in vector
 		void clearStrings();

@@ -3,8 +3,6 @@
 #include "FpsTimer.h"
 using namespace FrontEnd;
 
-
-
 /* 
 ==============================================
 FPSTimer::FPSTimer()
@@ -17,9 +15,6 @@ FPSTimer::FPSTimer() {
 	elapsedTime = 0;
 	totalElapsedTime = 0;
 	counterFrame = 0;
-
-	timer = Timer::getInstance();
-	
 	
 }
 

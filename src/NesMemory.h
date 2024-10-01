@@ -1,5 +1,4 @@
-#if !defined( NesMemory_INCLUDED )
-#define NesMemory_INCLUDED
+#pragma once
 
 #include "NesFileLoader.h"
 #include "NesMappers.h"
@@ -11,18 +10,22 @@
 #include <list>
 #include <vector>
 #include <array>
+#include <unordered_map>
+#include <functional>
+#include <memory>
 
 namespace NesEmulator {
 	class NesMemory;
 	class PPUMemory;
 
-	const int CPU_BANKSIZE = 0x400;
+	const int CPU_BANKSIZE = 0x400;//1kb
 	const int PPU_BANKSIZE = 0x400;
 
 	const int PRG_ROM_PAGESIZE = 0x4000;
 	const int CHR_ROM_PAGESIZE = 0x2000;
 
 	const int PRG_BANKS_PER_PAGE = PRG_ROM_PAGESIZE / CPU_BANKSIZE;
+	const int CHR_BANKS_PER_PAGE = CHR_ROM_PAGESIZE / PPU_BANKSIZE;
 
 	//calculates bank # that given address is in
 	uword calcCpuBank( uword loc );
@@ -32,79 +35,95 @@ namespace NesEmulator {
 	uword calcCpuBankPos( uword loc, uword bank );
 	uword calcPpuBankPos( uword loc, uword bank );
 
-	//one bank of cpu memory
+	// One bank of CPU memory
 	struct CpuMemBank {
-		ubyte data[ CPU_BANKSIZE ];
+		std::array<ubyte, CPU_BANKSIZE> data;
 	};
 
-	//one bank of ppu memory
+	// One bank of PPU memory
 	struct PpuMemBank {
-		ubyte data[ PPU_BANKSIZE ];
-	};
-
-	//this is the base for port handlers that can be written to 
-	//or read from
-	class FunctionObjectBase {
-	  public:
-		virtual void write( uword address, ubyte param ) = 0;	
-		virtual ubyte read( uword address ) = 0;	
+		std::array<ubyte, PPU_BANKSIZE> data;
 	};
 
 	//one entry in the function table
-	struct FunctionTableEntry {		
-		FunctionTableEntry( uword l, uword h, FunctionObjectBase *f ):
-			low( l ), high( h ), funcObj( f ), readable( true ), writeable( true ) { }
+	struct FunctionTableEntry {
+		FunctionTableEntry( uword l, uword h,
+			std::function<void( uword, ubyte )> writeFunc,
+			std::function<ubyte( uword )> readFunc )
+			: low( l ), high( h ), write( writeFunc ), read( readFunc ),
+			readable( true ), writeable( true ) {}
 		
+		FunctionTableEntry( )
+			: low( 0 ), high( 0 ), readable( false ), writeable( false ) {}
+
 		FunctionTableEntry( const FunctionTableEntry& );
-		FunctionTableEntry(): low( 0 ), high( 0),  funcObj(0) { }
 		
+		// Copy assignment operator
+		FunctionTableEntry& operator=( const FunctionTableEntry& other ) {
+			if( this != &other ) {
+				low = other.low;
+				high = other.high;
+				write = other.write;
+				read = other.read;
+				readable = other.readable;
+				writeable = other.writeable;
+			}
+			return *this;
+		}
+
 		uword low, high;
-		FunctionObjectBase *funcObj;
+		std::function<void( uword, ubyte )> write;		//write function
+		std::function<ubyte( uword )> read;				//read function
 
-		//readable represents whether or not a function can be read to
-		void setNonReadable() { readable = false; }
-		
-		//readable represents whether or not a function can be written  to
-		void setNonWriteable() { writeable = false; }
+		// Readable represents whether or not a function can be read from
+		void setNonReadable( ) { readable = false; }
 
-		bool getReadable() { return readable; }
-		bool getWriteable() { return writeable; }
+		// Writeable represents whether or not a function can be written to
+		void setNonWriteable( ) { writeable = false; }
+
+		bool getReadable( ) { return readable; }
+		bool getWriteable( ) { return writeable; }
 
 	private:
-		bool readable;	//can we read from this function?
-		bool writeable;	//can we write to this function?
+		bool readable;  // Can we read from this function?
+		bool writeable; // Can we write to this function?
 	};
 
 	//lookup table for function handlers for memory calls
 	class FunctionTable {
 	  public:
-		void addEntry( FunctionTableEntry *e );
+		// add entry - only done once per load - don't need to worry about load
+		// get automatic memory management this way 
+		// unique ptr won't work here since multiple function entries can be bound to same functions
+		void addEntry( FunctionTableEntry e );
 		void clearAllEntries();
 
 		//is there a function at this address?
-		//returns NULL if not found
+		//returns nullptr if not found
 		FunctionTableEntry *getFunctionAt( uword address );
 
 		FunctionTable();
 	  private:
-		std::vector< FunctionTableEntry > entries;
+		std::unordered_map< uword, FunctionTableEntry > entries;
 	};
 
 	//physical memory banks for cpu for banksize of 1k
 	struct CpuMemBanks {
 		CpuMemBank	ramBank1,
-					ramBank2,
-					registers2000,
-					registers4000,	//contains some expansion ram
-					expansionRom[7],
-					saveRam[8],
-					*prgRom;	
+			ramBank2,
+			registers2000,
+			registers4000,	//contains some expansion ram
+			expansionRom[ 7 ],
+			saveRam[ 8 ];
 		
-		CpuMemBanks( int prgRomPages, const ubyte *data );
+		std::vector<CpuMemBank> prgRom;	
+		
+		CpuMemBanks( int prgRomPages, const std::vector<ubyte> &data );
+		CpuMemBanks( ) {}
 		~CpuMemBanks();
 
 		//copies prg rom into membanks
-		void copyPrgRom( int numPages, const ubyte *data );
+		void copyPrgRom( int numPages, const std::vector<ubyte> &data );
 
 		int prgRomPages;
 	};
@@ -117,13 +136,14 @@ namespace NesEmulator {
 					nameTable1,
 					nameTable2,
 					nameTable3;
-		PpuMemBank *chrRom;
+		std::vector<PpuMemBank> chrRom;
 
-		PpuMemBanks( int chrRomPages, const ubyte *data );
+		PpuMemBanks( int chrRomPages, const std::vector<ubyte> &data );
+		PpuMemBanks( ) {}
 		~PpuMemBanks();
 
 		//copies prg rom into membanks
-		void copyChrRom( int numPages, const ubyte *data );
+		void copyChrRom( int numPages, const std::vector<ubyte>& data );
 
 		int chrRomPages;
 	};
@@ -136,9 +156,8 @@ namespace NesEmulator {
 	=================================================================
 	*/
 	class PPUMemory {
-		//TODO comment
-		PpuMemBank *memBanks[ 0x10000 / PPU_BANKSIZE ];
-		PpuMemBanks *physicalMemBanks;
+		std::vector<PpuMemBank*> memBanks;
+		PpuMemBanks physicalMemBanks;
 
 		//palette data for background and sprites
 		std::array<ubyte, 0x10> bgPalette;
@@ -150,25 +169,34 @@ namespace NesEmulator {
 		//used to handle mirroring for palettes
 		uword resolvePaletteAddress( uword address );
 
+		NesMain* nesMain;
+
 	  public:
+
+		PPUMemory( NesMain* nesMain );
 		
 		//copies data into ppuMemory physical banks
-		void loadChrRomPages( int pages, const ubyte *data );
+		void loadChrRomPages( uword pages, const std::vector<ubyte> &data );
 		
 		//initializes and assigns the memory bank
 		void initializeMemoryMap();
 
+		void switchVerticalMirroring( );
+		void switchHorizontalMirroring( );
+		void switchSingleLowMirroring( );
+		void switchSingleHighMirroring( );
+
 		void zeroMemory();
 
-		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
+		//fill in prg banks at "startAddress" with data from main prgRom databank 
 		//at pos "prgStartPos"
-		void fillChrBanks( int mainStartPos, int chrStartPos, int numBanks );
+		void fillChrBanks( uword startAddress, uint chrStartAddr, uword numBanks );
 		
 		//memory read/write functions
 		void setMemory( uword loc, ubyte val );		
 		ubyte getMemory( uword loc );
 
-		ubyte *getBankPtr( int bank );
+		ubyte *getBankPtr( uword bank );
 
 		void fastSetMemory( uword loc, ubyte val );		
 		ubyte fastGetMemory( uword loc );
@@ -187,9 +215,9 @@ namespace NesEmulator {
 	*/
 	class NesMemory {
 	  private:
-		CpuMemBank *memBanks[ 0x10000 / CPU_BANKSIZE ];
-		CpuMemBanks *physicalMemBanks;
-		NesMapHandler *mapHandler;
+		std::vector<CpuMemBank*> memBanks;
+		CpuMemBanks physicalMemBanks;
+		std::unique_ptr<NesMapHandler> mapHandler;
 
 		FunctionTable funcTable;
 		
@@ -199,18 +227,20 @@ namespace NesEmulator {
 
 		//last memory value written to NesMemory
 		ubyte lastMemValue;
+		
+		NesMain* nesMain;
 	
 	  public:
-		NesMemory();
+		NesMemory( NesMain *nesMain );
 
 		void initialize( );
 
-		int getNumPrgPages() { return physicalMemBanks->prgRomPages; }
-		void loadPrgRomPages( int prgRomPages, const ubyte *data );
+		int getNumPrgPages( ) { return physicalMemBanks.prgRomPages; }
+		void loadPrgRomPages( int prgRomPages, const std::vector<ubyte> &data );
 
-		//fill in prg banks at "mainStartPos" with data from main prgRom databank 
-		//at pos "prgStartPos" for "NumBanks"
-		void fillPrgBanks( int mainStartPos, int prgStartPos, int numBanks );
+		//fill in prg banks at "startAddress" with data from main prgRom databank 
+		//at address "prgStartAddr" for "NumBanks"
+		void fillPrgBanks( uword startAddress, uint prgStartAddr, int numBanks );
 
 		//port handlers
 
@@ -240,11 +270,11 @@ namespace NesEmulator {
 		ubyte ph4016Read();		void ph4016Write( ubyte );
 		ubyte ph4017Read();		void ph4017Write( ubyte );
 		
-		void initializeMemoryMap( NesMapHandler *handler );
+		void initializeMemoryMap( std::unique_ptr<NesMapHandler> handler );
 
-		NesMapHandler *getMapper() { return mapHandler; }
+		NesMapHandler *getMapper() { return mapHandler.get(); }
 
-		void addFunction( FunctionTableEntry *e ) { funcTable.addEntry( e ); }
+		void addFunction( FunctionTableEntry e ) { funcTable.addEntry( e ); }
 
 		//main memory getters / setters
 		ubyte getMemory( uword loc );
@@ -277,13 +307,14 @@ namespace NesEmulator {
 		//gets memory dump from PPU or main memory and puts it in 
 		//dest array given by caller
 		//size must not be larger than dest array!
-		void getMemoryDump( int memType, 
+		void getMemoryDump( NesMemory* nesMemory, 
+							int memType,
 							ubyte *dest,
 							uword address, 
 							int size );
 		
 		//TODO comment
-		std::string formatDump( ubyte buffer[ ],
+		std::string formatDump( const ubyte buffer[ ],
 								uword address,
 								int size,
 								ubyte valuesPerLine );
@@ -292,13 +323,16 @@ namespace NesEmulator {
 	};
 
 	class NesMemoryException : public CgtException {
-	  public:
-		NesMemoryException( std::string header, std::string m, unsigned short loc, bool s = true ) {
-			std::stringstream ss( m.c_str() );
-			ss << m.c_str() << " at " << std::setbase(16) << loc;
-			::CgtException( header, ss.str(), s );
+	public:
+		NesMemoryException( std::string_view header, std::string_view m, unsigned short loc, bool s = true )
+			: CgtException( header, createMessage( m, loc ), s ) {
+		}
+
+	private:
+		static std::string createMessage( std::string_view m, unsigned short loc ) {
+			std::stringstream ss;
+			ss << m << " at " << std::setbase( 16 ) << loc;
+			return ss.str( );
 		}
 	};
 }
-
-#endif //NesMemory_INCLUDED

@@ -4,6 +4,7 @@
 #include "StringToNumber.h"
 
 #include <algorithm>
+#include "NesMain.h"
 
 using namespace NesEmulator;
 
@@ -21,93 +22,27 @@ ConsoleVariable< bool > traceAlreadyRun(
 /*name*/		"traceAlreadyRun", 
 /*description*/	"record a trace even if the trace has been at a particular PC address",
 /*save?*/		SAVE_TO_FILE );
-#if !defined ( LIGHT_BUILD )
-
-/*
-struct CPUTraceInstance {
-	uword pc;
-	ubyte opcode;
-	const opcodeLookUpTableEntry *l;
-	ubyte byte1, byte2;
-	ubyte flags;
-	Regs  reg;
-	ubyte sp;
-	
-	CpuClockCycles cpuTime;
-	PpuClockCycles ppuTime;
-	
-	CPUTraceInstance();
-
-	//used for sorting
-	bool operator <( CPUTraceInstance& );
-};
-
-//cpu trace history
-//is processor intensive and very memory intensive to run this
-//TODO seperate from this class?
-class CPUTrace {
-public:
-	CPUTrace();
-	
-	//print 
-	void printTrace( const char *filename );
-	
-	//print dissassembled view
-	void printAsm( const char *filename);
-
-	void addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime );
-	bool areTracing();
-
-	void startTrace();
-	void stopTrace();
-
-	void clearTraces(); 
-
-private:
-	bool trace;
-	std::vector<bool> traceWrittenAt;		
-	std::vector< CPUTraceInstance > traceArray;
-	int numTraces;
-
-	void sortTraceArray();
-	
-}cpuTrace;
-*/
-#endif 
-NesEmulator::NesMain			*m;
-
-#ifndef LIGHT_BUILD
-  NesDebugger *nesDebugger;
-#endif
-
-NesMemory	*nesMemory;
-
-PpuSystem::NesPPU		*ppu;
 
 /*
 ==============================================
 NesCpu()
 ==============================================
 */
-NesCpu::NesCpu() {
+NesCpu::NesCpu( NesMain *nesMain ) :
+	nesMain( nesMain ),
+	cpuTrace( nesMain )
+{
 	
 }
 
 NesCpu::~NesCpu() {}
 
 void NesCpu::initialize( ) {
-	//onStatus = false;
-	m = &SystemMain::getInstance( )->nesMain;
+	nesDebugger = &nesMain->nesDebugger;
+	nesMemory = &nesMain->nesMemory;
+	nesPpu = &nesMain->nesPpu;
 
-#ifndef LIGHT_BUILD
-	nesDebugger = &m->nesDebugger;
-#endif
-
-	nesMemory = &m->nesMemory;
-	ppu = &m->nesPpu;
-
-	timer = Timer::getInstance( );
-	flagSystem = &m->emulatorFlags;
+	flagSystem = &nesMain->emulatorFlags;
 
 	consoleSystem->variables.addIntVariable( &traceSize );
 	consoleSystem->variables.addBoolVariable( &traceAlreadyRun );
@@ -124,13 +59,12 @@ CpuClockCycles NesCpu::runInstructions( )
 void NesCpu::runInstructions( ) {	
 	for( ; ; ) {
 #ifndef LIGHT_BUILD
-		
 		//debugger handling
 		if( nesDebugger->inSingleStepMode() ) {
 			if( nesDebugger->isSingleStepPending() ) {
 				runInstruction();
-				if( getCC() >= m->CyclesPerFrame ) {
-					ppu->checkForVINT( getCC() );
+				if( getCC() >= nesMain->CyclesPerFrame ) {
+					nesPpu->checkForVINT( getCC() );
 				}
 				nesDebugger->clearSingleStepRequest();
 				//VBlankHandler();
@@ -149,12 +83,12 @@ void NesCpu::runInstructions( ) {
 		runInstruction();
 #endif
 		//if we have ran more than the number of cycles for this frame
-		if( cpuTimer >= m->CyclesPerFrame ) {
+		if( cpuTimer >= nesMain->CyclesPerFrame ) {
 			//get ppu to check if we have passed the vint point
-			ppu->checkForVINT( getCC() );
+			nesPpu->checkForVINT( getCC() );
 			
 			//if vblank set and execute nmi on vblank set then goto interrupt
-			if( flagSystem->isFlagSet( FT_VINT ) && ppu->registers.executeNMIonVBlank == TRUE ) {
+			if( flagSystem->isFlagSet( FT_VINT ) && nesPpu->registers.executeNMIonVBlank == 1 ) {
 				//TODO add getWord function
 				uword add = nesMemory->getMemory( 0xfffa ) + ( nesMemory->getMemory( 0xfffb ) << 8 ); 
 				gotoInterrupt( add );
@@ -166,7 +100,7 @@ void NesCpu::runInstructions( ) {
 		//check for breakpoints
 		if( nesDebugger->isBreakPointAt( pc ) ) {
 			if( !nesDebugger->inSingleStepMode() ) {
-				nesDebugger->setToSingleStepMode( pc );
+				nesDebugger->setToSingleStepMode( pc, "" );
 			}
 			else {
 				nesDebugger->singleStepRequest();
@@ -207,9 +141,11 @@ void NesCpu::runInstruction() {
 
 #ifndef LIGHT_BUILD	
 	//handle 'tracing' if enabled
-	//if( cpuTrace.areTracing() ) {
-	//	cpuTrace.addTrace( pc, lookupEntry, currOp, b1, b2, reg, createFlagByte(), sp, getCC(), ppu->getCC() );
-	//}
+	if( cpuTrace.areTracing() ) {
+		cpuTrace.addTrace( pc, lookupEntry, currOp, b1, b2, reg, createFlagByte(), sp, getCC(), nesMain->nesPpu.getCC() );
+	}
+
+	
 #endif 	
 	//call opcode function
 	CALL_MEMBER_FN( *this, lookupEntry->fnptr )();
@@ -241,7 +177,7 @@ void NesCpu::runInstruction() {
 				iTime++;
 	}
 
-	cpuTimer += CpuToMaster( iTime );
+	cpuTimer += CpuToPpu( iTime );
 	oldPc = pc;
 
 	//goto system interrupt if requested, but only if i flag is not set
@@ -322,14 +258,14 @@ void NesCpu::buildWriteTimeTable() {
 PpuClockCycles NesCpu::getWriteTime() {
 	PpuClockCycles retTime = 0;
 	if( pageBoundaryCrossed ) retTime++;
-	retTime = cpuTimer + CpuToMaster( opcodeWriteTime[currOp] );
+	retTime = cpuTimer + CpuToPpu( opcodeWriteTime[currOp] );
 	return retTime;
 }
 
 PpuClockCycles NesCpu::getReadTime() {
 	PpuClockCycles retTime = 0;
 	if( pageBoundaryCrossed ) retTime++;
-	retTime = cpuTimer + CpuToMaster( opcodeReadTime[currOp] );
+	retTime = cpuTimer + CpuToPpu( opcodeReadTime[currOp] );
 	return retTime;
 }
 
@@ -422,11 +358,16 @@ inline void NesCpu::gotoInterrupt( int memLoc )
 ==============================================
 */
 inline void NesCpu::gotoInterrupt( uword memLoc ) {
+
+	flags.u = 1;
+	flags.b = 0;
+
 	nesMemory->setMemory( ( uword )sp-- + 0x100, pc >> 8 );
 	nesMemory->setMemory( ( uword )sp-- + 0x100, pc & 0x00FF );
 	nesMemory->setMemory( ( uword )sp-- + 0x100, createFlagByte() );
 	pc = memLoc;	
 	flags.i = 1;
+	flags.u = 0;
 }
 
 /*
@@ -437,8 +378,7 @@ OPCODE HANDLERS
 void NesCpu::opBreak() {}
 void NesCpu::opBAD() {
 #ifndef LIGHT_BUILD
-	nesDebugger->setToSingleStepMode( pc );
-	nesDebugger->singleStepRequest();
+	nesDebugger->setToSingleStepMode( pc, "STOP ON BAD OPCODE" );
 #endif
 }	
 
@@ -479,17 +419,26 @@ inline ubyte NesCpu::getMemoryINDX() {
 	//handle 'wraparound'	
 	addressPtr &= 0x00ff;
 	
+	//if second addressptr is a wrap around, we need to set it to zero
+	uword addr1 = addressPtr;
+	uword addr2 = addressPtr+1;
+	if( addr1 == 0xff ) addr2 = 0;
+
 	//get memory address to pull from
-	uword memAdd = nesMemory->getMemory( addressPtr ) + ( nesMemory->getMemory( addressPtr+1 ) << 8 );
+	uword memAdd = nesMemory->getMemory( addr1 ) + ( nesMemory->getMemory( addr2 ) << 8 );
 	return nesMemory->getMemory( memAdd );
 }
 
 inline ubyte NesCpu::getMemoryINDY() {
     uword addressPtr = b1;
 
+	//casting here to handle wrap around on addressing
+	ubyte addr1 = (ubyte)addressPtr;
+	ubyte addr2 = (ubyte)(addressPtr + 1);
+
 	//get address at addressPtr 
-	ubyte part1 = nesMemory->getMemory( addressPtr );
-	ubyte part2 = nesMemory->getMemory( addressPtr+1 );
+	ubyte part1 = nesMemory->getMemory( addr1 );
+	ubyte part2 = nesMemory->getMemory( addr2 );
 	uword memAdd = ( ( uword )part1 + ( ( uword )part2 << 8 ) );
 	
 	//check for page boundary cross
@@ -547,7 +496,7 @@ void NesCpu::opASL_ACC() {
 	reg.a = r;
 }
 
-inline void NesCpu::opASL_General( short value ) {
+inline void NesCpu::opASL_General( uword value ) {
     ubyte m = nesMemory->getMemory( value ); 
 	ubyte r = m << 1;
 	flags.c = BIT( 7, m );
@@ -566,12 +515,14 @@ inline void NesCpu::opBIT_General( ubyte memValue ) {
 void NesCpu::opBRK_IMP() {
 	flags.b = 1; pc += 2;
 	flags.i = 1;
+	flags.u = 1;
 	nesMemory->fastSetMemory( sp-- + 0x100, pc >> 8 );
 	nesMemory->fastSetMemory( sp-- + 0x100, pc & 0xFF ); 
 	nesMemory->fastSetMemory( sp-- + 0x100, ( createFlagByte() ) );// | 0x10 ) );  //or flag with 0x10??
 	ubyte low = nesMemory->fastGetMemory( 0xFFFE );
 	uword hi = nesMemory->fastGetMemory( 0xFFFF ) << 8;
 	pc = hi + low;
+	flags.b = 0; flags.u = 0;
 	branched = true;
 }
 
@@ -601,7 +552,7 @@ void NesCpu::opCPY_General( ubyte memValue ) {
 }
 
 
-inline void NesCpu::opDEC_General( short memLocation ) {
+inline void NesCpu::opDEC_General( uword memLocation ) {
     ubyte r = nesMemory->getMemory( memLocation ) - 1;
 	nesMemory->setMemory( memLocation, r );			
 	flags.n = BIT( 7, r );
@@ -623,7 +574,7 @@ void NesCpu::opCLV_IMP() {	flags.v = 0;	}
 void NesCpu::opCLD_IMP() {	flags.d = 0;	}
 void NesCpu::opSED_IMP() {	flags.d = 1;	}
 
-inline void NesCpu::opINC_General( short memLocation ) {
+inline void NesCpu::opINC_General( uword memLocation ) {
     ubyte r = nesMemory->getMemory( memLocation ) + 1;
 	nesMemory->setMemory( memLocation, r );
 	flags.n = BIT( 7, r );
@@ -685,7 +636,7 @@ void NesCpu::opLSR_ACC() {
 	reg.a = r;
 }
 
-inline void NesCpu::opLSR_General( short memLocation ) {
+inline void NesCpu::opLSR_General( uword memLocation ) {
 	ubyte m = nesMemory->getMemory( memLocation ); 
 	flags.c = m & 0x01;
 	ubyte r = m >> 1;
@@ -760,7 +711,7 @@ void NesCpu::opROL_ACC() {
 	reg.a = r;
 }
 
-inline void NesCpu::opROL_General( short memLocation ) {
+inline void NesCpu::opROL_General( uword memLocation ) {
 	ubyte m = nesMemory->getMemory( memLocation ); 
 	ubyte r = m << 1;
 	r += flags.c;
@@ -775,19 +726,20 @@ void NesCpu::opROR_ACC() {
 	r += flags.c << 7;
 	flags.n = flags.c;
 	flags.c = BIT( 0, reg.a );
-	flags.z = ( r == 0 );
+	flags.n = BIT( 7, r );
 	reg.a = r;
 }
 
-inline void NesCpu::opROR_General( short memLocation ) {
-	ubyte m = nesMemory->getMemory( memLocation ); 
+inline void NesCpu::opROR_General( uword memLocation ) {
+	ubyte m = nesMemory->getMemory( memLocation );
 	ubyte r = m >> 1;
 	r += flags.c << 7;
-	flags.n = flags.c;
 	flags.c = BIT( 0, m );
 	flags.z = ( r == 0 );
+	flags.n = BIT( 7, r );
 	nesMemory->setMemory( memLocation, r );
 }
+
 
 void NesCpu::opRTI_IMP() {	
 	setFlagsFromByte( nesMemory->getMemory( ( uword )++sp + 0x100 ) );
@@ -857,8 +809,38 @@ void NesCpu::opPLA_IMP() {
 	flags.n = BIT( 7, reg.a );
 }
 
-void NesCpu::opPHP_IMP() { nesMemory->setMemory( (uword)(sp--) + 0x100, createFlagByte()   ); }
+void NesCpu::opPHP_IMP() { 
+	//set flags for write out to memory, but then reset them
+	flags.u = 1; flags.b = 1;
+	nesMemory->setMemory( (uword)(sp--) + 0x100, createFlagByte()   ); 
+	flags.u = 0; flags.b = 0;
+}
 void NesCpu::opPLP_IMP() { setFlagsFromByte( nesMemory->getMemory( ( uword )++sp + 0x100 ) ); }
+
+
+/*
+===================================================================
+NEW undocumented 
+https://www.pagetable.com/c64ref/6502/?tab=2#RLA
+===================================================================
+*/
+
+void NesCpu::opRRA_General( uword memLocation ) {
+	ubyte m = nesMemory->getMemory( memLocation );
+	ubyte oldCarry = flags.c;
+	flags.c = m & 0x01;
+	ubyte r = (oldCarry << 7) + (m >> 1);
+	ubyte oldSign = BIT( 7, reg.a );
+	
+	// Cast to uint16_t to avoid wrap around
+	uint16_t carryCheck = static_cast<uint16_t>( reg.a ) + static_cast<uint16_t>( r ) + flags.c; 
+	
+	reg.a += r + flags.c;
+	flags.v = BIT( 7, reg.a ) != oldSign;
+
+	flags.n = BIT( 7, reg.a );
+	flags.z = ( reg.a == 0 );
+}
 
 /* 
 ==============================================
@@ -978,7 +960,7 @@ void NesCpu::opROL_ABSX() {	opROL_General( getABSX() ); }
 
 void NesCpu::opROR_ZP()   {	opROR_General( getIMM()  ); }
 void NesCpu::opROR_ZPX()  { opROR_General( getZPX()  ); }
-void NesCpu::opROR_ABS()  { opROR_General( getZPX()  );}
+void NesCpu::opROR_ABS()  { opROR_General( getABS()  );}
 void NesCpu::opROR_ABSX() { opROR_General( getABSX() );}
 
 void NesCpu::opSBC_IMM()  {	opSBC_General( getIMM()			); }
@@ -990,6 +972,16 @@ void NesCpu::opSBC_ABSY() {	opSBC_General( getMemoryABSY()	); }
 void NesCpu::opSBC_INDX() {	opSBC_General( getMemoryINDX()	); }
 void NesCpu::opSBC_INDY() {	opSBC_General( getMemoryINDY()	); }
 
+//NEW RRA undocumented func
+void NesCpu::opRRA_ZP( )   { opRRA_General( getMemoryZP( ) ); }
+void NesCpu::opRRA_ZPX( )  { opRRA_General( getMemoryZPX( ) ); }
+void NesCpu::opRRA_ABS( )  { opRRA_General( getMemoryABS( ) ); }
+void NesCpu::opRRA_ABSX( ) { opRRA_General( getMemoryABSX( ) ); }
+void NesCpu::opRRA_ABSY( ) { opRRA_General( getMemoryABSY( ) ); }
+void NesCpu::opRRA_INDX( ) { opRRA_General( getMemoryINDX( ) ); }
+void NesCpu::opRRA_INDY( ) { opRRA_General( getMemoryINDY( ) ); }
+
+
 #ifndef LIGHT_BUILD
 
 /*
@@ -999,8 +991,10 @@ Class CPUTrace
 ================================================================
 ================================================================
 */
-/*
-CPUTraceInstance::CPUTraceInstance() { 
+
+CPUTraceInstance::CPUTraceInstance( ) 
+{ 
+	
 	pc = 0;
 	flags = 0;
 	reg.a = 0; reg.x = 0; reg.y = 0, sp = 0; ppuTime = 0; cpuTime = 0;
@@ -1010,19 +1004,21 @@ bool CPUTraceInstance::operator <( CPUTraceInstance &that) {
 	return this->pc < that.pc;
 }
 
-CPUTrace::CPUTrace(): 
-	traceWrittenAt( 0xffff) {
+CPUTrace::CPUTrace( NesMain *_nesMain ) : 
+	nesMain( _nesMain ),
+	traceWrittenAt( 0xffff) 
+{
 	numTraces = 0;
 	clearTraces();
 }
 
-void CPUTrace::printTrace( const char *filename ) {
+void CPUTrace::printTrace( std::string_view filename ) {
 	std::string		fn;
 	int				scanline;
 	PpuClockCycles	cycleOffset;	//from start of scanline
 
-	if( strlen( filename ) == 0 ) {
-		fn = "tracelog.txt";
+	if( filename.length() == 0 ) {
+		fn = "tracelog.log";
 	}
 	else {
 		fn = filename;
@@ -1030,7 +1026,7 @@ void CPUTrace::printTrace( const char *filename ) {
 	//TODO use streams
 	consoleSystem->printMessage( "Printing CPU tracelog to %s. traceSize = %d", fn.c_str(), traceSize.getValue() );
 	
-	ofstream f( fn.c_str() );
+	std::ofstream f( fn.c_str() );
 
 	//char regLine[ 80 ];
 	
@@ -1042,75 +1038,78 @@ void CPUTrace::printTrace( const char *filename ) {
 	//}
 
 	for( ; i < tracesToRun; i++ ) {
-		const CPUTraceInstance *t = &traceArray[ i ];
-		ubyte b1 = t->byte1;
-		ubyte b2 = t->byte2;
+		std::stringstream lines;
+		
+		if( std::holds_alternative<std::string>( traceArray[ i ] ) ) {
+			lines << std::get_if<std::string>( &traceArray[ i ] )->c_str();
+		}
+		else {
+			const CPUTraceInstance* t = std::get_if<CPUTraceInstance>( &traceArray[ i ] );
+			ubyte b1 = t->byte1;
+			ubyte b2 = t->byte2;
 
-		char  *lt = nesDebugger->buildDebugLine( t->pc, t->l, t->opcode, b1, b2 );
-		
-		//erase delim char
-		int length = strlen( lt );
-		lt[ length - 1 ] = '\0';
-		
-		//eliminate first char
-		lt = &lt[1];
-		
-		//lines.flush();
+			std::string lt = nesMain->nesDebugger.buildDebugLine( t->pc, t->l, t->opcode, b1, b2 );
 
-		stringstream lines;
+			//erase delim char
+			//int length = strlen( lt );
+			//lt[ length - 1 ] = '\0';
 
-		lines.setf( ios_base::left, ios_base::adjustfield );
-		lines.width( 40 );
-		lines << lt;
-		lines.seekp( 0, std::ios::end );
+			//eliminate first char
+			lt = &lt[ 1 ];
 
-		lines << "A:" << ubyteToString( t->reg.a ) << " "
-		 	  << "X:" << ubyteToString( t->reg.x ) << " "
-		 	  << "Y:" << ubyteToString( t->reg.y ) << " "
-			  << "P:";
-		
-		//write out flags
-		//nvub dizc
-		if( BIT(7, t->flags) ) lines << "N"; else lines << "n";
-		if( BIT(6, t->flags) ) lines << "V"; else lines << "v";
-		if( BIT(5, t->flags) ) lines << "U"; else lines << "u";
-		if( BIT(4, t->flags) ) lines << "B"; else lines << "b";
-		if( BIT(3, t->flags) ) lines << "D"; else lines << "d";
-		if( BIT(2, t->flags) ) lines << "I"; else lines << "i";
-		if( BIT(1, t->flags) ) lines << "Z"; else lines << "z";
-		if( BIT(0, t->flags) ) lines << "C"; else lines << "c";
-		
-		//lines << ubyteToString( t->flags );
+			//lines.flush();
 
-		lines << " SP: " << ubyteToString( t->sp );
-		
-		//figure out scanline and cycle
-		scanline = t->cpuTime / 341;
-		cycleOffset = t->cpuTime - ( scanline * 341 );
+			lines.setf( std::ios_base::left, std::ios_base::adjustfield );
+			lines.width( 40 );
+			lines << lt;
+			lines.seekp( 0, std::ios::end );
 
-		//fill in cycles and scanline counters
-		lines << " CYC: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
-		lines.width( 3 );
-		lines << cycleOffset;
-		
-		lines << " SL: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
-		lines.width( 3 );
-		lines << scanline;
-		
-		lines << " CPU: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
-		lines.width( 5 );
-		lines << t->cpuTime;
+			lines << "A:" << ubyteToString( t->reg.a ) << " "
+				<< "X:" << ubyteToString( t->reg.x ) << " "
+				<< "Y:" << ubyteToString( t->reg.y ) << " "
+				<< "P:";
 
-		lines << " PPU: ";
-		lines.setf( ios_base::right, ios_base::adjustfield );
-		lines.width( 5 );
-		lines << t->ppuTime 
-			  << "\n";
-		
-		f << lines.str();
+			//write out flags
+			//nvub dizc
+			if( BIT( 7, t->flags ) ) lines << "N"; else lines << "n";
+			if( BIT( 6, t->flags ) ) lines << "V"; else lines << "v";
+			if( BIT( 5, t->flags ) ) lines << "U"; else lines << "u";
+			if( BIT( 4, t->flags ) ) lines << "B"; else lines << "b";
+			if( BIT( 3, t->flags ) ) lines << "D"; else lines << "d";
+			if( BIT( 2, t->flags ) ) lines << "I"; else lines << "i";
+			if( BIT( 1, t->flags ) ) lines << "Z"; else lines << "z";
+			if( BIT( 0, t->flags ) ) lines << "C"; else lines << "c";
+
+			//lines << ubyteToString( t->flags );
+
+			lines << " SP: " << ubyteToString( t->sp );
+
+			//figure out scanline and cycle
+			scanline = t->cpuTime / 341;
+			cycleOffset = t->cpuTime - ( scanline * 341 );
+
+			//fill in cycles and scanline counters
+			lines << " CYC: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 3 );
+			lines << cycleOffset;
+
+			lines << " SL: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 3 );
+			lines << scanline;
+
+			lines << " CPU: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 5 );
+			lines << t->cpuTime;
+
+			lines << " PPU: ";
+			lines.setf( std::ios_base::right, std::ios_base::adjustfield );
+			lines.width( 5 );
+			lines << t->ppuTime;
+		}
+		f << lines.str() << std::endl;
 	}
 	
 	f.close();
@@ -1118,27 +1117,30 @@ void CPUTrace::printTrace( const char *filename ) {
 }
 
 
-void CPUTrace::printAsm( const char *filename ) {
+void CPUTrace::printAsm( std::string_view filename ) {
 	std::string		fn;
 	
 	sortTraceArray();
 
-	if( strlen( filename ) == 0 ) {
+	if( filename.length() == 0 ) {
 		fn = "asm_out.txt";
 	}
 	else {
 		fn = filename;
 	}
-	ofstream f( fn.c_str() );
+	std::ofstream f( fn.c_str() );
 	
 	for( unsigned int i = 0; i < traceArray.size(); i++ ) {
-		CPUTraceInstance *t = &traceArray[ i ];
+		if( std::holds_alternative<std::string>( traceArray[ i ] ) ) {
+			// The element is a std::string
+			const std::string* str = std::get_if<std::string>( &traceArray[ i ] );
+			continue;
+		}
+		const CPUTraceInstance* t = std::get_if<CPUTraceInstance>( &traceArray[ i ] );
 		
-		char  *lt = nesDebugger->buildDebugLine( t->pc, t->l, t->opcode, t->byte1, t->byte2 );
+		std::string lt = nesMain->nesDebugger.buildDebugLine( t->pc, t->l, t->opcode, t->byte1, t->byte2 );
 		
 		//erase delim char
-		int length = strlen( lt );
-		lt[ length - 1 ] = '\0';
 		
 		//eliminate first char
 		lt = &lt[1];
@@ -1149,6 +1151,10 @@ void CPUTrace::printAsm( const char *filename ) {
 }
 
 void CPUTrace::addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1, ubyte byte2, Regs reg, ubyte flags, ubyte sp, PpuClockCycles cpuTime, PpuClockCycles ppuTime ) {
+	if( !areTracing( ) ) {
+		return;
+	}
+
 	CPUTraceInstance inst;
 
 	static uword prevPc = 0;
@@ -1175,6 +1181,27 @@ void CPUTrace::addTrace( uword pc, const opcodeLookUpTableEntry *l, ubyte opcode
 	prevPc = pc;
 }
 
+void CPUTrace::addTraceText( const char* text, ... ) {
+	if( !areTracing( ) ) {
+		return;
+	}
+	
+	va_list args;
+	va_start( args, text );
+
+	int buffer_size = std::vsnprintf( nullptr, 0, text, args );
+	va_end( args );
+
+	std::vector<char> buffer( buffer_size + 1 );
+
+	va_start( args, text );
+	std::vsnprintf( buffer.data( ), buffer.size( ), text, args );
+	va_end( args );
+
+	auto str = std::string( buffer.data( ) );
+	traceArray.push_back( str );
+}
+
 bool CPUTrace::areTracing() {
 	return trace;
 }
@@ -1199,8 +1226,8 @@ void CPUTrace::clearTraces() {
 //sorts array based on pc
 //can not be undone
 void CPUTrace::sortTraceArray() {
-	std::sort( traceArray.begin(), traceArray.end() );
+	//std::sort( traceArray.begin(), traceArray.end() );
 }
 
-*/
+
 #endif //LIGHT_BUILD

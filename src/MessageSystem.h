@@ -1,6 +1,6 @@
 #if !defined( MESSAGESYSTEM_INC )
 #define MESSAGESYSTEM_INC
-#include < list >
+#include <list>
 #include "StringToNumber.h"
 
 #if _MSC_VER > 1000

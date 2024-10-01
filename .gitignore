@@ -1,12 +1,3 @@
-CGT_NesEmulator/CGT NES Emulator/Debug/RCa20324
-CGT_NesEmulator/CGT NES Emulator/Debug/RCa17912
-CGT_NesEmulator/CGT NES Emulator/Debug/RCa00936
-CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.vcxproj.FileListAbsolute.txt
-CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.opendb
-CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db-wal
-CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db-shm
-CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db
-CGT_NesEmulator/.editorconfig
 *.enc
 *.recipe
 *.iobj
@@ -15,7 +6,62 @@ CGT_NesEmulator/.editorconfig
 *.tlog
 *.ipch
 *.nes
+*.obj
+*.pch
+*.log
+*.idb
+*.pdb
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+*.ilk
+*.vsidx
+CGT NES Emulator.exe
+SDL2.dll
+/roms/rom_dev/
+/roms/test/
+/roms/nes-test-roms-master
+/roms/__TESTS/
+/src/imgui
+/src/implot
+CGT_NesEmulator/SDL2
+imgui.ini
 binds.cfg
 ConsoleDefs.txt
 applog.txt
+reset binds.bat
+CGT_NesEmulator/.editorconfig
+CGT_NesEmulator/CGT NES Emulator/Debug/RCa20324
+CGT_NesEmulator/CGT NES Emulator/Debug/RCa17912
+CGT_NesEmulator/CGT NES Emulator/Debug/RCa00936
+CGT_NesEmulator/CGT NES Emulator/Debug/CGT NES Emulator.vcxproj.FileListAbsolute.txt
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.opendb
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db-wal
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db-shm
+CGT_NesEmulator/.vs/CGT_NesEmulator/v16/Browse.VC.db
 CGT_NesEmulator/CGT NES Emulator/Debug/vc142.idb
+CGT_NesEmulator/CGT NES Emulator/Release/CGT NES Emulator.vcxproj.FileListAbsolute.txt
+CGT_NesEmulator/CGT NES Emulator/Debug/nesEmResourse.res
+CGT_NesEmulator/CGT NES Emulator/Release/nesEmResourse.res
+CGT_NesEmulator/.vs/CGT_NesEmulator/FileContentIndex/read.lock
+CGT_NesEmulator/CGT NES Emulator/Win32/Debug/nesEmResourse.res
+CGT_NesEmulator/CGT NES Emulator/Win32/Debug/CGT NES Emulator.vcxproj.FileListAbsolute.txt
+CGT_NesEmulator/Release/
+CGT_NesEmulator/Win32/Debug/
+CGT_NesEmulator/.vs/CGT_NesEmulator/v17/.suo
+CGT_NesEmulator/.vs/CGT_NesEmulator/v17/fileList.bin
+CGT_NesEmulator/.vs/CGT_NesEmulator/FileContentIndex/write.lock
+C:/Users/cgtro/Documents/2023_Repos/Nes_Emulator/CGT_NesEmulator/enc_temp_folder/*/*
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+autoexec.cfg
+CGT_NesEmulator/.vs/CGT_NesEmulator/v17/HierarchyCache.v1.txt
+asm_out.txt
+tracelog.txt
+CGT_NesEmulator/enc_temp_folder/9177169dd6c36f4587447f02658eb9/NesMappers.cpp
+tetris trace.txt
+tetris log.txt
+tetris log 2.txt

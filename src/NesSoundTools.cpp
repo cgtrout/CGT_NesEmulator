@@ -1,5 +1,7 @@
 #include "Precompiled.h"
 
+#include "NesSound.h"
+
 using namespace NesApu;
 
 Divider::Divider():
@@ -23,7 +25,6 @@ SweepUnit::SweepUnit():
 	enabled(false),
 	negative(false),
 	shiftAmt(0),
-	squarePeriod(0),
 	squareChannel(0),
 	outstandingWrite(false),
 	lastShiftVal(0){

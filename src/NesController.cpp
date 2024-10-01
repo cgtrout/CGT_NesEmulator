@@ -1,21 +1,39 @@
 #include "precompiled.h"
+#include "NesController.h"
+
+#include "SystemMain.h"
+
+#include <sstream>
 
 using namespace NesEmulator;
-#include < sstream >
+using namespace FrontEnd::InputSystem;
+
+/*
+==============================================
+NesControllerSystem::NesControllerSystem
+==============================================
+*/
+NesControllerSystem::NesControllerSystem( Input* inputSystem ) :
+	controller { NesController( inputSystem ), NesController( inputSystem ) }
+{
+	
+}
 
 /* 
 ==============================================
-NesController::NesController()
+NesController::NesController
 ==============================================
 */
-NesController::NesController() {
+NesController::NesController( Input* inputSystem ) :
+	inputSystem( inputSystem )
+{
 	static int controllerNum = 0;
 	clear();
 	connected = 1;
 
 	//initialize buttons
 	for( int i = 0; i < NUM_NES_BUTTONS; i++ ) {
-		buttons[ i ].keyid = 0;
+		buttons[ i ].bindName = std::string();
 		switch( i ) {
 			case NES_BUTTON_A:
 				buttons[ i ].name = "a";
@@ -44,13 +62,10 @@ NesController::NesController() {
 		}
 		addButton( &buttons[ i ] );
 	}
-	std::stringstream ss( "controller" );
-	ss.seekp( 0, std::ios::end );
-	ss << ( controllerNum + 1 );
-	name = ss.str();
+	name = "controller" + std::to_string(controllerNum + 1);
 
 	//add this control to input system
-	Input::getInstance()->addControl( dynamic_cast< Controllable* >( this ) );
+	inputSystem->addControl( dynamic_cast< Controllable* >( this ) );
 	controllerNum++;
 }
 /* 
@@ -78,12 +93,31 @@ ubyte NesController::getNextStrobe() {
 	case 2:
 		returnVal += buttons[ NES_BUTTON_B ].getState();
 		break;
-	case 3:
-		returnVal += buttons[ NES_BUTTON_SELECT ].getState();
+	case 3: {
+		auto state = buttons[ NES_BUTTON_SELECT ].getState( );
+		if( state == 1 ) {
+			auto* s = FrontEnd::SystemMain::getInstance( );
+			//s->nesMain.enableStepDebugging( "START PRESSED" );
+			//if( s->nesMain.nesCpu.cpuTrace.areTracing( ) == false ) {
+			//	s->nesMain.nesCpu.cpuTrace.startTrace( );
+			//}
+			s->nesMain.nesCpu.cpuTrace.addTraceText( "SELECT PRESSED" );
+		}
+
+		returnVal += buttons[ NES_BUTTON_SELECT ].getState( );
 		break;
-	case 4:
-		returnVal += buttons[ NES_BUTTON_START ].getState();
+	}
+	case 4: {
+		auto state = buttons[ NES_BUTTON_START ].getState( );
+		if( state == 1 ) {
+			auto* s = FrontEnd::SystemMain::getInstance( );
+			//s->nesMain.enableStepDebugging( "START PRESSED" );
+			s->nesMain.nesCpu.cpuTrace.addTraceText( "START PRESSED" );
+		}
+
+		returnVal += buttons[ NES_BUTTON_START ].getState( );
 		break;
+	}
 	case 5:
 		returnVal += buttons[ NES_BUTTON_UP ].getState();
 		break;

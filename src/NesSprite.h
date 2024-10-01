@@ -1,17 +1,13 @@
-#if !defined( NesSprite_INCLUDED )
-#define NesSprite_INCLUDED
+#pragma once
 
 #include "CGTSingleton.h"
 #include "NesMemory.h"
 
-#include < vector >
+#include <vector>
 
 using namespace CGTSingleton;
-typedef unsigned char ubyte;
-typedef unsigned short uword;
-typedef short word;
 
-namespace PpuSystem {
+namespace NesEmulator {
 	struct SpriteData {
 	  public:
 		ubyte x, y;
@@ -58,4 +54,3 @@ namespace PpuSystem {
 		NesSpriteScanlineResults scanlineResults;
 	};
 }
-#endif //NesSprite_INCLUDED

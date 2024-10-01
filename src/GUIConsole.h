@@ -4,7 +4,7 @@
 namespace GUISystem {
 	class GUIConsole : public GUISystem::GUIElement, public Singleton< GUIConsole > {
 	public:
-		GUIConsole();
+		GUIConsole( FrontEnd::InputSystem::Input* inputSystem );
 		GUIConsole( std::string guitextures );
 		virtual ~GUIConsole();
 		
@@ -15,7 +15,7 @@ namespace GUISystem {
 		void onRightMouseDown();
 		void onRightMouseRelease();
 
-		void onKeyDown( uword key );
+		void onKeyDown( SDL_Keycode key );
 
 		void update();
 

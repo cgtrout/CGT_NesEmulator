@@ -1,9 +1,4 @@
-#if !defined( NesMain_INCLUDED )
-#define NesMain_INCLUDED
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 typedef unsigned char ubyte;
 typedef unsigned short uword;
@@ -16,12 +11,21 @@ using namespace CGTSingleton;
 	#include "NesDebugger.h"
 #endif
 
-//#include "NesFileLoader.h"
 #include "NesController.h"
+#include "NesPpu.h"
 #include "NesSound.h"
-#include "NesCpuCore.h"
+
+//forward declare systemMain
+//we pass this to NesMain so that it can pass the input system to NesController
+//Ideally need to eliminate this double coupling
+namespace FrontEnd {
+	class SystemMain;
+}
 
 namespace NesEmulator {
+
+	class NesDebugger;
+
 	/*
 	=================================================================
 	=================================================================
@@ -37,14 +41,22 @@ namespace NesEmulator {
 
 	class NesMain {
 	  public:
-		NesMain();
+		NesMain( FrontEnd::SystemMain* );
 		~NesMain() { }
 		
 		//update emulator for this frame
-		void update();
+		void runFrame();
+
+		void ApuCpuSync( );
+		void PpuCpuSync( );
 		
 		//reset variables in this class
 		void reset();
+
+		//enable step debugging for next instruction
+		//use this to call debugger at arbitrary point in codebase
+		//message: optional message to send to debug window
+		void enableStepDebugging( std::string_view message );
 	
 		PpuClockCycles CyclesPerFrame;
 		NesEmulator::NesFile				nesFile;
@@ -54,7 +66,7 @@ namespace NesEmulator {
 		NesEmulator::NesControllerSystem	controllerSystem;
 		NesEmulator::NesMemory				nesMemory;
 		
-		PpuSystem::NesPPU					nesPpu;
+		NesEmulator::NesPPU					nesPpu;
 		NesEmulator::NesEmulatorFlagSystem  emulatorFlags;
 
 		NesApu::NesSound					nesApu;
@@ -63,6 +75,8 @@ namespace NesEmulator {
 		NesEmulator::NesDebugger			nesDebugger;
 	#endif
 		
+		FrontEnd::SystemMain* systemMain;
+
 		void setState ( States s ) { state = s; }
 		States getState() { return state; }
 	  private:
@@ -74,4 +88,3 @@ namespace NesEmulator {
 		States state;
 	};
 }
-#endif //NesMain_INCLUDED

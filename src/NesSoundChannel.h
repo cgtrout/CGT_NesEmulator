@@ -3,6 +3,8 @@
 
 #include "NesSoundTools.h"
 
+#include <cassert>
+
 namespace NesApu {	
 	/*
 	================================================================
@@ -15,13 +17,13 @@ namespace NesApu {
 	*/
 	class NesChannel {
 	  public:
-		NesChannel( ) {}
+		NesChannel( ) : dacSize(0), dacValue(0) {}
 
 		//1.79Mhz clock
-		ubyte clock();
+		virtual void clock() = 0;
 
 		//240hz clock
-		ubyte clock240Hz( int count );  //count must be between 0-4
+		virtual void clock240Hz( int count ) = 0;  //count must be between 0-4
 
 		//get current value in DAC
 		int getDacValue();
@@ -86,21 +88,17 @@ namespace NesApu {
 		EnvelopeGenerator env;
 
 		//force channel to be set
-		SquareChannel() {}
+		SquareChannel( );
 
 		void setPeriodLow( ubyte );
 		void setPeriodHigh( ubyte );
 	};
 
-	
-
 	inline void SquareChannel::setChannel( ubyte c ) {
-		_ASSERT( c == 0 || c == 1 );
+		assert( c == 0 || c == 1 );
 		channel = c;
 		sweep.setSquareChannel( c );
 	}
-
-	
 	
 	static ubyte dutyTable [4][8] = {
 	  /* 0 */	{ 0, 1, 0, 0, 0, 0, 0, 0 },
@@ -130,13 +128,29 @@ namespace NesApu {
 
 	class TriangleChannel : public NesChannel {
 
+		//1.79Mhz clock
+		void clock( ) {}
+
+		//240hz clock
+		void clock240Hz( int count ) {}  //count must be between 0-4
+
 	};
 
 	class NoiseChannel : public NesChannel {
+		//1.79Mhz clock
+		void clock( ) {}
+
+		//240hz clock
+		void clock240Hz( int count ) {}  //count must be between 0-4
 
 	};
 
 	class DmcChannel : public NesChannel {
+		//1.79Mhz clock
+		void clock( ) {}
+
+		//240hz clock
+		void clock240Hz( int count ) {}  //count must be between 0-4
 
 	};
 };//namespace

@@ -1,18 +1,6 @@
-#if !defined( NesPPU_INCLUDED )
-#define NesPPU_INCLUDED
-
-//NUMBER OF PIXELS IN A PATTERN TABLE
-#define NUM_PATTERNTABLE_PIXELS 32768//16384
-
-//SIZE OF A PATTERNTABLE REPRESENTED BY 24BIT COLOR DATA
-#define SIZE_24BIT_PATTERNTABLE 98304//49152
-
-//x and y screen dimensions
-#define NTSC_X 256
-#define NTSC_Y 240
+#pragma once
 
 #include "CGTSingleton.h"
-using namespace CGTSingleton;
 
 #include "NesPalette.h"
 #include "NesSprite.h"
@@ -20,15 +8,23 @@ using namespace CGTSingleton;
 #include "NesPpuRegisters.h"
 #include "NesPpuScanline.h"
 
-namespace PpuSystem {
+//NUMBER OF PIXELS IN A PATTERN TABLE
+const auto NUM_PATTERNTABLE_PIXELS = 32768;//16384
+
+//SIZE OF A PATTERNTABLE REPRESENTED BY 24BIT COLOR DATA
+const auto SIZE_24BIT_PATTERNTABLE = 98304;//49152
+
+//x and y screen dimensions
+const auto NTSC_X = 256u;
+const auto NTSC_Y = 240u;
+
+namespace NesEmulator {
 	
 	/*
 	=====================================================
 	NesPPU class
 
 	  Emulates the basic functionality of the 2C02 PPU chipset
-
-	  TODO fix nested class hell
 	=====================================================
 	*/
 	class NesPPU {
@@ -49,7 +45,7 @@ namespace PpuSystem {
 		//this allows nesMain to draw the frame to the buffer
 		void checkForVINT( PpuClockCycles );
 
-		NesPPU();
+		NesPPU( NesMain* nesMain );
 
 		void initialize( );
 
@@ -67,6 +63,8 @@ namespace PpuSystem {
 		ubyte getFrameType() { return frameType; }
 
 	private:
+		NesMain* nesMain;
+
 		//current clock count of ppu
 		//can also be looked at as being the current pixel
 		PpuClockCycles currentCC;
@@ -79,4 +77,3 @@ namespace PpuSystem {
 		ScanlineDrawer scanlineDrawer;
 	};
 }
-#endif	//!defined( NesPPU_INCLUDED )

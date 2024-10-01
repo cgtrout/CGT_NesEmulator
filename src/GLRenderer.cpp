@@ -1,8 +1,6 @@
 // Renderer.cpp: implementation of the Renderer class.
 //
 //////////////////////////////////////////////////////////////////////
-#pragma warning( disable : 4786 )
-
 #include "precompiled.h"
 
 #include "GLRenderer.h"
@@ -14,44 +12,31 @@
 
 #include "GLGeneral.h"
 
+#include "ImGui/imgui.h"
+#include "imgui/imgui_impl_opengl2.h"
+
 extern FrontEnd::CLog *_log;
 
 using namespace Console;
 using namespace Render;
 
-ConsoleVariable< bool > drawPatternTable( 
+ConsoleVariable< bool > drawDebugPPU( 
 /*start val*/	true, 
-/*name*/		"drawPatternTable", 
+/*name*/		"drawDebugPPU", 
 /*description*/	"Sets whether the debug pattern table should be drawn or not",
 /*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< bool > drawPaletteTable( 
-/*start val*/	true, 
-/*name*/		"drawPaletteTable",			
-/*description*/	"Sets whether the debug palette table should be drawn or not",
-/*save?*/		SAVE_TO_FILE );
-
-
-//TODO this turns off the conversion ( From int to float ) warning
-//this should be fixed correctly
-#if _MSC_VER > 1000
-#pragma warning( disable : 4244 )
-#endif
-
-//turn off unsafe string function warnings
-//TODO change these someday...
-#if _MSC_VER > 1000
-#pragma warning( disable : 4996 )
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Renderer::Renderer() {
+Renderer::Renderer( FrontEnd::SystemMain* sysMain ) :
+	xres(0),
+	yres(0),
+	systemMain( sysMain )
+{
 	 
 }
-
 
 Renderer::~Renderer() {
 }
@@ -59,26 +44,29 @@ Renderer::~Renderer() {
 float zdrawPos	= 0.0f;
 
 void Renderer::initialize() {
-	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
-	consoleSystem->variables.addBoolVariable( &drawPatternTable );
-	consoleSystem->variables.addBoolVariable( &drawPaletteTable );
+	consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+	consoleSystem->variables.addBoolVariable( &drawDebugPPU );
 
+	resizeInitialize( );
+
+	ppuDraw.initialize( );
+}
+
+/*
+==============================================
+Renderer::resizeInitialize()
+
+  initialize after resize
+==============================================
+*/
+void Renderer::resizeInitialize( ) {
 	//prepare model and projection view for 2d drawing
 	glMatrixMode( GL_PROJECTION );
-	//glPushMatrix();
-	glLoadIdentity();
-	//glOrtho( 0.0, ( GLfloat ) 640, 0.0, ( GLfloat ) 480, -2, 1 );
-	glOrtho( 0.0, ( GLfloat ) xres, 0.0, ( GLfloat ) yres, -2, 1 );
-	
-	glMatrixMode( GL_MODELVIEW );
-	//glPushMatrix();
-	glLoadIdentity();
-		
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	
-	glEnable( GL_TEXTURE_2D );
+	glLoadIdentity( );
+	glOrtho( 0.0, ( GLfloat )xres, 0.0, ( GLfloat )yres, -2, 1);
+	glViewport( 0, 0, xres, yres );
 }
+
 
 /*
 ==============================================
@@ -90,12 +78,6 @@ Renderer::initFrame()
 void Renderer::initFrame() {
 	// Clear The Screen And The Depth Buffer
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	
-	//ensure correct matrix mode is selected for next frame
-	glMatrixMode( GL_MODELVIEW );
-
-	// Reset The matrix
-	glLoadIdentity();	
 
 	zdrawPos = 0.0f;
 }
@@ -106,8 +88,15 @@ Renderer::renderFrame()
 ==============================================
 */
 void Renderer::renderFrame() {
+	//disable multitexuring so it doesn't affect 2d drawing
+	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
 	render2D();
 	
+	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+	glEnable( GL_BLEND );
+
 #ifdef _DEBUG
 	//see if there were any errors this frame
 	int glError = glGetError();
@@ -135,21 +124,37 @@ Renderer::render2D()
 ==============================================
 */
 void Renderer::render2D() {
-	//disable multitexuring so it doesn't affect 2d drawing
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	
-	//TODO disable fragments
-	//glDisable( GL_TEXTURE_2D );
-	
-	if( systemMain->nesMain.getState() == Emulating ) {
-		if( drawPatternTable.getValue() == 1.0f ) {
-			ppuDraw.drawPatternTable();   
-		}
-		if( drawPaletteTable.getValue() == 1.0f ) {
-			ppuDraw.drawPaletteTable( &FrontEnd::SystemMain::getInstance()->nesMain.nesPpu.nesPalette );
+	if( systemMain->nesMain.getState() == NesEmulator::States::Emulating ) {
+		if( drawDebugPPU ) {
+			systemMain->timeProfiler.startSection( "drawPPUDebug" );
+			Image& patternImage = ppuDraw.drawPatternTableF( &systemMain->nesMain.nesMemory );   
+			Image& paletteImage = ppuDraw.drawPaletteTableF( &systemMain->nesMain.nesMemory, &systemMain->nesMain.nesPpu.nesPalette);
+			
+			ImGui::Begin( "PPU Debug Window", drawDebugPPU.getPointer( ), 0 );
+			ImGui::Image( ( void* )patternImage.handle, ImVec2( patternImage.getSizeX(), patternImage.getSizeY( ) ) );
+			ImGui::Image( ( void* )paletteImage.handle, ImVec2( paletteImage.getSizeX( ), paletteImage.getSizeY( ) ) );
+			ImGui::End( );
 		}
 	}
+
+	//render nes output
+	systemMain->timeProfiler.startSection( "drawPPU_main" );
+	ppuDraw.drawOutput( systemMain->nesMain.nesPpu.vidoutBuffer );
+
+	systemMain->nesMain.nesDebugger.draw( );
+
+	systemMain->timeProfiler.startSection( "ImGui render" );
+	
+	//render big text if it has been queued up
+	renderBigText( );
+	ImGui::Render( );
+
+	systemMain->timeProfiler.startSection( "ImGui drawdata" );
+	ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData( ) );
+
+	//renderer.drawImage( nesMain.nesApu.getGraph(), &Vec2d( 0, 20 ),true, 1, 0.5f );
+	systemMain->timeProfiler.startSection( "RenGUI" );
+	systemMain->gui.render( );
 }
 
 void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte color ) {
@@ -166,21 +171,10 @@ void Renderer::drawBox( float x, float y, float width, float height, Pixel3Byte 
 	glEnable( GL_TEXTURE_2D );
 }
 
-
 void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, float opacity ) {
-	static GLuint imgid = 0;
-				
-	if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
-
 	glEnable( GL_BLEND );
 	
-    if( image.channels == 3 ) {
-		createTexture( image, &imgid, GL_RGB );
-	} else {
-		createTexture( image, &imgid, GL_RGBA );
-	}
+	image.createGLTexture( );
     
 	//glBindTexture( GL_TEXTURE_2D, imgid );
 
@@ -198,11 +192,11 @@ void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, floa
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f( 1.0f, 1.0f, 1.0f, opacity );			
 
-    glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, ystart ); glVertex3f( pos.x, pos.y, zdrawPos );
-		glTexCoord2f( 0.0, yend ); glVertex3f( pos.x, pos.y + ( image.sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, yend ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y + ( image.sizeY*scale ), zdrawPos );
-		glTexCoord2f( 1.0, ystart ); glVertex3f( pos.x + ( image.sizeX*scale ), pos.y, zdrawPos );
+	    glBegin( GL_POLYGON );  
+		glTexCoord2f( 0.0, ystart ); glVertex3f( pos.getX(), pos.getY(), zdrawPos );
+		glTexCoord2f( 0.0, yend ); glVertex3f( pos.getX(), pos.getY() + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, yend ); glVertex3f( pos.getX() + ( image.sizeX*scale ), pos.getY() + ( image.sizeY*scale ), zdrawPos );
+		glTexCoord2f( 1.0, ystart ); glVertex3f( pos.getX() + ( image.sizeX*scale ), pos.getY(), zdrawPos );
 	glEnd();
 
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f);			
@@ -212,97 +206,36 @@ void Renderer::drawImage( Image image, Vec2d pos, bool flip_y, float scale, floa
 }
 /*
 ==============================================
-PPUDraw::drawPatternTable()
+PPUDraw::drawPatternTableF()
 
   Draws patterntable contents ( for debugging )
 
 ==============================================
 */
 //positions of patterntable debug output
-ConsoleVariable< int > patternTableX( 
-/*start val*/	535, 
-/*name*/		"patternTableX", 
-/*description*/	"x position of debug pattern table",
+ConsoleVariable< bool > drawForceAspectRatio( 
+/*start val*/	false, 
+/*name*/		"drawForceAspectRatio", 
+/*description*/	"Force 1 to 1 aspect ratio of main video output",
 /*save?*/		SAVE_TO_FILE );
 
-ConsoleVariable< int > patternTableY( 
-/*start val*/	400, 
-/*name*/		"patternTableY", 
-/*description*/	"y position of debug pattern table",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< float > patternTableScale( 
-/*start val*/	1.0f, 
-/*name*/		"patternTableScale", 
-/*description*/	"scaling debug pattern table",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > outputX ( 
-/*start val*/	20, 
-/*name*/		"outputX", 
-/*description*/	"x position of main render output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > outputY ( 
-/*start val*/	-9, 
-/*name*/		"outputY", 
-/*description*/	"y position of main render output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< float > outputScale( 
-/*start val*/	2.0f, 
-/*name*/		"outputScale", 
-/*description*/	"scaling of main render output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > paletteTableX( 
-/*start val*/	604, 
-/*name*/		"paletteTableX", 
-/*description*/	"x position of debug palette output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< int > paletteTableY( 
-/*start val*/	65, 
-/*name*/		"paletteTableY", 
-/*description*/	"y position of debug palette output",
-/*save?*/		SAVE_TO_FILE );
-
-ConsoleVariable< float > paletteTableScale( 
-/*start val*/	1.0f, 
-/*name*/		"paletteTableScale", 
-/*description*/	"scaling of debug palette output",
-/*save?*/		SAVE_TO_FILE );
 
 PPUDraw::PPUDraw() {
 	
 }
 
 void PPUDraw::initialize( ) {
-	Console::ConsoleSystem* consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
+	consoleSystem = &FrontEnd::SystemMain::getInstance( )->consoleSystem;
 
-	consoleSystem->variables.addIntVariable( &patternTableX );
-	consoleSystem->variables.addIntVariable( &patternTableY );
-	consoleSystem->variables.addFloatVariable( &patternTableScale );
-
-	consoleSystem->variables.addIntVariable( &outputX );
-	consoleSystem->variables.addIntVariable( &outputY );
-	consoleSystem->variables.addFloatVariable( &outputScale );
-
-	consoleSystem->variables.addIntVariable( &paletteTableX );
-	consoleSystem->variables.addIntVariable( &paletteTableY );
-	consoleSystem->variables.addFloatVariable( &paletteTableScale );
+	consoleSystem->variables.addBoolVariable( &drawForceAspectRatio );
 }
 
 //TODO create generic routine for drawing data buffer to screen
-void PPUDraw::drawPatternTable() {
-    static GLuint imgid = 0;
-    
-	float x = patternTableX.getValue();
-	float y = patternTableY.getValue();
-	float scale = patternTableScale.getValue();
-    
+Image& PPUDraw::drawPatternTableF( NesEmulator::NesMemory *nesMemory ) {
+	static Image img;
+	
 	//TODO check to see if game is actually loaded
-    ppuPixelGen.genPatternTablePixelData();
+    ppuPixelGen.genPatternTablePixelData( nesMemory );
     
     //TODO - better color implementation ( not hardcoded - based on pallette data )
     Pixel3Byte colors[ 4 ];
@@ -325,12 +258,6 @@ void PPUDraw::drawPatternTable() {
     
     //feed data to gl
     //create texture
-    
-    Image img;
-
-    if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
 
     img.channels = 3; 
     img.sizeX = ( 0x0f * 8 ) * 2;
@@ -340,20 +267,10 @@ void PPUDraw::drawPatternTable() {
 	glDisable( GL_BLEND );
 	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( img, &imgid, GL_RGB );
-    glBindTexture( GL_TEXTURE_2D, imgid );
-    
-    float zdrawpos = 0.0001f;
-
-    glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, 1.0 ); glVertex3f( x, y, zdrawpos );
-		glTexCoord2f( 0.0, 0.0 ); glVertex3f( x, y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 0.0 ); glVertex3f( x + ( img.sizeX*scale ), y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 1.0 ); glVertex3f( x + ( img.sizeX*scale ), y, zdrawpos );
-	glEnd();
-
-	glEnable( GL_BLEND );
-	//img.data = 0;
+	img.createGLTexture( );
+    glBindTexture( GL_TEXTURE_2D, img.handle );
+   
+	return img;
 }
 
 /* 
@@ -361,123 +278,53 @@ void PPUDraw::drawPatternTable() {
 void PPUDraw::drawOutput( ubyte *data )
 ==============================================
 */
-void PPUDraw::drawOutput( ubyte *data ) {
-	//is it correct to arbitrarily set this to 1?
-	static GLuint imgid = 0;
-	Image img;
+void PPUDraw::drawOutput( ubyte* data ) {
+	static Image img;
 
-	float x = outputX.getValue();
-	float y = outputY.getValue();
-	
-	float scale		= outputScale.getValue();	
-    
-    if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
-	
-	//TODO fix sketchy argument pass of image
-    img.channels = 3; 
-    img.sizeX	 = 256; 
-    img.sizeY	 = 256;
-    img.setData(data);
-    
-	Vec2d pos( x, y );
-	systemMain->renderer.drawImage( img, pos, true, scale );
+	img.channels = 3;
+	img.sizeX = 256;
+	img.sizeY = 256;
+	img.setData( data );
+	img.createGLTexture( );
+
+	img.bindGLTexture( );
+
+	ImGui::Begin( "Main Video", nullptr, ImGuiWindowFlags_NoScrollbar );
+	auto width = ImGui::GetWindowWidth( );
+	auto height = ImGui::GetWindowHeight( );
+
+	if ( drawForceAspectRatio ) {
+		float widthHighestPower = static_cast<float>(pow( 2, floor( log2( width ) ) ));
+		float  heightHighestPower = static_cast<float>( pow( 2, floor( log2( height ) ) ));
+		auto lowestVal = widthHighestPower < heightHighestPower ? widthHighestPower : heightHighestPower;
+
+		ImGui::Image( ( void* )img.handle, ImVec2( lowestVal, lowestVal ) );
+	} else {
+		ImGui::Image( ( void* )img.handle, ImVec2( width, height ) );
+	}
+	ImGui::End( );
 }
 
-void PPUDraw::drawPaletteTable( PpuSystem::NesPalette *pal ) {
-	//is it correct to arbitrarily set this to 1?
-	static GLuint imgid = 0;
-	Image img;
+/*
+==============================================
+PpuDraw::drawPalletteTableF
+==============================================
+*/
+Image& PPUDraw::drawPaletteTableF( NesEmulator::NesMemory* nesMemory, NesEmulator::NesPalette *pal ) {
+	static Image img;
 
-	float x = paletteTableX;
-	float y = paletteTableY;
-	
-	float scale		= paletteTableScale;
-    
-    if( imgid != 0 ) {
-        glDeleteTextures( 1, &imgid );
-    }
-
-	paletteGen.genPalettePixelData( pal );
+	paletteGen.genPalettePixelData( nesMemory, pal );
 
     img.channels = 3; 
     img.sizeX	 = 128;
     img.sizeY	 = 16;
     img.setData(paletteGen.getPixelData());
+	img.createGLTexture( );
     
-	glDisable( GL_BLEND );
-	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
+	//glDisable( GL_BLEND );
+	//glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );			
 
-    createTexture( img, &imgid, GL_RGB );
-    glBindTexture( GL_TEXTURE_2D, imgid );
-    
-    float zdrawpos	= 0.0f;
-	
-    glBegin( GL_POLYGON );  
-		glTexCoord2f( 0.0, 0.0 ); glVertex3f( x, y, zdrawpos );
-		glTexCoord2f( 0.0, 1.0 ); glVertex3f( x, y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 1.0 ); glVertex3f( x + ( img.sizeX*scale ), y + ( img.sizeY*scale ), zdrawpos );
-		glTexCoord2f( 1.0, 0.0 ); glVertex3f( x + ( img.sizeX*scale ), y, zdrawpos );
-	glEnd();
-
-	zdrawPos += 0.001f;
-
-	glEnable( GL_BLEND );
-	glDisable( GL_TEXTURE_2D );
-
-	glBegin( GL_LINE_LOOP );
-		glColor3f( 1.0f, 1.0f, 1.0f );
-		glVertex3f( x, y-1, zdrawpos );
-		glVertex3f( x, y + ( img.sizeY * scale ), zdrawpos );
-		glVertex3f( x + ( img.sizeX * scale )+1, y + ( img.sizeY * scale ), zdrawpos );
-		glVertex3f( x + ( img.sizeX * scale )+1, y-1, zdrawpos );
-	glEnd( );
-	glEnable( GL_TEXTURE_2D );
-
-	//reset data pointer so data isn't deleted
-	//img.data = 0;
-}
-
-/*
-==============================================
-findTextureExtension()
-
-  finds and appends correct file extension
-  for texture files
-==============================================
-*/
-void Renderer::findTextureExtension( char *strFileName ) {
-	char strJPGPath[ MAX_PATH ] = {0};
-	char strTGAPath[ MAX_PATH ]    = {0}; 
-	FILE *fp = NULL;
-
-	// Get the current path we are in
-	GetCurrentDirectory( MAX_PATH, strJPGPath );
-
-	// Add on a '\' and the file name to the end of the current path.
-	// We create 2 seperate strings to test each image extension.
-	strcat( strJPGPath, "\\" );
-	strcat( strJPGPath, strFileName );
-	strcpy( strTGAPath, strJPGPath );
-	
-	// Add the extensions on to the file name and path
-	strcat( strJPGPath, ".jpg" );
-	strcat( strTGAPath, ".tga" );
-
-	// Check if there is a jpeg file with the texture name
-	if( ( fp = fopen( strJPGPath, "rb" ) ) != NULL ) {
-		// If so, then let's add ".jpg" onto the file name and return
-		strcat( strFileName, ".jpg" );
-		return;
-	}
-
-	// Check if there is a targa file with the texture name
-	if( ( fp = fopen( strTGAPath, "rb" ) ) != NULL ) {
-		// If so, then let's add a ".tga" onto the file name and return
-		strcat( strFileName, ".tga" );
-		return;
-	}
+	return img;
 }
 
 /* 
@@ -497,5 +344,42 @@ char *Renderer::getGLErrorString( int error ) {
 
 		default:					return "Unknown GL Error";
 	}
+}
+
+/*
+==============================================
+Renderer::renderBigText
+  FIXME: not so big right now, but it is a pain to change font size with imgui
+		 so will do later at some point
+==============================================
+*/
+void Renderer::renderBigText() {
+	if (bigText.timer > 0.0f) {
+        bigText.timer -= ImGui::GetIO().DeltaTime;
+
+        float alpha = bigText.timer / bigText.fadeDuration;
+        
+		ImVec4 textColor = ImVec4(1.0f, 1.0f, 1.0f, alpha);
+
+		ImVec2 textSize = ImGui::CalcTextSize( bigText.bigText.c_str( ) );
+		ImVec2 windowSize = ImVec2( textSize.x + 10.0f, textSize.y + 10.0f ); // Add some padding around the text
+		ImGui::SetNextWindowSize( windowSize );
+        ImGui::SetNextWindowBgAlpha(1.0f);
+        ImGui::Begin("LargeText", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs);
+
+		//position on bottom left of screen
+		ImGui::SetWindowPos( ImVec2(-1.0f, yres - 20.0f ) );
+
+        ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+        ImGui::Text("%s", bigText.bigText.c_str());
+        ImGui::PopStyleColor();
+
+        ImGui::End(); // End the ImGui window
+    }	
+}
+
+void Renderer::setBigText( std::string_view newBigText ) {
+	bigText.bigText = newBigText;
+	bigText.timer = bigText.fadeDuration;
 }
 

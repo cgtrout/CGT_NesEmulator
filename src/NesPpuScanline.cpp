@@ -1,7 +1,7 @@
 #include "Precompiled.h"
-#include "NesPpuScanline.h"
+#include "SystemMain.h"
 
-using namespace PpuSystem;
+using namespace NesEmulator;
 using namespace Console;
 ConsoleVariable< bool > cvDrawBackground ( 
 /*start val*/	true, 
@@ -21,12 +21,9 @@ ConsoleVariable< int > cvSpriteZeroOffset (
 /*description*/	"Used to experiment with sprite 0 timing.",
 /*save?*/		 NO_SAVE_TO_FILE );
 
-extern NesEmulator::PPUMemory *ppuMemory;
-NesPalette				*pal;
-
-ScanlineDrawer::ScanlineDrawer() {
-	
-}
+ScanlineDrawer::ScanlineDrawer( NesMain* nesMain ) : 
+	nesMain( nesMain )
+{}
 
 void ScanlineDrawer::initialize( ) {
 	Console::ConsoleSystem* consoleSystem;
@@ -35,8 +32,6 @@ void ScanlineDrawer::initialize( ) {
 	consoleSystem->variables.addBoolVariable( &cvDrawBackground );
 	consoleSystem->variables.addBoolVariable( &cvDrawSprites );
 	consoleSystem->variables.addIntVariable( &cvSpriteZeroOffset );
-	ppuMemory = &FrontEnd::SystemMain::getInstance( )->nesMain.nesMemory.ppuMemory;
-	pal = &FrontEnd::SystemMain::getInstance( )->nesMain.nesPpu.nesPalette;
 }
 
 /* 
@@ -69,9 +64,9 @@ bool ScanlineDrawer::drawScanline( int sl, PpuClockCycles currcc, int endPos, Pp
 	}
 
 	//draw sprites and background
-	spriteDrawer.drawSprites( BGPRI_TYPE_BACKGROUND, registers, this );
-	backgroundDrawer.drawBackground( registers, this );
-	spriteDrawer.drawSprites( BGPRI_TYPE_FOREGROUND, registers, this );
+	spriteDrawer.drawSprites( &nesMain->nesMemory.ppuMemory, BGPRI_TYPE_BACKGROUND, registers, this );
+	backgroundDrawer.drawBackground( &nesMain->nesMemory.ppuMemory, registers, this );
+	spriteDrawer.drawSprites( &nesMain->nesMemory.ppuMemory, BGPRI_TYPE_FOREGROUND, registers, this );
 	
 	//build final color lookup table
 	generateFinalPixelData();
@@ -105,7 +100,7 @@ void ScanlineDrawer::BackgroundDrawer::drawBackground( NesPPU::Registers *r, Sca
 this is pretty slow, since it only outputs one pixel at a time
 ==============================================
 */
-void BackgroundDrawer::drawBackground( Registers *r, ScanlineDrawer *sd ) {
+void BackgroundDrawer::drawBackground( PPUMemory *ppuMemory, Registers *r, ScanlineDrawer *sd ) {
 	if( !r->backgroundVisible || !cvDrawBackground ) {
 		return;
 	}
@@ -176,7 +171,6 @@ void BackgroundDrawer::drawBackground( Registers *r, ScanlineDrawer *sd ) {
 		ubyte bit1 = BIT( abs( r->xOffset - 7 ), byte1 );
 		
 		//extract 2 attribute bits
-		
 		ubyte reducedSquare = ( ntoffset & 0x73 );
 		ubyte sx = ( reducedSquare & 0x0f ) / 2;
 		ubyte sy = ( reducedSquare & 0xf0 ) / 0x40;
@@ -195,7 +189,6 @@ void BackgroundDrawer::drawBackground( Registers *r, ScanlineDrawer *sd ) {
 	}
 }
 
-
 /* 
 ==============================================
 void NesPPU::ScanlineDrawer::finishScanline()
@@ -203,30 +196,35 @@ void NesPPU::ScanlineDrawer::finishScanline()
   does finishing touches on scanlihne
 ==============================================
 */
-void ScanlineDrawer::finishScanline() {
-	//increment y offset
+void ScanlineDrawer::finishScanline( ) {
 	registers->vramAddress += 0x1000;
-	//_log->Write( "finishing scanline %d (+0x1000)", scanline );
-	
-	//handle wrap around logic
-	if( registers->vramAddress & 0x8000 ) {
-		registers->vramAddress &= 0x0fff;		//clear
 
-		//increase y scroll 
-		//TODO move these to own functions to hide nasty bit manipulation
-		if( ( ( registers->vramAddress & 0x03e0 ) >> 5 ) < 29 ) {
+	//check for wrap around
+	if( registers->vramAddress & 0x8000 ) {
+		registers->vramAddress &= 0x0fff;
+
+		auto current_yscroll = ( registers->vramAddress & 0x03e0 ) >> 5;
+		if( current_yscroll < 29 ) {
 			uword oadd = registers->vramAddress;
-			registers->vramAddress &= ( ~0x03e0 & 0xffff );	
-			registers->vramAddress += ( ( ( oadd & 0x03e0 ) >> 5 ) + 1 ) << 5 ;		//increase
-		} else {
-			registers->vramAddress &= 0xfc1f;	//reset
+
+			//clear course y
+			registers->vramAddress &= ( ~0x03e0 & 0xffff );
 			
-			//flip bit 11
+			//increment the y-scroll position by 1
+			registers->vramAddress += ( ( ( oadd & 0x03e0 ) >> 5 ) + 1 ) << 5;
+		}
+		else {
+			//reset 'course y'
+			registers->vramAddress &= 0xfc1f;
+
+			//flip bit 11 of the VRAM address to toggle the nametable being accessed
 			registers->vramAddress = FLIP_BIT( 11, registers->vramAddress );
 		}
 	}
+
 	registers->status.scanlineSriteMaxHit = 0;
 }
+
 
 /* 
 ==============================================
@@ -274,6 +272,7 @@ inline void NesPPU::ScanlineDrawer::generateFinalPixelData()
 */
 inline void ScanlineDrawer::generateFinalPixelData() {
 	ubyte finalPixelColor;
+	auto* ppuMemory = &nesMain->nesMemory.ppuMemory;
 
 	int maxPos = endPos;
 	if( maxPos > 256 ) maxPos = 256;
@@ -300,6 +299,8 @@ inline void NesPPU::ScanlineDrawer::fillVidoutBuffer( ubyte *vidoutBuffer )
 ==============================================
 */
 inline void ScanlineDrawer::fillVidoutBuffer( ubyte *vidoutBuffer ) {
+	auto* pal = &nesMain->nesPpu.nesPalette;
+
 	//copy data from scanline buffer to output buffer	
 	//calculate starting offset into pixel output buffer
 	int vidPos = ( scanline ) * ( PIXELS_PER_SCANLINE ) * 3;
@@ -363,6 +364,7 @@ void NesPPU::ScanlineDrawer::SpriteDrawer::drawSprites
 ==============================================
 */
 void SpriteDrawer::drawSprites( 
+	PPUMemory *ppuMemory,
 	ubyte backgroundPri, 
 	Registers *registers, 
 	ScanlineDrawer *scanlineDrawer ) 

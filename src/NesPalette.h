@@ -1,8 +1,9 @@
 #if !defined( NesPalette_INCLUDED )
 #define NesPalette_INCLUDED
 
-#include < string >
+#include <string>
 #include "CGTSingleton.h"
+#include "Image.h"
 
 typedef unsigned char ubyte;
 #define NUM_PALETTE_ENTRYS 0x3f
@@ -10,7 +11,7 @@ typedef unsigned char ubyte;
 
 using namespace CGTSingleton;
 
-namespace PpuSystem {
+namespace NesEmulator {
 	/*
 	=================================================================
 	=================================================================

@@ -1,5 +1,6 @@
-#if !defined( NesSoundTools_INCLUDED )
-#define NesSoundTools_INCLUDED
+#pragma once
+
+#include <cassert>
 
 namespace NesApu {
 	/*
@@ -220,10 +221,15 @@ namespace NesApu {
 	}
 
 	__forceinline ubyte Timer::clock() {
-		if( halfTimer && currClock++ == 1 ) {
-			ubyte dividerOut = divider.clock();
-			currClock = 0;
-			return dividerOut;
+		if( halfTimer ) {
+			if( currClock++ == 1 ) {
+				ubyte dividerOut = divider.clock( );
+				currClock = 0;
+				return dividerOut;
+			}
+			else {
+				return 0;
+			}
 		} else {
 			return divider.clock();
 		}
@@ -247,6 +253,9 @@ namespace NesApu {
 	class SweepUnit {
 	  public:
 		SweepUnit();
+
+		//sweep changes timer period, so it needs access to the timer object
+		void setTimer( Timer* t );
 		
 		//sets period for sweep units divider  
 		void setPeriod( ubyte );
@@ -269,17 +278,22 @@ namespace NesApu {
 	  private:
 	
 		Divider divider;
+		Timer* timer;
 		ubyte enabled;
 		ubyte negative;
 		ubyte shiftAmt;
 		uword lastShiftVal;
 
-		uword *squarePeriod;
 		ubyte squareChannel;
 
 		//was a write done to sweep since last clock?
 		bool outstandingWrite;
 	};
+
+	inline void SweepUnit::setTimer( Timer* t ) {
+		timer = t;
+	}
+
 	inline void SweepUnit::setPeriod( ubyte val ) {
 		divider.setPeriod( val + 1 );
 	}
@@ -292,7 +306,9 @@ namespace NesApu {
 		}
 
 		if( dividerClocked ) {
-			uword shiftVal = *squarePeriod >> shiftAmt;
+			uword period = timer->getPeriod( );
+
+			uword shiftVal = period >> shiftAmt;
 			if( negative ) {
 				//invert
 				shiftVal = ~shiftVal;
@@ -301,18 +317,15 @@ namespace NesApu {
 				}
 			}
 			if( shiftVal <= 0x7ff && enabled && shiftAmt > 0 ) {
-				*squarePeriod += shiftVal;
+				period += shiftVal;
 			}
 			lastShiftVal = shiftVal;
+			timer->setPeriod( period );
 		}
 	}
 
-	inline void SweepUnit::setSquarePeriodPtr ( uword *squarePeriod ) {
-		this->squarePeriod = squarePeriod;
-	}
-
 	inline void SweepUnit::setSquareChannel( ubyte ch ) {
-		_ASSERT( ch == 0 || ch == 1 );
+		assert( ch == 0 || ch == 1 );
 		squareChannel = ch;
 	}
 
@@ -332,5 +345,3 @@ namespace NesApu {
 		return lastShiftVal;
 	}
 };
-
-#endif

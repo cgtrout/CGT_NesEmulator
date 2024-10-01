@@ -1,9 +1,9 @@
 #include "precompiled.h"
 
 #include "NesPalette.h"
-#include < fstream >
+#include <fstream>
 
-using namespace PpuSystem;
+using namespace NesEmulator;
 /*
 ==============================================
 NesPalette::loadFromFile( std::string fileName )

@@ -1,17 +1,14 @@
-#if !defined( TimeProfiler__H )
-#define TimeProfiler__H
+#pragma once
 
 #include <string>
 #include <vector>
 #include <chrono>
+#include <map>
 
 namespace FrontEnd {
-	
-	
+
 	const int TIMED_SECTION_SAMPLES = 60;
-	
-	//update rate
-	const int TIMED_SECTION_RATE = 15;
+	const int TIMED_SECTION_RATE 	= 20;
 	
 	/*
 	================================================================
@@ -25,18 +22,23 @@ namespace FrontEnd {
 	*/
 	class TimedSection {
 	  public:
-		TimedSection( const std::string &name );
-		~TimedSection( );
 		
-		void start( double  time );
-		void stop( double  time );
+		TimedSection( const std::string &name );
+		TimedSection( );
+		void initialize( );
+		~TimedSection( );
+
+		bool isActive( ) { return activeFrame; }
+		
+		void start( std::chrono::steady_clock::time_point );
+		void stop( std::chrono::steady_clock::time_point );
 		
 		//send these at start/end of frame to let section
 		//know that frame is starting or done
 		void startFrame();
 		void endFrame();
 
-		double  getElapsedTime( ) { return elapsedTime; }
+		double  getElapsedTime( ) { return elapsedTime.count(); }
 
 		//is this section still being timed?
 		//bool isActive() { return activeFrame; }
@@ -50,16 +52,16 @@ namespace FrontEnd {
 		double  calcAvgTime();
 	
 	  private:	
-	
-		TimedSection();
 		bool activeFrame;
 		  
-		double  startTime;
-		double  stopTime;
-		double  elapsedTime;
+		std::chrono::steady_clock::time_point startTime;
+		std::chrono::steady_clock::time_point stopTime;
+		std::chrono::duration<double>  elapsedTime;
 		std::array<double , TIMED_SECTION_SAMPLES> usagePercentAvg;
 		std::array<double , TIMED_SECTION_SAMPLES> timeAvg;
 		std::string name;
+
+		bool running = false;
 	};
 
 	/*
@@ -79,12 +81,12 @@ namespace FrontEnd {
 		void startFrame();
 		void stopFrame();
 		
-		//add section to main timedSections list
-		void addSection( const std::string &name );
+		void stopActive( );
 
+		//Start the profile for the given section
+		//Will automatically stop other sections that may be running
 		void startSection( const std::string &name );
-		void stopSection( const std::string &name );
-
+		
 		double  getSectionRunPercent( const std::string &name );
 
 		std::string getSectionReport();
@@ -103,11 +105,17 @@ namespace FrontEnd {
 		std::chrono::steady_clock::time_point frameStopTime;
 		std::chrono::duration<double>  elapsedTime;
 
-		std::vector< TimedSection > timedSections;
+		std::map<std::string, TimedSection > timedSections;
+
+		//frame buffer - used to calculate average framerate
+		static const int frameTimeBufferSize = 60;
+		std::array<double, frameTimeBufferSize> frameTimeBuffer;
+		int frameTimeBufferIndex = 0;
 
 		TimedSection *getSection( const std::string &name );
 
 		std::string currentReport;
+
+		void stopAll( );
 	};
 }
-#endif

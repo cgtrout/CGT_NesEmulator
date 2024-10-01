@@ -1,14 +1,8 @@
-// Renderer.h: interface for the Renderer class.
-//
-//////////////////////////////////////////////////////////////////////
+#pragma once
 
-#if !defined( AFX_RENDERER_H__CDCC853B_3C74_4A4E_9339_2D8A8A00C624__INCLUDED_ )
-#define AFX_RENDERER_H__CDCC853B_3C74_4A4E_9339_2D8A8A00C624__INCLUDED_
-
-#include < windows.h >
-#include < gl\gl.h >			
-#include < gl\glu.h >			
-//#include < gl\glaux.h >		
+#include <windows.h>
+#include <gl\gl.h>			
+#include <gl\glu.h>			
 
 #define GL_TEXTURE0_ARB                     0x84C0
 #define GL_TEXTURE1_ARB                     0x84C1
@@ -18,17 +12,12 @@
 
 //#include "vector.h"
 //#include < vector >
-#include < math.h >
+#include <cmath>
 #include "image.h"
 
-#if _MSC_VER > 1000
-#pragma once
-//#pragma warning( disable : 4786 ) 
-#endif // _MSC_VER > 1000
-
 //x and y screen dimensions
-#define NTSC_X 256
-#define NTSC_Y 240
+//#define NTSC_X 256
+//#define NTSC_Y 240
 
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
@@ -36,9 +25,15 @@ using namespace CGTSingleton;
 #include "NesPPU.h"
 #include "NesPpuTools.h"
 
-using namespace NesEmulator;
+namespace FrontEnd {
+	class SystemMain;
+}
+
+namespace NesEmulator {
+	class NesMemory;
+}
+
 namespace Render {
-	
 	/*
 	=================================================================
 	=================================================================
@@ -55,15 +50,17 @@ namespace Render {
 		void initialize( );
 		
 		//renders ppu patterntable for debugging purposes
-		void drawPatternTable();
+		//F added to end to aviod name collision with console vars
+		Image& drawPatternTableF( NesEmulator::NesMemory* nesMemory );
 
 		//draws raw pixel data to screen RGB pixel data expected
+		//F added to end to aviod name collision with console vars
 		void drawOutput( ubyte *data );
 
-		void drawPaletteTable( PpuSystem::NesPalette *p );
+		Image& drawPaletteTableF( NesEmulator::NesMemory* nesMemory, NesEmulator::NesPalette *p );
 	private:
-		PpuSystem::NesPPUPixelGen ppuPixelGen;
-		PpuSystem::NesPPUPaletteGen paletteGen;
+		NesEmulator::NesPPUPixelGen ppuPixelGen;
+		NesEmulator::NesPPUPaletteGen paletteGen;
 	};
 	/*
 	=================================================================
@@ -76,6 +73,8 @@ namespace Render {
 	public:
 		void initialize();
 
+		void resizeInitialize( );
+
 		void initFrame();
 		void renderFrame();
 		void render2D();
@@ -83,23 +82,35 @@ namespace Render {
 		void drawBox( float x, float y, float width, float height, Pixel3Byte color );
 		void drawImage( Image image, Vec2d pos, bool flip_y = false, float scale = 1.0f, float opacity = 1.0f );
 		
-		void findTextureExtension( char *strFileName );
-
 		PPUDraw ppuDraw;
 
 		void setRes( int x, int y ) { xres = x; yres = y; }
-		int getxRes() { return xres; }
-		int getyRes() { return yres; }
+		float getxRes() { return static_cast<float>(xres); }
+		float getyRes() { return static_cast<float>(yres); }
 	
-		Renderer();
+		void setXYRes( int x, int y ) { xres = x; yres = y; }
+
+		Renderer( FrontEnd::SystemMain* );
 		virtual ~Renderer();
+
+		//state for drawing 'big' text
+		struct BigText {
+			std::string bigText;
+    		float timer = 0.0f;
+    		float fadeDuration = 5;
+		} bigText;
+		
+		//set big text to be drawn
+		void setBigText( std::string_view newBigText );
+		
+		//handles actual drawing of big text
+		void renderBigText();
+
 	private:
 
 		int xres, yres;
 		char *getGLErrorString( int error );
 
-		//gl error code
-		int glError;
+		FrontEnd::SystemMain* systemMain;
 	};
 }
-#endif // !defined( AFX_RENDERER_H__CDCC853B_3C74_4A4E_9339_2D8A8A00C624__INCLUDED_ )

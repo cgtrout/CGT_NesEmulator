@@ -1,23 +1,25 @@
-#if !defined( NesFile_INCLUDED )
-#define NesFile_INCLUDED
+#pragma once
 
 //nes file loader
-#include < string >
+#include <string>
+#include <vector>
 
 #include "CGTException.h"
 
 typedef unsigned char ubyte;
 
 namespace NesEmulator {
+	class NesMain;
+
 	class NesFile {
 	public:
-		NesFile();
+		NesFile( NesMain* nesMain );
 		void initialize();
-		void loadFile( std::string filename );
+		void loadFile( std::string_view filename );
 		//std::string getFileName() {return file;}
 
-		ubyte *getPrgRomPages() { return prgRomPages; }
-		ubyte *getChrRomPages() { return chrRomPages; }
+		std::vector<ubyte> *getPrgRomPages() { return &prgRomPages; }
+		std::vector<ubyte> *getChrRomPages() { return &chrRomPages; }
 
 		ubyte getNumPrgRomPages()  { return prgRomPageCount; }
 		ubyte getChrRomPageCount() { return chrRomPageCount; }
@@ -31,30 +33,41 @@ namespace NesEmulator {
 
 		ubyte getMapperNum() {return mapperNum;}
 
+		std::string toString();
+
+		//draw imgui information panel
+		void displayInformationPanel();
+
 		class NesFileException : public CgtException {
 		public:
-			NesFileException( const char *header, const char *message, bool showMessage = true ) {
-				::CgtException( header, message, showMessage);
-			}
+			NesFileException( std::string_view header, std::string_view message, bool showMessage = true ) :
+				CgtException( header, message, showMessage)
+			{}
 		};
 		
 	private:
-		ubyte prgRomPageCount;	
-		ubyte chrRomPageCount;
+		NesMain* nesMain;
 
-		ubyte horizontalMirroring;
-		ubyte verticalMirroring;
-		ubyte sramEnabled;
-		ubyte trainer;
-		ubyte fourScreenVRam;
+		std::string nameOfFile = "";
 
-		ubyte mapperNum;
+		ubyte prgRomPageCount = 0;			
+		ubyte chrRomPageCount = 0;
 
-		ubyte *prgRomPages;
-		ubyte *chrRomPages;
+		ubyte horizontalMirroring = 0;
+		ubyte verticalMirroring = 0;
+		ubyte sramEnabled = 0;
+		ubyte trainer = 0;
+		ubyte fourScreenVRam = 0;
+
+		ubyte mapperNum = 0;
+
+		std::vector<ubyte> prgRomPages;
+		std::vector<ubyte> chrRomPages;
+
+		//is nes 2.0 file?
+		bool isNes2 = false;
 
 		//std::string file;
 		//todo write destructor
 	};
 }
-#endif

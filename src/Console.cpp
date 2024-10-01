@@ -1,18 +1,13 @@
 #include "precompiled.h"
 
-using namespace CgtString;
-
 #include "ConsoleCommands.h"
-using namespace Console;
-
 #include "StringToNumber.h"
+#include "CGString.h"
 
-#include < sstream >
+#include <sstream>
+#include <cstdarg>
 
-//string warning
-#if _MSC_VER > 1000
-#pragma warning ( disable : 4996 )
-#endif
+using namespace Console;
 
 /* 
 ==============================================
@@ -107,7 +102,7 @@ void Variables::addVariable( ConsoleVariable< T > *variable, std::list< ConsoleV
 	if( getValueString( *variable->getName() ) != "NOT_FOUND" ) {
 		std::stringstream ss;
 		ss << "Variable: " << *variable->getName() << " already exists";
-		throw new ConsoleSystemException( "Variables::addVariable", ss.str().c_str(), true );
+		throw ConsoleSystemException( "Variables::addVariable", ss.str().c_str(), true );
 	}
 	
 	varList->push_back( variable );
@@ -118,7 +113,7 @@ void Variables::addVariable( ConsoleVariable< T > *variable, std::list< ConsoleV
 	def = variableFile.getDefinition( *variable->getName() );
 	
 	//if def was found
-	if( def != NULL ) {
+	if( def != nullptr ) {
 		//set values to values that are in file
 		variable->setValueString( def->valstr );
 	}
@@ -150,17 +145,15 @@ Variables::getVariable
 */
 template< class T >
 ConsoleVariable< T > *Variables::getVariable( std::string_view name, std::list< ConsoleVariable< T >* > *varList ) {
-	using namespace CgtString;
-
 	//go through entire varList
 	typename std::list < ConsoleVariable< T >* >::iterator i;
 	for( i = varList->begin(); i != varList->end(); i++ ) {
 		ConsoleVariable< T > *t = *i;
-		if( toLower( name ) == toLower( *t->getName() ) ) {
+		if( CgtLib::toLower( name ) == CgtLib::toLower( *t->getName() ) ) {
 			return t;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /* 
@@ -176,14 +169,14 @@ std::string Variables::getValueString( std::string_view varName ) {
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
-	//if they are not null that means that we found a variable
+	//if they are not nullptr that means that we found a variable
 	//if they are found get the string value
-	if( i != NULL ) return i->getValueString();
-	if( f != NULL ) return f->getValueString();
-	if( b != NULL ) return b->getValueString();
-	if( s != NULL ) return s->getValueString();
+	if( i != nullptr ) return i->getValueString();
+	if( f != nullptr ) return f->getValueString();
+	if( b != nullptr ) return b->getValueString();
+	if( s != nullptr ) return s->getValueString();
 	
-	//if all are null then varName does not exist
+	//if all are nullptr then varName does not exist
 	return "NOT_FOUND";
 }
 
@@ -200,14 +193,14 @@ std::string Variables::getVariableDescription( std::string_view varName ) {
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
-	//if they are not null that means that we found a variable
+	//if they are not nullptr that means that we found a variable
 	//if they are found get the string value
-	if( i != NULL ) return std::string( *i->getDescription() );
-	if( f != NULL ) return std::string( *f->getDescription() );
-	if( b != NULL ) return std::string( *b->getDescription() );
-	if( s != NULL ) return std::string( *s->getDescription() );
+	if( i != nullptr ) return std::string( *i->getDescription() );
+	if( f != nullptr ) return std::string( *f->getDescription() );
+	if( b != nullptr ) return std::string( *b->getDescription() );
+	if( s != nullptr ) return std::string( *s->getDescription() );
 	
-	//if all are null then varName does not exist
+	//if all are nullptr then varName does not exist
 	return "NOT_FOUND";
 }
 
@@ -226,14 +219,14 @@ bool Variables::getSaveVarToFile( std::string_view varName ) {
 	ConsoleVariable< std::string > *s = getStringVariable( varName );
 
 	//check return variable found
-	//if they are not null that means that we found a variable
+	//if they are not nullptr that means that we found a variable
 	//if they are found get the saveTo value
-	if( i != NULL ) return i->getSaveToFile();
-	if( f != NULL ) return f->getSaveToFile();
-	if( b != NULL ) return b->getSaveToFile();
-	if( s != NULL ) return s->getSaveToFile();
+	if( i != nullptr ) return i->getSaveToFile();
+	if( f != nullptr ) return f->getSaveToFile();
+	if( b != nullptr ) return b->getSaveToFile();
+	if( s != nullptr ) return s->getSaveToFile();
 	
-	//if all are null then varName does not exist
+	//if all are nullptr then varName does not exist
 	return false;
 }
 
@@ -246,7 +239,9 @@ template< class T >
 void Variables::getNameList( std::list< ConsoleVariable< T >* > *genericVarList, std::list< std::string* > *stringVector ) {
 	typename std::list < ConsoleVariable< T >* >::iterator i;
 	for( i = genericVarList->begin(); i != genericVarList->end(); i++ ) {
-		stringVector->push_back( (*i)->getName() );
+		auto& v = *i;
+		auto name = v->getName( );
+		stringVector->push_back( name );
 	}
 }
 
@@ -290,11 +285,11 @@ void ConsoleSystem::initialize()
 */
 void ConsoleSystem::initialize() {
 	//get commands declared in CommandHandlerSystem.cpp
-	ConsoleCommand *commands = commandHandlerSystem->getCommands();
+	ConsoleCommand* localCommands = commandHandlerSystem->getCommands();
 
 	//add commands to list
-	while( commands->name != "END_OF_LIST" ) {
-		addCommand( commands++ );
+	while( localCommands->name != "END_OF_LIST" ) {
+		addCommand( localCommands++ );
 	}
 }
 
@@ -314,7 +309,7 @@ void ConsoleSystem::executeRequest( std::string_view str, bool echo = true )
 */
 void ConsoleSystem::executeRequest( std::string_view str, bool echo = true ) {
 	//tokenize strings
-	CgtString::StringTokenizer st;
+	CgtLib::StringTokenizer st;
 	st.setMaxTokens( 2 );
 	st.setMinTokens( 2 );
 	auto strings = st.tokenize( str );
@@ -327,39 +322,37 @@ void ConsoleSystem::executeRequest( std::string_view str, bool echo = true ) {
 void ConsoleSystem::executeRequest
 ==============================================
 */
-void ConsoleSystem::executeRequest( const std::string &command, const std::string &value, bool echo ) {
-	if( command.empty() == true ) {
-		return;
-	}
-	if( echo ) {
-		//echo command
-		printMessage( " > %s %s", command.data(), value.data() );
-		std::stringstream ss;
-		ss << command;
-		
-		//add to previous request history list
-		if( value.empty() != true ) {
-			ss << " " << value;
-		}
-		//ss << ends;
-		prevRequests.push_front( ss.str() );
-		requestPos = 0;
-	}
-	
-	//is the command a variable
-	if( findAndRunVariable( command, value ) ) {
+void ConsoleSystem::executeRequest(const std::string &command, const std::string &value, bool echo) {
+    if (command.empty() == true) {
+        return;
+    }
+    if (echo) {
+        //echo command
+        printMessage(" > %s %s", command.data(), value.data());
+        std::string result;
+        result += command;
+
+        //add to previous request history list
+        if (value.empty() != true) {
+            result += " " + value;
+        }
+        prevRequests.push_front(result);
+        requestPos = 0;
+    }
+
+    //is the command a variable
+    if (findAndRunVariable(command, value)) {
         return; //was a variable : we are done
     }
-    
-	//next check to see if it is a command
-	if( findAndRunCommand( command, value ) ) {
-		return; //found command : we are done
-	}
 
-	//print error message
-	printMessage( """%s %s"" was not recognized", command.c_str(), value.c_str() );
+    //next check to see if it is a command
+    if (findAndRunCommand(command, value)) {
+        return; //found command : we are done
+    }
+
+    //print error message
+    printMessage("\"%s %s\" was not recognized", command.c_str(), value.c_str());
 }
-
 
 /* 
 ==============================================
@@ -373,31 +366,30 @@ bool ConsoleSystem::findAndRunVariable( std::string_view varName, std::string_vi
 	ConsoleVariable< bool >   *b 		= variables.getBoolVariable( varName );
 	ConsoleVariable< std::string > *s 	= variables.getStringVariable( varName );
 	
-	if( i == NULL && f == NULL && b == NULL && s == NULL ) {
+	if( i == nullptr && f == nullptr && b == nullptr && s == nullptr ) {
 		//not found so return false
 		return false;
 	}
 
 	if( run  && value.length() != 0 ) {
-		if( i != NULL ) i->setValueString( value );
-		if( f != NULL ) f->setValueString( value );
-		if( b != NULL ) b->setValueString( value );
-		if( s != NULL ) b->setValueString( value );
+		if( i != nullptr ) i->setValueString( value );
+		if( f != nullptr ) f->setValueString( value );
+		if( b != nullptr ) b->setValueString( value );
+		if( s != nullptr ) b->setValueString( value );
 	}
 	
 	std::stringstream ss;
 	ss << "Variable \"";
 
-	if( i != NULL ) ss << *i->getName() << "\" is set to: " << i->getValue();
-	if( f != NULL ) ss << *f->getName() << "\" is set to: " << f->getValue();
-	if( b != NULL ) ss << *b->getName() << "\" is set to: " << b->getValue();
-	if( s != NULL ) ss << *s->getName() << "\" is set to: " << s->getValue();
+	if( i != nullptr ) ss << *i->getName() << "\" is set to: " << i->getValue();
+	if( f != nullptr ) ss << *f->getName() << "\" is set to: " << f->getValue();
+	if( b != nullptr ) ss << *b->getName() << "\" is set to: " << b->getValue();
+	if( s != nullptr ) ss << *s->getName() << "\" is set to: " << s->getValue();
 
 	printMessage( "%s", ss.str().c_str() );
 
 	return true;
 }
-
 
 /* 
 ==============================================
@@ -408,11 +400,11 @@ bool ConsoleSystem::findAndRunCommand( std::string_view commandName, std::string
 	ConsoleCommand *curr;
 	
 	//go through list of console commands to try and find a match
-	std::list< ConsoleCommand * >::iterator iter;
-	for( iter = commands.begin(); iter != commands.end(); iter++ ) {
+	
+	for( auto iter = commands.begin( ); iter != commands.end( ); iter++ ) {
 		curr = ( ConsoleCommand* )( *iter );
 
-		if( CgtString::strcasecmp( curr->name.c_str(), commandName ) ) {
+		if( CgtLib::stringCaseCmp( curr->name.c_str(), commandName ) ) {
 			if( run ) {
 				runCommand( curr, param );
 			}
@@ -429,8 +421,10 @@ ConsoleSystem::runCommand
 ==============================================
 */
 void ConsoleSystem::runCommand( ConsoleCommand *command, std::string_view param ) {
+	auto trimmed = CgtLib::trimWhitespace( param );
+	
 	//runs handler function using a member function pointer
-	( commandHandlerSystem->*command->handler )( param.data() );
+	( commandHandlerSystem->*command->handler )( trimmed );
 }
 
 /* 
@@ -439,10 +433,9 @@ ConsoleSystem::getCommandDescription
 ==============================================
 */
 std::string ConsoleSystem::getCommandDescription( std::string_view commandName ) {
-	std::list< ConsoleCommand* >::iterator i;
-	for( i = commands.begin(); i != commands.end(); i++ ) {
+	for( auto& i = commands.begin(); i != commands.end(); i++ ) {
 		ConsoleCommand *c = ( ConsoleCommand* )( *i );
-		if( toLower( commandName ) == toLower( c->name ) ) {
+		if( CgtLib::toLower( commandName ) ==  CgtLib::toLower( c->name ) ) {
 			return c->description;
 		}
 	}
@@ -456,42 +449,44 @@ void ConsoleSystem::printMessage( const char *message, ...
 TODO convert to c++ strings
 ==============================================
 */
-void ConsoleSystem::printMessage( const char *message, ... ) {
-    va_list	argptr;
-    char buf[ MaxLineSize*2 ];
-	char tbuf[ MaxLineSize ];
-	
-	va_start ( argptr,message );
-	vsprintf ( buf,message,argptr );
-	va_end ( argptr );
+void ConsoleSystem::printMessage( const char* message, ... ) {
+	// Create a buffer and format the message
+	const int bufferSize = 1024;
+	std::vector<char> buffer( bufferSize );
+	va_list argptr;
+	va_start( argptr, message );
+	vsnprintf( buffer.data( ), bufferSize, message, argptr );
+	va_end( argptr );
 
-	//chop up line if greater than maximum allowable length
-	int size = strlen( buf );
-	char *ptr;
-	ptr = &buf[ 0 ];
-	while( size > 0 ) {
-		if( size > MaxLineSize ) {
-			strncpy( tbuf, ptr, MaxLineSize-1 );
-			tbuf[ MaxLineSize-1 ] = '\0';
-			ptr = &buf[ MaxLineSize-1 ];
-			size -= MaxLineSize - 1;
+	// Convert the buffer to a std::string
+	std::string formattedMessage( buffer.data( ) );
+
+	// Create a stringstream to hold the formatted message
+	std::stringstream ss( formattedMessage );
+
+	// Split the formatted string into lines and write each line to the history
+	std::string line;
+	while( std::getline( ss, line ) ) {
+		if( line.size( ) > MaxLineSize ) {
+			// Chop up long lines
+			for( size_t i = 0; i < line.size( ); i += MaxLineSize ) {
+				std::string substr = line.substr( i, MaxLineSize );
+				history.writeLine( substr.c_str( ) );
+			}
 		}
 		else {
-			strncpy( tbuf, ptr, size );
-			tbuf[ size ] = '\0';
-			size = 0;
-		}	
-		history.writeLine( tbuf );
+			history.writeLine( line.c_str( ) );
+		}
 	}
 }
 
 /* 
 ==============================================
-char *ConsoleSystem::getHistoryLines( int numLinesToGet, int pos )
+std::string ConsoleSystem::getHistoryLines( int numLinesToGet, int pos )
   get the last 'numLines' number of lines printed to console hi
 ==============================================
 */
-char *ConsoleSystem::getHistoryLines( int numLinesToGet, int pos ) {
+std::string ConsoleSystem::getHistoryLines( int numLinesToGet, int pos ) {
     static int lastPos = 0;
 
 	if( history.numLines < numLinesToGet - pos ) {
@@ -499,56 +494,36 @@ char *ConsoleSystem::getHistoryLines( int numLinesToGet, int pos ) {
 	}
 	if( history.numLines == 0 )
 	 {
-		return NULL;
+		return "";
 	}
 	int startLine = history.numLines - numLinesToGet - pos;
 	return history.getBuffer( startLine, startLine + numLinesToGet );
 }
 
-
 /* 
 ==============================================
-char *ConsoleSystem::History::getBuffer( int startline, int endline )
+ConsoleSystem::History::getBuffer( int startline, int endline )
 ==============================================
 */
-char *ConsoleSystem::History::getBuffer( int startline, int endline ) {
-    char linebuf[ MaxLineSize ];
-    int pos = 0;
-	int lineLength = 0;
+std::string ConsoleSystem::History::getBuffer( int startline, int endline ) {
+	std::string returnBuffer;
     
-	//incase we're shutting down
-	if(returnBuffer == NULL) {
-		return NULL;
-	}
-
-    //clear buffer
-    for( int x = 0; x < MaxReturnBufferSize; x++ ) {
-        returnBuffer[ x ] = 0;
-    }
-    for( ; startline < endline; startline++ ) {
-        if( lineLength >= MaxReturnBufferSize ) {
-            //TODO print message
-            return NULL;
-        }
-        strcpy( &linebuf[ 0 ], getLine( startline ) );
-		
-        lineLength = strlen( linebuf );
-        strcat( returnBuffer, linebuf );
-		strcat( returnBuffer, "\n" );
-        pos += lineLength;
+    for( auto i = startline; i < endline && i < numLines; i++ ) {
+        auto line = getLine( i );
+		returnBuffer += getLine( i );
+		returnBuffer += "\n";
     }
 	return returnBuffer;
 }
 
 /* 
 ==============================================
-void ConsoleSystem::History::writeLine( char *string )
+void ConsoleSystem::History::writeLine(  )
 ==============================================
 */
-void ConsoleSystem::History::writeLine( char *string ) {
+void ConsoleSystem::History::writeLine( std::string_view string ) {
     //write to current line
-    strcpy( lines[ currentLine ].text, string );
-    int length = strlen( string );
+	lines[ currentLine ].text = string;
     currentLine++;
         
 	if( numLines < MaxLines ) {
@@ -563,14 +538,14 @@ void ConsoleSystem::History::writeLine( char *string ) {
 
 /* 
 ==============================================
-char *ConsoleSystem::History::getLine( int lineToGet )
+ConsoleSystem::History::getLine( int lineToGet )
 ==============================================
 */
-char *ConsoleSystem::History::getLine( int lineToGet ) {
+std::string ConsoleSystem::History::getLine( int lineToGet ) {
     int firstLinePos, offset, pos;
     
     if( lineToGet >= numLines ) {
-        return NULL;
+		return "";
     }
     
     //calculate where first line is
@@ -595,41 +570,38 @@ char *ConsoleSystem::History::getLine( int lineToGet ) {
 
 /* 
 ==============================================
-char *ConsoleSystem::printMatches( const char *partial )
+ConsoleSystem::printMatches(  )
   used to show possible commands for user when they hit tab with a partial command
   returns match if only one found
-  otherwise it returns NULL
+  otherwise it returns nullptr
 
 TODO return string that matches given partial until the point where the matches no longer match up
 ==============================================
 */
 std::string ConsoleSystem::printMatches( std::string_view partial ) {
-	std::list< std::string* > matchList;
+	std::list< std::string* > matchList{};
 
 	int partialLength = partial.length();
 	int matchesFound = 0;
-	std::string lastMatch;	//last match found string
+	std::string lastMatch{};	//last match found string
 	
 	if( partialLength == 0 ) {
 		return std::string();
 	}
 
 	//convert to lowercase
-	std::string plcase = CgtString::strtolower( partial );
+	std::string plcase = CgtLib::strtolower( partial );
 	
-	//go through all commands
-	std::list< ConsoleCommand * >::iterator citer;
-	ConsoleCommand *ccurr;
-	for( citer = commands.begin(); citer != commands.end(); citer++ ) {
-		ccurr = ( ConsoleCommand* )( *citer );
-		std::string compstr = CgtString::strtolower( ccurr->name.c_str() );
+	//loop through all commands
+	for( auto &ccur : commands ) {
+		std::string compstr = CgtLib::strtolower( ccur->name );
 		
 		//if current command's name == partial
-		if( strncmp( compstr.c_str(), plcase.c_str(), partialLength ) == 0 ) {
+		if( compstr.compare( 0, partialLength, plcase ) == 0 ) {
 			//partial match made so add it to list
-			matchList.push_back( &ccurr->name );			
+			matchList.push_back( &ccur->name );			
 			matchesFound++;
-			lastMatch = ccurr->name;
+			lastMatch = ccur->name;
 		}	
 	}
 
@@ -643,7 +615,7 @@ std::string ConsoleSystem::printMatches( std::string_view partial ) {
 	std::string* cvar;
 	for( viter = nameList.begin(); viter != nameList.end(); viter++ ) {
 		cvar = ( std::string* )( *viter );
-		std::string compstr = CgtString::strtolower( cvar->c_str() );
+		std::string compstr = CgtLib::strtolower( cvar->c_str() );
 		
 		//if current variables name == partial
 		if( strncmp( compstr.c_str(), plcase.c_str(), partialLength ) == 0 ) {
@@ -669,7 +641,7 @@ std::string ConsoleSystem::printMatches( std::string_view partial ) {
 		cstr = ( std::string* )( *siter );
 		printMessage( cstr->c_str() );
 	}
-	//more than one match found so return null
+	//more than one match found so return nullptr
 	return std::string( "" );
 }
 
@@ -717,109 +689,99 @@ std::string ConsoleSystem::getNextRequest() {
 ==============================================
 void ConsoleSystem::loadCommandFile
 
-  TODO return exception?
-  TODO test
 ==============================================
 */
 void ConsoleSystem::loadCommandFile( std::string_view filename ) {
-	std::ifstream file( filename.data() );
+	std::ifstream file( filename.data( ) );
+	std::string line;
 
-	char line[ 256 ];
-	char *ptr;
-
-	if ( !file ) {
+	if( !file ) {
 		return;
 	}
-	
-	while( !file.eof() ) {
-		ptr = &line[0];
-		file.getline( ptr, 256 );
-				
-		//comment line ignore
-		if( strncmp( ptr, "//", 2 ) == 0 ) {
-			
-			continue;
-		}
-		//pass command to system
-		executeRequest( ptr, false );
+
+	while( std::getline( file, line ) ) {
+		// Find the position of the comment delimiter
+        size_t commentPos = line.find("//");
+		
+		// If the comment delimiter is found, remove the comment from the line
+        if (commentPos != std::string::npos) {
+            line = line.substr(0, commentPos);
+        }
+
+		// Remove whitespace
+        std::string trimmedLine = CgtLib::trimWhitespace(line);
+
+        // If the line is empty after removing comments and whitespace, skip it
+        if (trimmedLine.empty()) {
+            continue;
+        }
+
+		// Pass command to system
+		executeRequest(trimmedLine.c_str(), false );
 	}
 }
 
 /* 
 ==============================================
-void VariableFile::loadFile( const char *filename )
+void VariableFile::loadFile(  )
 
   TODO change this to use C++ strings/streams?
 ==============================================
 */
-void VariableFile::loadFile( const char *filename ) {
-	std::ifstream file( filename );
-	char line[ CMAXNAMESIZE ];
-	char valBuf[ 12 ];
-	char *ptr;
+void VariableFile::loadFile( std::string_view filename ) {
+	std::ifstream file( filename.data( ) );
+	std::string line;
+	std::string valBuf;
 
-	//check for error.  If file not here, most likely first run of program
-	if ( !file ) {
+	// Check for error. If file not here, most likely first run of program
+	if( !file ) {
 		return;
 	}
 
-	while( !file.eof() ) {
-		file.getline( line, CMAXNAMESIZE );
-		ptr = line;
-
+	while( std::getline( file, line ) ) {
 		DefinitionLine def;
-	
-		if( *ptr == 0 || *ptr == ' ' ) {
+
+		if( line.empty( ) || line.front( ) == ' ' ) {
 			def.blank = true;
 		}
-		
+
 		if( !def.blank ) {
-			//if a comment
-			if( ptr[ 0 ] == '/' && ptr[ 1 ] == '/' ) {
-				ptr = &ptr[ 2 ];
+			// If a comment
+			if( line.substr( 0, 2 ) == "//" ) {
 				def.comment = true;
 
-				//parse whole line and put in name
+				// Parse whole line and put in name
 				def.name = line;
 			}
 
-			//see if we have reached end of file
-			if( strncmp( ptr, "EOF", 3 ) == 0 ) {
+			// See if we have reached the end of file
+			if( line.substr( 0, 3 ) == "EOF" ) {
 				break;
 			}
 
 			if( !def.comment ) {
-				//find space position 
+				// Find space position
 				int spacePos = 0;
-				while( true ) {
-					if( ptr == NULL ) {
+				for( char c : line ) {
+					if( c == ' ' ) {
 						break;
 					}
-					if( *ptr == ' ' ) {
-						ptr++;
-						break;
-					}
-					ptr++;
 					spacePos++;
 				}
-				
-				//parse var name
-				//strncpy( def.name, line, spacePos );
-				def.name = line;
-				def.name = def.name.substr( 0, spacePos );
-				def.name[ spacePos ] = '\0';
 
-				//parse float value
-				//ptr = &ptr[ spacePos + 1 ];
-				strcpy( valBuf, ptr );
+				// Parse var name
+				def.name = line.substr( 0, spacePos );
+
+				// Parse float value
+				valBuf = line.substr( spacePos + 1 );
 			}
 
 			def.valstr = valBuf;
 		}
-		//put in new definition
-		vars.push_back( def );
+		// Put in new definition
+		definitionLines.push_back( def );
 	}
-	file.close();
+	file.close( );
 }
 
 /* 
@@ -829,7 +791,7 @@ VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varn
 */
 VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varname ) {
 	  //loop through vector
-	  for( auto &v : vars ) {
+	  for( auto &v : definitionLines ) {
 		  //check to see if def line is a comment or a blank
 		  if( v.blank || v.comment ) {
 			  continue;
@@ -840,18 +802,18 @@ VariableFile::DefinitionLine *VariableFile::getDefinition( std::string_view varn
 			  return &v;
 		  }
 	  }
-	  return NULL;
+	  return nullptr;
 }
 
 /* 
 ==============================================
-void VariableFile::saveFile( const char *filename, list< ConsoleVariable* > *vars )
+void VariableFile::saveFile
 
   TODO check to see that definition lines are memory managed properly
 ==============================================
 */
-void VariableFile::saveFile( const char *filename, Variables *vars ) {
-	std::ofstream file( filename );
+void VariableFile::saveFile( std::string_view filename, Variables *vars ) {
+	std::ofstream file( filename.data() );
 		
 	//get master name list
 	std::list< std::string* > masterNameList;
@@ -865,7 +827,7 @@ void VariableFile::saveFile( const char *filename, Variables *vars ) {
 		if( vars->getSaveVarToFile( *currVarName ) ) {
 			//try to find def
 			DefinitionLine *def = getDefinition( *(*i) );
-			if( def == NULL ) {
+			if( def == nullptr ) {
 				//def not found so create a new one
 				DefinitionLine newdef;
 				
@@ -876,7 +838,7 @@ void VariableFile::saveFile( const char *filename, Variables *vars ) {
 				newdef.valstr = vars->getValueString( *currVarName );
 
 				//add to definition list
-				this->vars.push_back( newdef );
+				this->definitionLines.push_back( newdef );
 			}
 			//def was found simply change it
 			else {
@@ -887,7 +849,7 @@ void VariableFile::saveFile( const char *filename, Variables *vars ) {
 	
 	//all vars with saveToFile status have now been added to line list 
 	//now write to file
-	for( auto v : this->vars ) {
+	for( auto v : this->definitionLines ) {
 		if( v.blank ) {
 			file << " \n";
 			continue;

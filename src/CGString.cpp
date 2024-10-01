@@ -1,26 +1,52 @@
 #include "precompiled.h"
 
 //#include "CGString.h"
-//#include < stdio.h > 
-#include < ctype.h > 
-#include < string.h >
+#include <string>
+
+using namespace CgtLib;
+
+/*
+==============================================
+trimWhitespace
+==============================================
+*/
+std::string_view CgtLib::trimWhitespace( std::string_view str ) {
+	auto first = str.find_first_not_of( " \t\r\n" );
+	if( first == std::string_view::npos ) {
+		return ""; // string is all whitespace
+	}
+	auto last = str.find_last_not_of( " \t\r\n" );
+	return str.substr( first, last - first + 1 );
+}
 
 
-using namespace CgtString;
+/*
+==============================================
+trimWhitespace
+==============================================
+*/
+std::string CgtLib::trimWhitespace( const std::string &str ) {
+	auto first = str.find_first_not_of( " \t\r\n" );
+	if( first == std::string_view::npos ) {
+		return ""; // string is all whitespace
+	}
+	auto last = str.find_last_not_of( " \t\r\n" );
+	return std::string{str.substr( first, last - first + 1 )};
+}
 
 /* 
 ==============================================
-CgtString::strtolower
+CgtLib::strtolower
 ==============================================
 */
-std::string CgtString::strtolower( std::string_view str) {
+std::string CgtLib::strtolower( std::string_view str) {
 	int length = str.length();
 	int x = 0;
 	std::string retStr;
 	retStr.resize( length );
 	
 	for( ; x < length; x++ ) 
-		retStr[ x ] = tolower( str[ x ] );
+		retStr[ x ] = static_cast<char>(tolower( str[ x ] ));
 	retStr[ x++ ] = '\0';
 
 	return retStr;
@@ -28,25 +54,25 @@ std::string CgtString::strtolower( std::string_view str) {
 
 /* 
 ==============================================
-bool CgtString::strcasecmp
+bool CgtLib::stringCaseCmp
 ==============================================
 */
-bool CgtString::strcasecmp( std::string_view str1, std::string_view str2 ) {
-	std::string cstr1 = CgtString::strtolower( str1 );
-	std::string cstr2 = CgtString::strtolower( str2 );
+bool CgtLib::stringCaseCmp( std::string_view str1, std::string_view str2 ) {
+	std::string cstr1 = CgtLib::strtolower( str1 );
+	std::string cstr2 = CgtLib::strtolower( str2 );
 	return cstr1 == cstr2;
 }
 
 /* 
 ==============================================
-std::string CgtString::toLower( const std::string &s )
+std::string CgtLib::toLower( const std::string &s )
 ==============================================
 */
-std::string CgtString::toLower( std::string_view s ) {
+std::string CgtLib::toLower( std::string_view s ) {
 	std::string retString;
 	retString.resize( s.length( ) );
 	for( unsigned int i = 0 ; i < s.length(); i++ ) 
-		retString[ i ] = tolower( s.at( i ) );
+		retString[ i ] = static_cast<char>(tolower( s.at( i ) ));
 	return retString;
 }
 
@@ -73,36 +99,37 @@ void StringTokenizer::clearStrings() {
 StringTokenizer::tokenize
 ==============================================
 */
-std::vector< std::string > StringTokenizer::tokenize( std::string_view str ) {
-	unsigned int pos = 0;
-	unsigned int lastPos = 0;
-	int tokensFound = 0;
-	
-	//used for determining if end of input string was passed
-	static const std::basic_string < char >::size_type npos = -1;
+std::vector<std::string> StringTokenizer::tokenize( std::string_view str ) {
+    std::string::size_type pos = 0;
+    std::string::size_type lastPos = 0;
+    std::string::size_type tokensFound = 0;
 
-	clearStrings();
+    clearStrings( );
 
-	while( pos < str.length() ) {
-		lastPos = pos;
-		
-		//if we have passed the amount of maxTokens that are allowed
-		//then put the rest of the string into the last token
-		if( maxTokens != 0 && tokensFound == maxTokens - 1 ) 
-			pos = str.length();		
-		pos = str.find_first_of( delims, pos );
-		if( pos == npos ) pos = str.length();
+    while( pos < str.length( ) ) {
+        lastPos = pos;
 
-		//create a new string and throw it in the tokens vector
-		std::string newStr ( str.substr( lastPos, pos - lastPos ) );
-		strings.push_back( newStr );
-		
-		pos++;
-		tokensFound++;
-	}
-	//ensure minSize number of strings are in vector
-	if( minTokens != 0 ) 
-		for( int x = strings.size(); x < minTokens; x++ ) 
-			strings.push_back( std::string( "" ) );
-	return strings;
+        if( maxTokens != 0 && tokensFound == maxTokens - 1 ) {
+            pos = str.length( );
+        }
+        pos = str.find_first_of( delims, pos );
+        if( pos == std::string::npos ) {
+            pos = str.length( );
+        }
+
+        std::string newStr( str.substr( lastPos, pos - lastPos ) );
+        strings.push_back( newStr );
+
+        pos++;
+        tokensFound++;
+    }
+    if( minTokens != 0 ) {
+        for( std::string::size_type x = strings.size( ); x < minTokens; x++ ) {
+            strings.push_back( std::string( "" ) );
+        }
+    }
+    return strings;
 }
+
+
+

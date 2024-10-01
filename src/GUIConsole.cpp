@@ -4,20 +4,17 @@
 
 #include "precompiled.h"
 
-//#include "GUIConsole.h"
-#include "GLGeneral.h"
-
-using namespace GUISystem;
-//using namespace Render;
-
+#include "GUIConsole.h"
 #include "Input.h"
 
-//turns off safe string warning
-#if _MSC_VER > 1000
-#pragma warning( disable : 4996 )
-#endif
+using namespace GUISystem;
 
-GUIConsole::GUIConsole():offset( 0 ) {
+#include <SDL_scancode.h>
+
+GUIConsole::GUIConsole(FrontEnd::InputSystem::Input* inputSystem) : 
+	offset( 0 )
+{
+	this->inputSystem = inputSystem;
 	initialize( "gui/console/console.gt" );
 	//initialize( "C:\\Users\\cgtro\\Documents\\2023 Repos\\Nes_Emulator\\gui\\console\\console.gt" );
 }
@@ -40,14 +37,14 @@ void GUIConsole::initialize( std::string guitextures ) {
 
 	try {
 		background.image = loadImage( gt.getNextTexture() );
-		background.image = convertToAlpha( 0,0,0,background.image );
-		createTexture( background.image, &background.imageid );
+		background.image.createGLTexture( );
 	}
 	catch( ImageException ) {
 		throw GUIElementInitializeException( "GUIConsole:", "error loading image" );
 	}
 	
 	editLine.setWidth( width );
+	editLine.setInputSystem( inputSystem );
 	
 	addChild( &editLine );	
 	
@@ -94,9 +91,9 @@ void GUIConsole::onRender() {
 	//if the output can not have changed then their
 	//is no reason to go through all these lines again
 	if( changed ) {
-		char *temp = consoleSystem->getHistoryLines( CONSOLE_LINES, offset );
+		std::string temp = consoleSystem->getHistoryLines( CONSOLE_LINES, offset );
 		
-		if( temp != NULL ) {
+		if( !temp.empty() ) {
 			history = temp;
 
 			//go through history string 
@@ -120,7 +117,7 @@ void GUIConsole::onRender() {
 			background.stretchType = GUISystem::ST_XY;
 		}
 			
-		drawList.push_back( background );
+		drawList.push_back( &background );
 		changed = false;
 	}
 }
@@ -142,13 +139,13 @@ void GUIConsole::ConsoleEditBox::onEnterKey() {
 	clearText();	
 }
 
-void GUIConsole::onKeyDown( uword key ) {
+void GUIConsole::onKeyDown( SDL_Keycode key ) {
 	std::string res;
 	
 	int origOffset = offset;
 	
 	switch( key ) {
-	case KB_PGUP:
+	case SDLK_PAGEUP:
 		//move up a line
 		offset++;
 		//offset can not be larger than number of total lines in history
@@ -156,25 +153,25 @@ void GUIConsole::onKeyDown( uword key ) {
 			offset--;
 		}
 		break;
-	case KB_PGDOWN:
+	case SDLK_PAGEDOWN:
 		//move down a line
 		offset--;
 		if( offset < 0 ) {
 			offset = 0;
 		}
 		break;
-	case KB_TAB:
+	case SDLK_TAB:
 		res = consoleSystem->printMatches( editLine.getText() );
 		if( !res.empty() ) {
 			editLine.setText( res );
 		}
 		changed = true;
 		break;
-	case KB_UP:
+	case SDLK_UP:
 		//get previous request
 		editLine.setText( consoleSystem->getPreviousRequest() );
 		break;
-	case KB_DOWN:
+	case SDLK_DOWN:
 		//get next request
 		editLine.setText( consoleSystem->getNextRequest() );
 		break;
@@ -189,7 +186,6 @@ void GUIConsole::setOpen( bool val ) {
 	GUIElement::setOpen( val );
 	using namespace FrontEnd;
 	using namespace InputSystem;
-	Input::getInstance()->setState( Input::NORMAL_MODE );
 }
 
 /*

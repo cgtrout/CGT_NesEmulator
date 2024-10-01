@@ -1,7 +1,6 @@
-#if !defined( NesPpuRegisters_INCLUDED )
-#define NesPpuRegisters_INCLUDED
+#pragma once
 
-namespace PpuSystem {
+namespace NesEmulator {
 	enum {
 		BGPRI_TYPE_FOREGROUND,
 		BGPRI_TYPE_BACKGROUND,
@@ -53,9 +52,11 @@ namespace PpuSystem {
 		
 		//these are the main registers used during
 		//rendering
-		uword vramAddress;	//main vram address
-		uword tempAddress;	//temp vram address
-		ubyte xOffset;		//tile x offset
+		//v, t, and x are the names used commonly in 
+		//emu docs
+		uword vramAddress;	//(v) Current VRAM address
+		uword tempAddress;	//(t) temp vram address
+		ubyte xOffset;		//(x) fine xscroll
 		
 		void incrementVramAddress();
 		
@@ -112,5 +113,3 @@ namespace PpuSystem {
 		void reset();
 	};
 };
-
-#endif //NesPpuRegisters_INCLUDED

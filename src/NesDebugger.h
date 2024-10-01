@@ -1,30 +1,31 @@
-#if !defined( NESDEBUGGER_INC )
-#define NESDEBUGGER_INC
+#pragma once
 
-#define MAX_BREAKPOINTS 256
-
-#include < string >
+#include <string>
 
 #include "CGTSingleton.h"
 using namespace CGTSingleton;
 
-#include "WinDebugger.h"
-
-
-
 typedef unsigned short uword;
 namespace NesEmulator {
+
+	class NesMain;
 	
 #ifndef LIGHT_BUILD 
 	class NesDebugger {
 	public:
 		void initialize();
 	    
+		//load debug window with text (disassembled lines)
 		void loadWindowText();
+
+		//update debugger - called once per frame
 		void updateDebugger();
+
+		//draw debugger using imgui
+		void draw( );
 		
 		//turn on single step mode
-		void setToSingleStepMode( uword address );
+		void setToSingleStepMode( uword address, std::string_view message );
 		
 		//turn off single step mode
 		void turnOffSingleStepMode();
@@ -41,7 +42,7 @@ namespace NesEmulator {
 		void clearSingleStepRequest() {doSingleStep = false;}
 
 		//request a single step
-		void singleStepRequest() {doSingleStep = true;}
+		void singleStepRequest( ) { doSingleStep = true; userMessage.clear( ); }
 
 		bool isBreakPointAt( uword address );
 		
@@ -51,6 +52,8 @@ namespace NesEmulator {
 		bool removeBreakPoint( uword address );
 		
 		bool isOpen();
+
+		//on keyboard 'enter' pressed
 		void onEnter();
 
 		//what is the location of the previous instruction to the instruction at "address"
@@ -58,32 +61,58 @@ namespace NesEmulator {
 		uword findNextInstructionLocation( uword address );
 
 		void setRenderPos( uword val );
-		void setSelectedAddress( uword address ) {selectedPos = address;}
-		uword getSelectedAddress() {return selectedPos;}
+		void setSelectedAddress( uword address ) {selectedAddress = address;}
+		uword getSelectedAddress() {return selectedAddress;}
 		void selectDissasemblerLine( int );
 
-		char *buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val );
+		std::string buildDebugLine( uword address, const opcodeLookUpTableEntry *l, ubyte opcode, ubyte byte1val, ubyte byte2val );
 			
-		NesDebugger();
+		NesDebugger( NesEmulator::NesMain *nesMain );
 		~NesDebugger();
 		
-		WinDebugger winDebugger;
 	private:
-		std::string buildOutputString( uword startAddress, const int length );
+		NesMain* nesMain;
+		NesMemory* memory;
+		
+		void buildDissassemblerLines( uword startAddress, const int length );
 		bool instructionIsPointingTo( uword opAddress, uword knownAddress );
 		bool isAPreviousValidInst( uword opAddress );
+		void drawWatchBox( const int index );
 		
 		bool singleStepMode;
 		bool doSingleStep;
 		bool justInSingleStepMode;
 
-		uword breakPoints[ MAX_BREAKPOINTS ];
-		uword numBreakPoints;
+		std::vector<uword> breakPoints;
 		uword renderPos;			//address pos to render from
 		uword selectedPos;
+		uword selectedAddress;
+
+		bool showDebugWindow;
+		bool showMemoryDump;
+		
+		uword dumpAddress;
+		std::string dumpAddressStr;
+		int dumpSize;
+		int memDumpType;
+		std::string loadMemoryDump(  );
+
+		struct DebugLine
+		{
+			uword address;
+			std::string line;
+
+			DebugLine( uword a, std::string l ) : address( a ), line( l ) {}
+		};
+
+		std::vector<DebugLine> debugLines;
+		int numDebugLines = 24;
+
+		std::array<char[ 5 ], 4> watchStrings;
+
+		std::string userMessage = "";	//allow c++ codebase to pass message to debugger at activation
 	};
 
 }
 
 #endif //LIGHT_BUILD
-#endif // !defined( NESDEBUGGER_INC )

@@ -1,27 +1,38 @@
 #include "precompiled.h"
 
-
-#include "Timer.h"
 //#include "CgtException.h"
 #include "Console.h"
+#include <SDL_audio.h>
+#include "SystemMain.h"
 
+#include <cstdint>
 
 using namespace FrontEnd;
 using namespace NesEmulator;
 
-#ifndef LIGHT_BUILD
+NesMain::NesMain( FrontEnd::SystemMain* systemMain ) :
+	systemMain( systemMain ),
+	nesDebugger( this ),
+	controllerSystem( &systemMain->input ),
+	nesCpu( &systemMain->nesMain ),
+	nesFile( &systemMain->nesMain ),
+	nesMemory( &systemMain->nesMain ),
+	nesPpu( &systemMain->nesMain )
+{
+	CyclesPerFrame = 89342u;//89342;
+	state = WaitingForFile;
+}
 		
-#endif
-		
-void NesMain::update() {
+void NesMain::runFrame() {
 	if( state != Emulating ) {
 		return;
 	}
-
 	//TODO ntsc / val handling
 	
 	//keep running this frame?
 	bool runFrame = true;
+
+	nesFile.displayInformationPanel( );
 
 	//update emulator systems for this frame
 	while( runFrame ) {
@@ -56,7 +67,7 @@ void NesMain::update() {
 			//calculate cpu overflow
 
 			PpuClockCycles vintTime = emulatorFlags.getFlagSetTime( FT_VINT );
-			cpuOverflow = nesCpu.getCC() + CpuToMaster( nesPpu.registers.executeNMIonVBlank * 7 ) - vintTime;
+			cpuOverflow = nesCpu.getCC() + CpuToPpu( nesPpu.registers.executeNMIonVBlank * 7 ) - vintTime;
 			
 			//cap master clock so we don't render the ppu past this frame
 			//masterClock = vintTime - 1;
@@ -68,13 +79,11 @@ void NesMain::update() {
 			}
 
 			if( nesApu.getCC() < vintTime ) {
-				systemMain->timeProfiler.stopSection( "Cpu" );
 				systemMain->timeProfiler.startSection( "Apu" );
 				
 				//_log->Write( "Updating APU" );
 				nesApu.runTo( vintTime );
 				
-				systemMain->timeProfiler.stopSection( "Apu" );
 				systemMain->timeProfiler.startSection( "Cpu" );
 			}
 
@@ -99,15 +108,27 @@ void NesMain::update() {
 		emulatorFlags.clearFlags();
 	}
 
+	//queue sound to sdl buffer
+	nesApu.queueSound( );
+
 	frameNum++;
+}
 
-	systemMain->timeProfiler.stopSection( "Cpu" );
-	systemMain->timeProfiler.startSection( "Render" );
-	
-	//render ppu output to PPUDraw
-	FrontEnd::SystemMain::getInstance()->renderer.ppuDraw.drawOutput( nesPpu.vidoutBuffer );
-
-	systemMain->timeProfiler.stopSection( "Render" );
+void NesMain::ApuCpuSync( ) {
+	if( nesApu.getCC( ) < nesCpu.getCC( ) ) {
+		nesApu.runTo( nesCpu.getCC( ) );
+	}
+}
+void NesMain::PpuCpuSync( ) {
+	if( nesPpu.getCC( ) < nesCpu.getCC( ) ) {
+		//specify to update until sprite 0 is found
+		//TODO will this work in all cases??
+		//if( nesPpu.registers.status.sprite0Time == 0 ) {
+		//	nesPpu.renderBuffer( nesCpu.getCC(), PpuSystem::UF_Sprite0 );
+		//} else {
+		nesPpu.renderBuffer( nesCpu.getCC( ) );
+		//}
+	}
 }
 
 void NesMain::reset() {
@@ -121,15 +142,6 @@ void NesMain::reset() {
 	nesPpu.reset();
 }
 
-NesMain::NesMain() {
-	try {
-		timer = Timer::getInstance();
-	}
-	catch ( CgtException *e ) {
-		_log->Write( "%s: %s", e->getHeader().c_str(), e->getMessage().c_str() );
-		exit( 0 );
-	}
-	
-	CyclesPerFrame = 89342;//89342;
-	state = WaitingForFile;
+void NesEmulator::NesMain::enableStepDebugging( std::string_view message ) {
+	nesDebugger.setToSingleStepMode( nesCpu.getPC( ), message );
 }
